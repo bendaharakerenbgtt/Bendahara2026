@@ -304,7 +304,13 @@ function insertTransaction(p) {
                        ketLower.includes("bayar kas") ||
                        ketLower.startsWith("kas ");
 
-  const jenis = p.jenis || (isKasPayment ? "Masuk" : "Keluar");
+  const isIncome = isKasPayment || 
+                   catLower.includes("htm") || 
+                   catLower.includes("donasi") || 
+                   ketLower.includes("htm") || 
+                   ketLower.includes("donasi");
+
+  const jenis = p.jenis || (isIncome ? "Masuk" : "Keluar");
   const today = new Date().toISOString().substring(0, 10);
 
   // Save image to Google Drive if it's base64
