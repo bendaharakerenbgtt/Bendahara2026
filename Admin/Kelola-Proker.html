@@ -1162,7 +1162,8 @@
                         items.forEach(item => {
                             const itemNominal = Number(item.nominal) || 0;
                                                         const jenis = (item.jenis || "").trim().toLowerCase();
-                            const isMasuk = ["masuk", "donasi", "htm"].includes(jenis);
+                            const kategori = (item.kategori || "").trim().toLowerCase();
+                            const isMasuk = (jenis && jenis !== "keluar") || ["masuk"].includes(jenis) || ["donasi", "htm"].includes(kategori);
                             const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
                             const signText = isMasuk ? '+' : '-';
                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
