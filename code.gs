@@ -386,7 +386,14 @@ function insertTransaction(p) {
   const newId = getNextTransactionId(sheet);
 
   let finalKet = p.keterangan || "";
-  let finalCatatan = driveUrl;
+  let finalCatatan = p.catatan || "";
+  if (driveUrl) {
+    if (finalCatatan) {
+      finalCatatan += " (Bukti: " + driveUrl + ")";
+    } else {
+      finalCatatan = driveUrl;
+    }
+  }
 
   if (isKasPayment) {
     finalKet = memberName ? "Kas " + memberName : (p.keterangan || "Kas Anggota");
