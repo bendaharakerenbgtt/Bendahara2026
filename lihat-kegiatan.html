@@ -984,16 +984,12 @@
                     const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
                     
                     const totalIn = prokerTx
-                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'masuk')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+                    const totalOut = 0;
 
-                    const totalOut = prokerTx
-                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'keluar')
-                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-
-                    const netSaldo = totalIn - totalOut;
-                    const netSign = netSaldo >= 0 ? '' : '-';
-                    const netClass = netSaldo >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+                    const netSaldo = totalIn;
+                    const netSign = '+';
+                    const netClass = 'text-emerald-400 font-bold';
 
                     const categoriesMap = {};
                     prokerTx.forEach(tx => {
@@ -1010,12 +1006,11 @@
                     for (const [catName, txs] of Object.entries(categoriesMap)) {
                         const catTotal = txs.reduce((sum, tx) => {
                             const val = Number(tx.nominal) || 0;
-                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
-                            return sum + (isM ? val : -val);
+                            return sum + val;
                         }, 0);
 
-                        const catSign = catTotal >= 0 ? '+' : '-';
-                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+                        const catSign = '+';
+                        const catClass = 'text-emerald-400 font-bold';
 
                         let tableRowsHtml = '';
                         txs.forEach(tx => {
