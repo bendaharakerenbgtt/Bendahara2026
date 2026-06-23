@@ -959,15 +959,54 @@
                         const catSign = catTotal >= 0 ? '+' : '-';
                         const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
 
+                        let tableRowsHtml = '';
+                        items.forEach(item => {
+                            const itemNominal = Number(item.nominal) || 0;
+                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
+                            const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
+                            const signText = isMasuk ? '+' : '-';
+                            const dateFormatted = item.tanggal.split('-').reverse().join('/');
+                            
+                            let detailsCardHtml = '';
+                            if (item.catatan && !item.catatan.includes('https://') && !item.catatan.startsWith('KAS_') && !item.catatan.startsWith('PROKER_')) {
+                                detailsCardHtml = `
+                                    <div class="mt-1 p-1.5 bg-neutral-900 border border-neutral-850 rounded-lg text-neutral-400 text-[9px]">
+                                        <span>${item.catatan}</span>
+                                    </div>
+                                `;
+                            }
+
+                            tableRowsHtml += `
+                                <tr class="hover:bg-neutral-900/10 transition-colors border-b border-neutral-900/10 last:border-0" id="tx-row-${item.id}">
+                                    <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono text-[9px]">${dateFormatted}</td>
+                                    <td class="p-2 font-sans align-top">
+                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${item.keterangan}</span>
+                                        ${detailsCardHtml}
+                                        <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+                                            <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-bold">Metode: ${item.metode}</span>
+                                            ${item.nama_pic_pengeluar ? `<span class="text-[8px] text-amber-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-bold font-mono uppercase">PIC: ${item.nama_pic_pengeluar}</span>` : ''}
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-right align-top whitespace-nowrap">
+                                        <div class="flex items-center justify-end gap-1.5 sm:gap-2.5">
+                                            <span class="text-[11px] sm:text-xs font-mono font-bold ${signColor}">${signText}Rp${itemNominal.toLocaleString('id-ID')}</span>
+                                            <button type="button" onclick="lepasTransaksi('${item.id}')" class="inline-flex items-center justify-center w-5.5 h-5.5 text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/20 border border-neutral-850 rounded-md transition-all active:scale-95 cursor-pointer" title="Lepas Transaksi">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+
                         categoriesHtml += `
                             <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2" id="cat-block-${p.id}-${catIndex}">
                                 <div onclick="toggleCategoryAccordion('${p.id}', '${catIndex}')" class="p-2 sm:p-3 bg-neutral-900/30 flex items-center justify-between cursor-pointer hover:bg-neutral-900/50 transition-colors">
                                     <div class="flex items-center gap-1.5 sm:gap-2.5">
-                                        <svg class="w-3.5 h-3.5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                        </svg>
-                                        <span class="text-[10px] sm:text-xs font-bold tracking-tight text-cyan-400 uppercase font-sans truncate">${catName}</span>
-                                        <span class="text-[8px] sm:text-[9px] bg-neutral-900 text-neutral-400 font-sans px-1.5 py-0.5 rounded border border-neutral-850 font-medium whitespace-nowrap">${items.length} Item</span>
+                                        <span class="text-[10px] sm:text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">📁 ${catName}</span>
+                                        <span class="text-[8px] sm:text-[9px] bg-neutral-900 text-neutral-400 font-mono px-1.5 py-0.5 rounded border border-neutral-850 font-medium whitespace-nowrap">${items.length} Item</span>
                                     </div>
                                     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                         <div class="text-[9px] sm:text-[10px] font-mono text-right leading-none whitespace-nowrap">
@@ -975,6 +1014,7 @@
                                         </div>
                                         <button type="button" onclick="lepasKategori('${p.id}', '${catName}', 'cat-block-${p.id}-${catIndex}'); event.stopPropagation();" class="flex items-center gap-1 text-red-400 hover:text-red-300 text-[8px] sm:text-[9px] font-sans font-bold bg-neutral-900 border border-neutral-800 hover:bg-red-950/20 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-lg transition-colors cursor-pointer">
                                             <span class="hidden sm:inline">Lepas Kategori</span>
+                                            <span class="inline sm:hidden">Lepas</span>
                                         </button>
                                         <span id="cat-arrow-${p.id}-${catIndex}" class="inline-block text-neutral-600 transition-transform duration-200">
                                             <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -985,34 +1025,19 @@
                                 </div>
 
                                 <div id="cat-content-${p.id}-${catIndex}" class="hidden border-t border-neutral-900/40 bg-neutral-950/10">
-                                    <div class="divide-y divide-neutral-900/30 text-neutral-300">
-                                        ${items.map(item => {
-                                            const itemNominal = Number(item.nominal) || 0;
-                                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
-                                            const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
-                                            const signText = isMasuk ? '+' : '-';
-                                            const dateFormatted = item.tanggal.split('-').reverse().join('/');
-                                            return `
-                                                <div class="p-3 sm:p-3.5 flex items-start justify-between gap-3 sm:gap-4 hover:bg-neutral-900/10 transition-colors border-b border-neutral-900/10 last:border-0" id="tx-row-${item.id}">
-                                                    <div class="flex-grow min-w-0 flex flex-col gap-1.5">
-                                                        <div class="flex flex-wrap items-center gap-1.5 text-[8px] sm:text-[9px] font-mono text-neutral-500">
-                                                            <span class="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800 font-medium text-neutral-400">${dateFormatted}</span>
-                                                            <span class="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800 font-sans font-bold uppercase tracking-wider text-neutral-400">Metode: ${item.metode}</span>
-                                                            ${item.nama_pic_pengeluar ? `<span class="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800 font-sans font-bold uppercase tracking-wider text-amber-500">PIC: ${item.nama_pic_pengeluar}</span>` : ''}
-                                                        </div>
-                                                        <h4 class="text-[11px] sm:text-xs font-bold text-neutral-100 leading-normal">${item.keterangan}</h4>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 sm:gap-3 shrink-0 self-start mt-0.5">
-                                                        <span class="text-[11px] sm:text-xs font-mono font-bold ${signColor}">${signText}Rp${itemNominal.toLocaleString('id-ID')}</span>
-                                                        <button type="button" onclick="lepasTransaksi('${item.id}')" class="inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/20 border border-neutral-800 rounded-lg transition-all active:scale-95 cursor-pointer">
-                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            `;
-                                        }).join('')}
+                                    <div class="overflow-x-auto w-full">
+                                        <table class="w-full text-left border-collapse text-[10px] font-mono">
+                                            <thead>
+                                                <tr class="bg-neutral-900/20 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900/30">
+                                                    <th class="p-2 w-20 whitespace-nowrap">Tanggal</th>
+                                                    <th class="p-2">Rincian Transaksi</th>
+                                                    <th class="p-2 text-right w-28 whitespace-nowrap">Jumlah & Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-neutral-900/30 text-neutral-300">
+                                                ${tableRowsHtml}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -1129,15 +1154,54 @@
                         const catSign = catTotal >= 0 ? '+' : '-';
                         const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
 
+                        let tableRowsHtml = '';
+                        items.forEach(item => {
+                            const itemNominal = Number(item.nominal) || 0;
+                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
+                            const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
+                            const signText = isMasuk ? '+' : '-';
+                            const dateFormatted = item.tanggal.split('-').reverse().join('/');
+                            
+                            let detailsCardHtml = '';
+                            if (item.catatan && !item.catatan.includes('https://') && !item.catatan.startsWith('KAS_') && !item.catatan.startsWith('PROKER_')) {
+                                detailsCardHtml = `
+                                    <div class="mt-1 p-1.5 bg-neutral-900 border border-neutral-850 rounded-lg text-neutral-400 text-[9px]">
+                                        <span>${item.catatan}</span>
+                                    </div>
+                                `;
+                            }
+
+                            tableRowsHtml += `
+                                <tr class="hover:bg-neutral-900/10 transition-colors border-b border-neutral-900/10 last:border-0" id="tx-row-${item.id}">
+                                    <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono text-[9px]">${dateFormatted}</td>
+                                    <td class="p-2 font-sans align-top">
+                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${item.keterangan}</span>
+                                        ${detailsCardHtml}
+                                        <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+                                            <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-bold">Metode: ${item.metode}</span>
+                                            ${item.nama_pic_pengeluar ? `<span class="text-[8px] text-amber-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-bold font-mono uppercase">PIC: ${item.nama_pic_pengeluar}</span>` : ''}
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-right align-top whitespace-nowrap">
+                                        <div class="flex items-center justify-end gap-1.5 sm:gap-2.5">
+                                            <span class="text-[11px] sm:text-xs font-mono font-bold ${signColor}">${signText}Rp${itemNominal.toLocaleString('id-ID')}</span>
+                                            <button type="button" onclick="lepasTransaksi('${item.id}')" class="inline-flex items-center justify-center w-5.5 h-5.5 text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/20 border border-neutral-850 rounded-md transition-all active:scale-95 cursor-pointer" title="Lepas Transaksi">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+
                         categoriesHtml += `
                             <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2" id="cat-block-${p.id}-${catIndex}">
                                 <div onclick="toggleCategoryAccordion('${p.id}', '${catIndex}')" class="p-2 sm:p-3 bg-neutral-900/30 flex items-center justify-between cursor-pointer hover:bg-neutral-900/50 transition-colors">
                                     <div class="flex items-center gap-1.5 sm:gap-2.5">
-                                        <svg class="w-3.5 h-3.5 text-cyan-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                        </svg>
-                                        <span class="text-[10px] sm:text-xs font-bold tracking-tight text-cyan-400 uppercase font-sans truncate">${catName}</span>
-                                        <span class="text-[8px] sm:text-[9px] bg-neutral-900 text-neutral-400 font-sans px-1.5 py-0.5 rounded border border-neutral-850 font-medium whitespace-nowrap">${items.length} Item</span>
+                                        <span class="text-[10px] sm:text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">📁 ${catName}</span>
+                                        <span class="text-[8px] sm:text-[9px] bg-neutral-900 text-neutral-400 font-mono px-1.5 py-0.5 rounded border border-neutral-850 font-medium whitespace-nowrap">${items.length} Item</span>
                                     </div>
                                     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                         <div class="text-[9px] sm:text-[10px] font-mono text-right leading-none whitespace-nowrap">
@@ -1145,6 +1209,7 @@
                                         </div>
                                         <button type="button" onclick="lepasKategori('${p.id}', '${catName}', 'cat-block-${p.id}-${catIndex}'); event.stopPropagation();" class="flex items-center gap-1 text-red-400 hover:text-red-300 text-[8px] sm:text-[9px] font-sans font-bold bg-neutral-900 border border-neutral-800 hover:bg-red-950/20 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-lg transition-colors cursor-pointer">
                                             <span class="hidden sm:inline">Lepas Kategori</span>
+                                            <span class="inline sm:hidden">Lepas</span>
                                         </button>
                                         <span id="cat-arrow-${p.id}-${catIndex}" class="inline-block text-neutral-600 transition-transform duration-200">
                                             <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -1155,34 +1220,19 @@
                                 </div>
 
                                 <div id="cat-content-${p.id}-${catIndex}" class="hidden border-t border-neutral-900/40 bg-neutral-950/10">
-                                    <div class="divide-y divide-neutral-900/30 text-neutral-300">
-                                        ${items.map(item => {
-                                            const itemNominal = Number(item.nominal) || 0;
-                                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
-                                            const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
-                                            const signText = isMasuk ? '+' : '-';
-                                            const dateFormatted = item.tanggal.split('-').reverse().join('/');
-                                            return `
-                                                <div class="p-3 sm:p-3.5 flex items-start justify-between gap-3 sm:gap-4 hover:bg-neutral-900/10 transition-colors border-b border-neutral-900/10 last:border-0" id="tx-row-${item.id}">
-                                                    <div class="flex-grow min-w-0 flex flex-col gap-1.5">
-                                                        <div class="flex flex-wrap items-center gap-1.5 text-[8px] sm:text-[9px] font-mono text-neutral-500">
-                                                            <span class="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800 font-medium text-neutral-400">${dateFormatted}</span>
-                                                            <span class="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800 font-sans font-bold uppercase tracking-wider text-neutral-400">Metode: ${item.metode}</span>
-                                                            ${item.nama_pic_pengeluar ? `<span class="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800 font-sans font-bold uppercase tracking-wider text-amber-500">PIC: ${item.nama_pic_pengeluar}</span>` : ''}
-                                                        </div>
-                                                        <h4 class="text-[11px] sm:text-xs font-bold text-neutral-100 leading-normal">${item.keterangan}</h4>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 sm:gap-3 shrink-0 self-start mt-0.5">
-                                                        <span class="text-[11px] sm:text-xs font-mono font-bold ${signColor}">${signText}Rp${itemNominal.toLocaleString('id-ID')}</span>
-                                                        <button type="button" onclick="lepasTransaksi('${item.id}')" class="inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/20 border border-neutral-800 rounded-lg transition-all active:scale-95 cursor-pointer">
-                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            `;
-                                        }).join('')}
+                                    <div class="overflow-x-auto w-full">
+                                        <table class="w-full text-left border-collapse text-[10px] font-mono">
+                                            <thead>
+                                                <tr class="bg-neutral-900/20 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900/30">
+                                                    <th class="p-2 w-20 whitespace-nowrap">Tanggal</th>
+                                                    <th class="p-2">Rincian Transaksi</th>
+                                                    <th class="p-2 text-right w-28 whitespace-nowrap">Jumlah & Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-neutral-900/30 text-neutral-300">
+                                                ${tableRowsHtml}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
