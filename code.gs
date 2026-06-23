@@ -20,7 +20,7 @@ const SHEET_NAME_KEGIATAN    = "kegiatan";
 
 // Default header fallback jika spreadsheet kosong/tidak memiliki header
 const defaultTransactionHeaders = [
-  "id_transaksi", "tanggal", "keterangan", "id_anggota", "proker_id", 
+  "id_transaksi", "tanggal", "keterangan", "id_anggota", "id_kegiatan", 
   "jenis", "metode", "kategori", "nominal", "catatan", "status_reimburse", "created_at", "updated_at"
 ];
 
@@ -125,7 +125,7 @@ function getAllData() {
       keterangan: getVal(t, "keterangan") || "",
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
       proker_id: (() => {
-        const val = getVal(t, "proker_id");
+        const val = getVal(t, "id_kegiatan") !== undefined ? getVal(t, "id_kegiatan") : getVal(t, "proker_id");
         if (val === undefined || val === null) return "";
         const valStr = val.toString().trim();
         return valStr.toLowerCase() === "null" ? "" : valStr;
@@ -664,8 +664,8 @@ function appendRowByHeader(sheet, obj, defaultHeaders) {
       const t = getVal(obj, "id_transaksi") || getVal(obj, "id transaksi") || getVal(obj, "id");
       if (t !== undefined) return t;
     }
-    if (h === "id_kegiatan" || h === "id kegiatan" || h === "id") {
-      const k = getVal(obj, "id_kegiatan") || getVal(obj, "id kegiatan") || getVal(obj, "id");
+    if (h === "id_kegiatan" || h === "id kegiatan" || h === "id" || h === "proker_id" || h === "proker id") {
+      const k = getVal(obj, "id_kegiatan") || getVal(obj, "id") || getVal(obj, "proker_id") || getVal(obj, "proker id");
       if (k !== undefined) return k;
     }
     
@@ -746,6 +746,12 @@ function updateColumnById(sheet, id, colName, newValue) {
   let col = headers.indexOf(colUnderscore);
   if (col === -1) col = headers.indexOf(colSpace);
   if (col === -1) col = headers.indexOf(targetColName);
+  
+  // Alias fallback for proker_id / id_kegiatan
+  if (col === -1 && (targetColName === "proker_id" || targetColName === "proker id" || targetColName === "id_kegiatan" || targetColName === "id kegiatan")) {
+    col = headers.indexOf("id_kegiatan");
+    if (col === -1) col = headers.indexOf("proker_id");
+  }
   
   if (idCol === -1 || col === -1) return false;
 
