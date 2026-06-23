@@ -419,10 +419,10 @@
         
         <div class="grid grid-cols-2 gap-2 p-1 bg-neutral-950 border border-neutral-900 rounded-xl">
             <button onclick="switchProkerTab('running')" id="tab-btn-running" class="py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-amber-400 cursor-pointer">
-                💼 Program Kerja Berjalan
+                💼 Kegiatan Berjalan
             </button>
             <button onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer">
-                ✅ Program Kerja Selesai
+                ✅ Kegiatan Selesai
             </button>
         </div>
 
@@ -915,7 +915,7 @@
             const selesaiContainer = document.getElementById('panel-proker-selesai');
             selesaiContainer.innerHTML = '<span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block pl-1">DAFTAR KEGIATAN SELESAI</span>';
 
-            const running = localProkers.filter(p => p.status === "Running");
+            const running = localProkers.filter(p => p.status === "Running" || p.status === "Berjalan");
             const selesai = localProkers.filter(p => p.status === "Selesai");
 
             if (running.length === 0) {
@@ -1534,6 +1534,20 @@
                 const text = row.getAttribute('data-text') || '';
                 row.style.display = text.includes(query) ? 'flex' : 'none';
             });
+        }
+
+        function bukaModalLinkData(id, name) {
+            activeProkerId = id;
+            const targetNameEl = document.getElementById('modalTargetEventName');
+            if (targetNameEl) {
+                targetNameEl.textContent = name;
+            }
+            const modalEl = document.getElementById('modalLinkData');
+            if (modalEl) {
+                modalEl.classList.remove('hidden');
+            }
+            switchFilterTx('Masuk');
+            populateModalTransactions();
         }
 
         function tutupModalLinkData() { 
