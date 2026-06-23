@@ -45,6 +45,20 @@ function doGet(e) {
       const data = sheet.getDataRange().getValues();
       return jsonResponse({ status: "success", data: data.slice(0, 200) });
     }
+    if (action === "diagnose_sheets") {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const sheets = ss.getSheets();
+      const diag = {};
+      sheets.forEach(s => {
+        const name = s.getName();
+        const r = s.getDataRange().getValues();
+        diag[name] = {
+          headers: (r[0] || []).map(h => h.toString()),
+          firstRow: (r[1] || []).map(v => v.toString())
+        };
+      });
+      return jsonResponse({ status: "success", data: diag });
+    }
     return jsonResponse({ status: "error", message: "Action tidak dikenal: " + action });
   } catch (err) {
     return jsonResponse({ status: "error", message: err.toString() });
