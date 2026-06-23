@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanaIMIP — Info Kegiatan LDKIMIP</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --bg-emerald-pill: rgba(16, 185, 129, 0.08);
+            --border-emerald-pill: rgba(16, 185, 129, 0.20);
+            --text-emerald-accent: #34d399;
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            --header-bg: rgba(14, 17, 26, 0.4);
+            --modal-bg: rgba(7, 9, 14, 0.95);
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Button variables */
+            --btn-cyan-bg: #06b6d4;
+            --btn-cyan-text: #07090e;
+            --btn-cyan-hover: #22d3ee;
+
+            --btn-green-bg: #22c55e;
+            --btn-green-text: #07090e;
+            --btn-green-hover: #4ade80;
+
+            /* Accent glow variables */
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --scrollbar-track: #07080c;
+            --scrollbar-thumb: #1f2937;
+            --scrollbar-hover: #374151;
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-emerald-pill: rgba(4, 120, 87, 0.06);
+            --border-emerald-pill: rgba(4, 120, 87, 0.18);
+            --text-emerald-accent: #047857;
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            --header-bg: rgba(240, 245, 242, 0.6);
+            --modal-bg: rgba(240, 245, 242, 0.96);
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Button variables overrides */
+            --btn-cyan-bg: #0f766e;
+            --btn-cyan-text: #ffffff;
+            --btn-cyan-hover: #115e59;
+
+            --btn-green-bg: #15803d;
+            --btn-green-text: #ffffff;
+            --btn-green-hover: #166534;
+
+            /* Shadow & glow adjustments */
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+            --scrollbar-track: #e2ece7;
+            --scrollbar-thumb: #b0c3b7;
+            --scrollbar-hover: #98b0a1;
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .modal-scroll::-webkit-scrollbar { width: 5px; }
+        .modal-scroll::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        .modal-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 9999px; }
+        .modal-scroll::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .tab-hidden { display: none !important; }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+
+        .text-neutral-700 {
+            color: var(--text-sec-500) !important;
+            transition: color 0.4s ease;
+        }
+
+        .text-neutral-800 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* Cyan indicators, buttons, & inputs */
+        .bg-cyan-950\/40 { 
+            background-color: var(--bg-cyan-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-cyan-500\/20 { 
+            border-color: var(--border-cyan-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-cyan-400 { 
+            color: var(--text-cyan-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-cyan-500 {
+            background-color: var(--btn-cyan-bg) !important;
+            color: var(--btn-cyan-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-cyan-500:hover, .hover\:bg-cyan-400:hover, .hover\:bg-cyan-600:hover {
+            background-color: var(--btn-cyan-hover) !important;
+        }
+        .focus\:border-cyan-500:focus {
+            border-color: var(--text-cyan-accent) !important;
+        }
+        .accent-cyan-400 {
+            accent-color: var(--text-cyan-accent) !important;
+        }
+        
+        /* Green indicators & buttons */
+        .bg-green-950\/40 { 
+            background-color: var(--bg-green-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-green-500\/20 { 
+            border-color: var(--border-green-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-green-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-green-500 {
+            background-color: var(--btn-green-bg) !important;
+            color: var(--btn-green-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-green-500:hover {
+            background-color: var(--btn-green-hover) !important;
+        }
+        .accent-green-400 {
+            accent-color: var(--text-green-accent) !important;
+        }
+        
+        /* Emerald indicators, selection & tabs */
+        .bg-emerald-950 { 
+            background-color: var(--bg-emerald-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-emerald-900\/60 { 
+            border-color: var(--border-emerald-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-emerald-400 { 
+            color: var(--text-emerald-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-emerald-500 {
+            background-color: var(--btn-green-bg) !important;
+            color: var(--btn-green-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-emerald-500:hover, .hover\:bg-emerald-400:hover, .hover\:bg-emerald-600:hover {
+            background-color: var(--btn-green-hover) !important;
+        }
+        .focus\:border-emerald-500:focus {
+            border-color: var(--text-emerald-accent) !important;
+        }
+        .accent-emerald-400 {
+            accent-color: var(--text-emerald-accent) !important;
+        }
+        
+        /* Amber indicators */
+        .bg-amber-950\/40 { 
+            background-color: var(--bg-amber-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-amber-500\/20 { 
+            border-color: var(--border-amber-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        /* Rose indicators */
+        .text-rose-400 { 
+            color: var(--text-rose-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        /* WA Cash Overrides for Light Mode */
+        html.light-mode .bg-emerald-950\/40 {
+            background-color: rgba(21, 128, 61, 0.08) !important;
+        }
+        html.light-mode .border-emerald-800\/40 {
+            border-color: rgba(21, 128, 61, 0.25) !important;
+        }
+        html.light-mode .text-emerald-400 {
+            color: #15803d !important;
+        }
+
+        html.light-mode .bg-rose-950\/20 {
+            background-color: rgba(225, 29, 72, 0.08) !important;
+        }
+        html.light-mode .border-rose-900\/40 {
+            border-color: rgba(225, 29, 72, 0.25) !important;
+        }
+        html.light-mode .text-rose-400 {
+            color: #be123c !important;
+        }
+        
+        /* Header, Modals, and Footer */
+        header {
+            border-bottom-color: var(--border-card) !important;
+            background-color: var(--header-bg) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+
+        #paymentWizardModal, #successModal { 
+            background-color: var(--modal-bg) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        footer { 
+            border-color: var(--footer-border) !important; 
+            background-color: var(--footer-bg) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        /* Hover Effects */
+        .hover\:border-cyan-500\/30:hover { 
+            border-color: var(--hover-cyan-border) !important; 
+        }
+        .hover\:border-green-500\/30:hover { 
+            border-color: var(--hover-green-border) !important; 
+        }
+        .hover\:border-amber-500\/30:hover { 
+            border-color: var(--hover-amber-border) !important; 
+        }
+        .hover\:border-neutral-700:hover { 
+            border-color: var(--hover-neutral-border) !important; 
+        }
+        
+        /* Selection Override */
+        body::selection, body *::selection {
+            background-color: var(--bg-emerald-pill) !important;
+            color: var(--text-emerald-accent) !important;
+        }
+
+        /* SweetAlert2 Dynamic Styling */
+        .swal2-popup { 
+            background: var(--bg-card) !important; 
+            border: 1px solid var(--border-card) !important; 
+            border-radius: 1rem !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+        }
+        .swal2-title { 
+            color: var(--text-primary) !important; 
+            font-size: 14px !important; 
+            font-family: 'Plus Jakarta Sans', sans-serif !important; 
+            font-weight: bold !important; 
+        }
+        .swal2-confirm { 
+            background-color: var(--text-green-accent) !important; 
+            color: var(--bg-main) !important; 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            border-radius: 0.5rem !important; 
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Receipt Modal Styles */
+        #receipt-modal > div {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-card) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+        
+        /* Premium Loading Overlay */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
+            50% { transform: translate(-14px, -12px); opacity: 0.6; }
+        }
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
+            50% { transform: translate(14px, -14px); opacity: 0.55; }
+        }
+        @keyframes pulse-sun {
+            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+        .animate-drift-cloud-1 {
+            animation: drift-cloud-1 6s infinite ease-in-out;
+        }
+        .animate-drift-cloud-2 {
+            animation: drift-cloud-2 8s infinite ease-in-out;
+        }
+        .animate-pulse-sun {
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400">
+
+    <!-- PREMIUM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <!-- Spinner Ring Outer -->
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            
+            <!-- Floating Elements Inside -->
+            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
+                <!-- Glowing Sun in background (Top-Left above Masjid) -->
+                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
+                <!-- Drifting Cloud 1 (Left side above Masjid) -->
+                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
+                <!-- Drifting Cloud 2 (Right side above Masjid) -->
+                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
+                <!-- Floating Masjid in Center-Bottom -->
+                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            </div>
+            
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+        </div>
+    </div>
+
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
+        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold">
+            <span>←</span> <span>Dashboard</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                🌙
+            </button>
+            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold text-emerald-400 hidden sm:inline">
+                Info Kegiatan LDK IMIP
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
+        
+        <div class="flex flex-col gap-1 border-b border-neutral-900 pb-4">
+            <h2 class="text-xl font-bold text-white tracking-tight">Daftar Seluruh Kegiatan LDK IMIP</h2>
+            <p class="text-xs text-neutral-400">Disini berisi rincian finansial program kerja LDK IMIP. Jika ada keliruan dalam informasi, silakan hubungi admin.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 p-1 bg-neutral-950 border border-neutral-900 rounded-xl">
+            <button onclick="switchProkerTab('running')" id="tab-btn-running" class="py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-emerald-400 cursor-pointer">
+                💼 Program Kerja Berjalan
+            </button>
+            <button onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer">
+                ✅ Program Kerja Selesai
+            </button>
+        </div>
+
+        <div id="panel-proker-running" class="flex flex-col gap-4">
+            <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block pl-1">KEGIATAN BERJALAN</span>
+            
+            <div id="running-proker-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Program Kerja Berjalan dimasukkan secara dinamis -->
+            </div>
+        </div>
+
+        <div id="panel-proker-selesai" class="flex flex-col gap-3 tab-hidden">
+            <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block pl-1">DAFTAR KEGIATAN SELESAI</span>
+            
+            <div id="completed-proker-list" class="flex flex-col gap-3">
+                 <!-- Program Kerja Selesai dimasukkan secara dinamis -->
+            </div>
+        </div>
+    </main>
+
+    <div id="paymentWizardModal" class="hidden fixed inset-0 z-50 bg-neutral-950/95 backdrop-blur-xl flex flex-col justify-between p-4 font-sans">
+        
+        <div class="flex items-center justify-between border-b border-neutral-900 pb-3">
+            <div class="flex flex-col">
+                <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-bold">PEMBAYARAN KEPANITIAAN / EVENT</span>
+                <h3 id="wizardTitleName" class="text-sm font-bold text-white">Nama Event</h3>
+            </div>
+            <button onclick="closePaymentWizard()" class="text-neutral-400 hover:text-white text-xs font-mono bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg cursor-pointer">Batal ✕</button>
+        </div>
+
+        <form action="#" method="GET" id="prokerPaymentForm" class="flex-grow flex flex-col justify-between py-4 gap-4 overflow-y-auto no-scrollbar">
+            <input type="hidden" id="wizardProkerId">
+
+            <div id="wizardStepConfirm" class="flex flex-col gap-4">
+                <div class="bg-neutral-950 border border-neutral-900 p-4 sm:p-5 rounded-xl flex flex-col gap-3.5">
+                    <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-bold">Langkah 1: Verifikasi NIM</span>
+                    
+                    <div>
+                        <label class="text-[9px] font-mono uppercase text-neutral-400 block mb-1 font-bold font-sans">MASUKKAN NIM ANDA</label>
+                        <input type="text" id="nimInput" placeholder="Masukkan NIM Anda..." autocomplete="off" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono tracking-widest text-center">
+                        <div id="nimInputFeedback" class="hidden mt-2 text-[10px] font-mono text-red-500 text-center"></div>
+                    </div>
+
+                    <div id="verifiedInfoCard" class="hidden p-3 bg-emerald-950/20 border border-emerald-500/30 rounded-xl flex flex-col gap-1 text-center">
+                        <span class="text-[8px] font-mono text-emerald-400 font-bold uppercase tracking-wider">Identitas Terverifikasi ✓</span>
+                        <div id="verifiedName" class="text-xs font-bold text-white font-sans mt-1">Nama Pengurus</div>
+                        <div id="verifiedDivisi" class="text-[9px] text-neutral-400 font-mono">Divisi Pengurus</div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="verifyNIM()" class="w-full bg-emerald-500 text-neutral-950 font-mono text-xs py-3 rounded-xl font-bold tracking-wider text-center transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer">
+                    VERIFIKASI NIM ➔
+                </button>
+            </div>
+
+            <div id="wizardStep1" class="hidden flex flex-col gap-4">
+                <input type="hidden" id="realUserId">
+
+                <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3">
+                    <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block mb-1">2. Detail Pembayaran</span>
+                    
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[9px] font-mono uppercase text-neutral-400 block font-bold">Keperluan Pembayaran</label>
+                        <select id="kategoriSelect" onchange="toggleCustomKategori()" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono">
+                            <option value="HTM Registrasi">HTM Registrasi</option>
+                            <option value="Donasi Sukarela">Donasi Sukarela</option>
+                            <option value="Lainnya">Lainnya (Tulis Manual)</option>
+                        </select>
+                        <input type="text" id="kategoriCustomInput" placeholder="Tulis keperluan custom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 mt-2 font-sans">
+                        <input type="hidden" id="realKategoriInput" value="HTM Registrasi">
+                    </div>
+
+                    <div>
+                        <label class="text-[9px] font-mono uppercase text-neutral-400 block mb-1 font-bold font-sans">Nominal Pembayaran (Rp)</label>
+                        <input type="text" id="iuranNominalInput" placeholder="0" onkeyup="formatRibuanInstan(this)" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono">
+                        <input type="hidden" id="realNominalInput">
+                    </div>
+                </div>
+
+                <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl">
+                    <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block mb-2 font-bold">3. Pilih Metode Pembayaran</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border border-neutral-800 bg-neutral-900 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer text-xs font-mono text-neutral-200">
+                            <input type="radio" name="metode" value="GoPay" checked onclick="toggleMethodView('GoPay')" class="accent-emerald-400"> 📱 QRIS Digital
+                        </label>
+                        <label class="border border-neutral-800 bg-neutral-900 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer text-xs font-mono text-neutral-200">
+                            <input type="radio" name="metode" value="Tunai" onclick="toggleMethodView('Tunai')" class="accent-green-400"> 🤝 Cash
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" onclick="goToStep2()" class="w-full bg-emerald-500 text-neutral-950 font-mono text-xs py-3 rounded-xl font-bold tracking-wider text-center mt-2 cursor-pointer">
+                    LANJUT KE PEMBAYARAN ➔
+                </button>
+            </div>
+
+            <div id="wizardStep2" class="hidden flex flex-col gap-4">
+                <div class="bg-emerald-950/30 p-4 rounded-xl text-center flex flex-col gap-1">
+                    <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-wider font-bold">TOTAL TAGIHAN</span>
+                    <div id="wizardTotalNominalText" class="text-2xl font-black text-white font-mono tracking-tight">Rp0</div>
+                </div>
+
+                <div id="qrisPaymentArea" class="flex flex-col gap-4">
+                    <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col items-center gap-3 text-center">
+                        <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block">PINDAI KODE QRIS DANAIMIP DIBAWAH INI</span>
+                        
+                        <div class="w-52 h-52 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
+                            <img src="qris.jpeg" alt="QRIS KAS IMIP" class="w-full h-full object-contain rounded-lg">
+                        </div>
+
+                        <a href="qris.jpeg" target="_blank" download="QRIS_KAS_IMIP.jpeg" class="inline-flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-[10px] font-mono px-4 py-2 rounded-lg transition-colors active:scale-95">
+                            📥 Download Kode QRIS
+                        </a>
+                    </div>
+
+                    <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl flex flex-col gap-2">
+                        <label class="text-[9px] font-mono uppercase text-neutral-400 block">Upload Foto Bukti Transfer</label>
+                        <input type="file" id="buktiTransferInput" accept="image/*" class="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-mono file:font-bold file:bg-neutral-900 file:text-emerald-400 border border-neutral-800 rounded-lg p-1.5 bg-neutral-900/40">
+                        
+                        <div id="imagePreviewContainer" class="hidden mt-2 border border-neutral-800/80 bg-neutral-900/20 p-2.5 rounded-lg flex flex-col gap-2">
+                            <div class="flex items-center gap-2 justify-between">
+                                <span class="text-[8px] font-mono text-neutral-500 uppercase">Preview</span>
+                                <span id="imageReductionInfo" class="text-[8px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/30 px-1.5 py-0.5 rounded"></span>
+                            </div>
+                            <div class="relative w-full aspect-video rounded-md overflow-hidden bg-neutral-950 border border-neutral-900 flex items-center justify-center">
+                                <img id="imagePreview" src="" alt="Preview Bukti" class="max-h-full max-w-full object-contain">
+                                <div id="resizeSpinner" class="absolute inset-0 bg-neutral-950/80 flex flex-col items-center justify-center gap-1.5 text-neutral-300 text-[10px] font-mono">
+                                    <div class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Mengompres Foto...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cashAppointmentArea" class="hidden flex flex-col gap-3 bg-neutral-950 border border-neutral-900 p-4 rounded-xl">
+                    <div class="text-center pb-2 border-b border-neutral-900">
+                        <span class="text-[10px] font-mono text-green-400 uppercase font-bold tracking-wider">Mekanisme Cash Lapangan</span>
+                        <p class="text-[11px] text-neutral-400 font-light mt-1">Silakan klik tombol di bawah untuk janjian ketemuan langsung dengan bendahara organisasi:</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-2.5 pt-1">
+                        <a href="https://wa.me/6289603102069?text=Assalamu'alaikum%20Bendahara" target="_blank" class="w-full bg-emerald-950/40 border border-emerald-800/40 text-emerald-400 p-3 rounded-xl flex items-center justify-between font-sans text-xs active:scale-95 transition-transform">
+                            <div class="flex flex-col text-left">
+                                <span class="font-bold block">Hubungi Bendahara Organisasi 🧑🏻‍💼</span>
+                                <span class="text-[9px] text-neutral-500 font-light mt-0.5">Konfirmasi penyerahan iuran tunai</span>
+                            </div>
+                            <span class="text-base">➔</span>
+                        </a>
+                    </div>
+                </div>
+
+                <button type="button" onclick="triggerLocalhostSuccess()" id="submitFormButton" class="w-full bg-green-500 text-neutral-950 font-mono text-xs py-3 rounded-xl font-bold tracking-wider text-center cursor-pointer">
+                    SELESAI & KIRIM LAPORAN ✓
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="successModal" class="hidden fixed inset-0 z-50 bg-neutral-950/90 backdrop-blur-md flex items-center justify-center p-5">
+        <div class="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-sm w-full text-center flex flex-col items-center gap-4 shadow-xl">
+            <div class="w-12 h-12 rounded-full bg-green-950 border border-green-500/30 flex items-center justify-center text-xl">🚀</div>
+            <div>
+                <h3 class="text-sm font-bold text-white font-sans">Laporan Berhasil Terkirim!</h3>
+                <p class="text-[11px] text-neutral-400 font-light mt-1.5 leading-relaxed">
+                    Laporan anda kirim akan segera diupdate oleh admin setelah verifikasi selesai. Jika ada kendala, silakan hubungi admin.
+                </p>
+            </div>
+            <button onclick="closeSuccessModal()" class="w-full bg-emerald-500 text-neutral-950 font-mono text-xs py-2.5 rounded-xl font-black block tracking-wider">
+                KEMBALI KE DASHBOARD
+            </button>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div class="relative bg-neutral-900 border border-neutral-800 max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-neutral-800 p-4">
+                <span class="text-xs font-mono font-bold tracking-wider text-emerald-400 uppercase">Lampiran Bukti Resmi</span>
+                <button onclick="closeReceiptModal()" class="w-6 h-6 rounded-lg bg-neutral-950 border border-neutral-800 text-xs font-mono text-neutral-500 hover:text-white hover:border-neutral-600 transition-all cursor-pointer">✕</button>
+            </div>
+            <div class="p-4 flex-grow flex items-center justify-center overflow-auto bg-neutral-950/40">
+                <img id="receipt-img-preview" src="" alt="Bukti Pembayaran" class="max-w-full max-h-[50vh] object-contain rounded-lg border border-neutral-900/60 shadow-lg">
+            </div>
+            <div class="border-t border-neutral-800 p-3 text-center bg-neutral-950/20">
+                <a id="receipt-download-link" href="#" download class="text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-colors py-1.5 px-3 border border-neutral-800 hover:border-emerald-500/20 rounded-lg inline-block bg-neutral-900/60" target="_blank">
+                    Unduh File Lampiran ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center mt-6">
+        <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP SYSTEM © 2026</span>
+    </footer>
+
+    <script>
+        function switchProkerTab(target) {
+            sessionStorage.setItem('activePublicProkerTab', target);
+            const pRunning = document.getElementById('panel-proker-running');
+            const pSelesai = document.getElementById('panel-proker-selesai');
+            const btnRunning = document.getElementById('tab-btn-running');
+            const btnSelesai = document.getElementById('tab-btn-selesai');
+            if (!pRunning || !pSelesai || !btnRunning || !btnSelesai) return;
+            if (target === 'running') {
+                pRunning.classList.remove('tab-hidden');
+                pSelesai.classList.add('tab-hidden');
+                btnRunning.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-emerald-400 cursor-pointer";
+                btnSelesai.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer";
+            } else {
+                pRunning.classList.add('tab-hidden');
+                pSelesai.classList.remove('tab-hidden');
+                btnRunning.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer";
+                btnSelesai.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-emerald-400 cursor-pointer";
+            }
+        }
+
+        function toggleProkerAccordion(id) {
+            const content = document.getElementById(`p-content-${id}`); 
+            const arrow = document.getElementById(`p-arrow-${id}`);
+            const isLight = document.documentElement.classList.contains('light-mode');
+            if(content.classList.contains('hidden')) { 
+                content.classList.remove('hidden'); 
+                arrow.style.transform = 'rotate(180deg)'; 
+                arrow.style.color = isLight ? '#047857' : '#10b981';
+            } else { 
+                content.classList.add('hidden'); 
+                arrow.style.transform = 'rotate(0deg)'; 
+                arrow.style.color = isLight ? '#938479' : '#525252'; 
+            }
+        }
+ 
+        function toggleCategoryAccordion(prokerId, index) {
+            const content = document.getElementById(`cat-content-${prokerId}-${index}`);
+            const arrow = document.getElementById(`cat-arrow-${prokerId}-${index}`);
+            const isLight = document.documentElement.classList.contains('light-mode');
+            if(content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+                arrow.style.color = isLight ? '#047857' : '#34d399';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+                arrow.style.color = isLight ? '#938479' : '#525252';
+            }
+        }
+
+        function formatRibuanInstan(input) {
+            let angka = input.value.replace(/[^0-9]/g, ''); 
+            if (angka !== '') { 
+                input.value = parseInt(angka).toLocaleString('id-ID'); 
+                document.getElementById('realNominalInput').value = angka;
+            } else { 
+                input.value = ''; 
+                document.getElementById('realNominalInput').value = '';
+            }
+        }
+
+        function getReceiptPath(tx) {
+            if (!tx.catatan) return null;
+            const c = tx.catatan.trim();
+            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
+                return c;
+            }
+            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
+            if (urlMatch) return urlMatch[0];
+            
+            const base64Match = c.match(/data:image\/[^\s)]+/);
+            if (base64Match) return base64Match[0];
+            
+            return null;
+        }
+
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc4KjFANk2dGnw18Vw07aXlJ8BLJ1-VrAPQ2Oj35v0LnmLennIA19Z5eJIyLl4N1ad/exec";
+
+        let selectedMethod = 'GoPay';
+        let compressedImageBase64 = '';
+        let pengurusList = [];
+        let allProkers = [];
+        let allTransactions = [];
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(() => overlay.remove(), 400);
+            }
+        }
+
+        function fetchInitialData(forceRefresh = false) {
+            if (!GOOGLE_SCRIPT_URL) {
+                // Simulation Fallback
+                pengurusList = [
+                    { id: "1", name: "Hafiz Alfariz", nim: "2490444040", divisi: "Pimpinan Utama" },
+                    { id: "2", name: "Fadly Ahmad Chandi", nim: "2490345034", divisi: "Pimpinan Utama" },
+                    { id: "3", name: "Talitha Ranti Ardiningrum", nim: "2490343152", divisi: "Pimpinan Utama" },
+                    { id: "4", name: "Mutiah Nurul Hasanah", nim: "2470405103", divisi: "Biro Kesekretariatan" },
+                    { id: "5", name: "Azizah Putri Firjatullah", nim: "2594406017", divisi: "Biro Kesekretariatan" },
+                    { id: "6", name: "Salsabila Dwi Rahma", nim: "2470405135", divisi: "Biro Kesekretariatan" },
+                    { id: "7", name: "Riski Raditiya", nim: "2490343138", divisi: "Biro Bendahara" },
+                    { id: "8", name: "Rifki Tabah Maulana", nim: "2570404111", divisi: "Biro Bendahara" },
+                    { id: "9", name: "Luthfiah Mufidah", nim: "2594406035", divisi: "Biro Bendahara" },
+                    { id: "10", name: "Nurul Kamilah", nim: "2470402063", divisi: "Departemen Kaderisasi" },
+                    { id: "11", name: "Faridah Rihadatul 'Aisy", nim: "2470402026", divisi: "Departemen Kaderisasi" },
+                    { id: "12", name: "Abdul Malik", nim: "2521408001", divisi: "Departemen Kaderisasi" },
+                    { id: "13", name: "Umar", nim: "2570404123", divisi: "Departemen Kaderisasi" },
+                    { id: "14", name: "Asiah", nim: "2590442025", divisi: "Departemen Kaderisasi" },
+                    { id: "15", name: "Nazala Aulia Sulton Firdausy", nim: "2594406045", divisi: "Departemen Kaderisasi" },
+                    { id: "16", name: "Fayaliq Syabab Muhammad", nim: "2490343049", divisi: "Departemen Syi'ar Islam" },
+                    { id: "17", name: "Wilda Sulistia Ariani", nim: "2490442151", divisi: "Departemen Syi'ar Islam" },
+                    { id: "18", name: "Almalia Azzahra Wally", nim: "2490343013", divisi: "Departemen Syi'ar Islam" },
+                    { id: "19", name: "Rosyid Raihan Syah", nim: "2470405133", divisi: "Departemen Syi'ar Islam" },
+                    { id: "20", name: "Arsya Khairu Biaggi", nim: "2591471012", divisi: "Departemen Syi'ar Islam" },
+                    { id: "21", name: "Dimas Alfianoci Sadiyo", nim: "2490444030", divisi: "Departemen Syi'ar Islam" },
+                    { id: "22", name: "Muhammad Naufal Aziz Mustaqhfir", nim: "2591471059", divisi: "Departemen Syi'ar Islam" },
+                    { id: "23", name: "Ardelia Benita Irma", nim: "2591361013", divisi: "Departemen Syi'ar Islam" },
+                    { id: "24", name: "Rida Dzakiyyah", nim: "2590343127", divisi: "Departemen Syi'ar Islam" },
+                    { id: "25", name: "Rifa'i Rasyidin", nim: "2490343137", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "26", name: "Arrafi Malik Satrio", nim: "2470405026", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "27", name: "Ahmad Zahir Ashari", nim: "2490343011", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "28", name: "Abid Dziaulhaai Faisholi", nim: "2570405001", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "29", name: "Agung Fachreza", nim: "2590343005", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "30", name: "Rasya Abhirama", nim: "2594406042", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "31", name: "Najwa Azmi", nim: "2590343123", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "32", name: "Sarah Muthmainnah Prayogo", nim: "2590331052", divisi: "Departemen Sosial Masyarakat" },
+                    { id: "33", name: "Muhammad Iqbal Addin", nim: "2491471055", divisi: "Departemen HuMed" },
+                    { id: "34", name: "Muhammad Haris", nim: "2490343090", divisi: "Departemen HuMed" },
+                    { id: "35", name: "Bintang Chikal Raya", nim: "2591471019", divisi: "Departemen HuMed" },
+                    { id: "36", name: "Fatih Rahmat Ubaidillah", nim: "2590345041", divisi: "Departemen HuMed" },
+                    { id: "37", name: "Ilham Maulana", nim: "2490444043", divisi: "Departemen HuMed" },
+                    { id: "38", name: "Fajar Saputra", nim: "2491471025", divisi: "Departemen HuMed" },
+                    { id: "39", name: "Adilah Qudsi Fathiyya", nim: "2590345001", divisi: "Departemen HuMed" },
+                    { id: "40", name: "Nadisa Zahra", nim: "2570404091", divisi: "Departemen HuMed" },
+                    { id: "41", name: "Muhammad Raihan Rionaldho", nim: "2421408023", divisi: "Divisi UUS" },
+                    { id: "42", name: "Edriyan Valevi", nim: "2421408008", divisi: "Divisi UUS" },
+                    { id: "43", name: "Muhammad Fitra Robbani", nim: "2591361059", divisi: "Divisi UUS" },
+                    { id: "44", name: "Muhammad Doddy Bakar Nur Junior", nim: "2591361056", divisi: "Divisi UUS" },
+                    { id: "45", name: "Salsabilah Ramadhani", nim: "2590345115", divisi: "Divisi UUS" }
+                ];
+                allProkers = [
+                    { id: "22", nama_proker: "Kajian Akbar Semesta Iman", status: "Running", estimasi_dana: 1500000 },
+                    { id: "23", nama_proker: "Tabligh Akbar Bersama Masyarakat", status: "Running", estimasi_dana: 3000000 },
+                    { id: "11", nama_proker: "Gema Ramadhan Kampus 2026", status: "Selesai", estimasi_dana: 5000000 }
+                ];
+                allTransactions = [
+                    { id: "TX-1", tanggal: "2026-03-20", keterangan: "HTM Registrasi Peserta Terkumpul", user_id: "1", proker_id: "11", jenis: "Masuk", metode: "GoPay", kategori: "Registrasi & Dana Masuk", nominal: 2500000, status_reimburse: "Tidak Perlu", catatan: "" },
+                    { id: "TX-2", tanggal: "2026-03-25", keterangan: "Pembelian Snack Pembicara & Tamu", user_id: "2", proker_id: "11", jenis: "Keluar", metode: "Tunai", kategori: "Konsumsi & Logistik", nominal: 350000, status_reimburse: "Tidak Perlu", catatan: "Snack box" },
+                    { id: "TX-3", tanggal: "2026-03-26", keterangan: "Pemesanan Nasi Kotak Buka Bersama", user_id: "2", proker_id: "11", jenis: "Keluar", metode: "GoPay", kategori: "Konsumsi & Logistik", nominal: 1500000, status_reimburse: "Tidak Perlu", catatan: "Nasi ayam" }
+                ];
+                renderProkers();
+                hideLoadingOverlay();
+                return;
+            }
+
+            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_TTL = 15000; // 15 seconds cache
+
+            if (forceRefresh) {
+                sessionStorage.removeItem(CACHE_KEY);
+                sessionStorage.removeItem(CACHE_TIME_KEY);
+            }
+
+            const cachedData = sessionStorage.getItem(CACHE_KEY);
+            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+
+            if (cachedData && cachedTime) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    if (data && data.status === "success") {
+                        pengurusList = data.anggota || [];
+                        allProkers = data.proker || [];
+                        allTransactions = data.transaksi || [];
+                        renderProkers();
+                        hideLoadingOverlay();
+
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            console.log("Using fresh cache for Lihat-Kegiatan");
+                            return;
+                        }
+                        console.log("Using stale cache, fetching fresh data in background...");
+                    }
+                } catch (e) {
+                    console.error("Cache load error:", e);
+                }
+            }
+
+            fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+
+                        pengurusList = data.anggota || [];
+                        allProkers = data.proker || [];
+                        allTransactions = data.transaksi || [];
+                        renderProkers();
+                    } else {
+                        console.error("Gagal mengambil data:", data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching data:", err);
+                })
+                .finally(() => {
+                    hideLoadingOverlay();
+                });
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return "";
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`; // Convert YYYY-MM-DD to DD/MM/YYYY
+            }
+            return dateStr;
+        }
+
+        function getMemberName(memberId) {
+            if (!memberId) return "-";
+            const member = pengurusList.find(m => m.id.toString() === memberId.toString());
+            return member ? member.name : "-";
+        }
+
+        function renderProkers() {
+            const runningListContainer = document.getElementById('running-proker-list');
+            const completedListContainer = document.getElementById('completed-proker-list');
+            if (!runningListContainer || !completedListContainer) return;
+
+            runningListContainer.innerHTML = '';
+            completedListContainer.innerHTML = '';
+
+            const runningProkers = allProkers.filter(p => p.status === 'Running');
+            const completedProkers = allProkers.filter(p => p.status === 'Selesai');
+
+            // 1. Render Running Prokers
+            if (runningProkers.length === 0) {
+                runningListContainer.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-xs text-neutral-500 font-mono italic">
+                        Belum ada program kerja berjalan.
+                    </div>
+                `;
+            } else {
+                runningProkers.forEach(proker => {
+                    const totalIn = allTransactions
+                        .filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu' && t.jenis === 'Masuk')
+                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+
+                    const cardHtml = `
+                        <div class="bg-neutral-950 border border-neutral-900 p-5 rounded-xl relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-xs">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <span class="text-[8px] font-mono px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded uppercase font-bold tracking-wider">
+                                        ${proker.jenis || "Program Kerja"}
+                                    </span>
+                                    <span class="text-[9px] font-mono text-neutral-500 font-bold">ID: #${proker.id}</span>
+                                </div>
+                                <h3 class="text-xs font-bold text-neutral-100 tracking-tight font-sans leading-snug">${proker.nama_proker}</h3>
+                                
+                                <div class="grid grid-cols-1 gap-1 text-[9px] font-mono text-neutral-400 mt-2.5 pt-2 border-t border-neutral-900/60">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-neutral-500 shrink-0">Divisi:</span>
+                                        <span class="text-neutral-300 font-sans truncate">${proker.divisi || "-"}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-neutral-500 shrink-0">Ketua:</span>
+                                        <span class="text-neutral-300 font-sans truncate font-semibold">${getMemberName(proker.id_anggota)}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-neutral-500 shrink-0">Tanggal:</span>
+                                        <span class="text-neutral-300 font-sans">${proker.estimasi_tanggal || "-"} (${proker.tahun || new Date().getFullYear()})</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                        <span class="text-neutral-500 shrink-0">RAB Estimasi:</span>
+                                        <span class="text-cyan-400 font-bold">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-t border-neutral-900 flex flex-col gap-3">
+                                <div>
+                                    <span class="text-[8px] font-mono uppercase text-neutral-500 block">Total Dana Terkumpul</span>
+                                    <div class="text-base font-bold text-emerald-400 font-mono mt-0.5">
+                                        Rp ${totalIn.toLocaleString('id-ID')}
+                                    </div>
+                                </div>
+                                
+                                <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-mono text-[9px] font-bold py-2 rounded-lg transition-transform active:scale-95 text-center cursor-pointer">
+                                    IKUT SERTA / BAYAR IURAN ➔
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    runningListContainer.innerHTML += cardHtml;
+                });
+            }
+
+            // 2. Render Completed Prokers
+            if (completedProkers.length === 0) {
+                completedListContainer.innerHTML = `
+                    <div class="py-8 text-center text-xs text-neutral-500 font-mono italic">
+                        Belum ada program kerja yang selesai.
+                    </div>
+                `;
+            } else {
+                completedProkers.forEach(proker => {
+                    const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
+                    
+                    const totalIn = prokerTx
+                        .filter(t => t.jenis === 'Masuk')
+                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+
+                    const totalOut = prokerTx
+                        .filter(t => t.jenis === 'Keluar')
+                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+
+                    const netSaldo = totalIn - totalOut;
+                    const netSign = netSaldo >= 0 ? '' : '-';
+                    const netClass = netSaldo >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+
+                    const categoriesMap = {};
+                    prokerTx.forEach(tx => {
+                        const cat = tx.kategori || "Lainnya";
+                        if (!categoriesMap[cat]) {
+                            categoriesMap[cat] = [];
+                        }
+                        categoriesMap[cat].push(tx);
+                    });
+
+                    let categoriesHtml = '';
+                    let catIdx = 0;
+
+                    for (const [catName, txs] of Object.entries(categoriesMap)) {
+                        const catTotal = txs.reduce((sum, tx) => {
+                            const val = Number(tx.nominal) || 0;
+                            return sum + (tx.jenis === 'Masuk' ? val : -val);
+                        }, 0);
+
+                        const catSign = catTotal >= 0 ? '+' : '-';
+                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+
+                        let tableRowsHtml = '';
+                        txs.forEach(tx => {
+                            let detailsCardHtml = '';
+                            if (tx.catatan && !tx.catatan.includes('https://') && !tx.catatan.startsWith('KAS_') && !tx.catatan.startsWith('PROKER_')) {
+                                detailsCardHtml = `
+                                    <div class="mt-1.5 p-2 bg-neutral-900 border border-neutral-800 rounded-lg font-mono text-[9px] text-neutral-400">
+                                        <span class="text-neutral-300">${tx.catatan}</span>
+                                    </div>
+                                `;
+                            }
+
+                            const receiptPath = getReceiptPath(tx);
+                            let attachmentBtn = '';
+                            if (receiptPath) {
+                                attachmentBtn = `
+                                    <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-emerald-950 text-neutral-400 hover:text-emerald-400 border border-neutral-900 hover:border-emerald-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
+                                        📂 Lihat Bukti
+                                    </button>
+                                `;
+                            }
+
+                            const formattedDate = formatDateShort(tx.tanggal);
+                            const sign = tx.jenis === 'Masuk' ? '+' : '-';
+                            const valColor = tx.jenis === 'Masuk' ? 'text-emerald-400' : 'text-rose-400';
+
+                            tableRowsHtml += `
+                                <tr class="hover:bg-neutral-900/10 transition-colors">
+                                    <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono">${formattedDate}</td>
+                                    <td class="p-2 font-sans align-top">
+                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${tx.keterangan}</span>
+                                        ${detailsCardHtml}
+                                        <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+                                            <span class="text-[8px] text-neutral-600 bg-neutral-900 inline-block px-1.5 py-0.5 rounded uppercase">Metode: ${tx.metode}</span>
+                                            ${attachmentBtn}
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-right font-bold align-top whitespace-nowrap ${valColor}">${sign}Rp ${parseFloat(tx.nominal).toLocaleString('id-ID')}</td>
+                                </tr>
+                            `;
+                        });
+
+                        categoriesHtml += `
+                            <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2">
+                                <div onclick="toggleCategoryAccordion('${proker.id}', '${catIdx}')" class="p-3 bg-neutral-900/30 flex items-center justify-between cursor-pointer hover:bg-neutral-900/50 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-mono font-bold tracking-wider text-emerald-400 uppercase">📁 ${catName}</span>
+                                        <span class="text-[8px] bg-neutral-900 text-neutral-500 font-mono px-1.5 py-0.5 rounded-md border border-neutral-800">${txs.length} Item</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-[9px] font-mono text-right leading-none">
+                                            <span class="${catClass}">${catSign}Rp ${(Math.abs(catTotal)).toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <span id="cat-arrow-${proker.id}-${catIdx}" class="text-[9px] text-neutral-600 transition-transform">▼</span>
+                                    </div>
+                                </div>
+
+                                <div id="cat-content-${proker.id}-${catIdx}" class="hidden border-t border-neutral-900/40 bg-neutral-950/10">
+                                    <div class="overflow-x-auto w-full">
+                                        <table class="w-full text-left border-collapse text-[10px] font-mono">
+                                            <thead>
+                                                <tr class="bg-neutral-900/20 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900/30">
+                                                    <th class="p-2 w-20 whitespace-nowrap">Tanggal</th>
+                                                    <th class="p-2">Rincian Transaksi</th>
+                                                    <th class="p-2 text-right w-24 whitespace-nowrap">Jumlah</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-neutral-900/30 text-neutral-300">
+                                                ${tableRowsHtml}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        catIdx++;
+                    }
+
+                    const prokerHtml = `
+                        <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
+                            <div class="p-4 flex items-center justify-between bg-neutral-900/10 border-b border-neutral-900/50">
+                                <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer overflow-hidden pr-2">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="text-[8px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400 font-bold uppercase tracking-wider">${proker.jenis || "Program Kerja"}</span>
+                                        <h3 class="text-xs font-bold text-neutral-200 truncate font-mono tracking-wide uppercase">${proker.nama_proker}</h3>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8px] font-mono text-neutral-500 mt-1.5 leading-none">
+                                        <span>Divisi: <span class="text-neutral-300">${proker.divisi || "-"}</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Ketua: <span class="text-neutral-300 font-semibold">${getMemberName(proker.id_anggota)}</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Tanggal: <span class="text-neutral-300">${proker.estimasi_tanggal || "-"} (${proker.tahun || new Date().getFullYear()})</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Estimasi RAB: <span class="text-neutral-300">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Sisa Kas Akhir: <span class="${netClass}">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="text-[10px] text-neutral-600 cursor-pointer pl-1 transition-transform">▼</span>
+                                </div>
+                            </div>
+
+                            <div id="p-content-${proker.id}" class="hidden p-3 bg-neutral-900/20 flex flex-col gap-3">
+                                ${categoriesHtml || `<div class="text-center py-4 text-[10px] text-neutral-500 italic font-mono">Belum ada rincian transaksi approved.</div>`}
+
+                                <div class="grid grid-cols-3 gap-2.5 font-mono text-[10px] text-center">
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px]">TOTAL IN</span>
+                                        <span class="text-emerald-400 font-bold">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px]">TOTAL OUT</span>
+                                        <span class="text-rose-400 font-bold">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-emerald-500 text-emerald-400">
+                                        <span class="text-neutral-500 text-[8px]">SALDO BERSIH</span>
+                                        <span class="font-black">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    completedListContainer.innerHTML += prokerHtml;
+                });
+            }
+        }
+
+        window.openReceiptModal = function(src) {
+            const modal = document.getElementById('receipt-modal');
+            const img = document.getElementById('receipt-img-preview');
+            const link = document.getElementById('receipt-download-link');
+            
+            let placeholder = document.getElementById('drive-receipt-placeholder');
+            const isDrive = src.includes('drive.google.com');
+            
+            if (isDrive) {
+                img.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                
+                if (!placeholder) {
+                    placeholder = document.createElement('div');
+                    placeholder.id = 'drive-receipt-placeholder';
+                    placeholder.className = 'text-center py-8 px-4 flex flex-col items-center justify-center gap-3';
+                    placeholder.innerHTML = `
+                        <div class="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-cyan-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-neutral-400 max-w-xs leading-relaxed font-sans">
+                            File bukti pembayaran disimpan di Google Drive Anda. Klik tombol di bawah untuk membukanya secara aman di Google Drive.
+                        </p>
+                    `;
+                    img.parentNode.appendChild(placeholder);
+                } else {
+                    placeholder.classList.remove('hidden');
+                }
+            } else {
+                img.classList.remove('hidden');
+                img.src = src;
+                link.innerText = "Unduh File Lampiran ↗";
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            }
+            
+            link.href = src;
+            
+            modal.classList.remove('hidden');
+            modal.classList.remove('pointer-events-none');
+            modal.classList.add('pointer-events-auto');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                modal.querySelector('.transform').classList.remove('scale-95');
+                modal.querySelector('.transform').classList.add('scale-100');
+            }, 10);
+        };
+
+        window.closeReceiptModal = function() {
+            const modal = document.getElementById('receipt-modal');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.remove('scale-100');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-auto');
+                modal.classList.add('pointer-events-none');
+            }, 300);
+        };
+
+        document.getElementById('receipt-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReceiptModal();
+            }
+        });
+
+        function openPaymentWizard(btn) {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+
+            document.getElementById('wizardProkerId').value = id;
+            document.getElementById('wizardTitleName').innerText = name;
+
+            // Reset States
+            document.getElementById('nimInput').value = '';
+            document.getElementById('nimInputFeedback').classList.add('hidden');
+            document.getElementById('verifiedInfoCard').classList.add('hidden');
+            document.getElementById('kategoriSelect').value = 'HTM Registrasi';
+            document.getElementById('kategoriCustomInput').classList.add('hidden');
+            document.getElementById('iuranNominalInput').value = '';
+            document.getElementById('realNominalInput').value = '';
+            document.getElementById('buktiTransferInput').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+
+            document.getElementById('wizardStepConfirm').classList.remove('hidden');
+            document.getElementById('wizardStep1').classList.add('hidden');
+            document.getElementById('wizardStep2').classList.add('hidden');
+
+            document.getElementById('paymentWizardModal').classList.remove('hidden');
+        }
+
+        function verifyNIM() {
+            const input = document.getElementById('nimInput').value.trim();
+            const feedback = document.getElementById('nimInputFeedback');
+            const inputEl = document.getElementById('nimInput');
+            const infoCard = document.getElementById('verifiedInfoCard');
+            const verifiedName = document.getElementById('verifiedName');
+            const verifiedDivisi = document.getElementById('verifiedDivisi');
+
+            if (!input) {
+                feedback.innerText = 'Silakan masukkan NIM Anda!';
+                feedback.classList.remove('hidden');
+                shakeElement(inputEl);
+                return;
+            }
+
+            const matchedUser = pengurusList.find(p => String(p.nim).trim() === input);
+
+            if (matchedUser) {
+                feedback.classList.add('hidden');
+                inputEl.classList.add('border-emerald-500');
+                
+                verifiedName.innerText = matchedUser.name;
+                verifiedDivisi.innerText = matchedUser.divisi;
+                infoCard.classList.remove('hidden');
+                document.getElementById('realUserId').value = matchedUser.id;
+                
+                setTimeout(() => {
+                    inputEl.classList.remove('border-emerald-500');
+                    document.getElementById('wizardStepConfirm').classList.add('hidden');
+                    document.getElementById('wizardStep1').classList.remove('hidden');
+                }, 1200);
+            } else {
+                feedback.innerText = 'NIM tidak ditemukan! Hubungi admin jika data Anda belum terdaftar.';
+                feedback.classList.remove('hidden');
+                shakeElement(inputEl);
+            }
+        }
+
+        function shakeElement(el) {
+            el.style.animation = 'none';
+            el.offsetHeight;
+            el.style.animation = 'shake 0.4s ease';
+        }
+
+        function toggleCustomKategori() {
+            const sel = document.getElementById('kategoriSelect').value;
+            const customInp = document.getElementById('kategoriCustomInput');
+            const realInp = document.getElementById('realKategoriInput');
+            
+            if (sel === 'Lainnya') {
+                customInp.classList.remove('hidden');
+                realInp.value = customInp.value;
+            } else {
+                customInp.classList.add('hidden');
+                realInp.value = sel;
+            }
+        }
+
+        function toggleMethodView(method) {
+            selectedMethod = method;
+            const qrisArea = document.getElementById('qrisPaymentArea');
+            const cashArea = document.getElementById('cashAppointmentArea');
+            const submitBtn = document.getElementById('submitFormButton');
+
+            if(method === 'Tunai') {
+                qrisArea.classList.add('hidden');
+                cashArea.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            } else {
+                qrisArea.classList.remove('hidden');
+                cashArea.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            }
+        }
+
+        function goToStep2() {
+            const nominal = document.getElementById('realNominalInput').value;
+            if(!nominal || parseInt(nominal) <= 0) {
+                alert('Silakan masukkan nominal pembayaran!');
+                return;
+            }
+            document.getElementById('wizardStep1').classList.add('hidden');
+            document.getElementById('wizardStep2').classList.remove('hidden');
+            document.getElementById('wizardTotalNominalText').innerText = 'Rp ' + parseInt(nominal).toLocaleString('id-ID');
+            toggleMethodView(selectedMethod);
+        }
+
+        function closePaymentWizard() {
+            document.getElementById('paymentWizardModal').classList.add('hidden');
+        }
+
+        function triggerLocalhostSuccess() {
+            if (selectedMethod === 'GoPay' && !document.getElementById('buktiTransferInput').value) {
+                alert('Silakan sertakan file gambar bukti transfer terlebih dahulu bro!');
+                return;
+            }
+
+            const categoryVal = document.getElementById('realKategoriInput').value;
+            const prokerIdVal = document.getElementById('wizardProkerId').value;
+            const prokerNameVal = document.getElementById('wizardTitleName').innerText;
+            const nominalVal = parseInt(document.getElementById('realNominalInput').value) || 0;
+            const userIdVal = document.getElementById('realUserId').value;
+
+            const payload = {
+                action: "insert_transaction",
+                tanggal: new Date().toISOString().substring(0, 10),
+                keterangan: `${categoryVal} - ${prokerNameVal}`,
+                user_id: userIdVal,
+                proker_id: prokerIdVal,
+                nominal: nominalVal,
+                metode: selectedMethod,
+                kategori: categoryVal,
+                status_reimburse: "Belum", // Pending verification by admin
+                bukti: compressedImageBase64 || ''
+            };
+
+            if (GOOGLE_SCRIPT_URL) {
+                Swal.fire({
+                    title: 'Mengirim Laporan Pembayaran...',
+                    text: 'Sedang menulis transaksi ke database Google Sheets.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(() => {
+                    Swal.close();
+                    document.getElementById('paymentWizardModal').classList.add('hidden');
+                    document.getElementById('successModal').classList.remove('hidden');
+                })
+                .catch(err => {
+                    Swal.close();
+                    console.error("Error:", err);
+                    alert("Gagal mengirim data ke database Google Sheets!");
+                });
+            } else {
+                document.getElementById('paymentWizardModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            fetchInitialData();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTab = sessionStorage.getItem('activePublicProkerTab') || 'running';
+            switchProkerTab(savedTab);
+            fetchInitialData();
+
+            document.getElementById('kategoriCustomInput').addEventListener('input', function() {
+                document.getElementById('realKategoriInput').value = this.value;
+            });
+
+            // Image resize/compression
+            const fileInput = document.getElementById('buktiTransferInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const container = document.getElementById('imagePreviewContainer');
+                    const preview = document.getElementById('imagePreview');
+                    const spinner = document.getElementById('resizeSpinner');
+                    const info = document.getElementById('imageReductionInfo');
+
+                    container.classList.remove('hidden');
+                    spinner.classList.remove('hidden');
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width > 800 ? 800 : img.width;
+                            canvas.height = img.width > 800 ? (img.height * (800 / img.width)) : img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            canvas.toBlob(function(blob) {
+                                preview.src = URL.createObjectURL(blob);
+                                spinner.classList.add('hidden');
+                                info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(blob.size / 1024).toFixed(1)} KB`;
+                                
+                                compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                            }, 'image/jpeg', 0.7);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerText = '🌙';
+            }
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            // 1. Create expanding liquid ripple element
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            // Grab coordinates from click event or fallback to button center
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            // 2. Create central icon overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth; // Force layout reflow
+            overlay.offsetWidth;
+            
+            // Calculate max diagonal to cover entire screen
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            // Trigger animations
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            // Swap theme underneath ripple right when it covers content
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            // Fade out and cleanup
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>

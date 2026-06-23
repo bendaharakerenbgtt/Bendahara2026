@@ -1,0 +1,23 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers - mencegah konten diintip/di-embed orang lain
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Force HTTPS (HSTS)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Content Security Policy - batasi resource yang bisa dimuat
+    Content-Security-Policy = "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: blob: https:; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com data:;"
+
+[[headers]]
+  for = "/*.csv"
+  [headers.values]
+    # Blokir akses langsung ke file CSV
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store, no-cache, must-revalidate"
+    Content-Disposition = "attachment"

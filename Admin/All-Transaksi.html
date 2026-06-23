@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="../bendahara.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDK IMIP — Master Ledger Central</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --splash-bg: #07090e;
+            --splash-text: #ffffff;
+            --splash-glow: rgba(16, 185, 129, 0.08);
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Accent glow variables */
+            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.15);
+            --glow-green: 0 4px 20px rgba(34, 197, 94, 0.15);
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --splash-bg: #f0f5f2;
+            --splash-text: #0a140f;
+            --splash-glow: rgba(21, 128, 61, 0.05);
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Shadow & glow adjustments */
+            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.08);
+            --glow-green: 0 4px 15px rgba(21, 128, 61, 0.08);
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: var(--bg-main) !important; transition: background-color 0.4s ease; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--border-card) !important; border-radius: 4px; transition: background-color 0.4s ease; }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* Cyan indicators & pills */
+        .bg-cyan-950\/40 { 
+            background-color: var(--bg-cyan-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-cyan-500\/20 { 
+            border-color: var(--border-cyan-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-cyan-400 { 
+            color: var(--text-cyan-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .border-t-cyan-400 {
+            border-top-color: var(--text-cyan-accent) !important;
+            box-shadow: var(--glow-cyan);
+            transition: border-top-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        
+        /* Green indicators & pills */
+        .bg-green-950\/40 { 
+            background-color: var(--bg-green-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-green-500\/20 { 
+            border-color: var(--border-green-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-green-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .text-emerald-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .border-t-green-400 {
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+            transition: border-top-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .bg-green-400 {
+            background-color: var(--text-green-accent) !important;
+            transition: background-color 0.4s ease;
+        }
+        
+        /* Amber indicators & pills */
+        .bg-amber-950\/40 { 
+            background-color: var(--bg-amber-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-amber-500\/20 { 
+            border-color: var(--border-amber-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        /* Rose indicators */
+        .text-rose-400 { 
+            color: var(--text-rose-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-rose-950\/20 { 
+            background-color: rgba(244, 63, 94, 0.08) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        html.light-mode .bg-rose-950\/20 { 
+            background-color: rgba(190, 18, 60, 0.06) !important; 
+        }
+        .border-rose-900\/30 { 
+            border-color: rgba(244, 63, 94, 0.20) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        html.light-mode .border-rose-900\/30 { 
+            border-color: rgba(190, 18, 60, 0.18) !important; 
+        }
+        
+        footer { 
+            border-color: var(--footer-border) !important; 
+            background-color: var(--footer-bg) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        /* Hover Effects */
+        .hover\:border-cyan-500\/30:hover { 
+            border-color: var(--hover-cyan-border) !important; 
+        }
+        .hover\:border-green-500\/30:hover { 
+            border-color: var(--hover-green-border) !important; 
+        }
+        .hover\:border-amber-500\/30:hover { 
+            border-color: var(--hover-amber-border) !important; 
+        }
+        .hover\:border-neutral-700:hover { 
+            border-color: var(--hover-neutral-border) !important; 
+        }
+        
+        /* Selection Override */
+        body::selection, body *::selection {
+            background-color: var(--bg-cyan-pill) !important;
+            color: var(--text-cyan-accent) !important;
+        }
+        
+        /* SweetAlert2 Dynamic Styling */
+        .swal2-popup { 
+            background: var(--bg-card) !important; 
+            border: 1px solid var(--border-card) !important; 
+            border-radius: 1rem !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+        }
+        .swal2-title { 
+            color: var(--text-primary) !important; 
+            font-size: 14px !important; 
+            font-family: 'Plus Jakarta Sans', sans-serif !important; 
+            font-weight: bold !important; 
+        }
+        .swal2-confirm { 
+            background-color: var(--text-cyan-accent) !important; 
+            color: var(--bg-main) !important; 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            border-radius: 0.5rem !important; 
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .swal2-cancel { 
+            background-color: var(--bg-neutral-pill) !important; 
+            color: var(--text-sec-400) !important; 
+            font-size: 11px !important; 
+            border-radius: 0.5rem !important; 
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        
+        /* Premium Loading Overlay */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
+            50% { transform: translate(-14px, -12px); opacity: 0.6; }
+        }
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
+            50% { transform: translate(14px, -14px); opacity: 0.55; }
+        }
+        @keyframes pulse-sun {
+            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+        .animate-drift-cloud-1 {
+            animation: drift-cloud-1 6s infinite ease-in-out;
+        }
+        .animate-drift-cloud-2 {
+            animation: drift-cloud-2 8s infinite ease-in-out;
+        }
+        .animate-pulse-sun {
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+
+        /* Modal card overrides for premium visual consistency */
+        #receipt-modal > div {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-card) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
+
+    <!-- PREMIUM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <!-- Spinner Ring Outer -->
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            
+            <!-- Floating Elements Inside -->
+            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
+                <!-- Glowing Sun in background (Top-Left above Masjid) -->
+                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
+                <!-- Drifting Cloud 1 (Left side above Masjid) -->
+                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
+                <!-- Drifting Cloud 2 (Right side above Masjid) -->
+                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
+                <!-- Floating Masjid in Center-Bottom -->
+                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            </div>
+            
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+        </div>
+    </div>
+
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
+        <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner">
+            <span>←</span> <span>Dashboard</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-mono tracking-wider text-cyan-400 uppercase font-black hidden sm:inline">
+                SELURUH TRANSAKSI
+            </span>
+            <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                🌙
+            </button>
+        </div>
+    </header>
+
+    <main class="w-full max-w-4xl mx-auto px-4 py-6 flex-grow flex flex-col gap-5">
+        
+        <div class="grid grid-cols-2 gap-2 p-1.5 bg-neutral-950 border border-neutral-900 rounded-xl">
+            <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer">
+                ⬇️ Pemasukan / Arus Masuk
+            </button>
+            <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer">
+                ⬆️ Pengeluaran / Arus Keluar
+            </button>
+        </div>
+
+        <div class="flex flex-col gap-4">
+
+            <div id="ledger-panel-placeholder" class="bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 shadow-xs">
+                <div class="w-12 h-12 rounded-full bg-cyan-950/20 border border-cyan-800/20 flex items-center justify-center text-lg text-cyan-400 animate-pulse">
+                    📊
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-xs font-bold text-neutral-300 font-sans tracking-wide uppercase">Pilih Arah Transaksi</h3>
+                    <p class="text-[11px] text-neutral-500 max-w-sm mx-auto leading-relaxed">
+                        Silakan pilih tombol <b>Pemasukan</b> atau <b>Pengeluaran</b> di atas untuk membuat transaksi.
+                    </p>
+                </div>
+            </div>
+            
+            <div id="ledger-panel-in" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-5 flex flex-col gap-4 shadow-xs">
+                <div>
+                    <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">PEMASUKAN</span>
+                    <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pemasukan Baru</h2>
+                </div>
+                
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Pilih Tipe Pemasukan</label>
+                        <select id="pemasukanType" onchange="togglePemasukanForm(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                            <option value="lainnya" selected>📁 Pemasukan Eksternal (Donasi, Prestasi, Iuran Proker)</option>
+                            <option value="kas">📁 Uang Kas Iuran Pengurus</option>
+                        </select>
+                    </div>
+
+                    <div id="pemasukanKasBox" class="hidden p-4 bg-neutral-900/40 border border-neutral-900 rounded-xl flex flex-col gap-3">
+                        <p class="text-xs text-neutral-400 leading-relaxed">Uang Kas Iuran Pengurus dikelola secara bulanan per anggota di halaman khusus kas pengurus.</p>
+                        <a href="Kelola-Kas.html" class="text-center bg-cyan-600 hover:bg-cyan-500 text-neutral-950 text-xs font-bold py-2.5 px-4 rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-md">
+                            Buka Halaman Kas Pengurus →
+                        </a>
+                    </div>
+
+                    <form id="pemasukanLainnyaForm" onsubmit="tambahPemasukanLokal(event)" class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Tanggal Pemasukan</label>
+                            <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                        </div>
+                        
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
+                            <input type="text" id="in_kategori" required list="datalist-kategori-pemasukan" placeholder="Contoh: Donasi, Danusan, Htm..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            <datalist id="datalist-kategori-pemasukan">
+                                <option value="Donasi">
+                                <option value="Danusan">
+                                <option value="HTM Proker">
+                            </datalist>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Program Kerja (Proker)</label>
+                            <select id="in_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                                <option value="">General / Kas Umum</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode</label>
+                                <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                                    <option value="Tunai">💵 Tunai</option>
+                                    <option value="GoPay">📱 GoPay</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nominal (Rp)</label>
+                                <input type="text" id="pemasukanNominal" required onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs font-bold text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan Tambahan</label>
+                            <textarea id="in_keterangan" rows="2" required placeholder="Contoh: Donasi Dari UKM Badminton..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans resize-none leading-relaxed"></textarea>
+                        </div>
+                        
+                        <button type="submit" id="btnSubmitPemasukan" class="w-full bg-emerald-600 hover:bg-emerald-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
+                            💾 Simpan Pemasukan ✓
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="ledger-panel-out" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-5 flex flex-col gap-4 shadow-xs">
+                <div>
+                    <span class="text-[9px] font-mono tracking-widest text-rose-400 uppercase font-black block">PENGELUARAN</span>
+                    <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pengeluaran Baru</h2>
+                </div>
+                
+                <form id="pengeluaranForm" onsubmit="tambahPengeluaranLokal(event)" class="flex flex-col gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Tanggal</label>
+                            <input type="date" id="out_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
+                            <input type="text" id="out_kategori" required list="datalist-kategori-pengeluaran" placeholder="Ketik/Pilih Kategori (misal: Konsumsi...)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
+                            <datalist id="datalist-kategori-pengeluaran">
+                                <option value="Konsumsi">
+                                <option value="Perlengkapan">
+                                <option value="Sewa Alat">
+                                <option value="Pubdok">
+                            </datalist>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode Pembayaran</label>
+                            <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
+                                <option value="Tunai">💵 Uang Tunai (Cash)</option>
+                                <option value="GoPay">📱 E-Wallet GoPay</option>
+                            </select>
+                        </div>
+                    </div>
+ 
+                    <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nama Barang / Uraian</label>
+                            <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
+                        </div>
+ 
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Program Kerja (Proker)</label>
+                                <select id="out_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
+                                    <option value="">General / Kas Umum</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">PIC Pengeluar (Penanggung Jawab)</label>
+                                <input type="text" id="exp_pic" placeholder="Contoh: Dimaz Hakim..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Jumlah Unit (Qty)</label>
+                                <input type="number" id="exp_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
+                                <input type="number" id="exp_harga_satuan" placeholder="Harga" required min="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
+                            </div>
+                        </div>
+ 
+                        <div class="bg-rose-950/20 p-3 rounded-xl text-center flex flex-col gap-0.5 border border-rose-900/30 mt-1">
+                            <span class="text-[9px] font-mono text-rose-400 uppercase font-bold tracking-wider">ESTIMASI TOTAL HARGA</span>
+                            <div id="exp_total_display" class="text-base font-black text-white font-mono tracking-tight">Rp0</div>
+                        </div>
+                    </div>
+ 
+                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
+                        💾 Simpan Pengeluaran ✓
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2.5 mt-2">
+            <div class="flex items-center justify-between pl-1">
+                <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black">DAFTAR SEMUA TRANSAKSI</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="downloadCSVBackup()" class="text-[9px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-neutral-950 border border-neutral-900 px-2.5 py-1.5 rounded-md cursor-pointer transition-all active:scale-95 flex items-center gap-1 shadow-sm">
+                        📥 Backup CSV
+                    </button>
+                    <span class="text-[9px] font-mono text-neutral-400 bg-neutral-950 border border-neutral-900 px-2.5 py-1.5 rounded-md" id="total-trx-badge">
+                        Total: 3 transaksi
+                    </span>
+                </div>
+            </div>
+            
+            <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-4 shadow-xs">
+                
+                <!-- Row 1: Search -->
+                <div class="relative w-full">
+                    <input type="text" id="txSearchInput" 
+                           placeholder="Cari keterangan, kategori, nominal, program kerja, atau penyetor..." 
+                           class="w-full bg-neutral-900 border border-neutral-800 text-neutral-100 placeholder-neutral-500 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/10 transition-all font-sans pr-10">
+                    <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-600">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Row 2: Filter Actions -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-neutral-900/40">
+                    <div class="flex bg-neutral-900 p-1 rounded-xl border border-neutral-800 self-start">
+                        <button onclick="filterType('all')" id="btn-type-all" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-cyan-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                            Semua
+                        </button>
+                        <button onclick="filterType('Masuk')" id="btn-type-masuk" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                            Pemasukan
+                        </button>
+                        <button onclick="filterType('Keluar')" id="btn-type-keluar" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                            Pengeluaran
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex flex-col gap-0.5">
+                            <select id="filterMonth" onchange="filterMonth(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                                <option value="all">Semua Bulan</option>
+                                <option value="01">Januari</option>
+                                <option value="02">Februari</option>
+                                <option value="03">Maret</option>
+                                <option value="04">April</option>
+                                <option value="05">Mei</option>
+                                <option value="06">Juni</option>
+                                <option value="07">Juli</option>
+                                <option value="08">Agustus</option>
+                                <option value="09">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col gap-0.5">
+                            <select id="filterSort" onchange="filterSort(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                                <option value="terbaru">Terbaru (Tanggal)</option>
+                                <option value="terlama">Terlama (Tanggal)</option>
+                                <option value="termahal">Termahal (Nominal)</option>
+                                <option value="termurah">Termurah (Nominal)</option>
+                            </select>
+                        </div>
+
+                        <button onclick="downloadCSVBackup()" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
+                            📥 Unduh CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-1 shadow-xs">
+                    <span class="text-[8px] font-mono text-emerald-500 uppercase font-bold tracking-wider">Total Pemasukan</span>
+                    <span id="sum-pemasukan" class="text-xs sm:text-sm font-black text-emerald-400 font-mono">Rp0</span>
+                </div>
+                <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-1 shadow-xs">
+                    <span class="text-[8px] font-mono text-rose-500 uppercase font-bold tracking-wider">Total Pengeluaran</span>
+                    <span id="sum-pengeluaran" class="text-xs sm:text-sm font-black text-rose-400 font-mono">Rp0</span>
+                </div>
+                <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-1 shadow-xs">
+                    <span class="text-[8px] font-mono text-cyan-400 uppercase font-bold tracking-wider">Net Selisih</span>
+                    <span id="sum-selisih" class="text-xs sm:text-sm font-black text-neutral-300 font-mono">Rp0</span>
+                </div>
+            </div>
+
+            <div class="bg-neutral-950/40 border border-neutral-900/60 p-3.5 rounded-xl text-[10px] text-neutral-400 font-sans leading-relaxed flex items-start gap-2.5">
+                <span class="text-xs leading-none">💡</span>
+                <div>
+                    <span class="font-bold text-neutral-300 block mb-0.5">Mengapa saldo berbeda dengan Dashboard?</span>
+                    Saldo Dashboard utama hanya menghitung iuran masuk yang <span class="text-emerald-400 font-bold">telah diverifikasi</span>. Transaksi kas online yang masih berstatus <span class="text-amber-400 font-bold">⏳ PENDING VERIFIKASI</span> terdaftar di sini, namun belum dihitung di Dashboard hingga Anda memverifikasinya.
+                </div>
+            </div>
+
+            <div class="hidden md:block overflow-x-auto w-full rounded-xl border border-neutral-900 bg-neutral-950 custom-scroll shadow-xs">
+                <table class="w-full text-left border-collapse text-[11px] font-mono min-w-[750px]">
+                    <thead>
+                        <tr class="bg-neutral-900/40 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900">
+                            <th class="p-3 w-24">Tanggal</th>
+                            <th class="p-3">Keterangan Arus / Memo Belanja</th>
+                            <th class="p-3 w-28 text-center">Metode</th>
+                            <th class="p-3 text-right w-32">Jumlah Dana</th>
+                            <th class="p-3 text-center w-24">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-900/30 text-neutral-300" id="desktop-tbody">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="block md:hidden flex flex-col gap-3" id="mobile-cards-container">
+                </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center mt-6">
+        <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-black">LDK IMIP CENTER</span>
+    </footer>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc4KjFANk2dGnw18Vw07aXlJ8BLJ1-VrAPQ2Oj35v0LnmLennIA19Z5eJIyLl4N1ad/exec";
+
+        let localTransactions = [];
+        let prokersMap = {};
+        let membersMap = {};
+
+        let currentType = 'all';
+        let currentMonth = 'all';
+        let currentSort = 'terbaru';
+        let searchQuery = '';
+
+        // Format Tanggal Input Default Hari Ini
+        document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
+        document.getElementById('out_tanggal').value = new Date().toISOString().substring(0, 10);
+
+        function formatRibuanInstan(input) {
+            let angka = input.value.replace(/[^0-9]/g, ''); 
+            if (angka !== '') { input.value = parseInt(angka).toLocaleString('id-ID'); } else { input.value = ''; }
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(() => overlay.remove(), 400);
+            }
+        }
+
+        function fetchInitialData(forceRefresh = false) {
+            if (!GOOGLE_SCRIPT_URL) {
+                // Skenario Offline / Demo
+                localTransactions = [
+                    { id: 1, tanggal: "2026-06-10", keterangan: "Donasi Hamba Allah Untuk Sarana Masjid", jenis: "Masuk", metode: "GoPay", kategori: "Donasi", nominal: 1500000, status_reimburse: "Tidak Perlu", proker_id: "" },
+                    { id: 2, tanggal: "2026-06-08", keterangan: "Pembelian Air Mineral & Snack Kajian Rutin (10x)", jenis: "Keluar", metode: "Tunai", kategori: "Konsumsi", nominal: 240000, status_reimburse: "Tidak Perlu", proker_id: "PRK-1", nama_pic_pengeluar: "Dimaz Hakim" },
+                    { id: 3, tanggal: "2026-05-24", keterangan: "Setoran Kas Online Pengurus (Menunggu Validasi)", jenis: "Masuk", metode: "GoPay", kategori: "Kas Bulanan", nominal: 20000, status_reimburse: "Belum", proker_id: "" }
+                ];
+                prokersMap = {
+                    "PRK-1": "Kajian Akbar Semesta",
+                    "PRK-2": "Webinar Nasional Kreatif"
+                };
+                populateProkerDropdowns([{ id: "PRK-1", nama_proker: "Kajian Akbar Semesta" }, { id: "PRK-2", nama_proker: "Webinar Nasional Kreatif" }]);
+                applyMutationFilters();
+                hideLoadingOverlay();
+                return;
+            }
+
+            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_TTL = 15000; // 15 seconds cache
+
+            if (forceRefresh) {
+                sessionStorage.removeItem(CACHE_KEY);
+                sessionStorage.removeItem(CACHE_TIME_KEY);
+            }
+
+            const cachedData = sessionStorage.getItem(CACHE_KEY);
+            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+            let hasRenderedFromCache = false;
+
+            if (cachedData && cachedTime) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    if (data && data.status === "success") {
+                        localTransactions = data.transaksi || [];
+                        
+                        prokersMap = {};
+                        (data.proker || []).forEach(p => {
+                            prokersMap[p.id.toString()] = p.nama_proker;
+                        });
+
+                        membersMap = {};
+                        (data.anggota || []).forEach(m => {
+                            membersMap[m.id.toString()] = m.name;
+                        });
+
+                        populateProkerDropdowns(data.proker || []);
+                        applyMutationFilters();
+                        
+                        hideLoadingOverlay();
+                        hasRenderedFromCache = true;
+
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            console.log("Using fresh cache for All-Transaksi");
+                            return;
+                        }
+                        console.log("Using stale cache, fetching fresh data in background...");
+                    }
+                } catch (e) {
+                    console.error("Cache load error:", e);
+                }
+            }
+
+            fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+
+                        localTransactions = data.transaksi;
+                        
+                        prokersMap = {};
+                        data.proker.forEach(p => {
+                            prokersMap[p.id.toString()] = p.nama_proker;
+                        });
+
+                        membersMap = {};
+                        data.anggota.forEach(m => {
+                            membersMap[m.id.toString()] = m.name;
+                        });
+
+                        populateProkerDropdowns(data.proker);
+                        applyMutationFilters();
+                    } else {
+                        console.error("Gagal memuat database:", data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching data:", err);
+                })
+                .finally(() => {
+                    hideLoadingOverlay();
+                });
+        }
+
+        function populateProkerDropdowns(prokers) {
+            const inSelect = document.getElementById('in_proker_id');
+            const outSelect = document.getElementById('out_proker_id');
+            
+            // Simpan selection awal
+            const inVal = inSelect.value;
+            const outVal = outSelect.value;
+
+            inSelect.innerHTML = '<option value="">General / Kas Umum</option>';
+            outSelect.innerHTML = '<option value="">General / Kas Umum</option>';
+
+            prokers.forEach(p => {
+                const optHtml = `<option value="${p.id}">${p.nama_proker}</option>`;
+                inSelect.innerHTML += optHtml;
+                outSelect.innerHTML += optHtml;
+            });
+
+            inSelect.value = inVal;
+            outSelect.value = outVal;
+        }
+
+        function switchLedgerInput(target) {
+            const panelIn = document.getElementById('ledger-panel-in');
+            const panelOut = document.getElementById('ledger-panel-out');
+            const panelPlaceholder = document.getElementById('ledger-panel-placeholder');
+            const btnIn = document.getElementById('ledger-btn-in');
+            const btnOut = document.getElementById('ledger-btn-out');
+            
+            if (panelPlaceholder) panelPlaceholder.style.display = 'none';
+            
+            if (target === 'in') {
+                panelIn.style.display = 'flex';
+                panelOut.style.display = 'none';
+                btnIn.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 text-cyan-400 cursor-pointer";
+                btnOut.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer";
+            } else {
+                panelIn.style.display = 'none';
+                panelOut.style.display = 'flex';
+                btnIn.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer";
+                btnOut.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 text-rose-400 cursor-pointer";
+            }
+        }
+
+        function togglePemasukanForm(value) {
+            const kasBox = document.getElementById('pemasukanKasBox');
+            const lainnyaForm = document.getElementById('pemasukanLainnyaForm');
+            if (value === 'kas') {
+                kasBox.classList.remove('hidden');
+                lainnyaForm.classList.add('hidden');
+            } else {
+                kasBox.classList.add('hidden');
+                lainnyaForm.classList.remove('hidden');
+            }
+        }
+
+        // Kalkulator Qty x Satuan Pengeluaran
+        const expQty = document.getElementById('exp_jumlah_unit');
+        const expPrice = document.getElementById('exp_harga_satuan');
+        const expTotal = document.getElementById('exp_total_display');
+
+        function calculateExpTotal() {
+            const qty = parseFloat(expQty.value) || 0;
+            const price = parseFloat(expPrice.value) || 0;
+            const total = qty * price;
+            expTotal.innerText = 'Rp' + total.toLocaleString('id-ID');
+        }
+        if (expQty && expPrice) {
+            expQty.addEventListener('input', calculateExpTotal);
+            expPrice.addEventListener('input', calculateExpTotal);
+        }
+
+        // Action Tambah Pemasukan
+        function tambahPemasukanLokal(e) {
+            e.preventDefault();
+            const date = document.getElementById('in_tanggal').value;
+            const cat = document.getElementById('in_kategori').value;
+            const method = document.getElementById('in_metode').value;
+            const amount = parseInt(document.getElementById('pemasukanNominal').value.replace(/[^0-9]/g, '')) || 0;
+            const desc = document.getElementById('in_keterangan').value;
+            const prokerId = document.getElementById('in_proker_id').value;
+
+            if (!GOOGLE_SCRIPT_URL) {
+                localTransactions.unshift({
+                    id: Date.now(), tanggal: date, keterangan: desc, jenis: "Masuk", metode: method, kategori: cat, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId
+                });
+                Swal.fire({ icon: 'success', title: 'Pemasukan Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
+                document.getElementById('pemasukanLainnyaForm').reset();
+                document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
+                applyMutationFilters();
+                return;
+            }
+
+            Swal.fire({
+                title: 'Menyimpan Pemasukan...',
+                text: 'Sedang menulis ke database Google Sheets.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: "insert_transaction",
+                    tanggal: date,
+                    keterangan: desc,
+                    jenis: "Masuk",
+                    metode: method,
+                    kategori: cat,
+                    nominal: amount,
+                    proker_id: prokerId,
+                    status_reimburse: "Tidak Perlu"
+                })
+            })
+            .then(() => {
+                Swal.close();
+                Swal.fire({ icon: 'success', title: 'Pemasukan Berhasil Disimpan!', showConfirmButton: false, timer: 1200 });
+                document.getElementById('pemasukanLainnyaForm').reset();
+                document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
+                fetchInitialData(true);
+            })
+            .catch(err => {
+                Swal.close();
+                console.error("Error:", err);
+                Swal.fire({ icon: 'error', title: 'Gagal Menyimpan!', text: err.toString() });
+            });
+        }
+
+        // Action Tambah Pengeluaran
+        function tambahPengeluaranLokal(e) {
+            e.preventDefault();
+            const date = document.getElementById('out_tanggal').value;
+            const cat = document.getElementById('out_kategori').value;
+            const method = document.getElementById('out_metode').value;
+            const qty = parseFloat(expQty.value) || 1;
+            const price = parseFloat(expPrice.value) || 0;
+            const desc = document.getElementById('exp_nama_barang').value;
+            const pic = document.getElementById('exp_pic').value;
+            const prokerId = document.getElementById('out_proker_id').value;
+            const total = qty * price;
+
+            if (!GOOGLE_SCRIPT_URL) {
+                localTransactions.unshift({
+                    id: Date.now(), tanggal: date, keterangan: `${desc} (${qty}x)`, jenis: "Keluar", metode: method, kategori: cat, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, nama_pic_pengeluar: pic
+                });
+                Swal.fire({ icon: 'success', title: 'Pengeluaran Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
+                document.getElementById('pengeluaranForm').reset();
+                document.getElementById('out_tanggal').value = new Date().toISOString().substring(0, 10);
+                expTotal.innerText = 'Rp0';
+                applyMutationFilters();
+                return;
+            }
+
+            Swal.fire({
+                title: 'Menyimpan Pengeluaran...',
+                text: 'Sedang menulis ke database Google Sheets.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: "insert_transaction",
+                    tanggal: date,
+                    keterangan: `${desc} (${qty}x)`,
+                    jenis: "Keluar",
+                    metode: method,
+                    kategori: cat,
+                    nominal: total,
+                    proker_id: prokerId,
+                    nama_pic_pengeluar: pic,
+                    status_reimburse: "Tidak Perlu"
+                })
+            })
+            .then(() => {
+                Swal.close();
+                Swal.fire({ icon: 'success', title: 'Pengeluaran Berhasil Disimpan!', showConfirmButton: false, timer: 1200 });
+                document.getElementById('pengeluaranForm').reset();
+                document.getElementById('out_tanggal').value = new Date().toISOString().substring(0, 10);
+                expTotal.innerText = 'Rp0';
+                fetchInitialData(true);
+            })
+            .catch(err => {
+                Swal.close();
+                console.error("Error:", err);
+                Swal.fire({ icon: 'error', title: 'Gagal Menyimpan!', text: err.toString() });
+            });
+        }
+
+        window.filterType = function(type) {
+            currentType = type;
+            const btns = {
+                'all': document.getElementById('btn-type-all'),
+                'Masuk': document.getElementById('btn-type-masuk'),
+                'Keluar': document.getElementById('btn-type-keluar')
+            };
+            Object.keys(btns).forEach(key => {
+                if (!btns[key]) return;
+                if (key === type) {
+                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-cyan-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.2)]";
+                } else {
+                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer";
+                }
+            });
+            applyMutationFilters();
+        };
+
+        window.filterMonth = function(month) {
+            currentMonth = month;
+            applyMutationFilters();
+        };
+
+        window.filterSort = function(sort) {
+            currentSort = sort;
+            applyMutationFilters();
+        };
+
+
+
+        // Fungsi Filter Master Ledger & Rekap Perhitungan Sisi Klien
+        function applyMutationFilters() {
+            const tbody = document.getElementById('desktop-tbody');
+            const mobileContainer = document.getElementById('mobile-cards-container');
+            
+            if (!tbody || !mobileContainer) return;
+            
+            tbody.innerHTML = '';
+            mobileContainer.innerHTML = '';
+
+            let totalMasuk = 0;
+            let totalKeluar = 0;
+            let renderCount = 0;
+
+            // 1. Filter
+            let filtered = localTransactions.filter(tx => {
+                const parts = tx.tanggal.split('-');
+                const txMonth = parts[1];
+                const matchType = (currentType === 'all' || tx.jenis === currentType);
+                const matchMonth = (currentMonth === 'all' || txMonth === currentMonth);
+                
+                const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
+                const userName = tx.user_id ? (membersMap[tx.user_id.toString()] || "") : "";
+                
+                const matchSearch = (!searchQuery || 
+                    tx.keterangan.toLowerCase().includes(searchQuery) || 
+                    tx.kategori.toLowerCase().includes(searchQuery) || 
+                    prokerName.toLowerCase().includes(searchQuery) ||
+                    userName.toLowerCase().includes(searchQuery) ||
+                    (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchQuery)) ||
+                    tx.nominal.toString().includes(searchQuery)
+                );
+
+                return matchType && matchMonth && matchSearch;
+            });
+
+            // 2. Sort
+            filtered.sort((a, b) => {
+                if (currentSort === 'terbaru') {
+                    return b.tanggal.localeCompare(a.tanggal) || b.id - a.id;
+                } else if (currentSort === 'terlama') {
+                    return a.tanggal.localeCompare(b.tanggal) || a.id - b.id;
+                } else if (currentSort === 'termahal') {
+                    return parseFloat(b.nominal) - parseFloat(a.nominal);
+                } else if (currentSort === 'termurah') {
+                    return parseFloat(a.nominal) - parseFloat(b.nominal);
+                }
+                return 0;
+            });
+
+            // 3. Render
+            filtered.forEach(tx => {
+                renderCount++;
+                const nominalVal = Number(tx.nominal) || 0;
+                if (tx.jenis === 'Masuk') totalMasuk += nominalVal;
+                else totalKeluar += nominalVal;
+
+                const dateFormated = tx.tanggal.split('-').reverse().join('/');
+                const isMasuk = tx.jenis === 'Masuk';
+                const sign = isMasuk ? '+' : '-';
+                const valColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
+                const badgeType = isMasuk ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30' : 'bg-rose-950/20 text-rose-400 border-rose-900/30';
+                const pendingBadge = tx.status_reimburse === 'Belum' ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border bg-amber-950/20 text-amber-400 border-amber-900/30 uppercase tracking-wider animate-pulse">⏳ PENDING</span>` : '';
+                
+                const picText = tx.nama_pic_pengeluar ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-amber-400">@ ${tx.nama_pic_pengeluar}</span>` : '';
+                const pengetorText = tx.user_id ? (membersMap[tx.user_id.toString()] ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-500">Penyetor: ${membersMap[tx.user_id.toString()]}</span>` : '') : '';
+                
+                const receiptPath = getReceiptPath(tx);
+                const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-950/40 text-cyan-400 hover:text-white border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` : '';
+                const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
+
+                let displayNote = tx.catatan ? tx.catatan.trim() : '';
+                if (displayNote) {
+                    if (displayNote.includes('https://') || displayNote.includes('http://')) {
+                        displayNote = displayNote.replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '').trim();
+                        displayNote = displayNote.replace(/https?:\/\/[^\s]+/gi, '').trim();
+                        displayNote = displayNote.replace(/\(\s*\)/g, '').trim();
+                    }
+                }
+                const hasNote = displayNote && !displayNote.startsWith('KAS_') && !displayNote.startsWith('PROKER_') && displayNote !== '';
+                const noteHtml = hasNote 
+                    ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-cyan-500/20 pl-2 py-0.5 leading-relaxed max-w-md select-text">📝 ${displayNote}</div>` 
+                    : '';
+
+                // Append Desktop Row
+                tbody.innerHTML += `
+                    <tr class="hover:bg-neutral-900/10 transition-colors">
+                        <td class="p-3 text-neutral-500 whitespace-nowrap align-middle">
+                            <div>${dateFormated}</div>
+                            <div class="text-[7px] text-neutral-600 font-mono mt-0.5 select-all">${tx.id}</div>
+                        </td>
+                        <td class="p-3 font-sans align-middle">
+                            <span class="font-bold text-neutral-200 block text-xs leading-normal">${tx.keterangan}</span>
+                            ${noteHtml}
+                            <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
+                                ${picText}
+                                ${pengetorText}
+                                ${pendingBadge}
+                                ${attachmentBtn}
+                            </div>
+                        </td>
+                        <td class="p-3 text-center align-middle">
+                            <span class="text-[9px] font-bold text-amber-500 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>
+                        </td>
+                        <td class="p-3 text-right font-black text-xs align-middle ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-center align-middle">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="editTransaksi('${tx.id}')" class="text-amber-400 hover:text-amber-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">✏️</button>
+                                <button onclick="confirmDelete('${tx.id}')" class="text-red-400 hover:text-red-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Append Mobile Card
+                mobileContainer.innerHTML += `
+                    <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-mono text-neutral-500 font-bold leading-none">${dateFormated}</span>
+                                <span class="text-[7px] font-mono text-neutral-600 mt-0.5 leading-none select-all">${tx.id}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                ${pendingBadge}
+                                <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-amber-500 border-neutral-850">${tx.metode}</span>
+                                <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-bold text-neutral-200 leading-normal">${tx.keterangan}</span>
+                            ${noteHtml}
+                            <div class="flex flex-wrap gap-1">
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori}</span>
+                                ${picText}
+                                ${pengetorText}
+                                ${attachmentBtn}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-neutral-900/60 pt-3 mt-1">
+                            <span class="text-sm font-black tracking-tight ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="editTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">✏️ Edit</button>
+                                <button onclick="confirmDelete('${tx.id}')" class="text-[10px] font-mono font-bold text-red-400 hover:text-red-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">🗑️ Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Update Header Counter & Summary Cards
+            document.getElementById('total-trx-badge').innerText = `Total: ${renderCount} transaksi`;
+            document.getElementById('sum-pemasukan').innerText = 'Rp' + totalMasuk.toLocaleString('id-ID');
+            document.getElementById('sum-pengeluaran').innerText = 'Rp' + totalKeluar.toLocaleString('id-ID');
+            
+            const netSaldo = totalMasuk - totalKeluar;
+            const netPrefix = netSaldo > 0 ? '+' : (netSaldo < 0 ? '-' : '');
+            const selisihEl = document.getElementById('sum-selisih');
+            selisihEl.innerText = netPrefix + 'Rp' + Math.abs(netSaldo).toLocaleString('id-ID');
+            selisihEl.className = netSaldo > 0 ? "text-xs sm:text-sm font-black text-emerald-400 font-mono" : (netSaldo < 0 ? "text-xs sm:text-sm font-black text-rose-400 font-mono" : "text-xs sm:text-sm font-black text-neutral-300 font-mono");
+        }
+
+        // Hapus Item
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Hapus Transaksi?',
+                text: GOOGLE_SCRIPT_URL ? "Transaksi ini akan dihapus secara permanen dari Google Sheets." : "Transaksi ini akan dibersihkan secara permanen dari ledger lokal.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                confirmButtonColor: '#f43f5e',
+                cancelButtonColor: '#374151'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (!GOOGLE_SCRIPT_URL) {
+                        localTransactions = localTransactions.filter(t => t.id.toString() !== id.toString());
+                        Swal.fire({ icon: 'success', title: 'Terhapus!', showConfirmButton: false, timer: 1000 });
+                        applyMutationFilters();
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Menghapus Transaksi...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: "delete_transaction",
+                            id: id
+                        })
+                    })
+                    .then(() => {
+                        Swal.close();
+                        Swal.fire({ icon: 'success', title: 'Transaksi Dihapus!', showConfirmButton: false, timer: 1000 });
+                        fetchInitialData(true);
+                    })
+                    .catch(err => {
+                        Swal.close();
+                        console.error(err);
+                        Swal.fire({ icon: 'error', title: 'Gagal Menghapus!', text: err.toString() });
+                    });
+                }
+            });
+        }
+
+        // Edit Item
+        function editTransaksi(id) {
+            const item = localTransactions.find(t => t.id.toString() === id.toString());
+            if(!item) return;
+
+            Swal.fire({
+                title: 'Edit Transaksi',
+                html: `
+                    <div class="flex flex-col gap-3 text-left text-xs font-sans text-neutral-300">
+                        <div>
+                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Keterangan / Memo</label>
+                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs" value="${item.keterangan}">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Nominal (Rp)</label>
+                            <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white font-mono font-bold text-xs" value="${Number(item.nominal).toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan Perubahan',
+                confirmButtonColor: '#06b6d4',
+                cancelButtonColor: '#374151'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const newKeterangan = document.getElementById('swal-edit-keterangan').value;
+                    const newNominal = parseInt(document.getElementById('swal-edit-nominal').value.replace(/[^0-9]/g, '')) || 0;
+
+                    if (!GOOGLE_SCRIPT_URL) {
+                        item.keterangan = newKeterangan;
+                        item.nominal = newNominal;
+                        Swal.fire({ icon: 'success', title: 'Diperbarui!', showConfirmButton: false, timer: 1000 });
+                        applyMutationFilters();
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Memperbarui Transaksi...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: "edit_transaction",
+                            id: id,
+                            keterangan: newKeterangan,
+                            nominal: newNominal
+                        })
+                    })
+                    .then(() => {
+                        Swal.close();
+                        Swal.fire({ icon: 'success', title: 'Transaksi Diperbarui!', showConfirmButton: false, timer: 1000 });
+                        fetchInitialData(true);
+                    })
+                    .catch(err => {
+                        Swal.close();
+                        console.error(err);
+                        Swal.fire({ icon: 'error', title: 'Gagal Memperbarui!', text: err.toString() });
+                    });
+                }
+            });
+        }
+
+        // Backup CSV Backup
+        function downloadCSVBackup() {
+            let csvContent = "\uFEFFID,Tanggal,Keterangan,Jenis,Kategori,Proker,PIC Pengeluar,Metode,Nominal,Status\n";
+            localTransactions.forEach(t => {
+                const prokerName = t.proker_id ? (prokersMap[t.proker_id.toString()] || "Kas Umum") : "Kas Umum";
+                const picName = t.nama_pic_pengeluar || "";
+                const status = t.status_reimburse === 'Belum' ? 'Pending' : 'Verified';
+                csvContent += `${t.id},${t.tanggal},"${t.keterangan.replace(/"/g, '""')}",${t.jenis},${t.kategori},"${prokerName}","${picName}",${t.metode},${t.nominal},${status}\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "Backup_Keuangan_LDK_Sheets.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function getReceiptPath(tx) {
+            if (!tx.catatan) return null;
+            const c = tx.catatan.trim();
+            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
+                return c;
+            }
+            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
+            if (urlMatch) return urlMatch[0];
+            
+            const base64Match = c.match(/data:image\/[^\s)]+/);
+            if (base64Match) return base64Match[0];
+            
+            return null;
+        }
+
+        window.openReceiptModal = function(src) {
+            const modal = document.getElementById('receipt-modal');
+            const img = document.getElementById('receipt-img-preview');
+            const link = document.getElementById('receipt-download-link');
+            
+            let placeholder = document.getElementById('drive-receipt-placeholder');
+            const isDrive = src.includes('drive.google.com');
+            
+            if (isDrive) {
+                img.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                
+                if (!placeholder) {
+                    placeholder = document.createElement('div');
+                    placeholder.id = 'drive-receipt-placeholder';
+                    placeholder.className = 'text-center py-8 px-4 flex flex-col items-center justify-center gap-3';
+                    placeholder.innerHTML = `
+                        <div class="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-850 flex items-center justify-center text-cyan-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-neutral-400 max-w-xs leading-relaxed font-sans">
+                            File bukti pembayaran disimpan di Google Drive Anda. Klik tombol di bawah untuk membukanya secara aman di Google Drive.
+                        </p>
+                    `;
+                    img.parentNode.appendChild(placeholder);
+                } else {
+                    placeholder.classList.remove('hidden');
+                }
+            } else {
+                img.classList.remove('hidden');
+                img.src = src;
+                link.innerText = "Unduh/Buka File Lampiran ↗";
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            }
+            
+            link.href = src;
+            
+            modal.classList.remove('hidden');
+            modal.classList.remove('pointer-events-none');
+            modal.classList.add('pointer-events-auto');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                modal.querySelector('.transform').classList.remove('scale-95');
+                modal.querySelector('.transform').classList.add('scale-100');
+            }, 10);
+        };
+
+        window.closeReceiptModal = function() {
+            const modal = document.getElementById('receipt-modal');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.remove('scale-100');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-auto');
+                modal.classList.add('pointer-events-none');
+            }, 300);
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchInitialData();
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+            
+            const modal = document.getElementById('receipt-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeReceiptModal();
+                    }
+                });
+            }
+
+            const searchInput = document.getElementById('txSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value.toLowerCase().trim();
+                    applyMutationFilters();
+                });
+            }
+        });
+ 
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            const isLight = (theme === 'light');
+            if (isLight) {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerText = '🌙';
+            }
+        }
+ 
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth;
+            overlay.offsetWidth;
+            
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+    </script>
+
+    <!-- MODAL PREVIEW BUKTI DRIVE/BASE64 -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div class="relative bg-neutral-900 border border-neutral-800 max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-neutral-800 p-4">
+                <span class="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">Lampiran Bukti Resmi</span>
+                <button onclick="closeReceiptModal()" class="w-6 h-6 rounded-lg bg-neutral-950 border border-neutral-800 text-xs font-mono text-neutral-500 hover:text-white hover:border-neutral-600 transition-all cursor-pointer">✕</button>
+            </div>
+            <div class="p-4 flex-grow overflow-y-auto flex flex-col items-center justify-center min-h-[250px]">
+                <img id="receipt-img-preview" src="" alt="Bukti Pembayaran" class="max-w-full max-h-[50vh] rounded-lg object-contain shadow-md border border-neutral-800" />
+            </div>
+            <div class="border-t border-neutral-800 p-4 bg-neutral-950/40 flex justify-end">
+                <a id="receipt-download-link" href="" target="_blank" class="w-full text-center text-xs font-mono py-2.5 rounded-xl border border-emerald-500/10 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500 hover:text-neutral-950 transition-all font-semibold">
+                    Unduh/Buka File Lampiran ↗
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

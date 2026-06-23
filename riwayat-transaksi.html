@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDK IMIP — Riwayat Transaksi Lengkap</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --bg-emerald-pill: rgba(16, 185, 129, 0.08);
+            --border-emerald-pill: rgba(16, 185, 129, 0.20);
+            --text-emerald-accent: #34d399;
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            --header-bg: rgba(14, 17, 26, 0.4);
+            --modal-bg: rgba(7, 9, 14, 0.95);
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Button variables */
+            --btn-cyan-bg: #06b6d4;
+            --btn-cyan-text: #07090e;
+            --btn-cyan-hover: #22d3ee;
+
+            --btn-green-bg: #22c55e;
+            --btn-green-text: #07090e;
+            --btn-green-hover: #4ade80;
+
+            /* Accent glow variables */
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --scrollbar-track: #07080c;
+            --scrollbar-thumb: #1f2937;
+            --scrollbar-hover: #374151;
+
+            /* Glass and search input */
+            --glass-panel-bg: rgba(10, 11, 16, 0.6);
+            --glass-panel-border: rgba(255, 255, 255, 0.03);
+            --glass-card-bg: rgba(13, 15, 20, 0.4);
+            --glass-card-border: rgba(255, 255, 255, 0.02);
+            --glass-card-hover: rgba(17, 20, 28, 0.7);
+            --glass-card-hover-border: rgba(255, 255, 255, 0.06);
+            --search-input-bg: rgba(10, 11, 16, 0.8);
+            --bg-amber-banner: rgba(245, 158, 11, 0.05);
+            --border-amber-banner: rgba(245, 158, 11, 0.20);
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-emerald-pill: rgba(4, 120, 87, 0.06);
+            --border-emerald-pill: rgba(4, 120, 87, 0.18);
+            --text-emerald-accent: #047857;
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            --header-bg: rgba(240, 245, 242, 0.6);
+            --modal-bg: rgba(240, 245, 242, 0.96);
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Button variables overrides */
+            --btn-cyan-bg: #0f766e;
+            --btn-cyan-text: #ffffff;
+            --btn-cyan-hover: #115e59;
+
+            --btn-green-bg: #15803d;
+            --btn-green-text: #ffffff;
+            --btn-green-hover: #166534;
+
+            /* Shadow & glow adjustments */
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+            --scrollbar-track: #e2ece7;
+            --scrollbar-thumb: #b0c3b7;
+            --scrollbar-hover: #98b0a1;
+ 
+             /* Glass and search input */
+             --glass-panel-bg: rgba(255, 255, 255, 0.7);
+             --glass-panel-border: #ccd9d2;
+             --glass-card-bg: rgba(255, 255, 255, 0.5);
+             --glass-card-border: #e2ece7;
+             --glass-card-hover: rgba(255, 255, 255, 0.95);
+             --glass-card-hover-border: #ccd9d2;
+             --search-input-bg: rgba(255, 255, 255, 0.8);
+             --bg-amber-banner: rgba(180, 83, 9, 0.05);
+             --border-amber-banner: rgba(180, 83, 9, 0.18);
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+
+        .text-neutral-700 {
+            color: var(--text-sec-500) !important;
+            transition: color 0.4s ease;
+        }
+
+        .text-neutral-800 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* Cyan indicators, buttons, & inputs */
+        .bg-cyan-950\/40 { 
+            background-color: var(--bg-cyan-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-cyan-500\/20 { 
+            border-color: var(--border-cyan-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-cyan-400 { 
+            color: var(--text-cyan-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-cyan-500 {
+            background-color: var(--btn-cyan-bg) !important;
+            color: var(--btn-cyan-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-cyan-500:hover, .hover\:bg-cyan-400:hover, .hover\:bg-cyan-600:hover {
+            background-color: var(--btn-cyan-hover) !important;
+        }
+        .focus\:border-cyan-500:focus {
+            border-color: var(--text-cyan-accent) !important;
+        }
+        .accent-cyan-400 {
+            accent-color: var(--text-cyan-accent) !important;
+        }
+        
+        /* Green indicators & buttons */
+        .bg-green-950\/40 { 
+            background-color: var(--bg-green-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-green-500\/20 { 
+            border-color: var(--border-green-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-green-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-green-500 {
+            background-color: var(--btn-green-bg) !important;
+            color: var(--btn-green-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-green-500:hover {
+            background-color: var(--btn-green-hover) !important;
+        }
+        .accent-green-400 {
+            accent-color: var(--text-green-accent) !important;
+        }
+        
+        /* Emerald indicators, selection & tabs */
+        .bg-emerald-950 { 
+            background-color: var(--bg-emerald-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-emerald-900\/60 { 
+            border-color: var(--border-emerald-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-emerald-400 { 
+            color: var(--text-emerald-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-emerald-500 {
+            background-color: var(--btn-green-bg) !important;
+            color: var(--btn-green-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-emerald-500:hover, .hover\:bg-emerald-400:hover, .hover\:bg-emerald-600:hover {
+            background-color: var(--btn-green-hover) !important;
+        }
+        .focus\:border-emerald-500:focus {
+            border-color: var(--text-emerald-accent) !important;
+        }
+        .accent-emerald-400 {
+            accent-color: var(--text-emerald-accent) !important;
+        }
+        
+        /* Amber indicators */
+        .bg-amber-950\/40 { 
+            background-color: var(--bg-amber-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-amber-500\/20 { 
+            border-color: var(--border-amber-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        /* Rose indicators */
+        .text-rose-400 { 
+            color: var(--text-rose-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        /* Glass and search input */
+        .glass-panel {
+            background-color: var(--glass-panel-bg) !important;
+            border-color: var(--glass-panel-border) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+        
+        .glass-card {
+            background-color: var(--glass-card-bg) !important;
+            border-color: var(--glass-card-border) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease, transform 0.3s ease;
+        }
+        .glass-card:hover {
+            background-color: var(--glass-card-hover) !important;
+            border-color: var(--glass-card-hover-border) !important;
+        }
+        .bg-neutral-950\/80 {
+            background-color: var(--search-input-bg) !important;
+            transition: background-color 0.4s ease;
+        }
+        .focus\:border-emerald-500\/40:focus {
+            border-color: var(--text-emerald-accent) !important;
+        }
+        .bg-amber-500\/5 {
+            background-color: var(--bg-amber-banner) !important;
+            transition: background-color 0.4s ease;
+        }
+        .border-amber-500\/20 {
+            border-color: var(--border-amber-banner) !important;
+            transition: border-color 0.4s ease;
+        }
+
+        /* Border Indicator Cards */
+        .border-l-3.border-l-emerald-500\/80 {
+            border-left-color: var(--text-emerald-accent) !important;
+        }
+        .border-l-3.border-l-rose-500\/80 {
+            border-left-color: var(--text-rose-accent) !important;
+        }
+        
+        /* Title text gradient fix in Light Mode */
+        html.light-mode .text-transparent.bg-clip-text {
+            background: none !important;
+            background-clip: unset !important;
+            -webkit-background-clip: unset !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Active button text color fix in Light Mode */
+        html.light-mode .bg-emerald-500 {
+            color: #ffffff !important;
+        }
+
+        /* Hover transaction title color fix in Light Mode */
+        .hover\:text-white:hover {
+            color: var(--text-primary) !important;
+        }
+
+        /* WA Cash / Green and Red Badges Overrides for Light Mode */
+        html.light-mode .bg-emerald-950\/40 {
+            background-color: rgba(21, 128, 61, 0.08) !important;
+        }
+        html.light-mode .border-emerald-800\/40 {
+            border-color: rgba(21, 128, 61, 0.25) !important;
+        }
+        html.light-mode .text-emerald-400 {
+            color: #15803d !important;
+        }
+
+        html.light-mode .bg-rose-950\/20 {
+            background-color: rgba(225, 29, 72, 0.08) !important;
+        }
+        html.light-mode .bg-rose-950\/40 {
+            background-color: rgba(225, 29, 72, 0.08) !important;
+        }
+        html.light-mode .border-rose-900\/40 {
+            border-color: rgba(225, 29, 72, 0.25) !important;
+        }
+        html.light-mode .text-rose-400 {
+            color: #be123c !important;
+        }
+
+        /* Opacity and border utilities overrides for Light theme consistency */
+        .bg-neutral-950\/40 {
+            background-color: rgba(14, 17, 26, 0.4) !important;
+        }
+        html.light-mode .bg-neutral-950\/40 {
+            background-color: rgba(244, 234, 224, 0.4) !important;
+        }
+
+        .bg-neutral-950\/20 {
+            background-color: rgba(14, 17, 26, 0.2) !important;
+        }
+        html.light-mode .bg-neutral-950\/20 {
+            background-color: rgba(244, 234, 224, 0.2) !important;
+        }
+
+        .bg-neutral-900\/60 {
+            background-color: rgba(21, 26, 41, 0.6) !important;
+        }
+        html.light-mode .bg-neutral-900\/60 {
+            background-color: rgba(244, 234, 224, 0.6) !important;
+        }
+
+        .border-neutral-800\/40 {
+            border-color: rgba(29, 34, 53, 0.4) !important;
+        }
+        html.light-mode .border-neutral-800\/40 {
+            border-color: rgba(234, 222, 204, 0.4) !important;
+        }
+
+        .border-neutral-900\/20 {
+            border-color: rgba(29, 34, 53, 0.2) !important;
+        }
+        html.light-mode .border-neutral-900\/20 {
+            border-color: rgba(234, 222, 204, 0.2) !important;
+        }
+
+        .border-neutral-900\/40 {
+            border-color: rgba(29, 34, 53, 0.4) !important;
+        }
+        html.light-mode .border-neutral-900\/40 {
+            border-color: rgba(234, 222, 204, 0.4) !important;
+        }
+
+        .border-neutral-900\/60 {
+            border-color: rgba(29, 34, 53, 0.6) !important;
+        }
+        html.light-mode .border-neutral-900\/60 {
+            border-color: rgba(234, 222, 204, 0.6) !important;
+        }
+
+        html.light-mode .border-emerald-500\/10 {
+            border-color: rgba(21, 128, 61, 0.2) !important;
+        }
+        html.light-mode .border-rose-500\/10 {
+            border-color: rgba(225, 29, 72, 0.2) !important;
+        }
+
+        /* Hover Text Color Adjustments in Light Mode */
+        html.light-mode .hover\:text-neutral-200:hover {
+            color: var(--text-primary) !important;
+        }
+        html.light-mode .hover\:text-amber-300:hover {
+            color: #9a3412 !important; /* Deep dark amber hover */
+        }
+
+        /* Glowing background bubbles hover corrections in Light Mode */
+        html.light-mode .bg-emerald-500\/5 {
+            background-color: rgba(21, 128, 61, 0.05) !important;
+        }
+        html.light-mode .group:hover .group-hover\:bg-emerald-500\/10 {
+            background-color: rgba(21, 128, 61, 0.1) !important;
+        }
+
+        html.light-mode .bg-rose-500\/5 {
+            background-color: rgba(190, 18, 60, 0.05) !important;
+        }
+        html.light-mode .group:hover .group-hover\:bg-rose-500\/10 {
+            background-color: rgba(190, 18, 60, 0.1) !important;
+        }
+
+        html.light-mode .bg-blue-500\/5 {
+            background-color: rgba(14, 116, 144, 0.05) !important;
+        }
+        html.light-mode .group:hover .group-hover\:bg-blue-500\/10 {
+            background-color: rgba(14, 116, 144, 0.1) !important;
+        }
+
+        /* Modal card overrides for premium visual consistency */
+        #receipt-modal > div {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-card) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #07080c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+
+        /* Pulsing Glow Animation */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(245, 158, 11, 0.05);
+                border-color: rgba(245, 158, 11, 0.15);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+                border-color: rgba(245, 158, 11, 0.35);
+            }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        /* Staggered slide-in animation */
+        .tx-card-item {
+            opacity: 0;
+            transform: translateY(12px);
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Glassmorphism backgrounds */
+        .glass-panel {
+            background: rgba(10, 11, 16, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .glass-card {
+            background: rgba(13, 15, 20, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            background: rgba(17, 20, 28, 0.7);
+            border-color: rgba(255, 255, 255, 0.06);
+            transform: translateY(-2px);
+        }
+        
+        /* Premium Loading Overlay */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
+            50% { transform: translate(-14px, -12px); opacity: 0.6; }
+        }
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
+            50% { transform: translate(14px, -14px); opacity: 0.55; }
+        }
+        @keyframes pulse-sun {
+            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+        .animate-drift-cloud-1 {
+            animation: drift-cloud-1 6s infinite ease-in-out;
+        }
+        .animate-drift-cloud-2 {
+            animation: drift-cloud-2 8s infinite ease-in-out;
+        }
+        .animate-pulse-sun {
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400 relative">
+
+    <!-- PREMIUM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <!-- Spinner Ring Outer -->
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            
+            <!-- Floating Elements Inside -->
+            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
+                <!-- Glowing Sun in background (Top-Left above Masjid) -->
+                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
+                <!-- Drifting Cloud 1 (Left side above Masjid) -->
+                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
+                <!-- Drifting Cloud 2 (Right side above Masjid) -->
+                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
+                <!-- Floating Masjid in Center-Bottom -->
+                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            </div>
+            
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+        </div>
+    </div>
+
+    <canvas id="canvas-sparks" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
+        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold z-10">
+            <span>←</span> <span>Dashboard</span>
+        </a>
+        <div class="flex items-center gap-3 z-10">
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                🌙
+            </button>
+            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold text-emerald-400 hidden sm:inline">
+                Laporan Transaksi Lengkap
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full flex-grow flex flex-col gap-6 z-10 relative">
+        
+        <div class="flex flex-col gap-1.5">
+            <h1 class="text-3xl font-black tracking-tight text-white bg-gradient-to-r from-white via-neutral-200 to-neutral-500 bg-clip-text text-transparent">
+                Keuangan LDK IMIP 
+            </h1>
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <p class="text-xs text-neutral-400 uppercase font-mono tracking-widest">
+                    Seluruh Aliran Arus Kas
+                </p>
+                <button onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[10px] font-mono text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 cursor-pointer bg-amber-500/5 px-2.5 py-1 rounded-lg border border-amber-500/10 hover:border-amber-500/30">
+                    ⚠️ Info Sinkronisasi
+                </button>
+            </div>
+        </div>
+
+        <div id="sync-notice-banner" class="relative bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 flex gap-4 overflow-hidden backdrop-blur-sm animate-pulse-glow shadow-[0_0_15px_rgba(245,158,11,0.01)] transition-all duration-300 transform">
+            <div class="absolute -left-16 -top-16 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="flex-grow flex flex-col justify-center pr-6">
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider font-mono">Pemberitahuan Sinkronisasi</h4>
+                <p class="text-[11px] leading-relaxed text-neutral-300 mt-0.5">
+                    Jika iuran kas atau pengeluaran yang baru Anda input/ajukan belum tercantum di bawah ini, mohon tunggu sebentar karena transaksi tersebut memerlukan verifikasi & validasi manual oleh Bendahara Admin. Silakan hubungi Admin Keuangan apabila terdapat kendala atau ketidakcocokan data.
+                </p>
+            </div>
+            <button onclick="toggleNotice(false)" class="absolute right-3 top-3 w-6 h-6 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/10 text-amber-400 text-xs flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95" title="Tutup">
+                ✕
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="glass-panel rounded-2xl p-4.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group">
+                <div class="absolute -right-8 -top-8 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Total (Pemasukan)</span>
+                    <div class="w-6 h-6 rounded-lg bg-emerald-950/50 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-xs">
+                        ↙
+                    </div>
+                </div>
+                <span id="stat-pemasukan" class="text-xl font-bold font-mono text-emerald-400 mt-1">Rp0</span>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group">
+                <div class="absolute -right-8 -top-8 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Total (Pengeluaran)</span>
+                    <div class="w-6 h-6 rounded-lg bg-rose-950/50 border border-rose-500/10 flex items-center justify-center text-rose-400 text-xs">
+                        ↗
+                    </div>
+                </div>
+                <span id="stat-pengeluaran" class="text-xl font-bold font-mono text-rose-400 mt-1">Rp0</span>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group">
+                <div class="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/5 rounded-full blur-xl group-hover:bg-blue-500/10 transition-all duration-500"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Saldo Bersih (Net)</span>
+                    <div id="stat-saldo-indicator" class="w-6 h-6 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-xs">
+                        ⚖
+                    </div>
+                </div>
+                <span id="stat-saldo" class="text-xl font-bold font-mono mt-1 text-white">Rp0</span>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 flex flex-col gap-4 border border-neutral-900/60 shadow-lg">
+            
+            <div class="relative w-full">
+                <input type="text" id="input-search" 
+                       placeholder="Cari keterangan, nama program kerja, PIC, kategori, atau metode..." 
+                       class="w-full bg-neutral-950/80 border border-neutral-900 text-neutral-100 placeholder-neutral-500 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/10 transition-all font-sans pr-10">
+                <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-600">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-neutral-900/40">
+                <div class="flex bg-neutral-950 p-1 rounded-xl border border-neutral-900 self-start">
+                    <button onclick="filterType('semua')" id="btn-type-semua" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer">
+                        Semua
+                    </button>
+                    <button onclick="filterType('Masuk')" id="btn-type-masuk" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                        Pemasukan
+                    </button>
+                    <button onclick="filterType('Keluar')" id="btn-type-keluar" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                        Pengeluaran
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex flex-col gap-0.5">
+                        <select id="select-month" onchange="filterMonth(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer">
+                            <option value="">Semua Bulan</option>
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-0.5">
+                        <select id="select-sort" onchange="changeSort(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer">
+                            <option value="terbaru">Terbaru (Tanggal)</option>
+                            <option value="terlama">Terlama (Tanggal)</option>
+                            <option value="termahal">Termahal (Nominal)</option>
+                            <option value="termurah">Termurah (Nominal)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="downloadCSV()" class="bg-emerald-500 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
+                        📥 Unduh CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3 min-h-[300px]" id="ledger-container">
+            </div>
+
+        <div class="flex items-center justify-between border-t border-neutral-900/60 pt-4" id="pagination-panel">
+            <span class="text-[10px] font-mono text-neutral-500" id="pagination-info">Menampilkan 0 - 0 dari 0 transaksi</span>
+            <div class="flex items-center gap-1.5">
+                <button onclick="prevPage()" id="btn-prev" class="w-8 h-8 rounded-lg bg-neutral-950 border border-neutral-900 flex items-center justify-center text-xs hover:border-neutral-700 transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer">
+                    ←
+                </button>
+                <span class="text-xs font-mono font-bold px-2.5 text-neutral-400" id="pagination-current">1</span>
+                <button onclick="nextPage()" id="btn-next" class="w-8 h-8 rounded-lg bg-neutral-950 border border-neutral-900 flex items-center justify-center text-xs hover:border-neutral-700 transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer">
+                    →
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div class="relative bg-neutral-900 border border-neutral-800 max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-neutral-800 p-4">
+                <span class="text-xs font-mono font-bold tracking-wider text-emerald-400 uppercase">Lampiran Bukti Resmi</span>
+                <button onclick="closeReceiptModal()" class="w-6 h-6 rounded-lg bg-neutral-950 border border-neutral-800 text-xs font-mono text-neutral-500 hover:text-white hover:border-neutral-600 transition-all cursor-pointer">✕</button>
+            </div>
+            <div class="p-4 flex-grow flex items-center justify-center overflow-auto bg-neutral-950/40">
+                <img id="receipt-img-preview" src="" alt="Bukti Pembayaran" class="max-w-full max-h-[50vh] object-contain rounded-lg border border-neutral-900/60 shadow-lg">
+            </div>
+            <div class="border-t border-neutral-800 p-3 text-center bg-neutral-950/20">
+                <a id="receipt-download-link" href="#" download class="text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-colors py-1.5 px-3 border border-neutral-800 hover:border-emerald-500/20 rounded-lg inline-block bg-neutral-900/60" target="_blank">
+                    Unduh File Lampiran ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-neutral-900 bg-neutral-950/20 py-5 text-center mt-12 z-10 relative">
+        <span class="text-[10px] font-mono text-neutral-600 tracking-widest uppercase">
+            LDK IMIP
+        </span>
+    </footer>
+
+    <script id="transactions-data" type="application/json">
+        [
+            {
+                "id": 1,
+                "tanggal": "2026-06-10",
+                "keterangan": "Iuran Kas Bulanan Pengurus Kompak",
+                "jenis": "Masuk",
+                "kategori": "Kas Bulanan",
+                "metode": "GoPay",
+                "nominal": "350000",
+                "nama_proker": null,
+                "user_name": "Ahmad Fauzi",
+                "nama_pic_pengeluar": null,
+                "status_reimburse": "Tidak Perlu",
+                "catatan": "KAS_BPH_JUNI"
+            },
+            {
+                "id": 2,
+                "tanggal": "2026-06-08",
+                "keterangan": "Pembelian Konsumsi Pemateri Kajian Syiar",
+                "jenis": "Keluar",
+                "kategori": "Konsumsi",
+                "metode": "Tunai",
+                "nominal": "150000",
+                "nama_proker": "Kajian Akbar Semesta",
+                "user_name": null,
+                "nama_pic_pengeluar": "Dimaz Hakim",
+                "status_reimburse": "Tidak Perlu",
+                "catatan": "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=500"
+            },
+            {
+                "id": 3,
+                "tanggal": "2026-06-05",
+                "keterangan": "HTM Registrasi Peserta Webinar Dakwah",
+                "jenis": "Masuk",
+                "kategori": "HTM Acara",
+                "metode": "GoPay",
+                "nominal": "1250000",
+                "nama_proker": "Webinar Nasional Kreatif",
+                "user_name": "Siti Aisyah",
+                "nama_pic_pengeluar": null,
+                "status_reimburse": "Tidak Perlu",
+                "catatan": "PROKER_REG_WEBINAR"
+            },
+            {
+                "id": 4,
+                "tanggal": "2026-05-28",
+                "keterangan": "Dana Talangan Print Pamflet & Baliho",
+                "jenis": "Keluar",
+                "kategori": "Perlengkapan",
+                "metode": "Dana Talangan",
+                "nominal": "450000",
+                "nama_proker": "Gema Ramadhan",
+                "user_name": null,
+                "nama_pic_pengeluar": "Riski Raditiya",
+                "status_reimburse": "Belum",
+                "catatan": "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=500"
+            },
+            {
+                "id": 5,
+                "tanggal": "2026-05-15",
+                "keterangan": "Infaq Hamba Allah untuk Kas Masjid",
+                "jenis": "Masuk",
+                "kategori": "Infaq / Shadaqah",
+                "metode": "Tunai",
+                "nominal": "2000000",
+                "nama_proker": null,
+                "user_name": "Anonim",
+                "nama_pic_pengeluar": null,
+                "status_reimburse": "Tidak Perlu",
+                "catatan": "Titipan hamba Allah via bendahara"
+            },
+            {
+                "id": 6,
+                "tanggal": "2026-04-20",
+                "keterangan": "Reimbursement Nota Sound System",
+                "jenis": "Keluar",
+                "kategori": "Penyewaan Alat",
+                "metode": "Tunai",
+                "nominal": "600000",
+                "nama_proker": "Kajian Akbar Semesta",
+                "user_name": null,
+                "nama_pic_pengeluar": "Adila Putri",
+                "status_reimburse": "Sudah",
+                "catatan": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=500"
+            }
+        ]
+    </script>
+
+    <script>
+        // ----------------------------------------------------
+        // ⚡ PARTICLE CANVAS ANIMATION SYSTEM & SPARKS EFFECT
+        // ----------------------------------------------------
+        const canvas = document.getElementById('canvas-sparks');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let backgroundParticles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 2.8 + 0.8;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = color || `hsla(${Math.random() * 360}, 100%, 70%, 0.8)`;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.015;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= this.decay;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class DustParticle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height;
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 10;
+                this.size = Math.random() * 1.2 + 0.3;
+                this.speedY = -(Math.random() * 0.4 + 0.1);
+                this.speedX = Math.random() * 0.3 - 0.15;
+                this.alpha = Math.random() * 0.4 + 0.05;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                if (this.y < -10 || this.x < -10 || this.x > canvas.width + 10) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                const isLight = document.documentElement.classList.contains('light-mode');
+                ctx.fillStyle = isLight ? 'rgba(15, 118, 110, 0.2)' : '#10b981';
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) {
+            backgroundParticles.push(new DustParticle());
+        }
+
+        window.addEventListener('click', (e) => {
+            let color = 'rgba(59, 130, 246, 0.6)';
+            const targetCard = e.target.closest('[data-type]');
+            if (targetCard) {
+                const type = targetCard.getAttribute('data-type');
+                const isLight = document.documentElement.classList.contains('light-mode');
+                if (type === 'Masuk') {
+                    color = isLight ? 'rgba(21, 128, 61, 0.7)' : 'rgba(16, 185, 129, 0.7)';
+                } else {
+                    color = isLight ? 'rgba(190, 18, 60, 0.7)' : 'rgba(244, 63, 94, 0.7)';
+                }
+            }
+            for (let i = 0; i < 15; i++) {
+                particles.push(new Particle(e.clientX, e.clientY, color));
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (Math.random() < 0.15) {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                const sparkColor = isLight ? 'rgba(15, 118, 110, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+                particles.push(new Particle(e.clientX, e.clientY, sparkColor));
+            }
+        });
+
+        function animateSparks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            backgroundParticles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                if (p.alpha <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(animateSparks);
+        }
+        animateSparks();
+
+        // ----------------------------------------------------
+        // 📊 CLIENT-SIDE SEARCH, FILTER & SORT SYSTEM
+        // ----------------------------------------------------
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc4KjFANk2dGnw18Vw07aXlJ8BLJ1-VrAPQ2Oj35v0LnmLennIA19Z5eJIyLl4N1ad/exec";
+        let rawTransactions = [];
+        
+        let filteredTransactions = [];
+        let currentType = 'semua';
+        let currentMonth = '';
+        let currentSort = 'terbaru';
+        let searchQuery = '';
+        const itemsPerPage = 8;
+        let currentPage = 1;
+        let prevStats = { masuk: 0, keluar: 0, saldo: 0 };
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(number);
+        }
+
+        function formatDateIndo(dateStr) {
+            const [year, month, day] = dateStr.split('-');
+            const monthsIndo = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            return `${parseInt(day)} ${monthsIndo[parseInt(month) - 1]} ${year}`;
+        }
+
+        function getReceiptPath(tx) {
+            if (!tx.catatan) return null;
+            const c = tx.catatan.trim();
+            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
+                return c;
+            }
+            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
+            if (urlMatch) return urlMatch[0];
+            
+            const base64Match = c.match(/data:image\/[^\s)]+/);
+            if (base64Match) return base64Match[0];
+            
+            return null;
+        }
+
+        window.filterType = function(type) {
+            currentType = type;
+            const btns = {
+                'semua': document.getElementById('btn-type-semua'),
+                'Masuk': document.getElementById('btn-type-masuk'),
+                'Keluar': document.getElementById('btn-type-keluar')
+            };
+            Object.keys(btns).forEach(key => {
+                if (key === type) {
+                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.2)]";
+                } else {
+                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer";
+                }
+            });
+            applyFiltersAndSort();
+        };
+
+        window.filterMonth = function(month) {
+            currentMonth = month;
+            applyFiltersAndSort();
+        };
+
+        window.changeSort = function(sort) {
+            currentSort = sort;
+            applyFiltersAndSort();
+        };
+
+        document.getElementById('input-search').addEventListener('input', function(e) {
+            searchQuery = e.target.value.toLowerCase().trim();
+            applyFiltersAndSort();
+        });
+
+        window.prevPage = function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderList();
+            }
+        };
+
+        window.nextPage = function() {
+            const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderList();
+            }
+        };
+
+        function applyFiltersAndSort() {
+            filteredTransactions = rawTransactions.filter(tx => {
+                const matchesSearch = 
+                    tx.keterangan.toLowerCase().includes(searchQuery) ||
+                    (tx.nama_proker && tx.nama_proker.toLowerCase().includes(searchQuery)) ||
+                    (tx.user_name && tx.user_name.toLowerCase().includes(searchQuery)) ||
+                    (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchQuery)) ||
+                    tx.kategori.toLowerCase().includes(searchQuery) ||
+                    tx.metode.toLowerCase().includes(searchQuery);
+
+                const matchesType = currentType === 'semua' ? true : tx.jenis === currentType;
+
+                let matchesMonth = true;
+                if (currentMonth !== '') {
+                    const [yr, mn, dy] = tx.tanggal.split('-');
+                    matchesMonth = mn === currentMonth;
+                }
+
+                return matchesSearch && matchesType && matchesMonth;
+            });
+
+            filteredTransactions.sort((a, b) => {
+                if (currentSort === 'terbaru') {
+                    return b.tanggal.localeCompare(a.tanggal) || b.id - a.id;
+                } else if (currentSort === 'terlama') {
+                    return a.tanggal.localeCompare(b.tanggal) || a.id - b.id;
+                } else if (currentSort === 'termahal') {
+                    return parseFloat(b.nominal) - parseFloat(a.nominal);
+                } else if (currentSort === 'termurah') {
+                    return parseFloat(a.nominal) - parseFloat(b.nominal);
+                }
+                return 0;
+            });
+
+            currentPage = 1;
+            recalculateStats();
+            renderList();
+        }
+
+        function animateValue(id, start, end, duration) {
+            if (start === end) {
+                document.getElementById(id).textContent = formatRupiah(end);
+                return;
+            }
+            const range = end - start;
+            let current = start;
+            const startTime = performance.now();
+
+            function updateNumber(timestamp) {
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                current = Math.floor(start + (range * ease));
+                
+                document.getElementById(id).textContent = formatRupiah(current);
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                } else {
+                    document.getElementById(id).textContent = formatRupiah(end);
+                }
+            }
+            requestAnimationFrame(updateNumber);
+        }
+
+        function recalculateStats() {
+            let totalIn = 0;
+            let totalOut = 0;
+
+            filteredTransactions.forEach(tx => {
+                const val = parseFloat(tx.nominal);
+                if (tx.jenis === 'Masuk') {
+                    totalIn += val;
+                } else {
+                    totalOut += val;
+                }
+            });
+
+            const net = totalIn - totalOut;
+
+            animateValue('stat-pemasukan', prevStats.masuk, totalIn, 400);
+            animateValue('stat-pengeluaran', prevStats.keluar, totalOut, 400);
+            animateValue('stat-saldo', prevStats.saldo, net, 400);
+
+            const saldoEl = document.getElementById('stat-saldo');
+            const indicatorEl = document.getElementById('stat-saldo-indicator');
+            if (net >= 0) {
+                saldoEl.className = "text-xl font-bold font-mono text-white mt-1";
+                indicatorEl.className = "w-6 h-6 rounded-lg bg-emerald-950/40 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-xs";
+                indicatorEl.innerHTML = "✓";
+            } else {
+                saldoEl.className = "text-xl font-bold font-mono text-rose-400 mt-1";
+                indicatorEl.className = "w-6 h-6 rounded-lg bg-rose-950/40 border border-rose-500/10 flex items-center justify-center text-rose-400 text-xs";
+                indicatorEl.innerHTML = "⚠";
+            }
+
+            prevStats = { masuk: totalIn, keluar: totalOut, saldo: net };
+        }
+
+        function renderList() {
+            const container = document.getElementById('ledger-container');
+            const size = filteredTransactions.length;
+            
+            if (size === 0) {
+                container.innerHTML = `
+                    <div class="glass-panel rounded-2xl p-12 text-center border border-neutral-900/60 flex flex-col items-center justify-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-neutral-950 border border-neutral-900 flex items-center justify-center text-neutral-600">🔍</div>
+                        <h4 class="text-xs font-bold text-neutral-400 uppercase tracking-widest font-mono">Transaksi Tidak Ditemukan</h4>
+                        <p class="text-[10px] text-neutral-500 max-w-xs leading-relaxed">
+                            Tidak ada data transaksi yang cocok dengan filter atau kata kunci pencarian Anda. Coba kata kunci lain atau setel ulang filter.
+                        </p>
+                    </div>
+                `;
+                document.getElementById('pagination-panel').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('pagination-panel').classList.remove('hidden');
+
+            const totalPages = Math.ceil(size / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, size);
+
+            document.getElementById('pagination-info').textContent = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${size} transaksi`;
+            document.getElementById('pagination-current').textContent = currentPage;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === totalPages;
+
+            let html = '';
+            for (let i = startIndex; i < endIndex; i++) {
+                const tx = filteredTransactions[i];
+                const indexInView = i - startIndex;
+                
+                const isMasuk = tx.jenis === 'Masuk';
+                const accentBorder = isMasuk ? 'border-l-3 border-l-emerald-500/80' : 'border-l-3 border-l-rose-500/80';
+                const sign = isMasuk ? '+' : '-';
+                const valColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
+                
+                const typeText = isMasuk ? 'IN' : 'OUT';
+                const typeBadgeClass = isMasuk 
+                    ? 'bg-emerald-950/30 text-emerald-400 border border-emerald-500/20' 
+                    : 'bg-rose-950/30 text-rose-400 border border-rose-500/20';
+
+                let statusBadge = '';
+                if (tx.status_reimburse === 'Belum') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-amber-950/40 text-amber-400 border border-amber-500/10">PENDING VERIFIKASI</span>`;
+                } else {
+                    statusBadge = `<span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-neutral-900 text-neutral-400 border border-neutral-800">LUNAS / VERIFIED</span>`;
+                }
+
+                const prokerTag = tx.nama_proker 
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">📁 ${tx.nama_proker}</span>` 
+                    : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-500 font-mono">📁 Kas Umum</span>`;
+
+                const picTag = tx.nama_pic_pengeluar 
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-amber-400/90 font-mono font-bold">@ ${tx.nama_pic_pengeluar}</span>` 
+                    : '';
+
+                const userTag = tx.user_name 
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-500 font-mono">Penyetor: ${tx.user_name}</span>`
+                    : '';
+
+                const receiptPath = getReceiptPath(tx);
+                const attachmentBtn = receiptPath 
+                    ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-950/40 text-emerald-400 hover:text-white border border-emerald-500/20 hover:border-emerald-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` 
+                    : '';
+
+                let displayNote = tx.catatan ? tx.catatan.trim() : '';
+                if (displayNote) {
+                    if (displayNote.includes('https://') || displayNote.includes('http://')) {
+                        displayNote = displayNote.replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '').trim();
+                        displayNote = displayNote.replace(/https?:\/\/[^\s]+/gi, '').trim();
+                        displayNote = displayNote.replace(/\(\s*\)/g, '').trim();
+                    }
+                }
+                const hasNote = displayNote && !displayNote.startsWith('KAS_') && !displayNote.startsWith('PROKER_') && displayNote !== '';
+                const noteHtml = hasNote 
+                    ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-emerald-500/20 pl-2 py-0.5 leading-relaxed select-text">📝 ${displayNote}</div>` 
+                    : '';
+
+                html += `
+                    <div class="glass-card rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden tx-card-item ${accentBorder}" data-type="${tx.jenis}" style="animation-delay: ${indexInView * 40}ms">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center flex-wrap gap-2 text-[10px]">
+                                    <span class="text-neutral-500 font-mono font-semibold">${formatDateIndo(tx.tanggal)}</span>
+                                    <span class="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold tracking-wider uppercase ${typeBadgeClass}">${typeText}</span>
+                                    ${statusBadge}
+                                </div>
+                                <h3 class="text-sm font-bold text-neutral-200 mt-1 font-sans cursor-pointer hover:text-white transition-colors" onclick="toggleDetails(${tx.id})">
+                                    ${tx.keterangan}
+                                </h3>
+                                ${noteHtml}
+                            </div>
+                            <div class="text-right flex flex-col items-end gap-1 flex-shrink-0">
+                                <span class="text-sm font-bold font-mono ${valColor}">
+                                    ${sign} ${formatRupiah(parseFloat(tx.nominal))}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-neutral-900/20">
+                            ${prokerTag}
+                            <span class="px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-400 font-mono">🏷 ${tx.kategori}</span>
+                            <span class="px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-400 font-mono">💳 ${tx.metode}</span>
+                            ${picTag}
+                            ${userTag}
+                            ${attachmentBtn}
+                        </div>
+
+                        <div id="details-${tx.id}" class="hidden flex-col gap-3 pt-3 mt-1 border-t border-neutral-900/40 text-[11px] text-neutral-400 leading-relaxed font-sans bg-neutral-950/20 p-3 rounded-xl">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[10px] font-mono">
+                                <div>
+                                    <span class="text-neutral-600 block">ID Log Transaksi</span>
+                                    <span class="text-neutral-400">${tx.id.toString().startsWith('TX-') || tx.id.toString().startsWith('TRX-') ? tx.id : '#TRX-00' + tx.id}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-600 block">Kategori Transaksi</span>
+                                    <span class="text-neutral-400">${tx.kategori}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-600 block">Metode Penyaluran</span>
+                                    <span class="text-neutral-400">${tx.metode}</span>
+                                </div>
+                            </div>
+                            
+                            ${tx.catatan && !tx.catatan.includes('https://') && !tx.catatan.startsWith('KAS_') && !tx.catatan.startsWith('PROKER_') ? `
+                                <div class="mt-1 border-t border-neutral-900/40 pt-2">
+                                    <span class="text-neutral-600 font-mono text-[10px] block">Catatan Tambahan:</span>
+                                    <p class="text-neutral-300 font-sans mt-0.5">${tx.catatan}</p>
+                                </div>
+                            ` : ''}
+
+
+
+                            <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-neutral-900/40">
+                                <span class="text-[9px] font-mono text-neutral-500">Koreksi data? Hubungi Admin LDK IMIP</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        window.toggleDetails = function(id) {
+            const el = document.getElementById(`details-${id}`);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            } else {
+                el.classList.remove('flex');
+                el.classList.add('hidden');
+            }
+        };
+
+        window.openReceiptModal = function(src) {
+            const modal = document.getElementById('receipt-modal');
+            const img = document.getElementById('receipt-img-preview');
+            const link = document.getElementById('receipt-download-link');
+            
+            let placeholder = document.getElementById('drive-receipt-placeholder');
+            const isDrive = src.includes('drive.google.com');
+            
+            if (isDrive) {
+                img.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                
+                if (!placeholder) {
+                    placeholder = document.createElement('div');
+                    placeholder.id = 'drive-receipt-placeholder';
+                    placeholder.className = 'text-center py-8 px-4 flex flex-col items-center justify-center gap-3';
+                    placeholder.innerHTML = `
+                        <div class="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-cyan-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-neutral-400 max-w-xs leading-relaxed font-sans">
+                            File bukti pembayaran disimpan di Google Drive Anda. Klik tombol di bawah untuk membukanya secara aman di Google Drive.
+                        </p>
+                    `;
+                    img.parentNode.appendChild(placeholder);
+                } else {
+                    placeholder.classList.remove('hidden');
+                }
+            } else {
+                img.classList.remove('hidden');
+                img.src = src;
+                link.innerText = "Unduh File Lampiran ↗";
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            }
+            
+            link.href = src;
+            
+            modal.classList.remove('hidden');
+            modal.classList.remove('pointer-events-none');
+            modal.classList.add('pointer-events-auto');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                modal.querySelector('.transform').classList.remove('scale-95');
+                modal.querySelector('.transform').classList.add('scale-100');
+            }, 10);
+        };
+
+        window.closeReceiptModal = function() {
+            const modal = document.getElementById('receipt-modal');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.remove('scale-100');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-auto');
+                modal.classList.add('pointer-events-none');
+            }, 300);
+        };
+
+        document.getElementById('receipt-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReceiptModal();
+            }
+        });
+
+        window.toggleNotice = function(show) {
+            const banner = document.getElementById('sync-notice-banner');
+            const showBtn = document.getElementById('btn-show-notice');
+            if (show) {
+                banner.classList.remove('hidden');
+                setTimeout(() => {
+                    banner.classList.remove('opacity-0');
+                    banner.classList.remove('scale-95');
+                }, 10);
+                showBtn.classList.add('hidden');
+                localStorage.setItem('hideSyncNotice', 'false');
+            } else {
+                banner.classList.add('opacity-0');
+                banner.classList.add('scale-95');
+                setTimeout(() => {
+                    banner.classList.add('hidden');
+                    showBtn.classList.remove('hidden');
+                }, 300);
+                localStorage.setItem('hideSyncNotice', 'true');
+            }
+        };
+
+        if (localStorage.getItem('hideSyncNotice') === 'true') {
+            document.getElementById('sync-notice-banner').classList.add('hidden', 'opacity-0', 'scale-95');
+            document.getElementById('btn-show-notice').classList.remove('hidden');
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(() => overlay.remove(), 400);
+            }
+        }
+
+        function fetchInitialData(forceRefresh = false) {
+            if (!GOOGLE_SCRIPT_URL) {
+                // Skenario Offline / Demo: Pakai data dari script tag id="transactions-data"
+                const offlineData = JSON.parse(document.getElementById('transactions-data').textContent);
+                rawTransactions = offlineData;
+                applyFiltersAndSort();
+                hideLoadingOverlay();
+                return;
+            }
+
+            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_TTL = 15000; // 15 seconds cache
+
+            if (forceRefresh) {
+                sessionStorage.removeItem(CACHE_KEY);
+                sessionStorage.removeItem(CACHE_TIME_KEY);
+            }
+
+            const cachedData = sessionStorage.getItem(CACHE_KEY);
+            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+            let hasRenderedFromCache = false;
+
+            if (cachedData && cachedTime) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    if (data && data.status === "success") {
+                        const membersMap = {};
+                        (data.anggota || []).forEach(m => {
+                            membersMap[m.id.toString()] = m.name;
+                        });
+                        const prokerMap = {};
+                        (data.proker || []).forEach(p => {
+                            prokerMap[p.id.toString()] = p.nama_proker;
+                        });
+
+                        rawTransactions = (data.transaksi || []).map(tx => {
+                            return {
+                                id: tx.id,
+                                tanggal: tx.tanggal,
+                                keterangan: tx.keterangan,
+                                jenis: tx.jenis,
+                                kategori: tx.kategori,
+                                metode: tx.metode,
+                                nominal: tx.nominal,
+                                nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
+                                user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
+                                nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
+                                status_reimburse: tx.status_reimburse,
+                                catatan: tx.catatan || ""
+                            };
+                        });
+
+                        applyFiltersAndSort();
+                        hideLoadingOverlay();
+                        hasRenderedFromCache = true;
+
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            console.log("Using fresh cache for Riwayat-Transaksi");
+                            return;
+                        }
+                        console.log("Using stale cache, fetching fresh data in background...");
+                    }
+                } catch (e) {
+                    console.error("Cache load error:", e);
+                }
+            }
+
+            const container = document.getElementById('ledger-container');
+            if (!hasRenderedFromCache && container) {
+                container.innerHTML = `
+                    <div class="py-12 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-2">
+                        <div class="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Memuat riwayat transaksi dari Google Sheets...</span>
+                    </div>
+                `;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(res));
+                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+
+                        const membersMap = {};
+                        res.anggota.forEach(m => {
+                            membersMap[m.id.toString()] = m.name;
+                        });
+                        const prokerMap = {};
+                        res.proker.forEach(p => {
+                            prokerMap[p.id.toString()] = p.nama_proker;
+                        });
+
+                        rawTransactions = res.transaksi.map(tx => {
+                            return {
+                                id: tx.id,
+                                tanggal: tx.tanggal,
+                                keterangan: tx.keterangan,
+                                jenis: tx.jenis,
+                                kategori: tx.kategori,
+                                metode: tx.metode,
+                                nominal: tx.nominal,
+                                nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
+                                user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
+                                nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
+                                status_reimburse: tx.status_reimburse,
+                                catatan: tx.catatan || ""
+                            };
+                        });
+
+                        applyFiltersAndSort();
+                    } else {
+                        console.error("Gagal memuat:", res.message);
+                        if (!hasRenderedFromCache && container) {
+                            container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Gagal memuat database! (${res.message})</div>`;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("Fetch Error:", err);
+                    if (!hasRenderedFromCache && container) {
+                        container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Koneksi database terputus / gagal!</div>`;
+                    }
+                })
+                .finally(() => {
+                    hideLoadingOverlay();
+                });
+        }
+
+        // Removed raw initial run, fetchInitialData will execute on DOMContentLoaded
+
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerText = '🌙';
+            }
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            // 1. Create expanding liquid ripple element
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            // Grab coordinates from click event or fallback to button center
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            // 2. Create central icon overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth; // Force layout reflow
+            overlay.offsetWidth;
+            
+            // Calculate max diagonal to cover entire screen
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            // Trigger animations
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            // Swap theme underneath ripple right when it covers content
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            // Fade out and cleanup
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+            fetchInitialData();
+        });
+
+        window.downloadCSV = function() {
+            let csvContent = "\uFEFF"; 
+            csvContent += "ID Transaksi,Tanggal,Keterangan,Jenis,Kategori,Metode,Nominal,PIC Pengeluar,Penyetor,Status Verifikasi\n";
+            
+            rawTransactions.forEach(tx => {
+                const id = tx.id;
+                const tanggal = tx.tanggal;
+                const keterangan = `"${tx.keterangan.replace(/"/g, '""')}"`;
+                const jenis = tx.jenis;
+                const kategori = tx.kategori;
+                const metode = tx.metode;
+                const nominal = tx.nominal;
+                const pic = tx.nama_pic_pengeluar ? `"${tx.nama_pic_pengeluar.replace(/"/g, '""')}"` : "";
+                const penyetor = tx.user_name ? `"${tx.user_name.replace(/"/g, '""')}"` : "";
+                const status = tx.status_reimburse === 'Belum' ? 'Pending' : 'Lunas';
+                
+                csvContent += `${id},${tanggal},${keterangan},${jenis},${kategori},${metode},${nominal},${pic},${penyetor},${status}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "Backup_Keuangan_LDK_IMIP.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    </script>
+</body>
+</html>

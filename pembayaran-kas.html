@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="icon" href="bendahara.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanaIMIP — Pembayaran & Tracking Kas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            --header-bg: rgba(14, 17, 26, 0.4);
+            --modal-bg: rgba(7, 9, 14, 0.95);
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Button variables */
+            --btn-cyan-bg: #06b6d4;
+            --btn-cyan-text: #07090e;
+            --btn-cyan-hover: #22d3ee;
+
+            --btn-green-bg: #22c55e;
+            --btn-green-text: #07090e;
+            --btn-green-hover: #4ade80;
+
+            /* Accent glow variables */
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            --header-bg: rgba(240, 245, 242, 0.6);
+            --modal-bg: rgba(240, 245, 242, 0.96);
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Button variables overrides */
+            --btn-cyan-bg: #0f766e;
+            --btn-cyan-text: #ffffff;
+            --btn-cyan-hover: #115e59;
+
+            --btn-green-bg: #15803d;
+            --btn-green-text: #ffffff;
+            --btn-green-hover: #166534;
+
+            /* Shadow & glow adjustments */
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+
+        .text-neutral-700 {
+            color: var(--text-sec-500) !important;
+            transition: color 0.4s ease;
+        }
+
+        .text-neutral-800 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* Cyan indicators, buttons, & inputs */
+        .bg-cyan-950\/40 { 
+            background-color: var(--bg-cyan-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-cyan-500\/20 { 
+            border-color: var(--border-cyan-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-cyan-400 { 
+            color: var(--text-cyan-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-cyan-500 {
+            background-color: var(--btn-cyan-bg) !important;
+            color: var(--btn-cyan-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-cyan-500:hover, .hover\:bg-cyan-400:hover, .hover\:bg-cyan-600:hover {
+            background-color: var(--btn-cyan-hover) !important;
+        }
+        .focus\:border-cyan-500:focus {
+            border-color: var(--text-cyan-accent) !important;
+        }
+        .accent-cyan-400 {
+            accent-color: var(--text-cyan-accent) !important;
+        }
+        
+        /* Green indicators & buttons */
+        .bg-green-950\/40 { 
+            background-color: var(--bg-green-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-green-500\/20 { 
+            border-color: var(--border-green-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-green-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .bg-green-500 {
+            background-color: var(--btn-green-bg) !important;
+            color: var(--btn-green-text) !important;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        .bg-green-500:hover {
+            background-color: var(--btn-green-hover) !important;
+        }
+        .accent-green-400 {
+            accent-color: var(--text-green-accent) !important;
+        }
+        
+        /* Amber indicators */
+        .bg-amber-950\/40 { 
+            background-color: var(--bg-amber-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-amber-500\/20 { 
+            border-color: var(--border-amber-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        /* Rose indicators */
+        .text-rose-400 { 
+            color: var(--text-rose-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        /* WA Cash Overrides for Light Mode */
+        html.light-mode .bg-emerald-950\/40 {
+            background-color: rgba(21, 128, 61, 0.08) !important;
+        }
+        html.light-mode .border-emerald-800\/40 {
+            border-color: rgba(21, 128, 61, 0.25) !important;
+        }
+        html.light-mode .text-emerald-400 {
+            color: #15803d !important;
+        }
+
+        html.light-mode .bg-rose-950\/20 {
+            background-color: rgba(225, 29, 72, 0.08) !important;
+        }
+        html.light-mode .border-rose-900\/40 {
+            border-color: rgba(225, 29, 72, 0.25) !important;
+        }
+        html.light-mode .text-rose-400 {
+            color: #be123c !important;
+        }
+        
+        /* Header, Modals, and Footer */
+        header {
+            border-bottom-color: var(--border-card) !important;
+            background-color: var(--header-bg) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+        }
+
+        #paymentWizardModal, #successModal { 
+            background-color: var(--modal-bg) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        footer { 
+            border-color: var(--footer-border) !important; 
+            background-color: var(--footer-bg) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        /* Hover Effects */
+        .hover\:border-cyan-500\/30:hover { 
+            border-color: var(--hover-cyan-border) !important; 
+        }
+        .hover\:border-green-500\/30:hover { 
+            border-color: var(--hover-green-border) !important; 
+        }
+        .hover\:border-amber-500\/30:hover { 
+            border-color: var(--hover-amber-border) !important; 
+        }
+        .hover\:border-neutral-700:hover { 
+            border-color: var(--hover-neutral-border) !important; 
+        }
+        
+        /* Selection Override */
+        body::selection, body *::selection {
+            background-color: var(--bg-cyan-pill) !important;
+            color: var(--text-cyan-accent) !important;
+        }
+
+        /* SweetAlert2 Dynamic Styling */
+        .swal2-popup { 
+            background: var(--bg-card) !important; 
+            border: 1px solid var(--border-card) !important; 
+            border-radius: 1rem !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+        }
+        .swal2-title { 
+            color: var(--text-primary) !important; 
+            font-size: 14px !important; 
+            font-family: 'Plus Jakarta Sans', sans-serif !important; 
+            font-weight: bold !important; 
+        }
+        .swal2-confirm { 
+            background-color: var(--text-green-accent) !important; 
+            color: var(--bg-main) !important; 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            border-radius: 0.5rem !important; 
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        
+        /* Premium Loading Overlay */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
+            50% { transform: translate(-14px, -12px); opacity: 0.6; }
+        }
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
+            50% { transform: translate(14px, -14px); opacity: 0.55; }
+        }
+        @keyframes pulse-sun {
+            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+        .animate-drift-cloud-1 {
+            animation: drift-cloud-1 6s infinite ease-in-out;
+        }
+        .animate-drift-cloud-2 {
+            animation: drift-cloud-2 8s infinite ease-in-out;
+        }
+        .animate-pulse-sun {
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
+
+    <!-- PREMIUM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <!-- Spinner Ring Outer -->
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            
+            <!-- Floating Elements Inside -->
+            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
+                <!-- Glowing Sun in background (Top-Left above Masjid) -->
+                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
+                <!-- Drifting Cloud 1 (Left side above Masjid) -->
+                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
+                <!-- Drifting Cloud 2 (Right side above Masjid) -->
+                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
+                <!-- Floating Masjid in Center-Bottom -->
+                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            </div>
+            
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+        </div>
+    </div>
+
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
+        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold">
+            <span>←</span> <span>Dashboard</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                🌙
+            </button>
+            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold hidden sm:inline">
+                Iuran Kas 2026
+            </span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-5 w-full flex-grow flex flex-col gap-4">
+        
+        <!-- CARI NAMA -->
+        <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-2.5">
+            <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-bold block">CARI NAMA</span>
+            <div class="relative">
+                <input type="text" id="searchInput" onkeyup="filterPengurus()" placeholder="Ketik nama untuk cek status lunas / bayar kas..." class="w-full bg-neutral-900 border border-neutral-800 rounded-lg pl-9 pr-4 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                <div class="absolute left-3 top-2.5 text-neutral-600 text-xs">🔍</div>
+            </div>
+        </div>
+
+        <!-- LIST KAS PENGURUS -->
+        <div class="flex flex-col gap-3">
+            <div class="flex justify-between items-center bg-neutral-950 border border-neutral-900 p-3 rounded-xl">
+                <span class="text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black block">Kas Bulanan</span>
+                <span class="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-400 font-mono px-2 py-1 rounded">
+                    Periode: <span class="text-cyan-400 font-bold">2026</span>
+                </span>
+            </div>
+
+            <div class="flex flex-col gap-2.5" id="pengurusListContainer">
+                
+                <!-- Pengurus 1 (Ikhwan) -->
+                <div class="pengurus-card bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs" data-name="ahmad fauzi">
+                    <div class="w-full p-3.5 flex items-center justify-between text-left">
+                        <div onclick="toggleAccordion(0)" class="overflow-hidden pr-2 flex-grow cursor-pointer">
+                            <h4 class="text-xs font-bold text-neutral-200 truncate">Ahmad Fauzi</h4>
+                            <span class="text-[9px] text-neutral-500 block truncate mt-0.5">Badan Pengurus Harian (BPH)</span>
+                        </div>
+                        <div class="text-right shrink-0 flex items-center gap-3">
+                            <span onclick="toggleAccordion(0)" class="text-[9px] font-mono px-2 py-0.5 rounded-md font-bold bg-neutral-900 text-cyan-400 border border-neutral-800 cursor-pointer">
+                                4/12 Bln
+                            </span>
+                            <button data-id="1" data-name="Ahmad Fauzi" data-nim="220101041" data-divisi="BPH" data-tracking='{"id":1,"name":"Ahmad Fauzi","divisi":"BPH","Jan":true,"Feb":true,"Mar":true,"Apr":true,"Mei":false,"Jun":false,"Jul":false,"Ags":false,"Sep":false,"Okt":false,"Nov":false,"Des":false}' onclick="openPaymentWizard(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95">
+                                BAYAR
+                            </button>
+                            <span onclick="toggleAccordion(0)" id="arrow-0" class="text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
+                        </div>
+                    </div>
+                    <div id="content-0" class="hidden border-t border-neutral-900/60 bg-neutral-900/10 p-3">
+                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1.5 text-center">
+                            <!-- Jan-Apr Lunas, sisanya Belum -->
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400">Jan<span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400">Feb<span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400">Mar<span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400">Apr<span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Mei<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Jun<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Jul<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Ags<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Sep<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Okt<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Nov<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Des<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pengurus 2 (Akhwat) -->
+                <div class="pengurus-card bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs" data-name="siti aisyah">
+                    <div class="w-full p-3.5 flex items-center justify-between text-left">
+                        <div onclick="toggleAccordion(1)" class="overflow-hidden pr-2 flex-grow cursor-pointer">
+                            <h4 class="text-xs font-bold text-neutral-200 truncate">Siti Aisyah</h4>
+                            <span class="text-[9px] text-neutral-500 block truncate mt-0.5">Divisi Syiar & Dakwah</span>
+                        </div>
+                        <div class="text-right shrink-0 flex items-center gap-3">
+                            <span onclick="toggleAccordion(1)" class="text-[9px] font-mono px-2 py-0.5 rounded-md font-bold bg-neutral-900 text-cyan-400 border border-neutral-800 cursor-pointer">
+                                2/12 Bln
+                            </span>
+                            <button data-id="2" data-name="Siti Aisyah" data-nim="220101085" data-divisi="Syiar" data-tracking='{"id":2,"name":"Siti Aisyah","divisi":"Syiar","Jan":true,"Feb":true,"Mar":false,"Apr":false,"Mei":false,"Jun":false,"Jul":false,"Ags":false,"Sep":false,"Okt":false,"Nov":false,"Des":false}' onclick="openPaymentWizard(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95">
+                                BAYAR
+                            </button>
+                            <span onclick="toggleAccordion(1)" id="arrow-1" class="text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
+                        </div>
+                    </div>
+                    <div id="content-1" class="hidden border-t border-neutral-900/60 bg-neutral-900/10 p-3">
+                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1.5 text-center">
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400">Jan<span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400">Feb<span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Mar<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Apr<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Mei<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Jun<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Jul<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Ags<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Sep<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Okt<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Nov<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700">Des<span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-800">BELUM</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- WIZARD FORM MODAL -->
+    <div id="paymentWizardModal" class="hidden fixed inset-0 z-50 bg-neutral-950/95 backdrop-blur-xl flex flex-col justify-between p-4 font-sans">
+        
+        <div class="flex items-center justify-between border-b border-neutral-900 pb-3">
+            <div class="flex flex-col">
+                <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-bold">ALUR PEMBAYARAN KAS</span>
+                <h3 id="wizardTitleName" class="text-sm font-bold text-white">Nama Pengurus</h3>
+            </div>
+            <button onclick="closePaymentWizard()" class="text-neutral-400 hover:text-white text-xs font-mono bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg">Batal ✕</button>
+        </div>
+
+        <!-- Form action diubah ke '#' biar ga nge-trigger error route laravel pas lo tes submit -->
+        <form action="#" method="GET" id="wizardForm" class="flex-grow flex flex-col justify-between py-4 gap-4 overflow-y-auto no-scrollbar">
+            <input type="hidden" id="wizardUserId">
+
+            <!-- Step 0: Konfirmasi Identitas (NIM) -->
+            <div id="wizardStepConfirm" class="flex flex-col gap-4">
+                <div class="bg-neutral-950 border border-neutral-900 p-5 rounded-xl flex flex-col gap-3 text-center">
+                    <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-bold">Langkah 1: Verifikasi Identitas</span>
+                    <h4 class="text-xs text-neutral-400 font-sans leading-relaxed">
+                        Untuk memastikan keaslian transaksi, silakan masukkan <strong>NIM (Nomor Induk Mahasiswa)</strong> Anda di bawah ini:
+                        <br><span class="text-[10px] text-neutral-500 italic">(💡 Masukkan NIM terdaftar Anda untuk memproses pembayaran kas)</span>
+                    </h4>
+                    
+                    <div class="mt-2 relative">
+                        <input type="text" id="nimInput" placeholder="Masukkan NIM Anda..." autocomplete="off" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono tracking-widest text-center">
+                        <div id="nimInputFeedback" class="hidden mt-2 text-[10px] font-mono text-red-500"></div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="verifyNIM()" class="w-full bg-cyan-500 text-neutral-950 font-mono text-xs py-3 rounded-xl font-bold tracking-wider text-center transition-all hover:bg-cyan-400 active:scale-95">
+                    VERIFIKASI NIM ➔
+                </button>
+            </div>
+
+            <!-- Step 1: Checklist Bulan & Metode -->
+            <div id="wizardStep1" class="hidden flex flex-col gap-4">
+                <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl">
+                    <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block mb-2">1. Centang Bulan Yang Ingin Dibayar</span>
+                    <div id="monthsCheckboxGrid" class="grid grid-cols-3 gap-2"></div>
+                </div>
+
+                <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl">
+                    <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block mb-2">2. Pilih Metode Pembayaran</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border border-neutral-800 bg-neutral-900 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer text-xs font-mono text-neutral-200">
+                            <input type="radio" name="metode" value="GoPay" checked onclick="toggleMethodView('GoPay')" class="accent-cyan-400"> 📱 QRIS Digital
+                        </label>
+                        <label class="border border-neutral-800 bg-neutral-900 rounded-lg p-3 flex items-center justify-center gap-2 cursor-pointer text-xs font-mono text-neutral-200">
+                            <input type="radio" name="metode" value="Tunai" onclick="toggleMethodView('Tunai')" class="accent-green-400"> 🤝 Cash
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" onclick="goToStep2()" class="w-full bg-cyan-500 text-neutral-950 font-mono text-xs py-3 rounded-xl font-bold tracking-wider text-center mt-2">
+                    LANJUT KE PEMBAYARAN ➔
+                </button>
+            </div>
+
+            <!-- Step 2: Gerbang QRIS / Janjian Cash -->
+            <div id="wizardStep2" class="hidden flex flex-col gap-4">
+                
+                <div class="bg-cyan-950/30 p-4 rounded-xl text-center flex flex-col gap-1">
+                    <span class="text-[10px] font-mono text-cyan-400 uppercase tracking-wider font-bold">TOTAL TAGIHAN KAS</span>
+                    <div id="wizardTotalNominalText" class="text-2xl font-black text-white font-mono tracking-tight">Rp0</div>
+                </div>
+
+                <!-- Area QRIS -->
+                <div id="qrisPaymentArea" class="flex flex-col gap-4">
+                    <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col items-center gap-3 text-center">
+                        <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block">PINDAI KODE QRIS DANAIMIP DIBAWAH INI</span>
+                        
+                        <!-- Menggunakan QRIS Kustom Resmi -->
+                        <div class="w-56 h-56 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
+                            <img src="qris.jpeg" alt="QRIS KAS IMIP" class="w-full h-full object-contain rounded-lg">
+                        </div>
+
+                        <a href="qris.jpeg" target="_blank" download="QRIS_KAS_IMIP.jpeg" class="inline-flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-[10px] font-mono px-4 py-2 rounded-lg transition-colors active:scale-95">
+                            📥 Download Kode QRIS
+                        </a>
+                    </div>
+
+                    <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl flex flex-col gap-2">
+                        <label class="text-[9px] font-mono uppercase text-neutral-400 block">Upload Foto Bukti Transfer</label>
+                        <input type="file" name="bukti_transfer" id="buktiTransferInput" accept="image/*" class="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-mono file:font-bold file:bg-neutral-900 file:text-cyan-400 border border-neutral-800 rounded-lg p-1.5 bg-neutral-900/40">
+                        
+                        <!-- Preview Container -->
+                        <div id="imagePreviewContainer" class="hidden mt-2 border border-neutral-800/80 bg-neutral-900/20 p-2.5 rounded-lg flex flex-col gap-2">
+                            <div class="flex items-center gap-2 justify-between">
+                                <span class="text-[8px] font-mono text-neutral-500 uppercase">Preview & Optimalisasi</span>
+                                <span id="imageReductionInfo" class="text-[8px] font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/30 px-1.5 py-0.5 rounded"></span>
+                            </div>
+                            <div class="relative w-full aspect-video rounded-md overflow-hidden bg-neutral-950 border border-neutral-900 flex items-center justify-center">
+                                <img id="imagePreview" src="" alt="Preview Bukti" class="max-h-full max-w-full object-contain">
+                                <div id="resizeSpinner" class="absolute inset-0 bg-neutral-950/80 flex flex-col items-center justify-center gap-1.5 text-neutral-300 text-[10px] font-mono">
+                                    <div class="w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Mengompres Foto...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Area Cash -->
+                <div id="cashAppointmentArea" class="hidden flex flex-col gap-3 bg-neutral-950 border border-neutral-900 p-4 rounded-xl">
+                    <div class="text-center pb-2 border-b border-neutral-900">
+                        <span class="text-[10px] font-mono text-green-400 uppercase font-bold tracking-wider">Mekanisme Cash Lapangan</span>
+                        <p class="text-[11px] text-neutral-400 font-light mt-1">Silakan klik salah satu tombol di bawah untuk janjian ketemuan langsung dengan bendahara organisasi:</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-2.5 pt-1">
+                        <a href="https://wa.me/6289603102069?text=Assalamu'alaikum%20Bendahara%20Ikhwan" target="_blank" class="w-full bg-emerald-950/40 border border-emerald-800/40 text-emerald-400 p-3 rounded-xl flex items-center justify-between font-sans text-xs active:scale-95 transition-transform">
+                            <div class="flex flex-col text-left">
+                                <span class="font-bold block">Hubungi Bendahara Ikhwan 🧑🏻‍💼</span>
+                                <span class="text-[9px] text-neutral-500 font-light mt-0.5">Khusus untuk pengurus Ikhwan</span>
+                            </div>
+                            <span class="text-base">➔</span>
+                        </a>
+
+                        <a href="https://wa.me/6283897306150?text=Assalamu'alaikum%20Bendahara%20Akhwat" target="_blank" class="w-full bg-rose-950/20 border border-rose-900/40 text-rose-400 p-3 rounded-xl flex items-center justify-between font-sans text-xs active:scale-95 transition-transform">
+                            <div class="flex flex-col text-left">
+                                <span class="font-bold block">Hubungi Bendahara Akhwat 🧕🏻</span>
+                                <span class="text-[9px] text-neutral-500 font-light mt-0.5">Khusus untuk pengurus Akhwat</span>
+                            </div>
+                            <span class="text-base">➔</span>
+                        </a>
+                    </div>
+                    <span class="text-[8px] text-neutral-600 text-center block font-mono mt-1">*Laporan transaksi akan tetap diinput manual ke sistem oleh admin setelah serah terima selesai.</span>
+                </div>
+
+                <!-- Tombol Submit (Simulasi Selesai di Localhost) -->
+                <button type="button" onclick="triggerLocalhostSuccess()" id="submitFormButton" class="w-full bg-green-500 text-neutral-950 font-mono text-xs py-3 rounded-xl font-bold tracking-wider text-center">
+                    SELESAI & KIRIM DATA KAS ✓
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- MODAL POPUP BERHASIL (DIBUAT TRIGGER VIA JAVASCRIPT LOCALHOST) -->
+    <div id="successModal" class="hidden fixed inset-0 z-50 bg-neutral-950/90 backdrop-blur-md flex items-center justify-center p-5">
+        <div class="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-sm w-full text-center flex flex-col items-center gap-4 shadow-xl">
+            <div class="w-12 h-12 rounded-full bg-green-950 border border-green-500/30 flex items-center justify-center text-xl">🚀</div>
+            <div>
+                <h3 class="text-sm font-bold text-white font-sans">Laporan Berhasil Terkirim!</h3>
+                <p class="text-[11px] text-neutral-400 font-light mt-1.5 leading-relaxed">
+                    Data kas akan segera diupdate oleh admin setelah verifikasi selesai. Jika ada kendala, silakan hubungi admin organisasi.
+                </p>
+            </div>
+            <button onclick="closeSuccessModal()" class="w-full bg-cyan-500 text-neutral-950 font-mono text-xs py-2.5 rounded-xl font-black block tracking-wider">
+                KEMBALI KE DASHBOARD
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW BUKTI DRIVE/BASE64 -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 pointer-events-none">
+        <div class="relative bg-neutral-900 border border-neutral-800 max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]">
+            <div class="flex items-center justify-between border-b border-neutral-800 p-4">
+                <span class="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">Lampiran Bukti Resmi</span>
+                <button onclick="closeReceiptModal()" class="w-6 h-6 rounded-lg bg-neutral-950 border border-neutral-800 text-xs font-mono text-neutral-500 hover:text-white hover:border-neutral-600 transition-all cursor-pointer">✕</button>
+            </div>
+            <div class="p-4 flex-grow flex items-center justify-center overflow-auto bg-neutral-950/40">
+                <img id="receipt-img-preview" src="" alt="Bukti Pembayaran" class="max-w-full max-h-[50vh] object-contain rounded-lg border border-neutral-900/60 shadow-lg">
+            </div>
+            <div class="border-t border-neutral-800 p-3 text-center bg-neutral-950/20">
+                <a id="receipt-download-link" href="#" download class="text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-colors py-1.5 px-3 border border-neutral-800 hover:border-cyan-500/20 rounded-lg inline-block bg-neutral-900/60" target="_blank">
+                    Unduh/Buka File Lampiran ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center">
+        <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP SYSTEM © 2026</span>
+    </footer>
+
+    <!-- INTERACTION LOGIC CONTROL SCRIPT -->
+    <script>
+        let databaseMembers = [];
+        let databaseKas = [];
+        let databaseTransactions = [];
+
+        function getReceiptPath(tx) {
+            if (!tx.catatan) return null;
+            const c = tx.catatan.trim();
+            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
+                return c;
+            }
+            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
+            if (urlMatch) return urlMatch[0];
+            
+            const base64Match = c.match(/data:image\/[^\s)]+/);
+            if (base64Match) return base64Match[0];
+            
+            return null;
+        }
+
+        window.openReceiptModal = function(src) {
+            const modal = document.getElementById('receipt-modal');
+            const img = document.getElementById('receipt-img-preview');
+            const link = document.getElementById('receipt-download-link');
+            
+            let placeholder = document.getElementById('drive-receipt-placeholder');
+            const isDrive = src.includes('drive.google.com');
+            
+            if (isDrive) {
+                img.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                
+                if (!placeholder) {
+                    placeholder = document.createElement('div');
+                    placeholder.id = 'drive-receipt-placeholder';
+                    placeholder.className = 'text-center py-8 px-4 flex flex-col items-center justify-center gap-3';
+                    placeholder.innerHTML = `
+                        <div class="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-cyan-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-neutral-400 max-w-xs leading-relaxed font-sans">
+                            File bukti pembayaran disimpan di Google Drive Anda. Klik tombol di bawah untuk membukanya secara aman di Google Drive.
+                        </p>
+                    `;
+                    img.parentNode.appendChild(placeholder);
+                } else {
+                    placeholder.classList.remove('hidden');
+                }
+            } else {
+                img.classList.remove('hidden');
+                img.src = src;
+                link.innerText = "Unduh/Buka File Lampiran ↗";
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
+                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                if (placeholder) {
+                    placeholder.classList.add('hidden');
+                }
+            }
+            
+            link.href = src;
+            
+            modal.classList.remove('hidden');
+            modal.classList.remove('pointer-events-none');
+            modal.classList.add('pointer-events-auto');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                modal.querySelector('.transform').classList.remove('scale-95');
+                modal.querySelector('.transform').classList.add('scale-100');
+            }, 10);
+        };
+
+        window.closeReceiptModal = function() {
+            const modal = document.getElementById('receipt-modal');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.remove('scale-100');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('pointer-events-auto');
+                modal.classList.add('pointer-events-none');
+            }, 300);
+        };
+
+        // Close modal when clicking on backdrop
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('receipt-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeReceiptModal();
+                    }
+                });
+            }
+        });
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(() => overlay.remove(), 400);
+            }
+        }
+
+        function fetchInitialData(forceRefresh = false) {
+            if (!GOOGLE_SCRIPT_URL) {
+                // Skenario Offline / Demo: Pakai data hardcoded bawaan di HTML
+                hideLoadingOverlay();
+                return;
+            }
+
+            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_TTL = 15000; // 15 seconds cache
+
+            if (forceRefresh) {
+                sessionStorage.removeItem(CACHE_KEY);
+                sessionStorage.removeItem(CACHE_TIME_KEY);
+            }
+
+            const cachedData = sessionStorage.getItem(CACHE_KEY);
+            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+            let hasRenderedFromCache = false;
+
+            if (cachedData && cachedTime) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    if (data && data.status === "success") {
+                        databaseMembers = data.anggota || [];
+                        databaseKas = data.kas || [];
+                        databaseTransactions = data.transaksi || [];
+                        renderPengurusList(databaseMembers, databaseKas);
+                        
+                        hideLoadingOverlay();
+                        hasRenderedFromCache = true;
+
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            console.log("Using fresh cache for Pembayaran-Kas");
+                            return;
+                        }
+                        console.log("Using stale cache, fetching fresh data in background...");
+                    }
+                } catch (e) {
+                    console.error("Cache load error:", e);
+                }
+            }
+            
+            const container = document.getElementById('pengurusListContainer');
+            if (!hasRenderedFromCache && container) {
+                container.innerHTML = `
+                    <div class="py-12 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-2">
+                        <div class="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Memuat data pengurus dari Google Sheets...</span>
+                    </div>
+                `;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+                .then(response => response.json())
+                .then(res => {
+                    if (res.status === "success") {
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(res));
+                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+
+                        databaseMembers = res.anggota || [];
+                        databaseKas = res.kas || [];
+                        databaseTransactions = res.transaksi || [];
+                        renderPengurusList(databaseMembers, databaseKas);
+                    } else {
+                        console.error("Gagal memuat data:", res.message);
+                        if (!hasRenderedFromCache && container) {
+                            container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Gagal memuat data database! (${res.message})</div>`;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("Fetch Error:", err);
+                    if (!hasRenderedFromCache && container) {
+                        container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Koneksi database terputus / gagal!</div>`;
+                    }
+                })
+                .finally(() => {
+                    hideLoadingOverlay();
+                });
+        }
+
+        function renderPengurusList(members, kas) {
+            const container = document.getElementById('pengurusListContainer');
+            container.innerHTML = '';
+            
+            if (members.length === 0) {
+                container.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500 font-mono">Belum ada data anggota di sheet 'anggota'.</div>`;
+                return;
+            }
+
+            members.forEach((member, index) => {
+                const userPayments = kas.filter(k => k.user_id.toString() === member.id.toString());
+                const monthsPaidCount = userPayments.length;
+                
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                const tracking = { id: member.id, name: member.name, divisi: member.divisi };
+                months.forEach(m => {
+                    tracking[m] = userPayments.some(k => k.bulan === m);
+                });
+
+                const cardHtml = `
+                    <div class="pengurus-card bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs" data-name="${member.name.toLowerCase()}">
+                        <div class="w-full p-3.5 flex items-center justify-between text-left">
+                            <div onclick="toggleAccordion(${index})" class="overflow-hidden pr-2 flex-grow cursor-pointer">
+                                <h4 class="text-xs font-bold text-neutral-200 truncate">${member.name}</h4>
+                                <span class="text-[9px] text-neutral-500 block truncate mt-0.5">${member.divisi} — ${member.jabatan || 'Anggota'}</span>
+                            </div>
+                            <div class="text-right shrink-0 flex items-center gap-3">
+                                <span onclick="toggleAccordion(${index})" class="text-[9px] font-mono px-2 py-0.5 rounded-md font-bold bg-neutral-900 text-cyan-400 border border-neutral-800 cursor-pointer">
+                                    ${monthsPaidCount}/12 Bln
+                                </span>
+                                <button data-id="${member.id}" data-name="${member.name}" data-nim="${member.nim || ''}" data-divisi="${member.divisi}" data-tracking='${JSON.stringify(tracking)}' onclick="openPaymentWizard(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
+                                    BAYAR
+                                </button>
+                                <span onclick="toggleAccordion(${index})" id="arrow-${index}" class="text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
+                            </div>
+                        </div>
+                        <div id="content-${index}" class="hidden border-t border-neutral-900/60 bg-neutral-900/10 p-3">
+                            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1.5 text-center">
+                                ${months.map(m => {
+                                    const kasRow = userPayments.find(k => k.bulan === m);
+                                    if (kasRow) {
+                                        const txId = kasRow.transaksi_id ? kasRow.transaksi_id.toString() : "";
+                                        return `
+                                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-cyan-950/40 border-cyan-500/20 text-cyan-400 flex flex-col justify-center items-center min-h-14">
+                                                <span>${m}</span>
+                                                <span class="block text-[7px] font-sans font-light mt-0.5 text-cyan-500/80">LUNAS</span>
+                                                ${txId ? `<span class="text-[6px] text-cyan-600/70 font-mono font-light select-all mt-0.5">${txId}</span>` : ''}
+                                            </div>
+                                        `;
+                                    } else {
+                                        return `
+                                            <div class="p-2 rounded-lg border text-[10px] font-mono font-bold bg-neutral-950 border-neutral-900 text-neutral-700 flex flex-col justify-center items-center min-h-14">
+                                                <span>${m}</span>
+                                                <span class="block text-[7px] font-sans font-light mt-0.5 text-neutral-850">BELUM</span>
+                                            </div>
+                                        `;
+                                    }
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function filterPengurus() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.getElementsByClassName('pengurus-card');
+            for (let i = 0; i < cards.length; i++) {
+                const name = cards[i].getAttribute('data-name');
+                cards[i].style.display = name.includes(input) ? "" : "none";
+            }
+        }
+
+        function toggleAccordion(index) {
+            const content = document.getElementById(`content-${index}`);
+            const arrow = document.getElementById(`arrow-${index}`);
+            if(!content) return;
+            
+            const isLight = document.documentElement.classList.contains('light-mode');
+            
+            if(content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+                arrow.style.color = isLight ? '#0f766e' : '#38bdf8';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+                arrow.style.color = isLight ? '#938479' : '#525252';
+            }
+        }
+
+        // URL Web App Google Apps Script (Contoh: https://script.google.com/macros/s/AKfycb.../exec)
+        // Hubungkan ke spreadsheet dengan mengisi URL di bawah ini:
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc4KjFANk2dGnw18Vw07aXlJ8BLJ1-VrAPQ2Oj35v0LnmLennIA19Z5eJIyLl4N1ad/exec"; 
+
+        let selectedMethod = 'GoPay';
+        let correctNim = '';
+        let currentPaymentName = '';
+        let currentPaymentDivisi = '';
+        let compressedImageBase64 = '';
+
+        function openPaymentWizard(btn) {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const divisi = btn.getAttribute('data-divisi');
+            const fullData = JSON.parse(btn.getAttribute('data-tracking'));
+            const rawNim = btn.getAttribute('data-nim') || '';
+            // Hanya set correctNim jika NIM valid (bukan 'undefined' atau kosong)
+            correctNim = (rawNim && rawNim !== 'undefined' && rawNim !== 'null') ? rawNim : '';
+
+            currentPaymentName = name;
+            currentPaymentDivisi = divisi;
+            compressedImageBase64 = ''; // Reset image
+
+            document.getElementById('wizardUserId').value = id;
+            document.getElementById('wizardTitleName').innerText = `${name} (${divisi})`;
+
+            const grid = document.getElementById('monthsCheckboxGrid');
+            grid.innerHTML = '';
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+            
+            let blockCount = 0;
+            months.forEach(m => {
+                if (!fullData[m]) {
+                    blockCount++;
+                    grid.innerHTML += `
+                        <label class="border border-neutral-800 bg-neutral-900 rounded-lg p-2.5 flex items-center justify-center gap-1.5 cursor-pointer text-[11px] font-mono text-neutral-200">
+                            <input type="checkbox" name="bulan[]" value="${m}" class="accent-cyan-400 month-cb" onclick="calculateNominal()"> ${m}
+                        </label>
+                    `;
+                }
+            });
+
+            if(blockCount === 0) {
+                grid.innerHTML = `<span class="col-span-3 text-[10px] text-green-400 text-center font-mono py-2">✓ SELURUH BULAN TELAH LUNAS!</span>`;
+            }
+
+            // Reset inputs & states
+            document.getElementById('nimInput').value = '';
+            document.getElementById('nimInputFeedback').classList.add('hidden');
+            document.getElementById('nimInput').classList.remove('border-green-500', 'border-red-500');
+            document.getElementById('nimInput').classList.add('border-neutral-800');
+            document.getElementById('buktiTransferInput').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+
+            if (correctNim) {
+                document.getElementById('wizardStepConfirm').classList.remove('hidden');
+                document.getElementById('wizardStep1').classList.add('hidden');
+                document.getElementById('wizardStep2').classList.add('hidden');
+            } else {
+                document.getElementById('wizardStepConfirm').classList.add('hidden');
+                document.getElementById('wizardStep1').classList.remove('hidden');
+                document.getElementById('wizardStep2').classList.add('hidden');
+            }
+
+            document.getElementById('paymentWizardModal').classList.remove('hidden');
+        }
+
+        function verifyNIM() {
+            const input = document.getElementById('nimInput').value.trim();
+            const feedback = document.getElementById('nimInputFeedback');
+            const inputEl = document.getElementById('nimInput');
+
+            if (!input) {
+                feedback.innerText = 'Silakan masukkan NIM Anda!';
+                feedback.classList.remove('hidden');
+                shakeElement(inputEl);
+                return;
+            }
+
+            if (input === correctNim) {
+                feedback.classList.add('hidden');
+                inputEl.classList.remove('border-neutral-800');
+                inputEl.classList.add('border-green-500');
+                
+                setTimeout(() => {
+                    inputEl.classList.remove('border-green-500');
+                    inputEl.classList.add('border-neutral-800');
+                    document.getElementById('wizardStepConfirm').classList.add('hidden');
+                    document.getElementById('wizardStep1').classList.remove('hidden');
+                }, 600);
+            } else {
+                feedback.innerText = 'NIM salah! Silakan periksa kembali NIM Anda.';
+                feedback.classList.remove('hidden');
+                shakeElement(inputEl);
+            }
+        }
+
+        function shakeElement(el) {
+            el.style.animation = 'none';
+            el.offsetHeight; 
+            el.style.animation = 'shake 0.4s ease';
+        }
+
+        function calculateNominal() {
+            const checkedCount = document.querySelectorAll('.month-cb:checked').length;
+            const total = checkedCount * 10000;
+            document.getElementById('wizardTotalNominalText').innerText = 'Rp ' + total.toLocaleString('id-ID');
+        }
+
+        function toggleMethodView(method) {
+            selectedMethod = method;
+            const qrisArea = document.getElementById('qrisPaymentArea');
+            const cashArea = document.getElementById('cashAppointmentArea');
+            const submitBtn = document.getElementById('submitFormButton');
+            const uploadInput = document.getElementById('buktiTransferInput');
+
+            if(method === 'Tunai') {
+                qrisArea.classList.add('hidden');
+                cashArea.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+                uploadInput.removeAttribute('required');
+            } else {
+                qrisArea.classList.remove('hidden');
+                cashArea.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+                uploadInput.setAttribute('required', 'required');
+            }
+        }
+
+        function goToStep2() {
+            const checkedCount = document.querySelectorAll('.month-cb:checked').length;
+            if(checkedCount === 0) {
+                alert('Silakan centang minimal 1 bulan tunggakan kas untuk dibayar!');
+                return;
+            }
+            document.getElementById('wizardStep1').classList.add('hidden');
+            document.getElementById('wizardStep2').classList.remove('hidden');
+            toggleMethodView(selectedMethod);
+        }
+
+        function closePaymentWizard() {
+            document.getElementById('paymentWizardModal').classList.add('hidden');
+        }
+
+        function triggerLocalhostSuccess() {
+            if(selectedMethod === 'GoPay' && !document.getElementById('buktiTransferInput').value) {
+                alert('Silakan masukkan file foto bukti transfer terlebih dahulu bro!');
+                return;
+            }
+
+            const checkedMonths = Array.from(document.querySelectorAll('.month-cb:checked')).map(cb => cb.value);
+            const nominalVal = checkedMonths.length * 10000;
+
+            const payload = {
+                action: "insert_transaction",
+                tanggal: new Date().toISOString().substring(0, 10),
+                keterangan: `Pembayaran Uang Kas (${checkedMonths.join(', ')})`,
+                user_id: document.getElementById('wizardUserId').value,
+                nominal: nominalVal,
+                metode: selectedMethod,
+                kategori: "Kas Bulanan",
+                status_reimburse: "Belum",
+                bukti: compressedImageBase64 || ''
+            };
+
+            if (GOOGLE_SCRIPT_URL) {
+                // Tampilkan loading SweetAlert2
+                Swal.fire({
+                    title: 'Mengirim Data Kas...',
+                    text: 'Sedang menulis transaksi ke database Google Sheets.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Menghindari CORS block
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(() => {
+                    Swal.close();
+                    sessionStorage.removeItem("ldk_db_cache");
+                    sessionStorage.removeItem("ldk_db_cache_time");
+                    document.getElementById('paymentWizardModal').classList.add('hidden');
+                    document.getElementById('successModal').classList.remove('hidden');
+                })
+                .catch(err => {
+                    Swal.close();
+                    console.error("Error:", err);
+                    alert("Gagal mengirim data ke database Google Sheets!");
+                });
+            } else {
+                // Simulasi offline lokal biasa jika URL kosong
+                document.getElementById('paymentWizardModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        // NIM Keyboard Binding Entry Handler & File Compression Simulator
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchInitialData();
+            const nimInput = document.getElementById('nimInput');
+            if (nimInput) {
+                nimInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        verifyNIM();
+                    }
+                });
+            }
+
+            const fileInput = document.getElementById('buktiTransferInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const container = document.getElementById('imagePreviewContainer');
+                    const preview = document.getElementById('imagePreview');
+                    const spinner = document.getElementById('resizeSpinner');
+                    const info = document.getElementById('imageReductionInfo');
+
+                    container.classList.remove('hidden');
+                    spinner.classList.remove('hidden');
+                    preview.src = '';
+                    info.innerText = '';
+
+                    if (!file.type.startsWith('image/')) {
+                        alert('File yang dipilih bukan gambar!');
+                        container.classList.add('hidden');
+                        this.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const MAX_WIDTH = 1024;
+                            const MAX_HEIGHT = 1024;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+                                if (width > height) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                } else {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+
+                            const canvas = document.createElement('canvas');
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            canvas.toBlob(function(blob) {
+                                preview.src = URL.createObjectURL(blob);
+                                spinner.classList.add('hidden');
+
+                                const originalSize = (file.size / 1024).toFixed(1);
+                                const compressedSize = (blob.size / 1024).toFixed(1);
+                                const savings = Math.max(0, ((file.size - blob.size) / file.size * 100).toFixed(0));
+
+                                info.innerText = `${originalSize} KB ➔ ${compressedSize} KB (-${savings}%)`;
+                            }, 'image/jpeg', 0.75);
+
+                            // Simpan base64 dari gambar terkompresi
+                            compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerText = '🌙';
+            }
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            // 1. Create expanding liquid ripple element
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            // Grab coordinates from click event or fallback to button center
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            // 2. Create central icon overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth; // Force layout reflow
+            overlay.offsetWidth;
+            
+            // Calculate max diagonal to cover entire screen
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            // Trigger animations
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            // Swap theme underneath ripple right when it covers content
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            // Fade out and cleanup
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>

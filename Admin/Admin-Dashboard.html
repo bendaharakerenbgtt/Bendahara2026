@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="../bendahara.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanaIMIP — Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --splash-bg: #07090e;
+            --splash-text: #ffffff;
+            --splash-glow: rgba(16, 185, 129, 0.08);
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Accent glow variables */
+            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.15);
+            --glow-green: 0 4px 20px rgba(34, 197, 94, 0.15);
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --splash-bg: #f0f5f2;
+            --splash-text: #0a140f;
+            --splash-glow: rgba(21, 128, 61, 0.05);
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Shadow & glow adjustments */
+            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.08);
+            --glow-green: 0 4px 15px rgba(21, 128, 61, 0.08);
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* Cyan indicators & pills */
+        .bg-cyan-950\/40 { 
+            background-color: var(--bg-cyan-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-cyan-500\/20 { 
+            border-color: var(--border-cyan-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-cyan-400 { 
+            color: var(--text-cyan-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .border-t-cyan-400 {
+            border-top-color: var(--text-cyan-accent) !important;
+            box-shadow: var(--glow-cyan);
+            transition: border-top-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        
+        /* Green indicators & pills */
+        .bg-green-950\/40 { 
+            background-color: var(--bg-green-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-green-500\/20 { 
+            border-color: var(--border-green-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-green-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .text-emerald-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .border-t-green-400 {
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+            transition: border-top-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .bg-green-400 {
+            background-color: var(--text-green-accent) !important;
+            transition: background-color 0.4s ease;
+        }
+        
+        /* Amber indicators & pills */
+        .bg-amber-950\/40 { 
+            background-color: var(--bg-amber-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-amber-500\/20 { 
+            border-color: var(--border-amber-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        /* Rose indicators */
+        .text-rose-400 { 
+            color: var(--text-rose-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        footer { 
+            border-color: var(--footer-border) !important; 
+            background-color: var(--footer-bg) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        /* Hover Effects */
+        .hover\:border-cyan-500\/30:hover { 
+            border-color: var(--hover-cyan-border) !important; 
+        }
+        .hover\:border-green-500\/30:hover { 
+            border-color: var(--hover-green-border) !important; 
+        }
+        .hover\:border-amber-500\/30:hover { 
+            border-color: var(--hover-amber-border) !important; 
+        }
+        .hover\:border-neutral-700:hover { 
+            border-color: var(--hover-neutral-border) !important; 
+        }
+        
+        /* Selection Override */
+        body::selection, body *::selection {
+            background-color: var(--bg-cyan-pill) !important;
+            color: var(--text-cyan-accent) !important;
+        }
+        
+        /* Premium Loading Overlay */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
+            50% { transform: translate(-14px, -12px); opacity: 0.6; }
+        }
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
+            50% { transform: translate(14px, -14px); opacity: 0.55; }
+        }
+        @keyframes pulse-sun {
+            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+        .animate-drift-cloud-1 {
+            animation: drift-cloud-1 6s infinite ease-in-out;
+        }
+        .animate-drift-cloud-2 {
+            animation: drift-cloud-2 8s infinite ease-in-out;
+        }
+        .animate-pulse-sun {
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
+
+    <!-- PREMIUM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <!-- Spinner Ring Outer -->
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            
+            <!-- Floating Elements Inside -->
+            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
+                <!-- Glowing Sun in background (Top-Left above Masjid) -->
+                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
+                <!-- Drifting Cloud 1 (Left side above Masjid) -->
+                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
+                <!-- Drifting Cloud 2 (Right side above Masjid) -->
+                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
+                <!-- Floating Masjid in Center-Bottom -->
+                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            </div>
+            
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
+        
+        <div class="flex items-center justify-between w-full border-b border-neutral-900 pb-4 pt-2">
+            <div class="flex flex-col gap-0.5">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_6px_rgba(52,211,153,0.6)]"></div>
+                    <span class="text-base font-mono tracking-widest text-white uppercase font-black">DANA<span class="text-emerald-400">IMIP</span></span>
+                </div>
+                <h1 class="text-xs font-bold tracking-tight text-neutral-400 font-sans">
+                    Assalamu'alaikum, Bendahara keren bgt!
+                </h1>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                    🌙
+                </button>
+                <a href="../dasboard.html" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 px-3 py-2 rounded-xl text-neutral-400 font-bold active:scale-95 flex items-center justify-center h-10">
+                    Logout ↗
+                </a>
+            </div>
+        </div>
+
+        <div id="simulated-alert" class="hidden bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3.5 rounded-xl text-xs font-mono flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-base font-bold text-emerald-400">✓</span>
+                <div id="alert-text">Transaksi kas berhasil diverifikasi masuk ke dalam master ledger!</div>
+            </div>
+            <button onclick="document.getElementById('simulated-alert').classList.add('hidden')" class="text-neutral-500 hover:text-neutral-300 text-xs font-mono">✕</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            
+            <div class="lg:col-span-7 flex flex-col gap-4 w-full">
+                <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
+                    <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
+                    <div class="w-full h-48 sm:h-56 flex justify-center items-center">
+                        <canvas id="ldkLineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block font-semibold">Total Saldo Terverifikasi</span>
+                            <div id="total-saldo-text" class="text-xl font-black text-white font-mono mt-0.5">
+                                Rp 0
+                            </div>
+                        </div>
+                        <span class="text-[8px] font-mono bg-emerald-950 border border-emerald-800/40 px-2 py-1 rounded text-emerald-400 font-bold">MONITORING</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl border-t-2 border-t-cyan-400 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase block font-semibold">Total di GoPay (E-Wallet)</span>
+                            <div id="gopay-saldo-text" class="text-sm font-bold text-cyan-400 font-mono mt-0.5">
+                                Rp 0
+                            </div>
+                        </div>
+
+                        <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl border-t-2 border-t-green-400 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase block font-semibold">Total di Tunai</span>
+                            <div id="cash-saldo-text" class="text-sm font-bold text-green-400 font-mono mt-0.5">
+                                Rp 0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 flex flex-col gap-5 w-full">
+                <div class="flex flex-col gap-2.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping"></div>
+                        <span class="text-[9px] font-mono tracking-widest text-amber-400 uppercase font-black block">🚨 ANTRIAN VERIFIKASI KAS ONLINE</span>
+                    </div>
+                    
+                    <div class="flex flex-col gap-3 max-h-[360px] overflow-y-auto no-scrollbar" id="queue-container">
+                        <!-- Loaded dynamically from Sheets -->
+                        <div class="py-12 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-2">
+                            <div class="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                            <span>Memuat antrean verifikasi...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2 mt-4 border-t border-neutral-900/60 pt-4">
+            <span class="text-[8px] font-mono tracking-widest text-neutral-500 uppercase font-black block">NAVIGASI KONTROL MANAGEMENT KABINET</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                
+                <a href="Kelola-Kas.html" class="bg-neutral-950 border border-neutral-900 hover:border-emerald-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
+                    <div class="w-6 h-6 rounded-lg bg-emerald-950/40 border border-emerald-500/20 flex items-center justify-center text-xs">📥</div>
+                    <div class="mt-1">
+                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-emerald-400 transition-colors">Uang Kas</span>
+                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5">Daftar iuran pengurus LDK</span>
+                    </div>
+                </a>
+
+                <a href="Kelola-Proker.html" class="bg-neutral-950 border border-neutral-900 hover:border-amber-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
+                    <div class="w-6 h-6 rounded-lg bg-amber-950/40 border border-amber-500/20 flex items-center justify-center text-xs">💼</div>
+                    <div class="mt-1">
+                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-amber-400 transition-colors">Kelola Proker</span>
+                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5"> Estimasi Proker & realisasi Proker</span>
+                    </div>
+                </a>
+
+                <a href="All-Transaksi.html" class="bg-neutral-950 border border-neutral-900 hover:border-indigo-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
+                    <div class="w-6 h-6 rounded-lg bg-indigo-950/40 border border-indigo-500/20 flex items-center justify-center text-xs">📜</div>
+                    <div class="mt-1">
+                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-indigo-400 transition-colors">Pusat Transaksi Keuangan</span>
+                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5">Seluruh Pemasukan & Pengeluaran</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center">
+        <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP ADMIN © 2026</span>
+    </footer>
+
+    <script>
+        const ctx = document.getElementById('ldkLineChart').getContext('2d');
+        window.ldkChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"], // Dummy Labels Bulan
+                datasets: [
+                    {
+                        label: 'Saldo GoPay',
+                        data: [400000, 650000, 800000, 950000, 1100000, 1250000], // Dummy Data
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.01)',
+                        borderWidth: 2,
+                        tension: 0.15,
+                        pointBackgroundColor: '#38bdf8',
+                        pointBorderColor: '#07090e',
+                        pointBorderWidth: 1,
+                        pointRadius: 3,
+                        fill: true
+                    },
+                    {
+                        label: 'Saldo Tunai',
+                        data: [1200000, 1500000, 1900000, 2100000, 2300000, 2500000], // Dummy Data
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74, 222, 128, 0.01)',
+                        borderWidth: 2,
+                        tension: 0.15,
+                        pointBackgroundColor: '#4ade80',
+                        pointBorderColor: '#07090e',
+                        pointBorderWidth: 1,
+                        pointRadius: 3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#a3a3a3', boxWidth: 8, font: { family: 'Plus Jakarta Sans', size: 9, weight: 'bold' } }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } } },
+                    y: { 
+                        grid: { color: '#121420' }, 
+                        ticks: { 
+                            color: '#3f3f46', 
+                            font: { family: 'Plus Jakarta Sans', size: 8 },
+                            callback: function(value, index, values) {
+                                if (value >= 1000000) {
+                                    return 'Rp ' + (value / 1000000).toFixed(1).replace('.0', '') + ' Jt';
+                                } else if (value >= 1000) {
+                                    return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
+                                }
+                                return 'Rp ' + value;
+                            }
+                        } 
+                    }
+                }
+            }
+        });
+
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc4KjFANk2dGnw18Vw07aXlJ8BLJ1-VrAPQ2Oj35v0LnmLennIA19Z5eJIyLl4N1ad/exec";
+        
+        let rawTransactions = [];
+        let rawAnggota = [];
+        let rawProker = [];
+        
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(() => overlay.remove(), 400);
+            }
+        }
+        function fetchInitialData(forceRefresh = false) {
+            if (!GOOGLE_SCRIPT_URL) {
+                hideLoadingOverlay();
+                return;
+            }
+
+            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_TTL = 15000; // 15 seconds cache
+
+            if (forceRefresh) {
+                sessionStorage.removeItem(CACHE_KEY);
+                sessionStorage.removeItem(CACHE_TIME_KEY);
+            }
+
+            const cachedData = sessionStorage.getItem(CACHE_KEY);
+            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
+            let hasRenderedFromCache = false;
+
+            if (cachedData && cachedTime) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    if (data && data.status === "success") {
+                        rawTransactions = data.transaksi || [];
+                        rawAnggota = data.anggota || [];
+                        rawProker = data.proker || [];
+                        
+                        calculateAndRenderStats(rawTransactions);
+                        updateChartWithData(rawTransactions);
+                        renderQueue(rawTransactions, rawAnggota);
+                        
+                        hideLoadingOverlay();
+                        hasRenderedFromCache = true;
+
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            console.log("Using fresh cache for Admin-Dashboard");
+                            return;
+                        }
+                        console.log("Using stale cache, fetching fresh data in background...");
+                    }
+                } catch (e) {
+                    console.error("Cache load error:", e);
+                }
+            }
+
+            const queueContainer = document.getElementById('queue-container');
+            if (!hasRenderedFromCache && queueContainer) {
+                queueContainer.innerHTML = `
+                    <div class="py-12 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-2">
+                        <div class="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Memuat antrean verifikasi...</span>
+                    </div>
+                `;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+
+                        rawTransactions = data.transaksi;
+                        rawAnggota = data.anggota;
+                        rawProker = data.proker;
+                        
+                        calculateAndRenderStats(rawTransactions);
+                        updateChartWithData(rawTransactions);
+                        renderQueue(rawTransactions, rawAnggota);
+                    } else {
+                        console.error("Gagal memuat database:", data.message);
+                        if (!hasRenderedFromCache && queueContainer) {
+                            queueContainer.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Gagal memuat database!</div>`;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching data:", err);
+                    if (!hasRenderedFromCache && queueContainer) {
+                        queueContainer.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Koneksi database terputus!</div>`;
+                    }
+                })
+                .finally(() => {
+                    hideLoadingOverlay();
+                });
+        }
+        function calculateAndRenderStats(transactions) {
+            const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+            
+            let totalSaldo = 0;
+            let gopaySaldo = 0;
+            let cashSaldo = 0;
+            
+            approved.forEach(t => {
+                const nominal = Number(t.nominal) || 0;
+                if (t.jenis === "Masuk") {
+                    if (t.metode === "GoPay") gopaySaldo += nominal;
+                    else if (t.metode === "Tunai") cashSaldo += nominal;
+                } else if (t.jenis === "Keluar") {
+                    if (t.metode === "GoPay") gopaySaldo -= nominal;
+                    else if (t.metode === "Tunai") cashSaldo -= nominal;
+                }
+            });
+            
+            totalSaldo = gopaySaldo + cashSaldo;
+            
+            document.getElementById('total-saldo-text').innerText = 'Rp ' + totalSaldo.toLocaleString('id-ID');
+            document.getElementById('gopay-saldo-text').innerText = 'Rp ' + gopaySaldo.toLocaleString('id-ID');
+            document.getElementById('cash-saldo-text').innerText = 'Rp ' + cashSaldo.toLocaleString('id-ID');
+        }
+        
+        function updateChartWithData(transactions) {
+            if (!window.ldkChart) return;
+            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+            const approvedTx = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+            
+            approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+            
+            const goPayBalances = Array(12).fill(0);
+            const tunaiBalances = Array(12).fill(0);
+            
+            let cumulativeGoPay = 0;
+            let cumulativeTunai = 0;
+            
+            const monthlyGoPayDiff = Array(12).fill(0);
+            const monthlyTunaiDiff = Array(12).fill(0);
+            
+            approvedTx.forEach(tx => {
+                const d = new Date(tx.tanggal);
+                const mIdx = d.getMonth();
+                if (mIdx >= 0 && mIdx < 12) {
+                    const nominal = Number(tx.nominal) || 0;
+                    const factor = tx.jenis === "Masuk" ? 1 : -1;
+                    const change = nominal * factor;
+                    if (tx.metode === "GoPay") {
+                        monthlyGoPayDiff[mIdx] += change;
+                    } else if (tx.metode === "Tunai") {
+                        monthlyTunaiDiff[mIdx] += change;
+                    }
+                }
+            });
+            
+            for (let i = 0; i < 12; i++) {
+                cumulativeGoPay += monthlyGoPayDiff[i];
+                cumulativeTunai += monthlyTunaiDiff[i];
+                goPayBalances[i] = cumulativeGoPay;
+                tunaiBalances[i] = cumulativeTunai;
+            }
+            
+            const maxMonthIndex = Math.max(5, new Date().getMonth());
+            const activeMonths = months.slice(0, maxMonthIndex + 1);
+            
+            window.ldkChart.data.labels = activeMonths;
+            window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
+            window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
+            window.ldkChart.update();
+        }
+        
+        function renderQueue(transactions, members) {
+            const container = document.getElementById('queue-container');
+            if (!container) return;
+            
+            const pending = transactions.filter(t => t.status_reimburse === "Belum");
+            
+            if (pending.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans">
+                        Belum ada kiriman data baru dari form kas online. Antrean bersih!
+                    </div>
+                `;
+                return;
+            }
+            
+            const membersMap = {};
+            members.forEach(m => {
+                membersMap[m.id.toString()] = m.name;
+            });
+            
+            container.innerHTML = '';
+            pending.forEach(t => {
+                const userName = t.user_id ? (membersMap[t.user_id.toString()] || "Anggota") : "Anggota";
+                const isIncoming = t.jenis === "Masuk";
+                const methodColor = t.metode === "GoPay" ? "text-cyan-400" : "text-green-400";
+                
+                let receiptLink = "";
+                const isUrl = t.bukti || (t.catatan && (t.catatan.startsWith("http://") || t.catatan.startsWith("https://")));
+                const proofSrc = t.bukti || t.catatan;
+                if (isUrl) {
+                    receiptLink = `
+                        <a href="${proofSrc}" target="_blank" class="text-cyan-400 hover:underline inline-flex items-center gap-0.5 font-sans font-semibold">
+                            Lihat Gambar Bukti ↗
+                        </a>
+                    `;
+                } else if (t.catatan) {
+                    receiptLink = `<span class="text-neutral-300 font-sans">${t.catatan}</span>`;
+                } else {
+                    receiptLink = `<span class="text-neutral-500 font-sans italic">Tidak ada lampiran</span>`;
+                }
+                
+                const cardHtml = `
+                    <div class="p-3.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-3 shadow-xs transition-all duration-300" id="queue-row-${t.id}">
+                        <div class="flex flex-col">
+                            <div class="flex justify-between items-start gap-2 mb-1">
+                                <p class="text-xs font-bold text-neutral-200 leading-tight">${t.keterangan} - ${userName}</p>
+                                <span class="text-[7px] font-mono bg-amber-950 text-amber-400 border border-amber-900/60 px-1.5 py-0.5 rounded-lg font-black uppercase shrink-0">
+                                    PENDING
+                                </span>
+                            </div>
+                            <div class="text-[10px] font-mono text-neutral-400 flex flex-col gap-0.5 mt-1">
+                                <span>ID Transaksi: <span class="text-neutral-500 font-bold select-all">${t.id}</span></span>
+                                <span>Nominal: <span class="text-emerald-400 font-bold">Rp ${(Number(t.nominal) || 0).toLocaleString('id-ID')}</span></span>
+                                <span>Metode: <span class="${methodColor} font-bold">${t.metode}</span></span>
+                                <span>Tanggal: <span class="text-neutral-300 font-bold">${t.tanggal}</span></span>
+                                <span class="text-neutral-500">Lampiran: ${receiptLink}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2 border-t border-neutral-900/60 pt-2.5">
+                            <button onclick="triggerVerificationAction('${t.id}', 'Approve')" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-mono py-2 rounded-xl font-bold text-center transition-all shadow-md active:scale-95 cursor-pointer">
+                                Approve ✓
+                            </button>
+                            <button onclick="triggerVerificationAction('${t.id}', 'Reject')" class="w-1/2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 text-[10px] font-mono py-2 rounded-xl border border-neutral-800 text-center font-bold transition-all active:scale-95 cursor-pointer">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
+
+        function triggerVerificationAction(txId, actionType) {
+            if (!GOOGLE_SCRIPT_URL) {
+                // Skenario Offline / Demo
+                const card = document.getElementById(`queue-row-${txId}`);
+                if (!card) return;
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.remove();
+                    const alertEl = document.getElementById('simulated-alert');
+                    const alertText = document.getElementById('alert-text');
+                    if(actionType === 'Approve') {
+                        alertText.innerText = "Sukses! Transaksi telah disetujui (Approved) dan saldo otomatis ter-update.";
+                        alertEl.className = "bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
+                    } else {
+                        alertText.innerText = "Pemberitahuan: Transaksi ditolak (Rejected) dan dihapus dari antrean.";
+                        alertEl.className = "bg-rose-950/40 border border-rose-500/30 text-rose-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
+                    }
+                    alertEl.classList.remove('hidden');
+                    const container = document.getElementById('queue-container');
+                    if(container.children.length === 0) {
+                        container.innerHTML = `
+                            <div class="py-6 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans">
+                                Belum ada kiriman data baru dari form kas online. Antrean bersih!
+                            </div>
+                        `;
+                    }
+                }, 300);
+                return;
+            }
+
+            const actionName = actionType === 'Approve' ? 'approve_transaction' : 'reject_transaction';
+            const actionText = actionType === 'Approve' ? 'Menyetujui...' : 'Menolak...';
+
+            Swal.fire({
+                title: actionType === 'Approve' ? 'Approve Transaksi?' : 'Reject Transaksi?',
+                text: actionType === 'Approve' ? 'Transaksi ini akan diverifikasi masuk ke keuangan resmi.' : 'Transaksi ini akan ditolak dan dihapus dari database.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: actionType === 'Approve' ? '#10b981' : '#f43f5e',
+                cancelButtonColor: '#374151',
+                confirmButtonText: actionType === 'Approve' ? 'Ya, Approve!' : 'Ya, Reject!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: actionText,
+                        text: 'Sedang memproses perubahan di database Google Sheets.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: actionName,
+                            id: txId
+                        })
+                    })
+                    .then(() => {
+                        Swal.close();
+                        
+                        const alertEl = document.getElementById('simulated-alert');
+                        const alertText = document.getElementById('alert-text');
+                        
+                        if(actionType === 'Approve') {
+                            alertText.innerText = "Sukses! Transaksi telah disetujui (Approved) dan tabel kas diperbarui.";
+                            alertEl.className = "bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
+                        } else {
+                            alertText.innerText = "Pemberitahuan: Transaksi telah ditolak (Rejected) dan dibersihkan dari database.";
+                            alertEl.className = "bg-rose-950/40 border border-rose-500/30 text-rose-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
+                        }
+                        alertEl.classList.remove('hidden');
+
+                        fetchInitialData(true);
+                    })
+                    .catch(err => {
+                        Swal.close();
+                        console.error("Error:", err);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Gagal memperbarui status transaksi di Google Sheets.',
+                            icon: 'error',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    });
+                }
+            });
+        }
+
+        // --- Theme System Scripts ---
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            const isLight = (theme === 'light');
+            if (isLight) {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+                updateChartTheme(true);
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerText = '🌙';
+                updateChartTheme(false);
+            }
+        }
+
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth;
+            overlay.offsetWidth;
+            
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+
+        function updateChartTheme(isLight) {
+            if (!window.ldkChart) return;
+            const gridColor = isLight ? '#ccd9d2' : '#1d2030';
+            const tickColor = isLight ? '#3b5c49' : '#64748b';
+            const legendColor = isLight ? '#0a140f' : '#f8fafc';
+            const pointBorder = isLight ? '#ffffff' : '#07090e';
+            
+            const goPayColor = isLight ? '#0f766e' : '#38bdf8';
+            const tunaiColor = isLight ? '#15803d' : '#4ade80';
+            
+            window.ldkChart.options.scales.x.ticks.color = tickColor;
+            window.ldkChart.options.scales.y.ticks.color = tickColor;
+            window.ldkChart.options.scales.y.grid.color = gridColor;
+            window.ldkChart.options.plugins.legend.labels.color = legendColor;
+            
+            window.ldkChart.data.datasets[0].borderColor = goPayColor;
+            window.ldkChart.data.datasets[0].pointBackgroundColor = goPayColor;
+            window.ldkChart.data.datasets[0].pointBorderColor = pointBorder;
+            
+            window.ldkChart.data.datasets[1].borderColor = tunaiColor;
+            window.ldkChart.data.datasets[1].pointBackgroundColor = tunaiColor;
+            window.ldkChart.data.datasets[1].pointBorderColor = pointBorder;
+            
+            window.ldkChart.update();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+            fetchInitialData();
+        });
+    </script>
+</body>
+</html>

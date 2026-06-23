@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="../bendahara.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDK IMIP — Otentikasi Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --splash-bg: #07090e;
+            --splash-text: #ffffff;
+            --splash-glow: rgba(16, 185, 129, 0.08);
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Accent glow variables */
+            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.15);
+            --glow-green: 0 4px 20px rgba(34, 197, 94, 0.15);
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --splash-bg: #f0f5f2;
+            --splash-text: #0a140f;
+            --splash-glow: rgba(21, 128, 61, 0.05);
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Shadow & glow adjustments */
+            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.08);
+            --glow-green: 0 4px 15px rgba(21, 128, 61, 0.08);
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* SweetAlert2 Dynamic Styling */
+        .swal2-popup { 
+            background: var(--bg-card) !important; 
+            border: 1px solid var(--border-card) !important; 
+            border-radius: 1rem !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+        }
+        .swal2-title { 
+            color: var(--text-primary) !important; 
+            font-size: 14px !important; 
+            font-family: 'Plus Jakarta Sans', sans-serif !important; 
+            font-weight: bold !important; 
+        }
+        .swal2-confirm { 
+            background-color: var(--text-green-accent) !important; 
+            color: var(--bg-main) !important; 
+            font-size: 11px !important; 
+            font-weight: bold !important; 
+            border-radius: 0.5rem !important; 
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Focus & Selection & Hover */
+        .focus\:border-emerald-500:focus {
+            border-color: var(--text-green-accent) !important;
+        }
+        .hover\:border-neutral-700:hover { 
+            border-color: var(--hover-neutral-border) !important; 
+        }
+        body::selection, body *::selection {
+            background-color: var(--bg-green-pill) !important;
+            color: var(--text-green-accent) !important;
+        }
+
+        /* Red / error indicators for error banner in light mode */
+        html.light-mode .bg-red-950\/40 {
+            background-color: rgba(220, 38, 38, 0.08) !important;
+        }
+        html.light-mode .border-red-900\/50 {
+            border-color: rgba(220, 38, 38, 0.25) !important;
+        }
+        html.light-mode .text-red-400 {
+            color: #b91c1c !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-center items-center px-6">
+
+    <a href="../dasboard.html" class="fixed top-6 left-6 flex items-center gap-1.5 px-3.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner h-10" title="Kembali ke Dashboard Publik">
+        <span>←</span> <span>Dashboard Publik</span>
+    </a>
+
+    <button id="themeToggleBtn" onclick="toggleTheme(event)" class="fixed top-6 right-6 w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+        🌙
+    </button>
+
+    <div class="w-full max-w-sm bg-neutral-950 border border-neutral-900 rounded-xl p-6 lg:p-8 shadow-xl relative overflow-hidden">
+        
+        <div class="flex items-center gap-2 mb-6 border-b border-neutral-900 pb-4">
+            <div class="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
+            <span class="text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-bold">SECURITY AUTH</span>
+        </div>
+
+        <div class="mb-6">
+            <h1 class="text-xl font-bold text-white tracking-tight">Masuk Sebagai Admin</h1>
+            <p class="text-xs text-neutral-500 mt-1">Gunakan kredensial otentikasi internal untuk membuka hak akses admin.</p>
+        </div>
+
+        <div id="error-banner" class="hidden mb-4 p-3 bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-mono rounded-xl">
+            ⚠️ Username atau password salah. Hubungi bendahara jika lupa akses.
+        </div>
+
+        <form id="loginForm" action="#" method="GET" class="flex flex-col gap-4">
+            <div>
+                <label class="text-[10px] font-mono uppercase text-neutral-500 block mb-1">Username Admin</label>
+                <input type="text" id="username" required autocomplete="off" placeholder="Masukkan username" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono">
+            </div>
+
+            <div>
+                <label class="text-[10px] font-mono uppercase text-neutral-500 block mb-1">Password</label>
+                <input type="password" id="password" required placeholder="••••••••" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono">
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs py-3 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.15)] mt-2 cursor-pointer">
+                VERIFIKASI AKSES ↗
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Kredensial disimpan sebagai hash SHA-256 untuk keamanan
+        // (Bukan plaintext - tidak bisa dibaca langsung dari source code)
+
+        // --- Theme System Scripts ---
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            const isLight = (theme === 'light');
+            if (isLight) {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerText = '🌙';
+            }
+        }
+
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth;
+            overlay.offsetWidth;
+            
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+        });
+
+        // --- Form Login Handler with SweetAlert2 ---
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userInp = document.getElementById('username').value.trim();
+            const passInp = document.getElementById('password').value;
+            const errorBanner = document.getElementById('error-banner');
+
+            // Hash password menggunakan Web Crypto API (SHA-256)
+            // Plaintext password tidak disimpan, hanya hash-nya
+            async function sha256(message) {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            // Hash dari kredensial yang valid (SHA-256)
+            const VALID_USER_HASH = '18d810a30910a643a50bb4bf08b3d2ca426db46a5b871fba2580547491dbe29f';
+            const VALID_PASS_HASH = '933e8ddfb4016e700828918be957feeded4c7e58c40cbb4ffb55d8b9c889df49';
+
+            const [userHash, passHash] = await Promise.all([
+                sha256(userInp),
+                sha256(passInp)
+            ]);
+
+            // Verifikasi kredensial menggunakan perbandingan hash
+            if (userHash === VALID_USER_HASH && passHash === VALID_PASS_HASH) {
+                errorBanner.classList.add('hidden');
+                
+                // Efek button loading sukses sebentar sebelum redirect
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.innerText = 'AKSES DISETUJUI...';
+                
+                setTimeout(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Berhasil!',
+                        text: 'Mengalihkan ke sistem admin dashboard LDK IMIP.',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'Admin-Dashboard.html';
+                    });
+                }, 600);
+            } else {
+                // Tampilkan pesan error jika salah ketik kredensial
+                errorBanner.classList.remove('hidden');
+                document.getElementById('password').value = '';
+            }
+        });
+    </script>
+</body>
+</html>

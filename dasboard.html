@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="icon" href="bendahara.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanaIMIP — Transparansi Keuangan LDKIMIP</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ==========================================================================
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               ========================================================================== */
+            --bg-main: #07090e;              /* Deep elegant obsidian background */
+            --bg-card: #0e111a;              /* Crisp card background with high contrast */
+            --border-card: #1d2235;          /* Sophisticated border */
+            --border-muted: #141724;         /* Subtler border */
+            
+            --text-primary: #f8fafc;         /* Slate 50 */
+            --text-sec-100: #f1f5f9;         /* Slate 100 */
+            --text-sec-200: #e2e8f0;         /* Slate 200 */
+            --text-sec-300: #cbd5e1;         /* Slate 300 */
+            --text-sec-400: #94a3b8;         /* Slate 400 */
+            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-sec-600: #475569;         /* Slate 600 */
+            
+            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #4ade80;    /* Green 400 */
+            
+            --bg-amber-pill: rgba(245, 158, 11, 0.08);
+            --border-amber-pill: rgba(245, 158, 11, 0.20);
+            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            
+            --text-rose-accent: #fb7185;     /* Rose 400 */
+            
+            --splash-bg: #07090e;
+            --splash-text: #ffffff;
+            --splash-glow: rgba(16, 185, 129, 0.08);
+            
+            --footer-bg: rgba(14, 17, 26, 0.4);
+            --footer-border: #141724;
+            
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-neutral-border: #334155;
+
+            /* Accent glow variables */
+            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.15);
+            --glow-green: 0 4px 20px rgba(34, 197, 94, 0.15);
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        html.light-mode {
+            /* ==========================================================================
+               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               ========================================================================== */
+            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
+            --bg-card: #ffffff;              /* Crisp white cards for depth */
+            --border-card: #ccd9d2;          /* Soft sage borders */
+            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            
+            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
+            --text-sec-100: #0a140f;
+            --text-sec-200: #12241b;
+            --text-sec-300: #1c3327;
+            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
+            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
+            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            
+            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            
+            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
+            --border-cyan-pill: rgba(8, 145, 178, 0.18);
+            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            
+            --bg-green-pill: rgba(21, 128, 61, 0.06);
+            --border-green-pill: rgba(21, 128, 61, 0.18);
+            --text-green-accent: #15803d;    /* Rich green */
+            
+            --bg-amber-pill: rgba(180, 83, 9, 0.06);
+            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --text-amber-accent: #b45309;    /* Gold/Amber */
+            
+            --text-rose-accent: #be123c;     /* Deep ruby */
+            
+            --splash-bg: #f0f5f2;
+            --splash-text: #0a140f;
+            --splash-glow: rgba(21, 128, 61, 0.05);
+            
+            --footer-bg: rgba(226, 236, 231, 0.4);
+            --footer-border: #ccd9d2;
+            
+            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-green-border: rgba(21, 128, 61, 0.4);
+            --hover-amber-border: rgba(180, 83, 9, 0.4);
+            --hover-neutral-border: #b0c3b7;
+
+            /* Shadow & glow adjustments */
+            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.08);
+            --glow-green: 0 4px 15px rgba(21, 128, 61, 0.08);
+            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+        }
+
+        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        html.light-mode, html.light-mode body {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-light,
+        html.light-mode .font-normal {
+            font-weight: 500 !important;
+        }
+        html.light-mode .font-medium {
+            font-weight: 600 !important;
+        }
+        html.light-mode .font-semibold {
+            font-weight: 700 !important;
+        }
+        html.light-mode .font-bold {
+            font-weight: 800 !important;
+        }
+        html.light-mode input::placeholder {
+            color: var(--text-sec-500) !important;
+            opacity: 1 !important;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-main) !important; 
+            color: var(--text-primary) !important; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Apply variables to Tailwind class instances recursively */
+        .bg-neutral-950 { 
+            background-color: var(--bg-card) !important; 
+            box-shadow: var(--shadow-card);
+            transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        .border-neutral-900 { 
+            border-color: var(--border-card) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .border-neutral-800 { 
+            border-color: var(--border-muted) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        .text-white { 
+            color: var(--text-primary) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-100 { 
+            color: var(--text-sec-100) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-200 { 
+            color: var(--text-sec-200) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-300 { 
+            color: var(--text-sec-300) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-400 { 
+            color: var(--text-sec-400) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        .text-neutral-500 { 
+            color: var(--text-sec-500) !important; 
+            transition: color 0.4s ease; 
+        }
+
+        .text-neutral-600 {
+            color: var(--text-sec-600) !important;
+            transition: color 0.4s ease;
+        }
+        
+        .bg-neutral-900 { 
+            background-color: var(--bg-neutral-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        
+        /* Cyan indicators & pills */
+        .bg-cyan-950\/40 { 
+            background-color: var(--bg-cyan-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-cyan-500\/20 { 
+            border-color: var(--border-cyan-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-cyan-400 { 
+            color: var(--text-cyan-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .border-t-cyan-400 {
+            border-top-color: var(--text-cyan-accent) !important;
+            box-shadow: var(--glow-cyan);
+            transition: border-top-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        
+        /* Green indicators & pills */
+        .bg-green-950\/40 { 
+            background-color: var(--bg-green-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-green-500\/20 { 
+            border-color: var(--border-green-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        .text-green-400 { 
+            color: var(--text-green-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        .border-t-green-400 {
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+            transition: border-top-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .bg-green-400 {
+            background-color: var(--text-green-accent) !important;
+            transition: background-color 0.4s ease;
+        }
+        
+        /* Amber indicators & pills */
+        .bg-amber-950\/40 { 
+            background-color: var(--bg-amber-pill) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        .border-amber-500\/20 { 
+            border-color: var(--border-amber-pill) !important; 
+            transition: border-color 0.4s ease; 
+        }
+        
+        /* Rose indicators */
+        .text-rose-400 { 
+            color: var(--text-rose-accent) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        /* Footer and Splash Screen */
+        #splash-screen { 
+            background-color: var(--splash-bg) !important; 
+            transition: background-color 0.4s ease; 
+        }
+        #splash-text { 
+            color: var(--splash-text) !important; 
+            transition: color 0.4s ease; 
+        }
+        
+        footer { 
+            border-color: var(--footer-border) !important; 
+            background-color: var(--footer-bg) !important; 
+            transition: background-color 0.4s ease, border-color 0.4s ease; 
+        }
+        
+        /* Hover Effects */
+        .hover\:border-cyan-500\/30:hover { 
+            border-color: var(--hover-cyan-border) !important; 
+        }
+        .hover\:border-green-500\/30:hover { 
+            border-color: var(--hover-green-border) !important; 
+        }
+        .hover\:border-amber-500\/30:hover { 
+            border-color: var(--hover-amber-border) !important; 
+        }
+        .hover\:border-neutral-700:hover { 
+            border-color: var(--hover-neutral-border) !important; 
+        }
+        
+        /* Selection Override */
+        body::selection, body *::selection {
+            background-color: var(--bg-cyan-pill) !important;
+            color: var(--text-cyan-accent) !important;
+        }
+        
+        /* Glitch & Error Effects */
+        @keyframes glitch {
+            0% { text-shadow: 2px -2px 0px #ef4444, -2px 2px 0px #06b6d4; }
+            25% { text-shadow: -2px 2px 0px #ef4444, 2px -2px 0px #06b6d4; }
+            50% { text-shadow: 2px 2px 0px #ef4444, -2px -2px 0px #06b6d4; }
+            75% { text-shadow: -2px -2px 0px #ef4444, 2px 2px 0px #06b6d4; }
+            100% { text-shadow: 2px -2px 0px #ef4444, -2px 2px 0px #06b6d4; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-2px, 1px) rotate(-0.5deg); }
+            20% { transform: translate(1px, -2px) rotate(0.5deg); }
+            30% { transform: translate(-1px, 2px) rotate(0deg); }
+            40% { transform: translate(2px, 1px) rotate(0.5deg); }
+            50% { transform: translate(-2px, -1px) rotate(-0.5deg); }
+            60% { transform: translate(1px, 2px) rotate(0deg); }
+            70% { transform: translate(-1px, -1px) rotate(0.5deg); }
+            80% { transform: translate(2px, -2px) rotate(-0.5deg); }
+            90% { transform: translate(-1px, 1px) rotate(0deg); }
+        }
+        .glitch-text {
+            animation: glitch 0.15s infinite;
+            color: #ef4444 !important;
+        }
+        .glitch-shake {
+            animation: shake 0.15s infinite;
+        }
+        .final-glow {
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+            color: #ffffff;
+            transition: all 0.5s ease;
+        }
+        html.light-mode .final-glow {
+            text-shadow: none !important;
+            color: var(--text-primary) !important;
+        }
+        #splash-logo img {
+            filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.3));
+            transition: filter 0.4s ease;
+        }
+        html.light-mode #splash-logo img {
+            filter: drop-shadow(0 0 20px rgba(21, 128, 61, 0.15));
+        }
+        
+        /* Premium Loading Overlay */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: var(--text-green-accent) !important;
+            box-shadow: var(--glow-green);
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        @keyframes drift-cloud-1 {
+            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
+            50% { transform: translate(-14px, -12px); opacity: 0.6; }
+        }
+        @keyframes drift-cloud-2 {
+            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
+            50% { transform: translate(14px, -14px); opacity: 0.55; }
+        }
+        @keyframes pulse-sun {
+            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
+            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+        .animate-drift-cloud-1 {
+            animation: drift-cloud-1 6s infinite ease-in-out;
+        }
+        .animate-drift-cloud-2 {
+            animation: drift-cloud-2 8s infinite ease-in-out;
+        }
+        .animate-pulse-sun {
+            animation: pulse-sun 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
+
+    <!-- PREMIUM LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <!-- Spinner Ring Outer -->
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            
+            <!-- Floating Elements Inside -->
+            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
+                <!-- Glowing Sun in background (Top-Left above Masjid) -->
+                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
+                <!-- Drifting Cloud 1 (Left side above Masjid) -->
+                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
+                <!-- Drifting Cloud 2 (Right side above Masjid) -->
+                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
+                <!-- Floating Masjid in Center-Bottom -->
+                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            </div>
+            
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+        </div>
+    </div>
+
+    <div id="splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-700 ease-in-out pointer-events-auto">
+        <div class="absolute w-[300px] h-[300px] rounded-full blur-[100px] pointer-events-none" style="background-color: var(--splash-glow);"></div>
+        
+        <div class="relative flex flex-col items-center z-10">
+            <div id="splash-logo" class="w-28 h-28 md:w-36 md:h-36 flex items-center justify-center opacity-0 scale-90 transition-all duration-1000 ease-out">
+                <img src="finance.png" alt="Finance Logo" class="max-w-full max-h-full object-contain">
+            </div>
+            
+            <h1 id="splash-text" class="text-xl md:text-2xl font-black tracking-[0.2em] text-white uppercase mt-6 font-mono min-h-[32px] flex items-center justify-center"></h1>
+            
+            <p id="splash-subtitle" class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase mt-2 opacity-0 transform translate-y-2 transition-all duration-700 ease-out">
+                by bendahara 2026
+            </p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
+        
+        <div class="flex items-center justify-between w-full border-b border-neutral-900 pb-5 pt-2">
+            <div class="flex flex-col gap-0.5">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 bg-green-400 rounded-full shadow-[0_0_6px_rgba(74,222,128,0.6)]"></div>
+                    <span class="text-base font-mono tracking-widest text-white uppercase font-black">DANAIMIP</span>
+                </div>
+                <h1 class="text-xs font-bold tracking-tight text-neutral-400 font-sans">
+                    Assalamu'alaikum, Pejuang Dakwah
+                </h1>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                    🌙
+                </button>
+                <a href="Admin/Login-Admin.html" class="w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 gap-0.5 font-sans font-bold" title="Masuk Admin">
+                    👤<span class="text-[9px] text-neutral-500 font-mono">↗</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            
+            <div class="lg:col-span-7 flex flex-col gap-5">
+                
+                <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
+                    <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
+                    <div class="w-full h-44 sm:h-52 flex justify-center items-center">
+                        <canvas id="ldkLineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block font-semibold">Total Saldo Semua Metode</span>
+                            <div id="total-saldo-text" class="text-xl font-black text-white font-mono mt-0.5">
+                                Rp 0
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl border-t-2 border-t-cyan-400 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase block font-semibold">E-Wallet GoPay</span>
+                            <div id="gopay-saldo-text" class="text-sm font-bold text-cyan-400 font-mono mt-0.5">
+                                Rp 0
+                            </div>
+                        </div>
+
+                        <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl border-t-2 border-t-green-400 flex flex-col justify-between">
+                            <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase block font-semibold">Tunai / Cash</span>
+                            <div id="cash-saldo-text" class="text-sm font-bold text-green-400 font-mono mt-0.5">
+                                Rp 0
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-neutral-950 border border-neutral-900 p-2.5 rounded-lg flex flex-col">
+                            <span class="text-[8px] font-mono tracking-wider text-neutral-500 uppercase block">Total Arus Masuk</span>
+                            <span id="total-masuk-text" class="text-xs font-bold text-green-400 font-mono">Rp 0</span>
+                        </div>
+                        <div class="bg-neutral-950 border border-neutral-900 p-2.5 rounded-lg flex flex-col">
+                            <span class="text-[8px] font-mono tracking-wider text-neutral-500 uppercase block">Total Arus Keluar</span>
+                            <span id="total-keluar-text" class="text-xs font-bold text-rose-400 font-mono">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-5 flex flex-col gap-5">
+                
+                <div class="flex flex-col gap-2.5">
+                    <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block">MAIN MENU</span>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="pembayaran-kas.html" class="bg-neutral-950 border border-neutral-900 hover:border-cyan-500/30 p-3.5 rounded-xl flex flex-col gap-1.5 transition-all active:scale-95">
+                            <div class="w-7 h-7 rounded-full bg-cyan-950/40 border border-cyan-500/20 flex items-center justify-center text-xs">👛</div>
+                            <div>
+                                <span class="text-[11px] font-bold tracking-tight text-neutral-100 block">Bayar Kas</span>
+                                <span class="text-[8px] text-neutral-400 block font-light leading-tight mt-0.5">Ayuk bayar kas sekarang</span>
+                            </div>
+                        </a>
+
+                        <a href="lihat-kegiatan.html" class="bg-neutral-950 border border-neutral-900 hover:border-green-500/30 p-3.5 rounded-xl flex flex-col gap-1.5 transition-all active:scale-95">
+                            <div class="w-7 h-7 rounded-full bg-green-950/40 border border-green-500/20 flex items-center justify-center text-xs">🎫</div>
+                            <div>
+                                <span class="text-[11px] font-bold tracking-tight text-neutral-100 block">Event</span>
+                                <span class="text-[8px] text-neutral-400 block font-light leading-tight mt-0.5">Proker & agenda berjalan</span>
+                            </div>
+                        </a>
+
+                        <a href="riwayat-transaksi.html" class="bg-neutral-950 border border-neutral-900 hover:border-neutral-700 p-3.5 rounded-xl flex flex-col gap-1.5 transition-all active:scale-95">
+                            <div class="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-xs">📄</div>
+                            <div>
+                                <span class="text-[11px] font-bold tracking-tight text-neutral-100 block">Rekap</span>
+                                <span class="text-[8px] text-neutral-400 block font-light leading-tight mt-0.5">Laporan Keuangan</span>
+                            </div>
+                        </a>
+
+                        <a href="https://wa.me/6285972535329" target="_blank" class="bg-neutral-950 border border-neutral-900 hover:border-amber-500/30 p-3.5 rounded-xl flex flex-col gap-1.5 transition-all active:scale-95">
+                            <div class="w-7 h-7 rounded-full bg-amber-950/40 border border-amber-500/20 flex items-center justify-center text-xs">📞</div>
+                            <div>
+                                <span class="text-[11px] font-bold tracking-tight text-neutral-100 block">Hubungi Admin</span>
+                                <span class="text-[8px] text-neutral-400 block font-light leading-tight mt-0.5">Bila ada kendala lapor admin</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2.5">
+                    <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase font-black block">Log Aktivitas Terakhir Organisasi</span>
+                    
+                    <div id="recent-logs-container" class="flex flex-col gap-2">
+                        <!-- Loaded dynamically from Sheets or fallbacks -->
+                        <div class="p-3 bg-neutral-950 border border-neutral-900 rounded-xl flex items-center justify-between gap-3 animate-pulse">
+                            <div class="overflow-hidden w-2/3">
+                                <div class="h-2 bg-neutral-800 rounded w-3/4 mb-2"></div>
+                                <div class="h-2 bg-neutral-800 rounded w-1/2"></div>
+                            </div>
+                            <div class="h-3 bg-neutral-800 rounded w-1/4"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center">
+        <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP © 2026</span>
+    </footer>
+
+    <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc4KjFANk2dGnw18Vw07aXlJ8BLJ1-VrAPQ2Oj35v0LnmLennIA19Z5eJIyLl4N1ad/exec";
+
+    const ctx = document.getElementById('ldkLineChart').getContext('2d');
+    window.ldkChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"], // Dummy Labels Bulan
+            datasets: [
+                {
+                    label: 'Saldo GoPay',
+                    data: [500000, 700000, 850000, 1000000, 1100000, 1250000], // Dummy Data GoPay
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.01)',
+                    borderWidth: 2,
+                    tension: 0.15,
+                    pointBackgroundColor: '#38bdf8',
+                    pointBorderColor: '#06070a',
+                    pointBorderWidth: 1,
+                    pointRadius: 3,
+                    fill: true
+                },
+                {
+                    label: 'Saldo Tunai',
+                    data: [1500000, 1800000, 2000000, 2200000, 2400000, 2500000], // Dummy Data Tunai
+                    borderColor: '#4ade80',
+                    backgroundColor: 'rgba(74, 222, 128, 0.01)',
+                    borderWidth: 2,
+                    tension: 0.15,
+                    pointBackgroundColor: '#4ade80',
+                    pointBorderColor: '#06070a',
+                    pointBorderWidth: 1,
+                    pointRadius: 3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#a3a3a3', boxWidth: 8, font: { family: 'Plus Jakarta Sans', size: 9, weight: 'bold' } }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } } },
+                y: { 
+                    grid: { color: '#121420' }, 
+                    ticks: { 
+                        color: '#3f3f46', 
+                        font: { family: 'Plus Jakarta Sans', size: 8 },
+                        callback: function(value, index, values) {
+                            if (value >= 1000000) {
+                                return 'Rp ' + (value / 1000000).toFixed(1).replace('.0', '') + ' Jt';
+                            } else if (value >= 1000) {
+                                return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
+                            }
+                            return 'Rp ' + value;
+                        }
+                    } 
+                }
+            }
+        }
+    });
+
+    function applyTheme(theme) {
+        const btn = document.getElementById('themeToggleBtn');
+        const isLight = (theme === 'light');
+        if (isLight) {
+            document.documentElement.classList.add('light-mode');
+            document.body.classList.add('light-mode');
+            if (btn) btn.innerText = '☀️';
+            updateChartTheme(true);
+        } else {
+            document.documentElement.classList.remove('light-mode');
+            document.body.classList.remove('light-mode');
+            if (btn) btn.innerText = '🌙';
+            updateChartTheme(false);
+        }
+    }
+
+    function triggerThemeAnimation(newTheme, event) {
+        // 1. Create expanding liquid ripple element
+        const ripple = document.createElement('div');
+        ripple.style.position = 'fixed';
+        ripple.style.zIndex = '9998';
+        ripple.style.borderRadius = '50%';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+        ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+        
+        let posX = window.innerWidth / 2;
+        let posY = window.innerHeight / 2;
+        
+        // Grab coordinates from click event or fallback to button center
+        if (event && event.clientX) {
+            posX = event.clientX;
+            posY = event.clientY;
+        } else {
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                posX = rect.left + rect.width / 2;
+                posY = rect.top + rect.height / 2;
+            }
+        }
+        
+        ripple.style.width = '10px';
+        ripple.style.height = '10px';
+        ripple.style.left = `${posX - 5}px`;
+        ripple.style.top = `${posY - 5}px`;
+        ripple.style.transform = 'scale(0)';
+        ripple.style.opacity = '1';
+        
+        // 2. Create central icon overlay
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.zIndex = '9999';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.transition = 'opacity 0.4s ease-out';
+        overlay.style.opacity = '0';
+        
+        const icon = document.createElement('div');
+        icon.style.fontSize = '6rem';
+        icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        icon.style.transform = 'scale(0) rotate(-45deg)';
+        icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+        icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+        
+        overlay.appendChild(icon);
+        document.body.appendChild(ripple);
+        document.body.appendChild(overlay);
+        
+        ripple.offsetWidth; // Force layout reflow
+        overlay.offsetWidth;
+        
+        // Calculate max diagonal to cover entire screen
+        const limit = Math.max(
+            Math.hypot(posX, posY),
+            Math.hypot(window.innerWidth - posX, posY),
+            Math.hypot(posX, window.innerHeight - posY),
+            Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+        );
+        const scaleFactor = (limit * 2) / 10;
+        
+        // Trigger animations
+        ripple.style.transform = `scale(${scaleFactor})`;
+        overlay.style.opacity = '1';
+        icon.style.transform = 'scale(1.5) rotate(0deg)';
+        
+        // Swap theme underneath ripple right when it covers content
+        setTimeout(() => {
+            applyTheme(newTheme);
+        }, 380);
+        
+        // Fade out and cleanup
+        setTimeout(() => {
+            ripple.style.opacity = '0';
+            overlay.style.opacity = '0';
+            icon.style.transform = 'scale(0.8) rotate(45deg)';
+            setTimeout(() => {
+                ripple.remove();
+                overlay.remove();
+            }, 400);
+        }, 650);
+    }
+
+    function toggleTheme(e) {
+        const event = e || window.event;
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        triggerThemeAnimation(newTheme, event);
+    }
+
+    function updateChartTheme(isLight) {
+        if (!window.ldkChart) return;
+        
+        // Define theme colors based on state
+        const gridColor = isLight ? '#ccd9d2' : '#1d2030';
+        const tickColor = isLight ? '#3b5c49' : '#64748b';
+        const legendColor = isLight ? '#0a140f' : '#f8fafc';
+        const pointBorder = isLight ? '#ffffff' : '#07090e';
+        
+        // GoPay and Tunai colors for light mode (darker/warmer for readability) vs dark mode (vibrant neon)
+        const goPayColor = isLight ? '#0f766e' : '#38bdf8'; // deep teal vs sky blue
+        const tunaiColor = isLight ? '#15803d' : '#4ade80'; // rich green vs light neon green
+        
+        window.ldkChart.options.scales.x.ticks.color = tickColor;
+        window.ldkChart.options.scales.y.ticks.color = tickColor;
+        window.ldkChart.options.scales.y.grid.color = gridColor;
+        window.ldkChart.options.plugins.legend.labels.color = legendColor;
+        
+        // Update datasets
+        window.ldkChart.data.datasets[0].borderColor = goPayColor;
+        window.ldkChart.data.datasets[0].pointBackgroundColor = goPayColor;
+        window.ldkChart.data.datasets[0].pointBorderColor = pointBorder;
+        
+        window.ldkChart.data.datasets[1].borderColor = tunaiColor;
+        window.ldkChart.data.datasets[1].pointBackgroundColor = tunaiColor;
+        window.ldkChart.data.datasets[1].pointBorderColor = pointBorder;
+        
+        window.ldkChart.update();
+    }
+
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.add('fade-out');
+            setTimeout(() => overlay.remove(), 400);
+        }
+    }
+
+    function fetchInitialData(forceRefresh = false) {
+        if (!GOOGLE_SCRIPT_URL) {
+            // Keep default / simulation if URL is empty
+            const dummyTx = [
+                { id: "TX-1", tanggal: "2026-06-10", keterangan: "Infaq Bulanan Jamaah", jenis: "Masuk", metode: "GoPay", nominal: 250000, status_reimburse: "Tidak Perlu" },
+                { id: "TX-2", tanggal: "2026-06-08", keterangan: "Pembelian Sarana Prasarana Masjid", jenis: "Keluar", metode: "Tunai", nominal: 750000, status_reimburse: "Tidak Perlu" },
+                { id: "TX-3", tanggal: "2026-06-05", keterangan: "Kas Masuk Pengurus", jenis: "Masuk", metode: "Tunai", nominal: 150000, status_reimburse: "Tidak Perlu" }
+            ];
+            calculateAndRenderStats(dummyTx);
+            renderRecentLogs(dummyTx);
+            hideLoadingOverlay();
+            return;
+        }
+
+        const CACHE_KEY = "ldk_db_cache";
+        const CACHE_TIME_KEY = "ldk_db_cache_time";
+        const CACHE_TTL = 15000; // 15 seconds cache
+
+        if (forceRefresh) {
+            sessionStorage.removeItem(CACHE_KEY);
+            sessionStorage.removeItem(CACHE_TIME_KEY);
+        }
+
+        const cachedData = sessionStorage.getItem(CACHE_KEY);
+        const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+        const now = Date.now();
+
+        if (cachedData && cachedTime) {
+            try {
+                const data = JSON.parse(cachedData);
+                if (data && data.status === "success") {
+                    calculateAndRenderStats(data.transaksi || []);
+                    updateChartWithData(data.transaksi || []);
+                    renderRecentLogs(data.transaksi || []);
+                    
+                    hideLoadingOverlay();
+
+                    if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                        console.log("Using fresh cache for Dashboard");
+                        return;
+                    }
+                    console.log("Using stale cache, fetching fresh data in background...");
+                }
+            } catch (e) {
+                console.error("Cache load error:", e);
+            }
+        }
+
+        fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+
+                    calculateAndRenderStats(data.transaksi);
+                    updateChartWithData(data.transaksi);
+                    renderRecentLogs(data.transaksi);
+                } else {
+                    console.error("Gagal mengambil data:", data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching data:", err);
+            })
+            .finally(() => {
+                hideLoadingOverlay();
+            });
+    }
+
+    function calculateAndRenderStats(transactions) {
+        const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+
+        let totalSaldo = 0;
+        let gopaySaldo = 0;
+        let cashSaldo = 0;
+        let totalMasuk = 0;
+        let totalKeluar = 0;
+
+        approved.forEach(t => {
+            const nominal = Number(t.nominal) || 0;
+            if (t.jenis === "Masuk") {
+                totalMasuk += nominal;
+                if (t.metode === "GoPay") gopaySaldo += nominal;
+                else if (t.metode === "Tunai") cashSaldo += nominal;
+            } else if (t.jenis === "Keluar") {
+                totalKeluar += nominal;
+                if (t.metode === "GoPay") gopaySaldo -= nominal;
+                else if (t.metode === "Tunai") cashSaldo -= nominal;
+            }
+        });
+
+        totalSaldo = gopaySaldo + cashSaldo;
+
+        document.getElementById('total-saldo-text').innerText = 'Rp ' + totalSaldo.toLocaleString('id-ID');
+        document.getElementById('gopay-saldo-text').innerText = 'Rp ' + gopaySaldo.toLocaleString('id-ID');
+        document.getElementById('cash-saldo-text').innerText = 'Rp ' + cashSaldo.toLocaleString('id-ID');
+        document.getElementById('total-masuk-text').innerText = 'Rp ' + totalMasuk.toLocaleString('id-ID');
+        document.getElementById('total-keluar-text').innerText = 'Rp ' + totalKeluar.toLocaleString('id-ID');
+    }
+
+    function updateChartWithData(transactions) {
+        if (!window.ldkChart) return;
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+        const approvedTx = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+        
+        approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+        const goPayBalances = Array(12).fill(0);
+        const tunaiBalances = Array(12).fill(0);
+
+        let cumulativeGoPay = 0;
+        let cumulativeTunai = 0;
+
+        const monthlyGoPayDiff = Array(12).fill(0);
+        const monthlyTunaiDiff = Array(12).fill(0);
+
+        approvedTx.forEach(tx => {
+            const d = new Date(tx.tanggal);
+            const mIdx = d.getMonth();
+            if (mIdx >= 0 && mIdx < 12) {
+                const nominal = Number(tx.nominal) || 0;
+                const factor = tx.jenis === "Masuk" ? 1 : -1;
+                const change = nominal * factor;
+                if (tx.metode === "GoPay") {
+                    monthlyGoPayDiff[mIdx] += change;
+                } else if (tx.metode === "Tunai") {
+                    monthlyTunaiDiff[mIdx] += change;
+                }
+            }
+        });
+
+        for (let i = 0; i < 12; i++) {
+            cumulativeGoPay += monthlyGoPayDiff[i];
+            cumulativeTunai += monthlyTunaiDiff[i];
+            goPayBalances[i] = cumulativeGoPay;
+            tunaiBalances[i] = cumulativeTunai;
+        }
+
+        const maxMonthIndex = Math.max(5, new Date().getMonth());
+        const activeMonths = months.slice(0, maxMonthIndex + 1);
+        
+        window.ldkChart.data.labels = activeMonths;
+        window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
+        window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
+        window.ldkChart.update();
+    }
+
+    function renderRecentLogs(transactions) {
+        const container = document.getElementById('recent-logs-container');
+        if (!container) return;
+
+        const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+        approved.sort((a, b) => {
+            const dateDiff = new Date(b.tanggal) - new Date(a.tanggal);
+            if (dateDiff !== 0) return dateDiff;
+            return (b.id || "").toString().localeCompare((a.id || "").toString());
+        });
+
+        const recent = approved.slice(0, 3);
+        
+        if (recent.length === 0) {
+            container.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500 font-mono italic">Belum ada riwayat transaksi.</div>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        recent.forEach(t => {
+            const isIncoming = t.jenis === "Masuk";
+            const sign = isIncoming ? "+" : "-";
+            const colorClass = isIncoming ? "text-green-400" : "text-rose-400";
+            const methodColor = t.metode === "GoPay" ? "text-cyan-400" : "text-green-400";
+            const nominalFormatted = sign + "Rp" + (Number(t.nominal) || 0).toLocaleString('id-ID');
+            
+            let dateStr = t.tanggal;
+            try {
+                const dateObj = new Date(t.tanggal);
+                if (!isNaN(dateObj.getTime())) {
+                    const monthsNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+                    dateStr = `${dateObj.getDate()} ${monthsNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+                }
+            } catch (e) {}
+
+            const itemHtml = `
+                <div class="p-3 bg-neutral-950 border border-neutral-900 rounded-xl flex items-center justify-between gap-3">
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-semibold text-neutral-200 truncate font-sans max-w-[150px] sm:max-w-none">${t.keterangan}</p>
+                        <span class="text-[9px] font-mono text-neutral-500 block mt-0.5">
+                            ${dateStr} • <span class="${methodColor}">${t.metode}</span> ${t.id ? `• <span class="text-neutral-600 select-all font-light">${t.id}</span>` : ''}
+                        </span>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-xs font-bold font-mono ${colorClass}">${nominalFormatted}</span>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += itemHtml;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+        fetchInitialData();
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const splash = document.getElementById('splash-screen');
+        const logo = document.getElementById('splash-logo');
+        const textEl = document.getElementById('splash-text');
+        const subtitle = document.getElementById('splash-subtitle');
+        
+        if (sessionStorage.getItem('splash_shown')) {
+            splash.style.display = 'none';
+            return;
+        } else {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+        
+        document.body.style.overflow = 'hidden';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]';
+        
+        function scrambleText(targetWord, duration = 800, isGlitch = true) {
+            return new Promise((resolve) => {
+                const start = performance.now();
+                let frame;
+                
+                if (isGlitch) {
+                    textEl.classList.add('glitch-text', 'glitch-shake');
+                    logo.classList.add('glitch-shake');
+                }
+                
+                const animate = (time) => {
+                    const elapsed = time - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const resolvedCount = Math.floor(progress * targetWord.length);
+                    
+                    let output = '';
+                    for (let i = 0; i < targetWord.length; i++) {
+                        if (i < resolvedCount) {
+                            output += targetWord[i];
+                        } else {
+                            output += `<span class="text-green-400 font-mono">${chars[Math.floor(Math.random() * chars.length)]}</span>`;
+                        }
+                    }
+                    
+                    textEl.innerHTML = output;
+                    
+                    if (progress < 1) {
+                        frame = requestAnimationFrame(animate);
+                    } else {
+                        textEl.innerHTML = targetWord;
+                        textEl.classList.remove('glitch-text', 'glitch-shake');
+                        logo.classList.remove('glitch-shake');
+                        resolve();
+                    }
+                };
+                
+                frame = requestAnimationFrame(animate);
+            });
+        }
+
+        function fadeSplashLogoOut() {
+            return new Promise((resolve) => {
+                logo.style.transitionDuration = '350ms';
+                logo.classList.remove('opacity-100', 'scale-100');
+                logo.classList.add('scale-75', 'opacity-0');
+                setTimeout(resolve, 350);
+            });
+        }
+
+        function fadeSplashLogoIn(contentHtml) {
+            return new Promise((resolve) => {
+                logo.innerHTML = contentHtml;
+                logo.offsetWidth; // Force reflow
+                logo.style.transitionDuration = '350ms';
+                logo.classList.remove('scale-75', 'opacity-0');
+                logo.classList.add('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    logo.style.transitionDuration = '';
+                    resolve();
+                }, 350);
+            });
+        }
+
+        setTimeout(() => {
+            logo.classList.remove('opacity-0', 'scale-90');
+            logo.classList.add('opacity-100', 'scale-100');
+            
+            setTimeout(async () => {
+                await scrambleText('FINANCE?', 800, false);
+                
+                await new Promise(r => setTimeout(r, 800));
+                await fadeSplashLogoOut();
+                textEl.innerHTML = ''; // Kosongkan teks sebelum fade in logo baru
+                
+                await fadeSplashLogoIn('<img src="online.png" alt="Online Logo" class="max-w-full max-h-full object-contain">');
+                await scrambleText('ONLINE!?', 800, false);
+                
+                await new Promise(r => setTimeout(r, 800));
+                await fadeSplashLogoOut();
+                textEl.innerHTML = ''; // Kosongkan teks sebelum fade in logo baru
+                
+                await fadeSplashLogoIn('<img src="bendahara.png" alt="LDK Logo" class="max-w-full max-h-full object-contain">');
+                await scrambleText('DANAIMIP', 1000, false);
+                
+                textEl.classList.add('final-glow');
+                
+                setTimeout(() => {
+                    subtitle.classList.remove('opacity-0', 'translate-y-2');
+                    subtitle.classList.add('opacity-100', 'translate-y-0');
+                    
+                    setTimeout(() => {
+                        splash.classList.add('opacity-0');
+                        splash.style.pointerEvents = 'none';
+                        document.body.style.overflow = '';
+                        
+                        setTimeout(() => {
+                            splash.style.display = 'none';
+                            sessionStorage.setItem('splash_shown', 'true');
+                        }, 700);
+                    }, 1500);
+                }, 300);
+            }, 800);
+        }, 300);
+    });
+    </script>
+</body>
+</html>
