@@ -932,8 +932,9 @@
                     let totalOut = 0;
                     prokerTx.forEach(t => {
                         const nominal = Number(t.nominal) || 0;
-                        if (t.jenis === "Masuk") totalIn += nominal;
-                        else if (t.jenis === "Keluar") totalOut += nominal;
+                        const j = (t.jenis || "").trim().toLowerCase();
+                        if (j === "masuk") totalIn += nominal;
+                        else if (j === "keluar") totalOut += nominal;
                     });
                     const netSaldo = totalIn - totalOut;
 
@@ -950,8 +951,13 @@
                         const items = categories[catName];
                         let catTotal = 0;
                         items.forEach(item => {
-                            catTotal += Number(item.nominal) || 0;
+                            const val = Number(item.nominal) || 0;
+                            const j = (item.jenis || "").trim().toLowerCase();
+                            if (j === "masuk") catTotal += val;
+                            else if (j === "keluar") catTotal -= val;
                         });
+                        const catSign = catTotal >= 0 ? '+' : '-';
+                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
 
                         categoriesHtml += `
                             <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2" id="cat-block-${p.id}-${catIndex}">
@@ -965,7 +971,7 @@
                                     </div>
                                     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                         <div class="text-[9px] sm:text-[10px] font-mono text-right leading-none whitespace-nowrap">
-                                            <span class="text-rose-400 font-bold block mt-1">-Rp${catTotal.toLocaleString('id-ID')}</span>
+                                            <span class="${catClass} block mt-1">${catSign}Rp${Math.abs(catTotal).toLocaleString('id-ID')}</span>
                                         </div>
                                         <button type="button" onclick="lepasKategori('${p.id}', '${catName}', 'cat-block-${p.id}-${catIndex}'); event.stopPropagation();" class="flex items-center gap-1 text-red-400 hover:text-red-300 text-[8px] sm:text-[9px] font-sans font-bold bg-neutral-900 border border-neutral-800 hover:bg-red-950/20 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-lg transition-colors cursor-pointer">
                                             <span class="hidden sm:inline">Lepas Kategori</span>
@@ -982,7 +988,7 @@
                                     <div class="divide-y divide-neutral-900/30 text-neutral-300">
                                         ${items.map(item => {
                                             const itemNominal = Number(item.nominal) || 0;
-                                            const isMasuk = item.jenis === "Masuk";
+                                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
                                             const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
                                             const signText = isMasuk ? '+' : '-';
                                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
@@ -1096,8 +1102,9 @@
                     let totalOut = 0;
                     prokerTx.forEach(t => {
                         const nominal = Number(t.nominal) || 0;
-                        if (t.jenis === "Masuk") totalIn += nominal;
-                        else if (t.jenis === "Keluar") totalOut += nominal;
+                        const j = (t.jenis || "").trim().toLowerCase();
+                        if (j === "masuk") totalIn += nominal;
+                        else if (j === "keluar") totalOut += nominal;
                     });
                     const netSaldo = totalIn - totalOut;
 
@@ -1114,8 +1121,13 @@
                         const items = categories[catName];
                         let catTotal = 0;
                         items.forEach(item => {
-                            catTotal += Number(item.nominal) || 0;
+                            const val = Number(item.nominal) || 0;
+                            const j = (item.jenis || "").trim().toLowerCase();
+                            if (j === "masuk") catTotal += val;
+                            else if (j === "keluar") catTotal -= val;
                         });
+                        const catSign = catTotal >= 0 ? '+' : '-';
+                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
 
                         categoriesHtml += `
                             <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2" id="cat-block-${p.id}-${catIndex}">
@@ -1129,7 +1141,7 @@
                                     </div>
                                     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                         <div class="text-[9px] sm:text-[10px] font-mono text-right leading-none whitespace-nowrap">
-                                            <span class="text-rose-400 font-bold block mt-1">-Rp${catTotal.toLocaleString('id-ID')}</span>
+                                            <span class="${catClass} block mt-1">${catSign}Rp${Math.abs(catTotal).toLocaleString('id-ID')}</span>
                                         </div>
                                         <button type="button" onclick="lepasKategori('${p.id}', '${catName}', 'cat-block-${p.id}-${catIndex}'); event.stopPropagation();" class="flex items-center gap-1 text-red-400 hover:text-red-300 text-[8px] sm:text-[9px] font-sans font-bold bg-neutral-900 border border-neutral-800 hover:bg-red-950/20 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-lg transition-colors cursor-pointer">
                                             <span class="hidden sm:inline">Lepas Kategori</span>
@@ -1146,7 +1158,7 @@
                                     <div class="divide-y divide-neutral-900/30 text-neutral-300">
                                         ${items.map(item => {
                                             const itemNominal = Number(item.nominal) || 0;
-                                            const isMasuk = item.jenis === "Masuk";
+                                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
                                             const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
                                             const signText = isMasuk ? '+' : '-';
                                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
@@ -1255,8 +1267,8 @@
             inBox.innerHTML = '';
             outBox.innerHTML = '';
 
-            const inItems = unlinked.filter(t => t.jenis === "Masuk");
-            const outItems = unlinked.filter(t => t.jenis === "Keluar");
+            const inItems = unlinked.filter(t => t.jenis && t.jenis.trim().toLowerCase() === "masuk");
+            const outItems = unlinked.filter(t => t.jenis && t.jenis.trim().toLowerCase() === "keluar");
 
             if (inItems.length === 0) {
                 inBox.innerHTML = '<div class="py-12 text-center text-xs text-neutral-500 font-mono italic">Tidak ada transaksi pemasukan bebas.</div>';

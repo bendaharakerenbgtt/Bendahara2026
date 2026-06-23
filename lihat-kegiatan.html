@@ -984,11 +984,11 @@
                     const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
                     
                     const totalIn = prokerTx
-                        .filter(t => t.jenis === 'Masuk')
+                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'masuk')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
                     const totalOut = prokerTx
-                        .filter(t => t.jenis === 'Keluar')
+                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'keluar')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
                     const netSaldo = totalIn - totalOut;
@@ -1010,7 +1010,8 @@
                     for (const [catName, txs] of Object.entries(categoriesMap)) {
                         const catTotal = txs.reduce((sum, tx) => {
                             const val = Number(tx.nominal) || 0;
-                            return sum + (tx.jenis === 'Masuk' ? val : -val);
+                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
+                            return sum + (isM ? val : -val);
                         }, 0);
 
                         const catSign = catTotal >= 0 ? '+' : '-';
@@ -1038,8 +1039,9 @@
                             }
 
                             const formattedDate = formatDateShort(tx.tanggal);
-                            const sign = tx.jenis === 'Masuk' ? '+' : '-';
-                            const valColor = tx.jenis === 'Masuk' ? 'text-emerald-400' : 'text-rose-400';
+                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
+                            const sign = isM ? '+' : '-';
+                            const valColor = isM ? 'text-emerald-400' : 'text-rose-400';
 
                             tableRowsHtml += `
                                 <tr class="hover:bg-neutral-900/10 transition-colors">
@@ -1157,11 +1159,11 @@
                     const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
                     
                     const totalIn = prokerTx
-                        .filter(t => t.jenis === 'Masuk')
+                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'masuk')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
                     const totalOut = prokerTx
-                        .filter(t => t.jenis === 'Keluar')
+                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'keluar')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
                     const netSaldo = totalIn - totalOut;
@@ -1183,7 +1185,8 @@
                     for (const [catName, txs] of Object.entries(categoriesMap)) {
                         const catTotal = txs.reduce((sum, tx) => {
                             const val = Number(tx.nominal) || 0;
-                            return sum + (tx.jenis === 'Masuk' ? val : -val);
+                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
+                            return sum + (isM ? val : -val);
                         }, 0);
 
                         const catSign = catTotal >= 0 ? '+' : '-';
@@ -1211,8 +1214,9 @@
                             }
 
                             const formattedDate = formatDateShort(tx.tanggal);
-                            const sign = tx.jenis === 'Masuk' ? '+' : '-';
-                            const valColor = tx.jenis === 'Masuk' ? 'text-emerald-400' : 'text-rose-400';
+                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
+                            const sign = isM ? '+' : '-';
+                            const valColor = isM ? 'text-emerald-400' : 'text-rose-400';
 
                             tableRowsHtml += `
                                 <tr class="hover:bg-neutral-900/10 transition-colors">
