@@ -706,7 +706,11 @@
 
                 <div class="mt-1">
                     <label class="text-[9px] font-mono uppercase text-neutral-500 block mb-1 font-bold">Masukan Kategori Untuk Apa</label>
-                    <input type="text" id="kategori_event" required placeholder="Contoh: Perlengkapan, Pubdok, Acara, Konsumsi" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+<input type="text" id="kategori_event" required placeholder="Contoh: Perlengkapan, Pubdok, Acara, Konsumsi" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans"/>
+                    <div class="mt-1">
+                        <label class="text-[9px] font-mono uppercase text-neutral-500 block mb-1 font-bold">Nama Pembayar</label>
+                        <input type="text" id="nama_pembayar" required placeholder="Contoh: John Doe" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans"/>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 pt-2 font-mono text-xs border-t border-neutral-900">
@@ -1157,7 +1161,10 @@
                         let tableRowsHtml = '';
                         items.forEach(item => {
                             const itemNominal = Number(item.nominal) || 0;
-                            const isMasuk = (item.jenis || "").trim().toLowerCase() === "masuk";
+                                                        const jenis = (item.jenis || "").trim().toLowerCase();
+                            const isMasuk = jenis !== "keluar";
+                            const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
+                            const signText = isMasuk ? '+' : '-';
                             const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
                             const signText = isMasuk ? '+' : '-';
                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
@@ -1180,11 +1187,12 @@
                                         <div class="mt-1 flex flex-wrap gap-1.5 items-center">
                                             <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-bold">Metode: ${item.metode}</span>
                                             ${item.nama_pic_pengeluar ? `<span class="text-[8px] text-amber-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-bold font-mono uppercase">PIC: ${item.nama_pic_pengeluar}</span>` : ''}
+                                            ${item.nama_pembayar ? `<span class="text-[8px] text-amber-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-bold font-mono uppercase">Pembayar: ${item.nama_pembayar}</span>` : ''}
                                         </div>
                                     </td>
                                     <td class="p-2 text-right align-top whitespace-nowrap">
                                         <div class="flex items-center justify-end gap-1.5 sm:gap-2.5">
-                                            <span class="text-[11px] sm:text-xs font-mono font-bold ${signColor}">${signText}Rp${itemNominal.toLocaleString('id-ID')}</span>
+                                            ${item.bukti_url ? `<button type="button" onclick="window.open('${item.bukti_url}', '_blank')" class="text-[8px] text-cyan-400 hover:text-cyan-300 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono mr-1">Lihat Bukti</button>` : ''}<span class="text-[11px] sm:text-xs font-mono font-bold ${signColor}">${signText}Rp${itemNominal.toLocaleString('id-ID')}</span>
                                             <button type="button" onclick="lepasTransaksi('${item.id}')" class="inline-flex items-center justify-center w-5.5 h-5.5 text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/20 border border-neutral-850 rounded-md transition-all active:scale-95 cursor-pointer" title="Lepas Transaksi">
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1732,6 +1740,7 @@
             const selectedCbs = Array.from(document.querySelectorAll('input[name="transaksi_ids[]"]:checked'));
             const selectedIds = selectedCbs.map(cb => cb.value);
             const catName = document.getElementById('kategori_event').value.trim();
+            const payerName = document.getElementById('nama_pembayar').value.trim();
 
             if (selectedIds.length === 0) {
                 alert('Silakan pilih minimal 1 transaksi untuk ditautkan!');
@@ -1743,12 +1752,18 @@
                 return;
             }
 
+            if (!payerName) {
+                alert('Silakan masukkan nama pembayar!');
+                return;
+            }
+
             if (!GOOGLE_SCRIPT_URL) {
                 selectedIds.forEach(txId => {
                     const tx = localTransactions.find(t => t.id.toString() === txId.toString());
                     if (tx) {
                         tx.proker_id = activeProkerId;
                         tx.kategori = catName;
+                        tx.nama_pembayar = payerName;
                     }
                 });
                 Swal.fire({ icon: 'success', title: 'Tautan Berhasil (Lokal)!', showConfirmButton: false, timer: 1000 });
@@ -1774,7 +1789,8 @@
                         action: "edit_transaction_relation",
                         id: txId,
                         proker_id: activeProkerId,
-                        kategori: catName
+                        kategori: catName,
+                        nama_pembayar: payerName
                     })
                 });
             });
