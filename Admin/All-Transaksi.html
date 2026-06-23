@@ -497,6 +497,12 @@
                             </datalist>
                         </div>
                         <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor (Opsional)</label>
+                            <select id="in_user_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                                <option value="">Pilih Anggota Penyetor...</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Program Kerja (Proker)</label>
                             <select id="in_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
                                 <option value="">General / Kas Umum</option>
@@ -520,6 +526,19 @@
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan Tambahan</label>
                             <textarea id="in_keterangan" rows="2" required placeholder="Contoh: Donasi Dari UKM Badminton..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans resize-none leading-relaxed"></textarea>
+                        </div>
+                        
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Transaksi (Opsional)</label>
+                            <input type="file" id="in_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
+                            <!-- Image preview container -->
+                            <div id="in_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <img id="in_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
+                                    <span id="in_image_reduction_info" class="text-[9px] font-mono text-neutral-500"></span>
+                                </div>
+                                <button type="button" onclick="resetPemasukanImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
+                            </div>
                         </div>
                         
                         <button type="submit" id="btnSubmitPemasukan" class="w-full bg-emerald-600 hover:bg-emerald-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
@@ -574,8 +593,10 @@
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">PIC Pengeluar (Penanggung Jawab)</label>
-                                <input type="text" id="exp_pic" placeholder="Contoh: Dimaz Hakim..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penanggung Jawab (Pilih Nama)</label>
+                                <select id="out_user_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
+                                    <option value="">Pilih Anggota Penanggung Jawab...</option>
+                                </select>
                             </div>
                         </div>
 
@@ -587,6 +608,19 @@
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
                                 <input type="number" id="exp_harga_satuan" placeholder="Harga" required min="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Pembelian / Kwitansi (Opsional)</label>
+                            <input type="file" id="out_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-rose-400 file:cursor-pointer hover:file:bg-rose-950/40">
+                            <!-- Image preview container -->
+                            <div id="out_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <img id="out_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
+                                    <span id="out_image_reduction_info" class="text-[9px] font-mono text-neutral-500"></span>
+                                </div>
+                                <button type="button" onclick="resetPengeluaranImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
                             </div>
                         </div>
  
@@ -733,6 +767,9 @@
         let localTransactions = [];
         let prokersMap = {};
         let membersMap = {};
+        let localAnggota = [];
+        let pemasukanImageBase64 = '';
+        let pengeluaranImageBase64 = '';
 
         let currentType = 'all';
         let currentMonth = 'all';
@@ -768,7 +805,19 @@
                     "PRK-1": "Kajian Akbar Semesta",
                     "PRK-2": "Webinar Nasional Kreatif"
                 };
+                localAnggota = [
+                    { id: 1, name: "Dimaz Hakim", divisi: "Ketua" },
+                    { id: 2, name: "Gema", divisi: "Sosmas" },
+                    { id: 3, name: "Fathur", divisi: "Media" },
+                    { id: 5, name: "Hafiz", divisi: "Bendahara" },
+                    { id: 30, name: "Abid", divisi: "Konsumsi" }
+                ];
+                membersMap = {};
+                localAnggota.forEach(m => {
+                    membersMap[m.id.toString()] = m.name;
+                });
                 populateProkerDropdowns([{ id: "PRK-1", nama_proker: "Kajian Akbar Semesta" }, { id: "PRK-2", nama_proker: "Webinar Nasional Kreatif" }]);
+                populateMemberDropdowns(localAnggota);
                 applyMutationFilters();
                 hideLoadingOverlay();
                 return;
@@ -793,6 +842,7 @@
                     const data = JSON.parse(cachedData);
                     if (data && data.status === "success") {
                         localTransactions = data.transaksi || [];
+                        localAnggota = data.anggota || [];
                         
                         prokersMap = {};
                         (data.proker || []).forEach(p => {
@@ -805,6 +855,7 @@
                         });
 
                         populateProkerDropdowns(data.proker || []);
+                        populateMemberDropdowns(localAnggota);
                         applyMutationFilters();
                         
                         hideLoadingOverlay();
@@ -829,6 +880,7 @@
                         sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
 
                         localTransactions = data.transaksi;
+                        localAnggota = data.anggota || [];
                         
                         prokersMap = {};
                         data.proker.forEach(p => {
@@ -841,6 +893,7 @@
                         });
 
                         populateProkerDropdowns(data.proker);
+                        populateMemberDropdowns(localAnggota);
                         applyMutationFilters();
                     } else {
                         console.error("Gagal memuat database:", data.message);
@@ -873,6 +926,122 @@
 
             inSelect.value = inVal;
             outSelect.value = outVal;
+        }
+
+        function populateMemberDropdowns(members) {
+            const inSelect = document.getElementById('in_user_id');
+            const outSelect = document.getElementById('out_user_id');
+            if (!inSelect || !outSelect) return;
+
+            const inVal = inSelect.value;
+            const outVal = outSelect.value;
+
+            inSelect.innerHTML = '<option value="">Pilih Anggota Penyetor...</option>';
+            outSelect.innerHTML = '<option value="">Pilih Anggota Penanggung Jawab...</option>';
+
+            members.forEach(m => {
+                const optHtml = `<option value="${m.id}">${m.name}</option>`;
+                inSelect.innerHTML += optHtml;
+                outSelect.innerHTML += optHtml;
+            });
+
+            inSelect.value = inVal;
+            outSelect.value = outVal;
+        }
+
+        // Image compression listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const inFileInput = document.getElementById('in_bukti_file');
+            if (inFileInput) {
+                inFileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const container = document.getElementById('in_preview_container');
+                    const preview = document.getElementById('in_image_preview');
+                    const info = document.getElementById('in_image_reduction_info');
+
+                    container.classList.remove('hidden');
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width > 800 ? 800 : img.width;
+                            canvas.height = img.width > 800 ? (img.height * (800 / img.width)) : img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            canvas.toBlob(function(blob) {
+                                preview.src = URL.createObjectURL(blob);
+                                info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(blob.size / 1024).toFixed(1)} KB`;
+                                pemasukanImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                            }, 'image/jpeg', 0.7);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            const outFileInput = document.getElementById('out_bukti_file');
+            if (outFileInput) {
+                outFileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const container = document.getElementById('out_preview_container');
+                    const preview = document.getElementById('out_image_preview');
+                    const info = document.getElementById('out_image_reduction_info');
+
+                    container.classList.remove('hidden');
+
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width > 800 ? 800 : img.width;
+                            canvas.height = img.width > 800 ? (img.height * (800 / img.width)) : img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            canvas.toBlob(function(blob) {
+                                preview.src = URL.createObjectURL(blob);
+                                info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(blob.size / 1024).toFixed(1)} KB`;
+                                pengeluaranImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                            }, 'image/jpeg', 0.7);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        window.resetPemasukanImage = function() {
+            pemasukanImageBase64 = '';
+            const fileInput = document.getElementById('in_bukti_file');
+            if (fileInput) fileInput.value = '';
+            const container = document.getElementById('in_preview_container');
+            if (container) container.classList.add('hidden');
+            const preview = document.getElementById('in_image_preview');
+            if (preview) preview.src = '';
+            const info = document.getElementById('in_image_reduction_info');
+            if (info) info.innerText = '';
+        }
+
+        window.resetPengeluaranImage = function() {
+            pengeluaranImageBase64 = '';
+            const fileInput = document.getElementById('out_bukti_file');
+            if (fileInput) fileInput.value = '';
+            const container = document.getElementById('out_preview_container');
+            if (container) container.classList.add('hidden');
+            const preview = document.getElementById('out_image_preview');
+            if (preview) preview.src = '';
+            const info = document.getElementById('out_image_reduction_info');
+            if (info) info.innerText = '';
         }
 
         function switchLedgerInput(target) {
@@ -934,14 +1103,16 @@
             const amount = parseInt(document.getElementById('pemasukanNominal').value.replace(/[^0-9]/g, '')) || 0;
             const desc = document.getElementById('in_keterangan').value;
             const prokerId = document.getElementById('in_proker_id').value;
+            const userId = document.getElementById('in_user_id').value;
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, keterangan: desc, jenis: "Masuk", metode: method, kategori: cat, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId
+                    id: Date.now(), tanggal: date, keterangan: desc, jenis: "Masuk", metode: method, kategori: cat, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64
                 });
                 Swal.fire({ icon: 'success', title: 'Pemasukan Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pemasukanLainnyaForm').reset();
                 document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
+                resetPemasukanImage();
                 applyMutationFilters();
                 return;
             }
@@ -966,6 +1137,8 @@
                     kategori: cat,
                     nominal: amount,
                     proker_id: prokerId,
+                    user_id: userId,
+                    bukti: pemasukanImageBase64,
                     status_reimburse: "Tidak Perlu"
                 })
             })
@@ -974,6 +1147,7 @@
                 Swal.fire({ icon: 'success', title: 'Pemasukan Berhasil Disimpan!', showConfirmButton: false, timer: 1200 });
                 document.getElementById('pemasukanLainnyaForm').reset();
                 document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
+                resetPemasukanImage();
                 fetchInitialData(true);
             })
             .catch(err => {
@@ -992,17 +1166,19 @@
             const qty = parseFloat(expQty.value) || 1;
             const price = parseFloat(expPrice.value) || 0;
             const desc = document.getElementById('exp_nama_barang').value;
-            const pic = document.getElementById('exp_pic').value;
+            const userId = document.getElementById('out_user_id').value;
+            const picName = userId ? (membersMap[userId.toString()] || "") : "";
             const prokerId = document.getElementById('out_proker_id').value;
             const total = qty * price;
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, keterangan: `${desc} (${qty}x)`, jenis: "Keluar", metode: method, kategori: cat, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, nama_pic_pengeluar: pic
+                    id: Date.now(), tanggal: date, keterangan: `${desc} (${qty}x)`, jenis: "Keluar", metode: method, kategori: cat, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64
                 });
                 Swal.fire({ icon: 'success', title: 'Pengeluaran Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pengeluaranForm').reset();
                 document.getElementById('out_tanggal').value = new Date().toISOString().substring(0, 10);
+                resetPengeluaranImage();
                 expTotal.innerText = 'Rp0';
                 applyMutationFilters();
                 return;
@@ -1028,7 +1204,9 @@
                     kategori: cat,
                     nominal: total,
                     proker_id: prokerId,
-                    nama_pic_pengeluar: pic,
+                    user_id: userId,
+                    nama_pic_pengeluar: picName,
+                    bukti: pengeluaranImageBase64,
                     status_reimburse: "Tidak Perlu"
                 })
             })
@@ -1037,6 +1215,7 @@
                 Swal.fire({ icon: 'success', title: 'Pengeluaran Berhasil Disimpan!', showConfirmButton: false, timer: 1200 });
                 document.getElementById('pengeluaranForm').reset();
                 document.getElementById('out_tanggal').value = new Date().toISOString().substring(0, 10);
+                resetPengeluaranImage();
                 expTotal.innerText = 'Rp0';
                 fetchInitialData(true);
             })
@@ -1141,8 +1320,11 @@
                 const badgeType = isMasuk ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30' : 'bg-rose-950/20 text-rose-400 border-rose-900/30';
                 const pendingBadge = tx.status_reimburse === 'Belum' ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border bg-amber-950/20 text-amber-400 border-amber-900/30 uppercase tracking-wider animate-pulse">⏳ PENDING</span>` : '';
                 
-                const picText = tx.nama_pic_pengeluar ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-amber-400">@ ${tx.nama_pic_pengeluar}</span>` : '';
-                const pengetorText = tx.user_id ? (membersMap[tx.user_id.toString()] ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-500">Penyetor: ${membersMap[tx.user_id.toString()]}</span>` : '') : '';
+                const penyetorName = isMasuk && tx.user_id ? (membersMap[tx.user_id.toString()] || "") : "";
+                const pengetorText = penyetorName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-500">Penyetor: ${penyetorName}</span>` : '';
+
+                const pjName = !isMasuk ? (tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "") : (tx.nama_pic_pengeluar || "")) : "";
+                const picText = pjName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-amber-400">@ ${pjName}</span>` : '';
                 
                 const receiptPath = getReceiptPath(tx);
                 const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-950/40 text-cyan-400 hover:text-white border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` : '';
@@ -1379,6 +1561,12 @@
         }
 
         function getReceiptPath(tx) {
+            if (tx.bukti && tx.bukti.trim()) {
+                const b = tx.bukti.trim();
+                if (b.startsWith('http://') || b.startsWith('https://') || b.startsWith('data:image/')) {
+                    return b;
+                }
+            }
             if (!tx.catatan) return null;
             const c = tx.catatan.trim();
             if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {

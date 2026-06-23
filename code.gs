@@ -137,6 +137,7 @@ function getAllData() {
       catatan: cleanCatatan,
       bukti: proofUrl,
       status_reimburse: statusReimburse,
+      nama_pic_pengeluar: getVal(t, "nama_pic_pengeluar") || "",
       created_at: getVal(t, "created_at") || "",
       updated_at: getVal(t, "updated_at") || ""
     };
@@ -369,6 +370,7 @@ function insertTransaction(p) {
         nominal: 10000, // Simpan Rp10.000 per baris
         catatan: finalCatatan,
         status_reimburse: p.status_reimburse || "Belum",
+        nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
         created_at: today,
         updated_at: today
       };
@@ -417,6 +419,7 @@ function insertTransaction(p) {
     nominal: parsedNominal,
     catatan: finalCatatan,
     status_reimburse: p.status_reimburse || "Belum",
+    nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
     created_at: today,
     updated_at: today
   };
