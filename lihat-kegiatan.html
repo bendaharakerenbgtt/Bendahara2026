@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <script>
@@ -981,56 +981,167 @@
                 `;
             } else {
                 runningProkers.forEach(proker => {
-                    const totalIn = allTransactions
-                        .filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu' && t.jenis === 'Masuk')
+                    const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
+                    
+                    const totalIn = prokerTx
+                        .filter(t => t.jenis === 'Masuk')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
-                    const cardHtml = `
-                        <div class="bg-neutral-950 border border-neutral-900 p-5 rounded-xl relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-xs">
-                            <div>
-                                <div class="flex items-center justify-between gap-2 mb-3">
-                                    <span class="text-[8px] font-mono px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded uppercase font-bold tracking-wider">
-                                        ${proker.jenis || "Program Kerja"}
-                                    </span>
-                                    <span class="text-[9px] font-mono text-neutral-500 font-bold">ID: #${proker.id}</span>
+                    const totalOut = prokerTx
+                        .filter(t => t.jenis === 'Keluar')
+                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+
+                    const netSaldo = totalIn - totalOut;
+                    const netSign = netSaldo >= 0 ? '' : '-';
+                    const netClass = netSaldo >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+
+                    const categoriesMap = {};
+                    prokerTx.forEach(tx => {
+                        const cat = tx.kategori || "Lainnya";
+                        if (!categoriesMap[cat]) {
+                            categoriesMap[cat] = [];
+                        }
+                        categoriesMap[cat].push(tx);
+                    });
+
+                    let categoriesHtml = '';
+                    let catIdx = 0;
+
+                    for (const [catName, txs] of Object.entries(categoriesMap)) {
+                        const catTotal = txs.reduce((sum, tx) => {
+                            const val = Number(tx.nominal) || 0;
+                            return sum + (tx.jenis === 'Masuk' ? val : -val);
+                        }, 0);
+
+                        const catSign = catTotal >= 0 ? '+' : '-';
+                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
+
+                        let tableRowsHtml = '';
+                        txs.forEach(tx => {
+                            let detailsCardHtml = '';
+                            if (tx.catatan && !tx.catatan.includes('https://') && !tx.catatan.startsWith('KAS_') && !tx.catatan.startsWith('PROKER_')) {
+                                detailsCardHtml = `
+                                    <div class="mt-1.5 p-2 bg-neutral-900 border border-neutral-800 rounded-lg font-mono text-[9px] text-neutral-400">
+                                        <span class="text-neutral-300">${tx.catatan}</span>
+                                    </div>
+                                `;
+                            }
+
+                            const receiptPath = getReceiptPath(tx);
+                            let attachmentBtn = '';
+                            if (receiptPath) {
+                                attachmentBtn = `
+                                    <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-emerald-950 text-neutral-400 hover:text-emerald-400 border border-neutral-900 hover:border-emerald-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
+                                        📂 Lihat Bukti
+                                    </button>
+                                `;
+                            }
+
+                            const formattedDate = formatDateShort(tx.tanggal);
+                            const sign = tx.jenis === 'Masuk' ? '+' : '-';
+                            const valColor = tx.jenis === 'Masuk' ? 'text-emerald-400' : 'text-rose-400';
+
+                            tableRowsHtml += `
+                                <tr class="hover:bg-neutral-900/10 transition-colors">
+                                    <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono">${formattedDate}</td>
+                                    <td class="p-2 font-sans align-top">
+                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${tx.keterangan}</span>
+                                        ${detailsCardHtml}
+                                        <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+                                            <span class="text-[8px] text-neutral-600 bg-neutral-900 inline-block px-1.5 py-0.5 rounded uppercase">Metode: ${tx.metode}</span>
+                                            ${attachmentBtn}
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-right font-bold align-top whitespace-nowrap ${valColor}">${sign}Rp ${parseFloat(tx.nominal).toLocaleString('id-ID')}</td>
+                                </tr>
+                            `;
+                        });
+
+                        categoriesHtml += `
+                            <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2">
+                                <div onclick="toggleCategoryAccordion('${proker.id}', '${catIdx}')" class="p-3 bg-neutral-900/30 flex items-center justify-between cursor-pointer hover:bg-neutral-900/50 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-mono font-bold tracking-wider text-emerald-400 uppercase">📁 ${catName}</span>
+                                        <span class="text-[8px] bg-neutral-900 text-neutral-500 font-mono px-1.5 py-0.5 rounded-md border border-neutral-800">${txs.length} Item</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-[9px] font-mono text-right leading-none">
+                                            <span class="${catClass}">${catSign}Rp ${(Math.abs(catTotal)).toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <span id="cat-arrow-${proker.id}-${catIdx}" class="text-[9px] text-neutral-600 transition-transform">▼</span>
+                                    </div>
                                 </div>
-                                <h3 class="text-xs font-bold text-neutral-100 tracking-tight font-sans leading-snug">${proker.nama_proker}</h3>
-                                
-                                <div class="grid grid-cols-1 gap-1 text-[9px] font-mono text-neutral-400 mt-2.5 pt-2 border-t border-neutral-900/60">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-neutral-500 shrink-0">Divisi:</span>
-                                        <span class="text-neutral-300 font-sans truncate">${proker.divisi || "-"}</span>
-                                    </div>
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-neutral-500 shrink-0">Ketua:</span>
-                                        <span class="text-neutral-300 font-sans truncate font-semibold">${getMemberName(proker.id_anggota)}</span>
-                                    </div>
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-neutral-500 shrink-0">Tanggal:</span>
-                                        <span class="text-neutral-300 font-sans">${proker.estimasi_tanggal || "-"} (${proker.tahun || new Date().getFullYear()})</span>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 mt-0.5">
-                                        <span class="text-neutral-500 shrink-0">RAB Estimasi:</span>
-                                        <span class="text-cyan-400 font-bold">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span>
+
+                                <div id="cat-content-${proker.id}-${catIdx}" class="hidden border-t border-neutral-900/40 bg-neutral-950/10">
+                                    <div class="overflow-x-auto w-full">
+                                        <table class="w-full text-left border-collapse text-[10px] font-mono">
+                                            <thead>
+                                                <tr class="bg-neutral-900/20 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900/30">
+                                                    <th class="p-2 w-20 whitespace-nowrap">Tanggal</th>
+                                                    <th class="p-2">Rincian Transaksi</th>
+                                                    <th class="p-2 text-right w-24 whitespace-nowrap">Jumlah</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-neutral-900/30 text-neutral-300">
+                                                ${tableRowsHtml}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="mt-4 pt-3 border-t border-neutral-900 flex flex-col gap-3">
-                                <div>
-                                    <span class="text-[8px] font-mono uppercase text-neutral-500 block">Total Dana Terkumpul</span>
-                                    <div class="text-base font-bold text-emerald-400 font-mono mt-0.5">
-                                        Rp ${totalIn.toLocaleString('id-ID')}
+                        `;
+                        catIdx++;
+                    }
+
+                    const prokerHtml = `
+                        <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
+                            <div class="p-4 flex items-center justify-between bg-neutral-900/10 border-b border-neutral-900/50">
+                                <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer overflow-hidden pr-2">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="text-[8px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400 font-bold uppercase tracking-wider">${proker.jenis || "Program Kerja"}</span>
+                                        <h3 class="text-xs font-bold text-neutral-200 truncate font-mono tracking-wide uppercase">${proker.nama_proker}</h3>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8px] font-mono text-neutral-500 mt-1.5 leading-none">
+                                        <span>Divisi: <span class="text-neutral-300">${proker.divisi || "-"}</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Ketua: <span class="text-neutral-300 font-semibold">${getMemberName(proker.id_anggota)}</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Tanggal: <span class="text-neutral-300">${proker.estimasi_tanggal || "-"} (${proker.tahun || new Date().getFullYear()})</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Estimasi RAB: <span class="text-neutral-300">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span></span>
+                                        <span class="text-neutral-700">|</span>
+                                        <span>Saldo Sekarang: <span class="${netClass}">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span></span>
                                     </div>
                                 </div>
-                                
-                                <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-mono text-[9px] font-bold py-2 rounded-lg transition-transform active:scale-95 text-center cursor-pointer">
-                                    DONASI / HTM  ➔
-                                </button>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this); event.stopPropagation();" class="bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-mono text-[8px] sm:text-[9px] font-bold px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg active:scale-95 transition-all cursor-pointer shadow-md">
+                                        DONASI / HTM
+                                    </button>
+                                    <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="text-[10px] text-neutral-600 cursor-pointer pl-1 transition-transform">▼</span>
+                                </div>
+                            </div>
+
+                            <div id="p-content-${proker.id}" class="hidden p-3 bg-neutral-900/20 flex flex-col gap-3">
+                                ${categoriesHtml || `<div class="text-center py-4 text-[10px] text-neutral-500 italic font-mono">Belum ada rincian transaksi approved.</div>`}
+
+                                <div class="grid grid-cols-3 gap-2.5 font-mono text-[10px] text-center">
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px]">TOTAL IN</span>
+                                        <span class="text-emerald-400 font-bold">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px]">TOTAL OUT</span>
+                                        <span class="text-rose-400 font-bold">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-emerald-500 text-emerald-400">
+                                        <span class="text-neutral-500 text-[8px]">SALDO BERSIH</span>
+                                        <span class="font-black">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
-                    runningListContainer.innerHTML += cardHtml;
+                    runningListContainer.innerHTML += prokerHtml;
                 });
             }
 

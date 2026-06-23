@@ -664,8 +664,8 @@ function appendRowByHeader(sheet, obj, defaultHeaders) {
       const t = getVal(obj, "id_transaksi") || getVal(obj, "id transaksi") || getVal(obj, "id");
       if (t !== undefined) return t;
     }
-    if (h === "id_kegiatan" || h === "id kegiatan" || h === "id" || h === "proker_id" || h === "proker id") {
-      const k = getVal(obj, "id_kegiatan") || getVal(obj, "id") || getVal(obj, "proker_id") || getVal(obj, "proker id");
+    if (h === "id_kegiatan" || h === "id kegiatan" || h === "proker_id" || h === "proker id") {
+      const k = getVal(obj, "id_kegiatan") || getVal(obj, "proker_id") || getVal(obj, "proker id");
       if (k !== undefined) return k;
     }
     
