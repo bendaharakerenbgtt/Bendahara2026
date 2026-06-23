@@ -1151,9 +1151,8 @@
                         let catTotal = 0;
                         items.forEach(item => {
                             const val = Number(item.nominal) || 0;
-                            const j = (item.jenis || "").trim().toLowerCase();
-                            if (j === "masuk") catTotal += val;
-                            else if (j === "keluar") catTotal -= val;
+                            // All transactions are treated as income in Kegiatan Berjalan view
+                            catTotal += val;
                         });
                         const catSign = catTotal >= 0 ? '+' : '-';
                         const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
@@ -1161,11 +1160,9 @@
                         let tableRowsHtml = '';
                         items.forEach(item => {
                             const itemNominal = Number(item.nominal) || 0;
-                                                        const jenis = (item.jenis || "").trim().toLowerCase();
-                            const kategori = (item.kategori || "").trim().toLowerCase();
-                            const isMasuk = (jenis && jenis !== "keluar") || ["masuk"].includes(jenis) || ["donasi", "htm"].includes(kategori);
-                            const signColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
-                            const signText = isMasuk ? '+' : '-';
+                            const isMasuk = true;
+                            const signColor = 'text-emerald-400';
+                            const signText = '+';
                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
                             
                             let detailsCardHtml = '';
