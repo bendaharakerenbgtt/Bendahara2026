@@ -124,7 +124,12 @@ function getAllData() {
       tanggal: getVal(t, "tanggal") || "",
       keterangan: getVal(t, "keterangan") || "",
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
-      proker_id: getVal(t, "proker_id") || "",
+      proker_id: (() => {
+        const val = getVal(t, "proker_id");
+        if (val === undefined || val === null) return "";
+        const valStr = val.toString().trim();
+        return valStr.toLowerCase() === "null" ? "" : valStr;
+      })(),
       jenis: getVal(t, "jenis") || "Keluar",
       metode: getVal(t, "metode") || "Tunai",
       kategori: getVal(t, "kategori") || "Umum",
