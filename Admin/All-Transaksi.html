@@ -394,6 +394,36 @@
             border-color: var(--border-card) !important;
             transition: background-color 0.4s ease, border-color 0.4s ease;
         }
+
+        /* High-contrast green text/badge overrides for Light Mode */
+        html.light-mode .text-emerald-400,
+        html.light-mode .text-emerald-500,
+        html.light-mode .text-green-400,
+        html.light-mode .text-green-500 {
+            color: #15803d !important;
+        }
+        html.light-mode .bg-emerald-950\/40,
+        html.light-mode .bg-emerald-950\/20,
+        html.light-mode .bg-emerald-950,
+        html.light-mode .bg-green-950\/40,
+        html.light-mode .bg-green-950\/20,
+        html.light-mode .bg-green-950 {
+            background-color: rgba(21, 128, 61, 0.08) !important;
+        }
+        html.light-mode .border-emerald-800\/40,
+        html.light-mode .border-emerald-900\/30,
+        html.light-mode .border-emerald-500\/20,
+        html.light-mode .border-emerald-500\/30,
+        html.light-mode .border-green-500\/20,
+        html.light-mode .border-green-500\/30 {
+            border-color: rgba(21, 128, 61, 0.25) !important;
+        }
+        html.light-mode .border-l-emerald-500 {
+            border-left-color: #15803d !important;
+        }
+        html.light-mode .border-t-emerald-500 {
+            border-top-color: #15803d !important;
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
@@ -420,17 +450,19 @@
         </div>
     </div>
 
-    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
-        <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner">
-            <span>←</span> <span>Dashboard</span>
-        </a>
-        <div class="flex items-center gap-3">
-            <span class="text-xs font-mono tracking-wider text-cyan-400 uppercase font-black hidden sm:inline">
-                SELURUH TRANSAKSI
-            </span>
-            <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
-                🌙
-            </button>
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
+        <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
+            <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner">
+                <span>←</span> <span>Dashboard</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-mono tracking-wider text-cyan-400 uppercase font-black hidden sm:inline">
+                    SELURUH TRANSAKSI
+                </span>
+                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                    🌙
+                </button>
+            </div>
         </div>
     </header>
 
@@ -792,6 +824,7 @@
         let currentMonth = 'all';
         let currentSort = 'terbaru';
         let searchQuery = '';
+        let displayLimit = 50;
 
         // Format Tanggal Input Default Hari Ini
         document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
@@ -1302,10 +1335,17 @@
             applyMutationFilters();
         };
 
-
+        window.loadMoreTransactions = function() {
+            displayLimit += 50;
+            applyMutationFilters(false);
+        };
 
         // Fungsi Filter Master Ledger & Rekap Perhitungan Sisi Klien
-        function applyMutationFilters() {
+        function applyMutationFilters(resetLimit = true) {
+            if (resetLimit) {
+                displayLimit = 50;
+            }
+
             const tbody = document.getElementById('desktop-tbody');
             const mobileContainer = document.getElementById('mobile-cards-container');
             
@@ -1354,13 +1394,22 @@
                 return 0;
             });
 
-            // 3. Render
+            // Calculate totals over all filtered transactions
             filtered.forEach(tx => {
-                renderCount++;
                 const nominalVal = Number(tx.nominal) || 0;
                 if (tx.jenis === 'Masuk') totalMasuk += nominalVal;
                 else totalKeluar += nominalVal;
+            });
 
+            // Slice according to displayLimit
+            const itemsToRender = filtered.slice(0, displayLimit);
+            
+            let desktopHtml = '';
+            let mobileHtml = '';
+
+            itemsToRender.forEach(tx => {
+                renderCount++;
+                const nominalVal = Number(tx.nominal) || 0;
                 const dateFormated = tx.tanggal.split('-').reverse().join('/');
                 const isMasuk = tx.jenis === 'Masuk';
                 const sign = isMasuk ? '+' : '-';
@@ -1391,8 +1440,8 @@
                     ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-cyan-500/20 pl-2 py-0.5 leading-relaxed max-w-md select-text">📝 ${displayNote}</div>` 
                     : '';
 
-                // Append Desktop Row
-                tbody.innerHTML += `
+                // Accumulate Desktop Row
+                desktopHtml += `
                     <tr class="hover:bg-neutral-900/10 transition-colors">
                         <td class="p-3 text-neutral-500 whitespace-nowrap align-middle">
                             <div>${dateFormated}</div>
@@ -1424,8 +1473,8 @@
                     </tr>
                 `;
 
-                // Append Mobile Card
-                mobileContainer.innerHTML += `
+                // Accumulate Mobile Card
+                mobileHtml += `
                     <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col">
@@ -1460,8 +1509,31 @@
                 `;
             });
 
+            tbody.innerHTML = desktopHtml;
+            mobileContainer.innerHTML = mobileHtml;
+
+            // Load More button logic
+            if (filtered.length > displayLimit) {
+                tbody.innerHTML += `
+                    <tr id="load-more-row">
+                        <td colspan="5" class="p-4 text-center">
+                            <button onclick="loadMoreTransactions()" class="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-neutral-700 text-xs font-mono text-cyan-400 font-bold active:scale-95 transition-all cursor-pointer">
+                                Muat Lebih Banyak (${filtered.length - displayLimit} transaksi lagi)...
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                mobileContainer.innerHTML += `
+                    <div id="load-more-mobile" class="p-3 text-center">
+                        <button onclick="loadMoreTransactions()" class="w-full py-3 rounded-xl bg-neutral-950 hover:bg-neutral-900 border border-neutral-900 text-xs font-mono text-cyan-400 font-bold active:scale-95 transition-all cursor-pointer">
+                            Muat Lebih Banyak (${filtered.length - displayLimit} transaksi lagi)...
+                        </button>
+                    </div>
+                `;
+            }
+
             // Update Header Counter & Summary Cards
-            document.getElementById('total-trx-badge').innerText = `Total: ${renderCount} transaksi`;
+            document.getElementById('total-trx-badge').innerText = `Total: ${filtered.length} transaksi`;
             document.getElementById('sum-pemasukan').innerText = 'Rp' + totalMasuk.toLocaleString('id-ID');
             document.getElementById('sum-pengeluaran').innerText = 'Rp' + totalKeluar.toLocaleString('id-ID');
             

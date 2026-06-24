@@ -351,24 +351,49 @@
         }
 
         /* WA Cash Overrides for Light Mode */
-        html.light-mode .bg-emerald-950\/40 {
-            background-color: rgba(21, 128, 61, 0.08) !important;
-        }
-        html.light-mode .border-emerald-800\/40 {
-            border-color: rgba(21, 128, 61, 0.25) !important;
-        }
-        html.light-mode .text-emerald-400 {
+        html.light-mode .text-emerald-400,
+        html.light-mode .text-emerald-500,
+        html.light-mode .text-green-400,
+        html.light-mode .text-green-500 {
             color: #15803d !important;
         }
+        html.light-mode .bg-emerald-950\/40,
+        html.light-mode .bg-emerald-950\/20,
+        html.light-mode .bg-emerald-950,
+        html.light-mode .bg-green-950\/40,
+        html.light-mode .bg-green-950\/20,
+        html.light-mode .bg-green-950 {
+            background-color: rgba(21, 128, 61, 0.08) !important;
+        }
+        html.light-mode .border-emerald-800\/40,
+        html.light-mode .border-emerald-900\/30,
+        html.light-mode .border-emerald-500\/20,
+        html.light-mode .border-emerald-500\/30,
+        html.light-mode .border-green-500\/20,
+        html.light-mode .border-green-500\/30 {
+            border-color: rgba(21, 128, 61, 0.25) !important;
+        }
+        html.light-mode .border-l-emerald-500 {
+            border-left-color: #15803d !important;
+        }
+        html.light-mode .border-t-emerald-500 {
+            border-top-color: #15803d !important;
+        }
 
-        html.light-mode .bg-rose-950\/20 {
+        html.light-mode .text-rose-400,
+        html.light-mode .text-rose-500 {
+            color: #be123c !important;
+        }
+        html.light-mode .bg-rose-950\/40,
+        html.light-mode .bg-rose-950\/20,
+        html.light-mode .bg-rose-950 {
             background-color: rgba(225, 29, 72, 0.08) !important;
         }
-        html.light-mode .border-rose-900\/40 {
+        html.light-mode .border-rose-900\/40,
+        html.light-mode .border-rose-900\/30,
+        html.light-mode .border-rose-500\/20,
+        html.light-mode .border-rose-500\/30 {
             border-color: rgba(225, 29, 72, 0.25) !important;
-        }
-        html.light-mode .text-rose-400 {
-            color: #be123c !important;
         }
         
         /* Header, Modals, and Footer */
@@ -955,6 +980,24 @@
             return dateStr;
         }
 
+        function formatReadableDate(dateStr) {
+            if (!dateStr) return "-";
+            const isoRegex = /^\d{4}-\d{2}-\d{2}/;
+            if (isoRegex.test(dateStr)) {
+                try {
+                    const dateObj = new Date(dateStr);
+                    if (!isNaN(dateObj.getTime())) {
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                        const month = months[dateObj.getMonth()];
+                        const year = dateObj.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                } catch (e) {}
+            }
+            return dateStr;
+        }
+
         function getMemberName(memberId) {
             if (!memberId) return "-";
             const member = pengurusList.find(m => m.id.toString() === memberId.toString());
@@ -1109,7 +1152,7 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Ketua: <span class="text-neutral-300 font-semibold">${getMemberName(proker.id_anggota)}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Tanggal: <span class="text-neutral-300">${proker.estimasi_tanggal || "-"} (${proker.tahun || new Date().getFullYear()})</span></span>
+                                        <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
                                         <span>Estimasi RAB: <span class="text-neutral-300">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
@@ -1290,7 +1333,7 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Ketua: <span class="text-neutral-300 font-semibold">${getMemberName(proker.id_anggota)}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Tanggal: <span class="text-neutral-300">${proker.estimasi_tanggal || "-"} (${proker.tahun || new Date().getFullYear()})</span></span>
+                                        <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
                                         <span>Estimasi RAB: <span class="text-neutral-300">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>

@@ -382,6 +382,36 @@
             border-color: var(--border-card) !important;
             transition: background-color 0.4s ease, border-color 0.4s ease;
         }
+
+        /* High-contrast green text/badge overrides for Light Mode */
+        html.light-mode .text-emerald-400,
+        html.light-mode .text-emerald-500,
+        html.light-mode .text-green-400,
+        html.light-mode .text-green-500 {
+            color: #15803d !important;
+        }
+        html.light-mode .bg-emerald-950\/40,
+        html.light-mode .bg-emerald-950\/20,
+        html.light-mode .bg-emerald-950,
+        html.light-mode .bg-green-950\/40,
+        html.light-mode .bg-green-950\/20,
+        html.light-mode .bg-green-950 {
+            background-color: rgba(21, 128, 61, 0.08) !important;
+        }
+        html.light-mode .border-emerald-800\/40,
+        html.light-mode .border-emerald-900\/30,
+        html.light-mode .border-emerald-500\/20,
+        html.light-mode .border-emerald-500\/30,
+        html.light-mode .border-green-500\/20,
+        html.light-mode .border-green-500\/30 {
+            border-color: rgba(21, 128, 61, 0.25) !important;
+        }
+        html.light-mode .border-l-emerald-500 {
+            border-left-color: #15803d !important;
+        }
+        html.light-mode .border-t-emerald-500 {
+            border-top-color: #15803d !important;
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
@@ -408,17 +438,19 @@
         </div>
     </div>
 
-    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
-        <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold">
-            <span>←</span> <span>Dashboard</span>
-        </a>
-        <div class="flex items-center gap-3">
-            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold text-cyan-400 hidden sm:inline">
-                KELOLA KEGIATAN
-            </span>
-            <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
-                🌙
-            </button>
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
+        <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
+            <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold">
+                <span>←</span> <span>Dashboard</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold text-cyan-400 hidden sm:inline">
+                    KELOLA KEGIATAN
+                </span>
+                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                    🌙
+                </button>
+            </div>
         </div>
     </header>
 
@@ -900,6 +932,24 @@
                 });
         }
 
+        function formatReadableDate(dateStr) {
+            if (!dateStr) return "-";
+            const isoRegex = /^\d{4}-\d{2}-\d{2}/;
+            if (isoRegex.test(dateStr)) {
+                try {
+                    const dateObj = new Date(dateStr);
+                    if (!isNaN(dateObj.getTime())) {
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                        const month = months[dateObj.getMonth()];
+                        const year = dateObj.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                } catch (e) {}
+            }
+            return dateStr;
+        }
+
         function getMemberName(memberId) {
             if (!memberId) return "-";
             const member = localAnggota.find(m => m.id.toString() === memberId.toString());
@@ -1096,7 +1146,7 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Ketua: <span class="text-neutral-300 font-semibold">${ketuaNama}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Tanggal: <span class="text-neutral-300">${p.estimasi_tanggal || "-"} (${p.tahun || new Date().getFullYear()})</span></span>
+                                        <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
                                         <span>RAB Estimasi: <span class="text-neutral-300">Rp${Number(p.estimasi_dana || 0).toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
@@ -1309,7 +1359,7 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Ketua: <span class="text-neutral-300 font-semibold">${ketuaNama}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Tanggal: <span class="text-neutral-300">${p.estimasi_tanggal || "-"} (${p.tahun || new Date().getFullYear()})</span></span>
+                                        <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
                                         <span>Estimasi RAB: <span class="text-neutral-300">Rp${Number(p.estimasi_dana || 0).toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
@@ -1555,7 +1605,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Estimasi Tanggal</label>
-                                <input type="text" id="swal-input-tanggal" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-amber-500 font-sans" value="${proker.estimasi_tanggal || ''}">
+                                <input type="text" id="swal-input-tanggal" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-amber-500 font-sans" value="${formatReadableDate(proker.estimasi_tanggal || '')}">
                             </div>
                             <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Estimasi Anggaran (RAB)</label>
