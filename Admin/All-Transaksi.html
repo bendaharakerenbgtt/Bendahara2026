@@ -835,6 +835,24 @@
             if (angka !== '') { input.value = parseInt(angka).toLocaleString('id-ID'); } else { input.value = ''; }
         }
 
+        function formatReadableDate(dateStr) {
+            if (!dateStr) return "-";
+            const isoRegex = /^\d{4}-\d{2}-\d{2}/;
+            if (isoRegex.test(dateStr)) {
+                try {
+                    const dateObj = new Date(dateStr);
+                    if (!isNaN(dateObj.getTime())) {
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                        const month = months[dateObj.getMonth()];
+                        const year = dateObj.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                } catch (e) {}
+            }
+            return dateStr;
+        }
+
         function hideLoadingOverlay() {
             const overlay = document.getElementById('loading-overlay');
             if (overlay) {
@@ -1410,7 +1428,7 @@
             itemsToRender.forEach(tx => {
                 renderCount++;
                 const nominalVal = Number(tx.nominal) || 0;
-                const dateFormated = tx.tanggal.split('-').reverse().join('/');
+                const dateFormated = formatReadableDate(tx.tanggal);
                 const isMasuk = tx.jenis === 'Masuk';
                 const sign = isMasuk ? '+' : '-';
                 const valColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
