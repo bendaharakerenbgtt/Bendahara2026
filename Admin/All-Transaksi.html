@@ -527,15 +527,16 @@
                                 <option value="Danusan">Danusan</option>
                                 <option value="HTM Proker">HTM Proker</option>
                                 <option value="Kas Umum">Kas Umum</option>
+                                <option value="Kegiatan Luar">Kegiatan Luar</option>
                                 <option value="custom">✏️ Tulis Kategori Kustom...</option>
                             </select>
                             <input type="text" id="in_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor (Opsional)</label>
-                            <select id="in_user_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
-                                <option value="">Pilih Anggota Penyetor...</option>
-                            </select>
+                            <input type="text" id="in_user_search" list="in_members_list" placeholder="Cari & pilih anggota penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            <datalist id="in_members_list"></datalist>
+                            <input type="hidden" id="in_user_id">
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Program Kerja (Proker)</label>
@@ -610,6 +611,7 @@
                                 <option value="Perlengkapan">Perlengkapan</option>
                                 <option value="Sewa Alat">Sewa Alat</option>
                                 <option value="Pubdok">Pubdok</option>
+                                <option value="Kegiatan Luar">Kegiatan Luar</option>
                                 <option value="custom">✏️ Tulis Kategori Kustom...</option>
                             </select>
                             <input type="text" id="out_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
@@ -638,9 +640,9 @@
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penanggung Jawab (Pilih Nama)</label>
-                                <select id="out_user_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
-                                    <option value="">Pilih Anggota Penanggung Jawab...</option>
-                                </select>
+                                <input type="text" id="out_user_search" list="out_members_list" required placeholder="Cari & pilih penanggung jawab..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
+                                <datalist id="out_members_list"></datalist>
+                                <input type="hidden" id="out_user_id">
                             </div>
                         </div>
 
@@ -651,7 +653,7 @@
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
-                                <input type="number" id="exp_harga_satuan" placeholder="Harga" required min="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
+                                <input type="text" id="exp_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="Harga" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
                             </div>
                         </div>
                         
@@ -997,25 +999,19 @@
         }
 
         function populateMemberDropdowns(members) {
-            const inSelect = document.getElementById('in_user_id');
-            const outSelect = document.getElementById('out_user_id');
-            if (!inSelect || !outSelect) return;
+            const inDatalist = document.getElementById('in_members_list');
+            const outDatalist = document.getElementById('out_members_list');
+            if (!inDatalist || !outDatalist) return;
 
-            const inVal = inSelect.value;
-            const outVal = outSelect.value;
-
-            inSelect.innerHTML = '<option value="">Pilih Anggota Penyetor...</option>';
-            outSelect.innerHTML = '<option value="">Pilih Anggota Penanggung Jawab...</option>';
+            inDatalist.innerHTML = '';
+            outDatalist.innerHTML = '';
 
             members.forEach(m => {
                 if (m.is_active === false) return;
-                const optHtml = `<option value="${m.id}">${m.name}</option>`;
-                inSelect.innerHTML += optHtml;
-                outSelect.innerHTML += optHtml;
+                const label = `${m.name} (${m.divisi})`;
+                inDatalist.innerHTML += `<option value="${label}"></option>`;
+                outDatalist.innerHTML += `<option value="${label}"></option>`;
             });
-
-            inSelect.value = inVal;
-            outSelect.value = outVal;
         }
 
         function checkCustomCategory(type) {
@@ -1035,6 +1031,37 @@
 
         // Image compression listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Searchable Member Datalist Matchers
+            const inSearch = document.getElementById('in_user_search');
+            const outSearch = document.getElementById('out_user_search');
+            
+            if (inSearch) {
+                inSearch.addEventListener('input', function() {
+                    const match = localAnggota.find(m => `${m.name} (${m.divisi})` === this.value);
+                    document.getElementById('in_user_id').value = match ? match.id : "";
+                });
+            }
+            if (outSearch) {
+                outSearch.addEventListener('input', function() {
+                    const match = localAnggota.find(m => `${m.name} (${m.divisi})` === this.value);
+                    document.getElementById('out_user_id').value = match ? match.id : "";
+                });
+            }
+
+            // Reset listener for hidden inputs
+            const inForm = document.getElementById('pemasukanLainnyaForm');
+            if (inForm) {
+                inForm.addEventListener('reset', () => {
+                    document.getElementById('in_user_id').value = "";
+                });
+            }
+            const outForm = document.getElementById('pengeluaranForm');
+            if (outForm) {
+                outForm.addEventListener('reset', () => {
+                    document.getElementById('out_user_id').value = "";
+                });
+            }
+
             const inFileInput = document.getElementById('in_bukti_file');
             if (inFileInput) {
                 inFileInput.addEventListener('change', function(e) {
@@ -1169,7 +1196,7 @@
 
         function calculateExpTotal() {
             const qty = parseFloat(expQty.value) || 0;
-            const price = parseFloat(expPrice.value) || 0;
+            const price = parseFloat(expPrice.value.replace(/[^0-9]/g, '')) || 0;
             const total = qty * price;
             expTotal.innerText = 'Rp' + total.toLocaleString('id-ID');
         }
@@ -1258,7 +1285,7 @@
             const cat = catSelect === 'custom' ? catCustom : catSelect;
             const method = document.getElementById('out_metode').value;
             const qty = parseFloat(expQty.value) || 1;
-            const price = parseFloat(expPrice.value) || 0;
+            const price = parseFloat(expPrice.value.replace(/[^0-9]/g, '')) || 0;
             const desc = document.getElementById('exp_nama_barang').value;
             const userId = document.getElementById('out_user_id').value;
             const picName = userId ? (membersMap[userId.toString()] || "") : "";
