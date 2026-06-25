@@ -29,6 +29,10 @@ const defaultProkerHeaders = [
   "estimasi_tanggal", "tahun", "status", "estimasi_dana", "created_at", "updated_at"
 ];
 
+const defaultAnggotaHeaders = [
+  "id_anggota", "nim", "nama", "divisi", "jabatan", "created_at", "updated_at", "is_active"
+];
+
 // ============================================================
 // GET REQUEST — Ambil semua data & Hubungkan Ke Data Base Baru
 // ============================================================
@@ -86,7 +90,7 @@ function getAllData() {
       jabatan: getVal(m, "jabatan") || "Anggota",
       created_at: getVal(m, "created_at") || "",
       updated_at: getVal(m, "updated_at") || "",
-      is_active: getVal(m, "is_active") !== undefined ? getVal(m, "is_active") : true
+      is_active: getVal(m, "is_active") !== undefined ? (String(getVal(m, "is_active")).toLowerCase() !== "false" && getVal(m, "is_active") !== false) : true
     };
   });
 
@@ -275,6 +279,8 @@ function doPost(e) {
     if (action === "update_proker_status")      return updateProkerStatus(payload);
     if (action === "delete_proker")             return deleteProker(payload);
     if (action === "edit_transaction_relation") return editTransactionRelation(payload);
+    if (action === "insert_member")             return insertMember(payload);
+    if (action === "edit_member")               return editMember(payload);
 
     return jsonResponse({ status: "error", message: "Action tidak dikenal: " + action });
   } catch (err) {
@@ -1153,3 +1159,82 @@ function parseFormattedNumber(val) {
   
   return isNegative ? -num : num;
 }
+
+// ============================================================
+// ANGGOTA — Insert
+// ============================================================
+function insertMember(p) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_ANGGOTA);
+  
+  healSheetHeaders(sheet, defaultAnggotaHeaders);
+  
+  const newId = getNextMemberId(sheet);
+  const today = new Date().toISOString().substring(0, 10);
+  
+  const memberObj = {
+    id_anggota: newId,
+    nim: p.nim || "",
+    nama: p.nama || "",
+    divisi: p.divisi || "",
+    jabatan: p.jabatan || "Anggota",
+    created_at: today,
+    updated_at: today,
+    is_active: "TRUE" // Otomatis TRUE/Aktif saat pertama kali ditambahkan
+  };
+  
+  appendRowByHeader(sheet, memberObj, defaultAnggotaHeaders);
+  
+  return jsonResponse({ status: "success", id: newId });
+}
+
+// ============================================================
+// ANGGOTA — Edit
+// ============================================================
+function editMember(p) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_ANGGOTA);
+  
+  const today = new Date().toISOString().substring(0, 10);
+  
+  if (p.nim       !== undefined) updateColumnById(sheet, p.id, "nim", p.nim);
+  if (p.nama      !== undefined) updateColumnById(sheet, p.id, "nama", p.nama);
+  if (p.divisi    !== undefined) updateColumnById(sheet, p.id, "divisi", p.divisi);
+  if (p.jabatan   !== undefined) updateColumnById(sheet, p.id, "jabatan", p.jabatan);
+  if (p.is_active !== undefined) {
+    const activeStr = (p.is_active === true || String(p.is_active).toLowerCase() === "true") ? "TRUE" : "FALSE";
+    updateColumnById(sheet, p.id, "is_active", activeStr);
+  }
+  updateColumnById(sheet, p.id, "updated_at", today);
+  
+  return jsonResponse({ status: "success" });
+}
+
+// ============================================================
+// ANGGOTA — Helper Generate ID Otomatis
+// ============================================================
+function getNextMemberId(sheet) {
+  if (!sheet) return "M001";
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return "M001";
+  
+  const lastValStr = sheet.getRange(lastRow, 1).getValue().toString().trim();
+  if (lastValStr === "") return "M001";
+  
+  const match = lastValStr.match(/^([A-Za-z]+)(\d+)$/);
+  if (match) {
+    const prefix = match[1];
+    const numStr = match[2];
+    const nextNum = parseInt(numStr, 10) + 1;
+    const paddedNum = nextNum.toString().padStart(numStr.length, '0');
+    return prefix + paddedNum;
+  }
+  
+  const lastValNum = Number(lastValStr);
+  if (!isNaN(lastValNum)) {
+    return (lastValNum + 1).toString();
+  }
+  
+  return "M" + (lastRow).toString().padStart(3, '0');
+}
+

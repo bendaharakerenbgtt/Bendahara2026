@@ -801,14 +801,17 @@
             const container = document.getElementById('pengurusListContainer');
             container.innerHTML = '';
             
-            if (members.length === 0) {
-                container.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500 font-mono">Belum ada data anggota di sheet 'anggota'.</div>`;
+            // Filter only active members for kas list
+            const activeMembers = members.filter(m => m.is_active !== false);
+            
+            if (activeMembers.length === 0) {
+                container.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500 font-mono">Belum ada data anggota aktif di sheet 'anggota'.</div>`;
                 return;
             }
 
             localTrackingCache = {}; // Reset cache
 
-            members.forEach((member, index) => {
+            activeMembers.forEach((member, index) => {
                 const userPayments = kas.filter(k => k.user_id.toString() === member.id.toString());
                 const monthsPaidCount = userPayments.length;
                 
