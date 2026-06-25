@@ -918,7 +918,8 @@ function editTransaction(p) {
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
   
   if (p.keterangan !== undefined) updateColumnById(sheet, p.id, "keterangan", p.keterangan);
-  if (p.nominal !== undefined) updateColumnById(sheet, p.id, "nominal", parseFormattedNumber(p.nominal));
+  if (p.nominal    !== undefined) updateColumnById(sheet, p.id, "nominal", parseFormattedNumber(p.nominal));
+  if (p.metode     !== undefined) updateColumnById(sheet, p.id, "metode", p.metode);
   
   return jsonResponse({ status: "success" });
 }

@@ -1657,6 +1657,13 @@
                             <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Nominal (Rp)</label>
                             <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white font-mono font-bold text-xs" value="${Number(item.nominal).toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
                         </div>
+                        <div>
+                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Metode Pembayaran</label>
+                            <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs cursor-pointer">
+                                <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai</option>
+                                <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>📱 GoPay</option>
+                            </select>
+                        </div>
                     </div>
                 `,
                 showCancelButton: true,
@@ -1667,10 +1674,12 @@
                 if (result.isConfirmed) {
                     const newKeterangan = document.getElementById('swal-edit-keterangan').value;
                     const newNominal = parseInt(document.getElementById('swal-edit-nominal').value.replace(/[^0-9]/g, '')) || 0;
+                    const newMetode = document.getElementById('swal-edit-metode').value;
 
                     if (!GOOGLE_SCRIPT_URL) {
                         item.keterangan = newKeterangan;
                         item.nominal = newNominal;
+                        item.metode = newMetode;
                         Swal.fire({ icon: 'success', title: 'Diperbarui!', showConfirmButton: false, timer: 1000 });
                         applyMutationFilters();
                         return;
@@ -1690,7 +1699,8 @@
                             action: "edit_transaction",
                             id: id,
                             keterangan: newKeterangan,
-                            nominal: newNominal
+                            nominal: newNominal,
+                            metode: newMetode
                         })
                     })
                     .then(() => {
