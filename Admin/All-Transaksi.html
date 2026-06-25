@@ -757,6 +757,14 @@
                             </select>
                         </div>
 
+                        <div class="flex flex-col gap-0.5">
+                            <select id="filterMetode" onchange="filterMetode(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                                <option value="all">Semua Metode</option>
+                                <option value="Tunai">💵 Tunai</option>
+                                <option value="GoPay">📱 GoPay</option>
+                            </select>
+                        </div>
+
                         <button onclick="downloadCSVBackup()" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
                             📥 Unduh CSV
                         </button>
@@ -825,6 +833,7 @@
         let currentType = 'all';
         let currentMonth = 'all';
         let currentSort = 'terbaru';
+        let currentMetode = 'all';
         let searchQuery = '';
         let displayLimit = 50;
 
@@ -1381,6 +1390,11 @@
             applyMutationFilters();
         };
 
+        window.filterMetode = function(metode) {
+            currentMetode = metode;
+            applyMutationFilters();
+        };
+
         window.loadMoreTransactions = function() {
             displayLimit += 50;
             applyMutationFilters(false);
@@ -1410,6 +1424,7 @@
                 const txMonth = parts[1];
                 const matchType = (currentType === 'all' || tx.jenis === currentType);
                 const matchMonth = (currentMonth === 'all' || txMonth === currentMonth);
+                const matchMetode = (currentMetode === 'all' || tx.metode === currentMetode);
                 
                 const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
                 const userName = tx.user_id ? (membersMap[tx.user_id.toString()] || "") : "";
@@ -1423,7 +1438,7 @@
                     tx.nominal.toString().includes(searchQuery)
                 );
 
-                return matchType && matchMonth && matchSearch;
+                return matchType && matchMonth && matchMetode && matchSearch;
             });
 
             // 2. Sort

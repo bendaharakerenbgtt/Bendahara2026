@@ -823,11 +823,19 @@
                     </div>
 
                     <div class="flex flex-col gap-0.5">
-                        <select id="select-sort" onchange="changeSort(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer">
+                        <select id="select-sort" onchange="changeSort(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
                             <option value="terbaru">Terbaru (Tanggal)</option>
                             <option value="terlama">Terlama (Tanggal)</option>
                             <option value="termahal">Termahal (Nominal)</option>
                             <option value="termurah">Termurah (Nominal)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-0.5">
+                        <select id="select-metode" onchange="filterMetode(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                            <option value="all">Semua Metode</option>
+                            <option value="Tunai">💵 Tunai</option>
+                            <option value="GoPay">📱 GoPay</option>
                         </select>
                     </div>
 
@@ -1101,6 +1109,7 @@
         let currentType = 'semua';
         let currentMonth = '';
         let currentSort = 'terbaru';
+        let currentMetode = 'all';
         let searchQuery = '';
         const itemsPerPage = 8;
         let currentPage = 1;
@@ -1166,6 +1175,11 @@
             applyFiltersAndSort();
         };
 
+        window.filterMetode = function(metode) {
+            currentMetode = metode;
+            applyFiltersAndSort();
+        };
+
         document.getElementById('input-search').addEventListener('input', function(e) {
             searchQuery = e.target.value.toLowerCase().trim();
             applyFiltersAndSort();
@@ -1204,7 +1218,9 @@
                     matchesMonth = mn === currentMonth;
                 }
 
-                return matchesSearch && matchesType && matchesMonth;
+                const matchesMetode = currentMetode === 'all' ? true : tx.metode === currentMetode;
+
+                return matchesSearch && matchesType && matchesMonth && matchesMetode;
             });
 
             filteredTransactions.sort((a, b) => {
