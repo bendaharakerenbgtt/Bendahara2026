@@ -1,0 +1,40 @@
+Line 4: // Hapus semua kode lama dan paste ini agar tidak ada duplikasi fungsi!
+Line 173: // 4. Generate KAS array secara dinamis dari transaksi kas bulanan yang telah diverifikasi
+Line 178: // Ambil semua transaksi kas yang disetujui untuk anggota ini
+Line 191: const isApproved = (t.status_reimburse === "Tidak Perlu");
+Line 192: return isKas && isApproved && isTransactionForMember(t, member);
+Line 273: if (action === "delete_transaction")        return deleteTransaction(payload);
+Line 275: if (action === "approve_transaction")       return approveTransaction(payload);
+Line 276: if (action === "reject_transaction")        return rejectTransaction(payload);
+Line 280: if (action === "delete_proker")             return deleteProker(payload);
+Line 446: // TRANSAKSI — Delete
+Line 448: function deleteTransaction(p) {
+Line 451: const deleted = deleteRowById(sheet, p.id);
+Line 452: return jsonResponse({ status: deleted ? "success" : "error", message: deleted ? "Dihapus" : "ID tidak ditemukan" });
+Line 456: // TRANSAKSI — Approve (ubah status_reimburse → "Tidak Perlu")
+Line 458: function approveTransaction(p) {
+Line 466: // TRANSAKSI — Reject (hapus transaksi)
+Line 468: function rejectTransaction(p) {
+Line 469: return deleteTransaction(p);
+Line 544: // PROKER / KEGIATAN — Delete
+Line 546: function deleteProker(p) {
+Line 549: const deleted = deleteRowById(sheet, p.id);
+Line 550: return jsonResponse({ status: deleted ? "success" : "error" });
+Line 700: /** Hapus baris berdasarkan nilai kolom ID secara dinamis */
+Line 701: function deleteRowById(sheet, id) {
+Line 719: // Jika ditemukan URL file Drive, hapus filenya
+Line 721: deleteDriveFileByUrl(fileUrl.toString());
+Line 724: sheet.deleteRow(i + 1);
+Line 731: /** Hapus file di Google Drive berdasarkan URL-nya */
+Line 732: function deleteDriveFileByUrl(url) {
+Line 747: file.setTrashed(true);
+Line 751: Logger.log("Gagal menghapus file dari Drive: " + e.toString());
+Line 1083: let deletedCount = 0;
+Line 1084: // Iterasi dari bawah ke atas agar indeks baris tidak bergeser saat dihapus
+Line 1090: sheet.deleteRow(i + 1);
+Line 1091: deletedCount++;
+Line 1094: if (deletedCount > 0) {
+Line 1096: Logger.log("Berhasil menghapus " + deletedCount + " baris kosong/korup.");
+Line 1112: const colsToDelete = lastCol - maxColsToKeep;
+Line 1114: sheet.deleteColumns(maxColsToKeep + 1, colsToDelete);
+Line 1116: Logger.log("Berhasil membersihkan " + colsToDelete + " kolom duplikat/tambahan.");

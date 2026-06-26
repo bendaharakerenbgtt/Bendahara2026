@@ -1,0 +1,43 @@
+Line 425: <div id="alert-text">Transaksi kas berhasil diverifikasi masuk ke dalam master ledger!</div>
+Line 443: <span class="text-[9px] font-mono tracking-wider text-neutral-500 uppercase block font-semibold">Total Saldo Terverifikasi</span>
+Line 473: <span class="text-[9px] font-mono tracking-widest text-amber-400 uppercase font-black block">🚨 ANTRIAN VERIFIKASI KAS ONLINE</span>
+Line 480: <span>Memuat antrean verifikasi...</span>
+Line 598: let rawTransactions = [];
+Line 633: rawTransactions = data.transaksi || [];
+Line 637: calculateAndRenderStats(rawTransactions);
+Line 638: updateChartWithData(rawTransactions);
+Line 639: renderQueue(rawTransactions, rawAnggota);
+Line 660: <span>Memuat antrean verifikasi...</span>
+Line 665: fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+Line 672: rawTransactions = data.transaksi;
+Line 676: calculateAndRenderStats(rawTransactions);
+Line 677: updateChartWithData(rawTransactions);
+Line 678: renderQueue(rawTransactions, rawAnggota);
+Line 696: function calculateAndRenderStats(transactions) {
+Line 697: const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+Line 703: approved.forEach(t => {
+Line 721: function updateChartWithData(transactions) {
+Line 724: const approvedTx = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+Line 726: approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+Line 737: approvedTx.forEach(tx => {
+Line 768: function renderQueue(transactions, members) {
+Line 772: const pending = transactions.filter(t => t.status_reimburse === "Belum");
+Line 828: <button onclick="triggerVerificationAction('${t.id}', 'Approve')" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-mono py
+Line 829: Approve ✓
+Line 831: <button onclick="triggerVerificationAction('${t.id}', 'Reject')" class="w-1/2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 text-[10px] font-mo
+Line 832: Reject
+Line 841: function triggerVerificationAction(txId, actionType) {
+Line 852: if(actionType === 'Approve') {
+Line 853: alertText.innerText = "Sukses! Transaksi telah disetujui (Approved) dan saldo otomatis ter-update.";
+Line 856: alertText.innerText = "Pemberitahuan: Transaksi ditolak (Rejected) dan dihapus dari antrean.";
+Line 872: const actionName = actionType === 'Approve' ? 'approve_transaction' : 'reject_transaction';
+Line 873: const actionText = actionType === 'Approve' ? 'Menyetujui...' : 'Menolak...';
+Line 876: title: actionType === 'Approve' ? 'Approve Transaksi?' : 'Reject Transaksi?',
+Line 877: text: actionType === 'Approve' ? 'Transaksi ini akan diverifikasi masuk ke keuangan resmi.' : 'Transaksi ini akan ditolak dan dihapus dari database.',
+Line 880: confirmButtonColor: actionType === 'Approve' ? '#10b981' : '#f43f5e',
+Line 882: confirmButtonText: actionType === 'Approve' ? 'Ya, Approve!' : 'Ya, Reject!',
+Line 887: title: actionText,
+Line 902: action: actionName,
+Line 912: if(actionType === 'Approve') {
+Line 913: alertText.innerText = "Sukses! Transaksi telah disetujui (Approved) dan tabel kas diperbarui.";
+Line 916: alertText.innerText = "Pemberitahuan: Transaksi telah ditolak (Rejected) dan dibersihkan dari database.";

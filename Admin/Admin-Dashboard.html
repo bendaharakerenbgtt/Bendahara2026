@@ -765,6 +765,24 @@
             window.ldkChart.update();
         }
         
+        function formatReadableDate(dateStr) {
+            if (!dateStr) return "-";
+            const isoRegex = /^\d{4}-\d{2}-\d{2}/;
+            if (isoRegex.test(dateStr)) {
+                try {
+                    const dateObj = new Date(dateStr);
+                    if (!isNaN(dateObj.getTime())) {
+                        const day = String(dateObj.getDate()).padStart(2, '0');
+                        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+                        const month = months[dateObj.getMonth()];
+                        const year = dateObj.getFullYear();
+                        return `${day} ${month} ${year}`;
+                    }
+                } catch (e) {}
+            }
+            return dateStr;
+        }
+        
         function renderQueue(transactions, members) {
             const container = document.getElementById('queue-container');
             if (!container) return;
@@ -819,17 +837,17 @@
                                 <span>ID Transaksi: <span class="text-neutral-500 font-bold select-all">${t.id}</span></span>
                                 <span>Nominal: <span class="text-emerald-400 font-bold">Rp ${(Number(t.nominal) || 0).toLocaleString('id-ID')}</span></span>
                                 <span>Metode: <span class="${methodColor} font-bold">${t.metode}</span></span>
-                                <span>Tanggal: <span class="text-neutral-300 font-bold">${t.tanggal}</span></span>
+                                <span>Tanggal: <span class="text-neutral-300 font-bold">${formatReadableDate(t.tanggal)}</span></span>
                                 <span class="text-neutral-500">Lampiran: ${receiptLink}</span>
                             </div>
                         </div>
                         
                         <div class="flex gap-2 border-t border-neutral-900/60 pt-2.5">
                             <button onclick="triggerVerificationAction('${t.id}', 'Approve')" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-mono py-2 rounded-xl font-bold text-center transition-all shadow-md active:scale-95 cursor-pointer">
-                                Approve ✓
+                                Setujui ✓
                             </button>
                             <button onclick="triggerVerificationAction('${t.id}', 'Reject')" class="w-1/2 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 text-[10px] font-mono py-2 rounded-xl border border-neutral-800 text-center font-bold transition-all active:scale-95 cursor-pointer">
-                                Reject
+                                Tolak
                             </button>
                         </div>
                     </div>
@@ -850,10 +868,10 @@
                     const alertEl = document.getElementById('simulated-alert');
                     const alertText = document.getElementById('alert-text');
                     if(actionType === 'Approve') {
-                        alertText.innerText = "Sukses! Transaksi telah disetujui (Approved) dan saldo otomatis ter-update.";
+                        alertText.innerText = "Sukses! Transaksi telah disetujui dan saldo otomatis ter-update.";
                         alertEl.className = "bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
                     } else {
-                        alertText.innerText = "Pemberitahuan: Transaksi ditolak (Rejected) dan dihapus dari antrean.";
+                        alertText.innerText = "Pemberitahuan: Transaksi ditolak dan dihapus dari antrean.";
                         alertEl.className = "bg-rose-950/40 border border-rose-500/30 text-rose-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
                     }
                     alertEl.classList.remove('hidden');
@@ -873,13 +891,13 @@
             const actionText = actionType === 'Approve' ? 'Menyetujui...' : 'Menolak...';
 
             Swal.fire({
-                title: actionType === 'Approve' ? 'Approve Transaksi?' : 'Reject Transaksi?',
+                title: actionType === 'Approve' ? 'Setujui Transaksi?' : 'Tolak Transaksi?',
                 text: actionType === 'Approve' ? 'Transaksi ini akan diverifikasi masuk ke keuangan resmi.' : 'Transaksi ini akan ditolak dan dihapus dari database.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: actionType === 'Approve' ? '#10b981' : '#f43f5e',
                 cancelButtonColor: '#374151',
-                confirmButtonText: actionType === 'Approve' ? 'Ya, Approve!' : 'Ya, Reject!',
+                confirmButtonText: actionType === 'Approve' ? 'Ya, Setujui!' : 'Ya, Tolak!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -910,10 +928,10 @@
                         const alertText = document.getElementById('alert-text');
                         
                         if(actionType === 'Approve') {
-                            alertText.innerText = "Sukses! Transaksi telah disetujui (Approved) dan tabel kas diperbarui.";
+                            alertText.innerText = "Sukses! Transaksi telah disetujui dan tabel kas diperbarui.";
                             alertEl.className = "bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
                         } else {
-                            alertText.innerText = "Pemberitahuan: Transaksi telah ditolak (Rejected) dan dibersihkan dari database.";
+                            alertText.innerText = "Pemberitahuan: Transaksi telah ditolak dan dibersihkan dari database.";
                             alertEl.className = "bg-rose-950/40 border border-rose-500/30 text-rose-400 p-3.5 rounded-xl text-xs font-mono flex items-center gap-3";
                         }
                         alertEl.classList.remove('hidden');

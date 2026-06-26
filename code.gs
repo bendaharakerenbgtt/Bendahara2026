@@ -716,9 +716,27 @@ function deleteRowById(sheet, id) {
       if (catatanCol !== -1) fileUrl = data[i][catatanCol];
       if (!fileUrl && buktiCol !== -1) fileUrl = data[i][buktiCol];
       
-      // Jika ditemukan URL file Drive, hapus filenya
+      // Jika ditemukan URL file Drive, hapus filenya jika tidak digunakan oleh baris lain
       if (fileUrl) {
-        deleteDriveFileByUrl(fileUrl.toString());
+        let isShared = false;
+        const fileUrlStr = fileUrl.toString().trim();
+        if (fileUrlStr !== "") {
+          for (let r = 1; r < data.length; r++) {
+            if (r === i) continue; // Lewati baris yang sedang dihapus
+            let otherUrl = "";
+            if (catatanCol !== -1) otherUrl = data[r][catatanCol];
+            if (!otherUrl && buktiCol !== -1) otherUrl = data[r][buktiCol];
+            if (otherUrl && otherUrl.toString().trim() === fileUrlStr) {
+              isShared = true;
+              break;
+            }
+          }
+        }
+        if (!isShared) {
+          deleteDriveFileByUrl(fileUrl.toString());
+        } else {
+          Logger.log("File Drive tidak dihapus karena masih digunakan oleh baris lain: " + fileUrlStr);
+        }
       }
 
       sheet.deleteRow(i + 1);
