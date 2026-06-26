@@ -140,6 +140,19 @@
             opacity: 1 !important;
         }
 
+        /* High contrast inputs and select fields in Light Mode */
+        html.light-mode input, 
+        html.light-mode select {
+            background-color: var(--bg-main) !important; 
+            border: 1px solid var(--border-card) !important; 
+            color: var(--text-primary) !important;
+        }
+        html.light-mode input:focus, 
+        html.light-mode select:focus {
+            border-color: var(--text-cyan-accent) !important;
+            box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15) !important;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-main) !important; 
@@ -765,6 +778,18 @@
                             </select>
                         </div>
 
+                        <div class="flex flex-col gap-0.5">
+                            <select id="filterKategori" onchange="filterKategori(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                                <option value="all">Semua Kategori</option>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col gap-0.5">
+                            <select id="filterProker" onchange="filterProker(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                                <option value="all">Semua Kegiatan</option>
+                            </select>
+                        </div>
+
                         <button onclick="downloadCSVBackup()" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
                             📥 Unduh CSV
                         </button>
@@ -834,6 +859,8 @@
         let currentMonth = 'all';
         let currentSort = 'terbaru';
         let currentMetode = 'all';
+        let currentKategori = 'all';
+        let currentProker = 'all';
         let searchQuery = '';
         let displayLimit = 50;
 
@@ -897,6 +924,7 @@
                 });
                 populateProkerDropdowns([{ id: "PRK-1", nama_proker: "Kajian Akbar Semesta" }, { id: "PRK-2", nama_proker: "Webinar Nasional Kreatif" }]);
                 populateMemberDropdowns(localAnggota);
+                populateFilterDropdowns();
                 applyMutationFilters();
                 hideLoadingOverlay();
                 return;
@@ -935,6 +963,7 @@
 
                         populateProkerDropdowns(data.proker || []);
                         populateMemberDropdowns(localAnggota);
+                        populateFilterDropdowns();
                         applyMutationFilters();
                         
                         hideLoadingOverlay();
@@ -973,6 +1002,7 @@
 
                         populateProkerDropdowns(data.proker);
                         populateMemberDropdowns(localAnggota);
+                        populateFilterDropdowns();
                         applyMutationFilters();
                     } else {
                         console.error("Gagal memuat database:", data.message);
@@ -1395,6 +1425,65 @@
             applyMutationFilters();
         };
 
+        window.filterKategori = function(kategori) {
+            currentKategori = kategori;
+            applyMutationFilters();
+        };
+
+        window.filterProker = function(proker) {
+            currentProker = proker;
+            applyMutationFilters();
+        };
+
+        function populateFilterDropdowns() {
+            const filterKategoriSelect = document.getElementById('filterKategori');
+            if (filterKategoriSelect) {
+                const categories = new Set();
+                localTransactions.forEach(t => {
+                    if (t.kategori && t.kategori.trim() !== '') {
+                        categories.add(t.kategori.trim());
+                    }
+                });
+                const currentVal = currentKategori || 'all';
+                filterKategoriSelect.innerHTML = '<option value="all">Semua Kategori</option>';
+                const defaultCats = ["Kas", "Kas Umum", "Donasi", "Danusan", "HTM Proker", "Kegiatan Luar"];
+                defaultCats.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.textContent = `🏷️ ${cat}`;
+                    filterKategoriSelect.appendChild(opt);
+                });
+                categories.forEach(cat => {
+                    if (!defaultCats.some(dc => dc.toLowerCase() === cat.toLowerCase())) {
+                        const opt = document.createElement('option');
+                        opt.value = cat;
+                        opt.textContent = `🏷️ ${cat}`;
+                        filterKategoriSelect.appendChild(opt);
+                    }
+                });
+                filterKategoriSelect.value = currentVal;
+            }
+
+            const filterProkerSelect = document.getElementById('filterProker');
+            if (filterProkerSelect) {
+                const currentVal = currentProker || 'all';
+                filterProkerSelect.innerHTML = '<option value="all">Semua Kegiatan</option>';
+                
+                const optGeneral = document.createElement('option');
+                optGeneral.value = "general";
+                optGeneral.textContent = "💼 Kas Umum / General";
+                filterProkerSelect.appendChild(optGeneral);
+
+                for (const prokerId in prokersMap) {
+                    const opt = document.createElement('option');
+                    opt.value = prokerId;
+                    opt.textContent = `💼 ${prokersMap[prokerId]}`;
+                    filterProkerSelect.appendChild(opt);
+                }
+                filterProkerSelect.value = currentVal;
+            }
+        }
+
         window.loadMoreTransactions = function() {
             displayLimit += 50;
             applyMutationFilters(false);
@@ -1426,6 +1515,19 @@
                 const matchMonth = (currentMonth === 'all' || txMonth === currentMonth);
                 const matchMetode = (currentMetode === 'all' || tx.metode === currentMetode);
                 
+                // Filter Kategori
+                const matchKategori = (currentKategori === 'all' || (tx.kategori && tx.kategori.toLowerCase() === currentKategori.toLowerCase()));
+                
+                // Filter Proker
+                let matchProker = true;
+                if (currentProker !== 'all') {
+                    if (currentProker === 'general') {
+                        matchProker = (!tx.proker_id || tx.proker_id.toString().trim() === '');
+                    } else {
+                        matchProker = (tx.proker_id && tx.proker_id.toString() === currentProker.toString());
+                    }
+                }
+                
                 const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
                 const userName = tx.user_id ? (membersMap[tx.user_id.toString()] || "") : "";
                 
@@ -1438,7 +1540,7 @@
                     tx.nominal.toString().includes(searchQuery)
                 );
 
-                return matchType && matchMonth && matchMetode && matchSearch;
+                return matchType && matchMonth && matchMetode && matchKategori && matchProker && matchSearch;
             });
 
             // 2. Sort
@@ -1482,7 +1584,7 @@
                 const pengetorText = penyetorName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-500">Penyetor: ${penyetorName}</span>` : '';
 
                 const pjName = !isMasuk ? (tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "") : (tx.nama_pic_pengeluar || "")) : "";
-                const picText = pjName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-amber-400">@ ${pjName}</span>` : '';
+                const picText = pjName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-cyan-400">Penanggung Jawab: ${pjName}</span>` : '';
                 
                 const receiptPath = getReceiptPath(tx);
                 const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-950/40 text-cyan-400 hover:text-white border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` : '';
@@ -1522,12 +1624,12 @@
                             </div>
                         </td>
                         <td class="p-3 text-center align-middle">
-                            <span class="text-[9px] font-bold text-amber-500 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>
+                            <span class="text-[9px] font-bold text-cyan-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>
                         </td>
                         <td class="p-3 text-right font-black text-xs align-middle ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center align-middle">
                             <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="editTransaksi('${tx.id}')" class="text-amber-400 hover:text-amber-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">✏️</button>
+                                <button onclick="editTransaksi('${tx.id}')" class="text-cyan-400 hover:text-cyan-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">✏️</button>
                                 <button onclick="confirmDelete('${tx.id}')" class="text-red-400 hover:text-red-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">🗑️</button>
                             </div>
                         </td>
@@ -1544,7 +1646,7 @@
                             </div>
                             <div class="flex items-center gap-1.5 flex-wrap justify-end">
                                 ${pendingBadge}
-                                <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-amber-500 border-neutral-850">${tx.metode}</span>
+                                <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-cyan-400 border-neutral-850">${tx.metode}</span>
                                 <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
                             </div>
                         </div>
@@ -1562,7 +1664,7 @@
                         <div class="flex items-center justify-between border-t border-neutral-900/60 pt-3 mt-1">
                             <span class="text-sm font-black tracking-tight ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
                             <div class="flex items-center gap-1.5">
-                                <button onclick="editTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">✏️ Edit</button>
+                                <button onclick="editTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">✏️ Edit</button>
                                 <button onclick="confirmDelete('${tx.id}')" class="text-[10px] font-mono font-bold text-red-400 hover:text-red-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">🗑️ Hapus</button>
                             </div>
                         </div>

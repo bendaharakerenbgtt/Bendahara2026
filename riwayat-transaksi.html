@@ -185,6 +185,19 @@
             opacity: 1 !important;
         }
 
+        /* High contrast inputs and select fields in Light Mode */
+        html.light-mode input, 
+        html.light-mode select {
+            background-color: var(--bg-main) !important; 
+            border: 1px solid var(--border-card) !important; 
+            color: var(--text-primary) !important;
+        }
+        html.light-mode input:focus, 
+        html.light-mode select:focus {
+            border-color: var(--text-cyan-accent) !important;
+            box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15) !important;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-main) !important; 
@@ -839,6 +852,18 @@
                         </select>
                     </div>
 
+                    <div class="flex flex-col gap-0.5">
+                        <select id="select-kategori" onchange="filterKategori(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                            <option value="">Semua Kategori</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-0.5">
+                        <select id="select-proker" onchange="filterProker(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                            <option value="">Semua Kegiatan</option>
+                        </select>
+                    </div>
+
                     <button onclick="downloadCSV()" class="bg-emerald-500 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
                         📥 Unduh CSV
                     </button>
@@ -1110,6 +1135,8 @@
         let currentMonth = '';
         let currentSort = 'terbaru';
         let currentMetode = 'all';
+        let currentKategori = '';
+        let currentProker = '';
         let searchQuery = '';
         const itemsPerPage = 8;
         let currentPage = 1;
@@ -1180,6 +1207,67 @@
             applyFiltersAndSort();
         };
 
+        window.filterKategori = function(kategori) {
+            currentKategori = kategori;
+            applyFiltersAndSort();
+        };
+
+        window.filterProker = function(proker) {
+            currentProker = proker;
+            applyFiltersAndSort();
+        };
+
+        function populateFilterDropdowns(res) {
+            const selectKategori = document.getElementById('select-kategori');
+            if (selectKategori) {
+                const categories = new Set();
+                rawTransactions.forEach(t => {
+                    if (t.kategori && t.kategori.trim() !== '') {
+                        categories.add(t.kategori.trim());
+                    }
+                });
+                const currentVal = currentKategori || '';
+                selectKategori.innerHTML = '<option value="">Semua Kategori</option>';
+                const defaultCats = ["Kas", "Kas Umum", "Donasi", "Danusan", "HTM Proker", "Kegiatan Luar"];
+                defaultCats.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.textContent = `🏷️ ${cat}`;
+                    selectKategori.appendChild(opt);
+                });
+                categories.forEach(cat => {
+                    if (!defaultCats.some(dc => dc.toLowerCase() === cat.toLowerCase())) {
+                        const opt = document.createElement('option');
+                        opt.value = cat;
+                        opt.textContent = `🏷️ ${cat}`;
+                        selectKategori.appendChild(opt);
+                    }
+                });
+                selectKategori.value = currentVal;
+            }
+
+            const selectProker = document.getElementById('select-proker');
+            if (selectProker) {
+                const currentVal = currentProker || '';
+                selectProker.innerHTML = '<option value="">Semua Kegiatan</option>';
+                
+                const optGeneral = document.createElement('option');
+                optGeneral.value = "general";
+                optGeneral.textContent = "💼 Kas Umum / General";
+                selectProker.appendChild(optGeneral);
+
+                if (res && res.proker) {
+                    res.proker.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.textContent = `💼 ${p.nama_proker}`;
+                        selectProker.appendChild(opt);
+                    });
+                }
+                selectProker.value = currentVal;
+            }
+        }
+
         document.getElementById('input-search').addEventListener('input', function(e) {
             searchQuery = e.target.value.toLowerCase().trim();
             applyFiltersAndSort();
@@ -1220,7 +1308,18 @@
 
                 const matchesMetode = currentMetode === 'all' ? true : tx.metode === currentMetode;
 
-                return matchesSearch && matchesType && matchesMonth && matchesMetode;
+                const matchesKategori = currentKategori === '' ? true : (tx.kategori && tx.kategori.toLowerCase() === currentKategori.toLowerCase());
+                
+                let matchesProker = true;
+                if (currentProker !== '') {
+                    if (currentProker === 'general') {
+                        matchesProker = !tx.proker_id || tx.proker_id.toString().trim() === '';
+                    } else {
+                        matchesProker = tx.proker_id && tx.proker_id.toString() === currentProker.toString();
+                    }
+                }
+
+                return matchesSearch && matchesType && matchesMonth && matchesMetode && matchesKategori && matchesProker;
             });
 
             filteredTransactions.sort((a, b) => {
@@ -1360,11 +1459,13 @@
                     : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-500 font-mono">📁 Kas Umum</span>`;
 
                 const picTag = tx.nama_pic_pengeluar 
-                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-amber-400/90 font-mono font-bold">@ ${tx.nama_pic_pengeluar}</span>` 
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-cyan-400 font-mono font-bold">Penanggung Jawab: ${tx.nama_pic_pengeluar}</span>` 
                     : '';
 
+                const labelText = isMasuk ? "Penyetor" : "Penanggung Jawab";
+                const labelColor = isMasuk ? "text-neutral-500" : "text-cyan-400";
                 const userTag = tx.user_name 
-                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-500 font-mono">Penyetor: ${tx.user_name}</span>`
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] ${labelColor} font-mono">${labelText}: ${tx.user_name}</span>`
                     : '';
 
                 const receiptPath = getReceiptPath(tx);
@@ -1617,6 +1718,7 @@
                                 kategori: tx.kategori,
                                 metode: tx.metode,
                                 nominal: tx.nominal,
+                                proker_id: tx.proker_id || null,
                                 nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
                                 user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
                                 nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
@@ -1625,6 +1727,7 @@
                             };
                         });
 
+                        populateFilterDropdowns(data);
                         applyFiltersAndSort();
                         hideLoadingOverlay();
                         hasRenderedFromCache = true;
@@ -1675,6 +1778,7 @@
                                 kategori: tx.kategori,
                                 metode: tx.metode,
                                 nominal: tx.nominal,
+                                proker_id: tx.proker_id || null,
                                 nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
                                 user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
                                 nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
@@ -1683,6 +1787,7 @@
                             };
                         });
 
+                        populateFilterDropdowns(res);
                         applyFiltersAndSort();
                     } else {
                         console.error("Gagal memuat:", res.message);

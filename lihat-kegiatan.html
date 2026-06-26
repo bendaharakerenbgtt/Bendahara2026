@@ -164,6 +164,19 @@
             opacity: 1 !important;
         }
 
+        /* High contrast inputs and select fields in Light Mode */
+        html.light-mode input, 
+        html.light-mode select {
+            background-color: var(--bg-main) !important; 
+            border: 1px solid var(--border-card) !important; 
+            color: var(--text-primary) !important;
+        }
+        html.light-mode input:focus, 
+        html.light-mode select:focus {
+            border-color: var(--text-cyan-accent) !important;
+            box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15) !important;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-main) !important; 
@@ -1027,12 +1040,16 @@
                     const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
                     
                     const totalIn = prokerTx
+                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'masuk')
                         .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-                    const totalOut = 0;
 
-                    const netSaldo = totalIn;
-                    const netSign = '+';
-                    const netClass = 'text-emerald-400 font-bold';
+                    const totalOut = prokerTx
+                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'keluar')
+                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+
+                    const netSaldo = totalIn - totalOut;
+                    const netSign = netSaldo >= 0 ? '+' : '-';
+                    const netClass = netSaldo >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
 
                     const categoriesMap = {};
                     prokerTx.forEach(tx => {
@@ -1049,11 +1066,12 @@
                     for (const [catName, txs] of Object.entries(categoriesMap)) {
                         const catTotal = txs.reduce((sum, tx) => {
                             const val = Number(tx.nominal) || 0;
-                            return sum + val;
+                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
+                            return sum + (isM ? val : -val);
                         }, 0);
 
-                        const catSign = '+';
-                        const catClass = 'text-emerald-400 font-bold';
+                        const catSign = catTotal >= 0 ? '+' : '-';
+                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
 
                         let tableRowsHtml = '';
                         txs.forEach(tx => {
@@ -1077,13 +1095,15 @@
                             }
 
                             const formattedDate = formatDateShort(tx.tanggal);
-                            const isM = true;
-                            const sign = '+';
-                            const valColor = 'text-emerald-400';
+                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
+                            const sign = isM ? '+' : '-';
+                            const valColor = isM ? 'text-emerald-400' : 'text-rose-400';
                             
                             const payerName = getMemberName(tx.user_id);
+                            const labelText = isM ? "Penyetor" : "Penanggung Jawab";
+                            const labelColor = isM ? "text-emerald-400" : "text-cyan-400";
                             const payerBadge = payerName && payerName !== '-' ? `
-                                <span class="text-[8px] text-emerald-400 bg-neutral-900 border border-neutral-950 px-1.5 py-0.5 rounded font-bold font-mono uppercase">Penyetor: ${payerName}</span>
+                                <span class="text-[8px] ${labelColor} bg-neutral-900 border border-neutral-950 px-1.5 py-0.5 rounded font-bold font-mono uppercase">${labelText}: ${payerName}</span>
                             ` : '';
 
                             tableRowsHtml += `
@@ -1263,8 +1283,10 @@
                             const valColor = isM ? 'text-emerald-400' : 'text-rose-400';
                             
                             const payerName = getMemberName(tx.user_id);
+                            const labelText = isM ? "Penyetor" : "Penanggung Jawab";
+                            const labelColor = isM ? "text-emerald-400" : "text-cyan-400";
                             const payerBadge = payerName && payerName !== '-' ? `
-                                <span class="text-[8px] text-emerald-400 bg-neutral-900 border border-neutral-950 px-1.5 py-0.5 rounded font-bold font-mono uppercase">Penyetor: ${payerName}</span>
+                                <span class="text-[8px] ${labelColor} bg-neutral-900 border border-neutral-950 px-1.5 py-0.5 rounded font-bold font-mono uppercase">${labelText}: ${payerName}</span>
                             ` : '';
 
                             tableRowsHtml += `
