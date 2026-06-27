@@ -718,24 +718,27 @@ function deleteRowById(sheet, id) {
       
       // Jika ditemukan URL file Drive, hapus filenya jika tidak digunakan oleh baris lain
       if (fileUrl) {
-        let isShared = false;
-        const fileUrlStr = fileUrl.toString().trim();
-        if (fileUrlStr !== "") {
+        const fileIdToDelete = extractDriveFileId(fileUrl.toString());
+        if (fileIdToDelete) {
+          let isShared = false;
           for (let r = 1; r < data.length; r++) {
             if (r === i) continue; // Lewati baris yang sedang dihapus
             let otherUrl = "";
             if (catatanCol !== -1) otherUrl = data[r][catatanCol];
             if (!otherUrl && buktiCol !== -1) otherUrl = data[r][buktiCol];
-            if (otherUrl && otherUrl.toString().trim() === fileUrlStr) {
-              isShared = true;
-              break;
+            if (otherUrl) {
+              const otherFileId = extractDriveFileId(otherUrl.toString());
+              if (otherFileId === fileIdToDelete) {
+                isShared = true;
+                break;
+              }
             }
           }
-        }
-        if (!isShared) {
-          deleteDriveFileByUrl(fileUrl.toString());
-        } else {
-          Logger.log("File Drive tidak dihapus karena masih digunakan oleh baris lain: " + fileUrlStr);
+          if (!isShared) {
+            deleteDriveFileByUrl(fileUrl.toString());
+          } else {
+            Logger.log("File Drive tidak dihapus karena masih digunakan oleh baris lain: " + fileIdToDelete);
+          }
         }
       }
 
@@ -746,20 +749,22 @@ function deleteRowById(sheet, id) {
   return false;
 }
 
+/** Ekstrak file ID dari URL Google Drive secara aman */
+function extractDriveFileId(url) {
+  if (!url) return "";
+  const urlStr = url.toString().trim();
+  const matchD = urlStr.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (matchD) return matchD[1];
+  const matchId = urlStr.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (matchId) return matchId[1];
+  return "";
+}
+
 /** Hapus file di Google Drive berdasarkan URL-nya */
 function deleteDriveFileByUrl(url) {
   if (!url) return;
   try {
-    let fileId = "";
-    const matchD = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    
-    if (matchD) {
-      fileId = matchD[1];
-    } else if (matchId) {
-      fileId = matchId[1];
-    }
-    
+    const fileId = extractDriveFileId(url);
     if (fileId) {
       const file = DriveApp.getFileById(fileId);
       file.setTrashed(true);
