@@ -809,6 +809,8 @@
                 const isIncoming = t.jenis === "Masuk";
                 const methodColor = t.metode === "GoPay" ? "text-cyan-400" : "text-green-400";
                 
+                const cleanCatatan = t.catatan ? t.catatan.replace(/\s*\(Bukti:\s*https?:\/\/[^\s)]+\)/i, "").replace(/\s*https?:\/\/[^\s)]+/i, "").trim() : "";
+                
                 let receiptLink = "";
                 const isUrl = t.bukti || (t.catatan && (t.catatan.startsWith("http://") || t.catatan.startsWith("https://")));
                 const proofSrc = t.bukti || t.catatan;
@@ -838,6 +840,7 @@
                                 <span>Nominal: <span class="text-emerald-400 font-bold">Rp ${(Number(t.nominal) || 0).toLocaleString('id-ID')}</span></span>
                                 <span>Metode: <span class="${methodColor} font-bold">${t.metode}</span></span>
                                 <span>Tanggal: <span class="text-neutral-300 font-bold">${formatReadableDate(t.tanggal)}</span></span>
+                                <span>Catatan: <span class="text-neutral-300 font-bold">${cleanCatatan || "-"}</span></span>
                                 <span class="text-neutral-500">Lampiran: ${receiptLink}</span>
                             </div>
                         </div>
