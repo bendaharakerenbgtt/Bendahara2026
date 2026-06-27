@@ -2,6 +2,9 @@
 <html lang="id">
 <head>
     <script>
+        if (sessionStorage.getItem('adminSession') !== 'active') {
+            window.location.replace('Login-Admin.html');
+        }
         if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.add('light-mode');
         }
@@ -413,7 +416,7 @@
                 <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
                     🌙
                 </button>
-                <a href="../dasboard.html" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 px-3 py-2 rounded-xl text-neutral-400 font-bold active:scale-95 flex items-center justify-center h-10">
+                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 px-3 py-2 rounded-xl text-neutral-400 font-bold active:scale-95 flex items-center justify-center h-10">
                     Logout ↗
                 </a>
             </div>

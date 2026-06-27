@@ -385,6 +385,12 @@ function insertTransaction(p) {
       lastInsertedId = newId;
     });
 
+    // Kirim notifikasi Firebase FCM (HTTP v1)
+    kirimNotifikasiFirebaseV1(
+      "Transaksi Masuk!",
+      "Pembayaran kas baru dari " + (memberName || "Anggota") + " senilai Rp " + Number(parsedNominal).toLocaleString('id-ID')
+    );
+
     return jsonResponse({ status: "success", id: lastInsertedId });
   }
 
@@ -438,6 +444,12 @@ function insertTransaction(p) {
   };
 
   appendRowByHeader(sheet, txObj, defaultTransactionHeaders);
+
+  // Kirim notifikasi Firebase FCM (HTTP v1)
+  kirimNotifikasiFirebaseV1(
+    "Transaksi Masuk!",
+    "Ada transaksi baru: " + txObj.keterangan + " senilai Rp " + Number(parsedNominal).toLocaleString('id-ID')
+  );
 
   return jsonResponse({ status: "success", id: newId });
 }
@@ -1261,4 +1273,114 @@ function getNextMemberId(sheet) {
   
   return "M" + (lastRow).toString().padStart(3, '0');
 }
+
+// ============================================================
+// FIREBASE FCM NOTIFICATION SERVICES (HTTP v1)
+// ============================================================
+
+/** Kirim notifikasi Firebase FCM menggunakan HTTP v1 API */
+function kirimNotifikasiFirebaseV1(title, body) {
+  try {
+    const scriptProperties = PropertiesService.getScriptProperties();
+    const projectId = scriptProperties.getProperty('FIREBASE_PROJECT_ID');
+    const clientEmail = scriptProperties.getProperty('FIREBASE_CLIENT_EMAIL');
+    let privateKey = scriptProperties.getProperty('FIREBASE_PRIVATE_KEY');
+
+    if (!projectId || !clientEmail || !privateKey) {
+      Logger.log("Firebase Script Properties belum diset. Silakan set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, dan FIREBASE_PRIVATE_KEY di Setelan Proyek Apps Script.");
+      return;
+    }
+
+    // Rapikan private key jika baris barunya rusak
+    privateKey = privateKey.replace(/\\n/g, '\n');
+
+    const serviceAccount = {
+      project_id: projectId,
+      client_email: clientEmail,
+      private_key: privateKey
+    };
+
+    const token = getFcmAccessToken(serviceAccount);
+    if (!token) {
+      Logger.log("Gagal mendapatkan Access Token FCM.");
+      return;
+    }
+
+    const url = "https://fcm.googleapis.com/v1/projects/" + serviceAccount.project_id + "/messages:send";
+    const payload = {
+      "message": {
+        "topic": "transaksi",
+        "notification": {
+          "title": title,
+          "body": body
+        },
+        "android": {
+          "priority": "HIGH",
+          "notification": {
+            "sound": "default",
+            "channel_id": "high_importance_channel"
+          }
+        },
+        "apns": {
+          "payload": {
+            "aps": {
+              "sound": "default"
+            }
+          }
+        }
+      }
+    };
+
+    const options = {
+      "method": "post",
+      "contentType": "application/json",
+      "headers": {
+        "Authorization": "Bearer " + token
+      },
+      "payload": JSON.stringify(payload),
+      "muteHttpExceptions": true
+    };
+
+    const res = UrlFetchApp.fetch(url, options);
+    Logger.log("Respon FCM: " + res.getContentText());
+  } catch (err) {
+    Logger.log("Error kirimNotifikasiFirebaseV1: " + err.toString());
+  }
+}
+
+/** Generate OAuth2 Access Token untuk FCM menggunakan Service Account JWT */
+function getFcmAccessToken(serviceAccount) {
+  const header = JSON.stringify({
+    alg: "RS256",
+    typ: "JWT"
+  });
+
+  const now = Math.floor(Date.now() / 1000);
+  const claimSet = JSON.stringify({
+    iss: serviceAccount.client_email,
+    scope: "https://www.googleapis.com/auth/firebase.messaging",
+    aud: "https://oauth2.googleapis.com/token",
+    exp: now + 3600,
+    iat: now
+  });
+
+  const encode = (str) => Utilities.base64EncodeWebSafe(str).replace(/=+$/, "");
+  const signatureInput = encode(header) + "." + encode(claimSet);
+
+  const signature = Utilities.computeRsaSha256Signature(signatureInput, serviceAccount.private_key);
+  const jwt = signatureInput + "." + Utilities.base64EncodeWebSafe(signature).replace(/=+$/, "");
+
+  const response = UrlFetchApp.fetch("https://oauth2.googleapis.com/token", {
+    method: "post",
+    payload: {
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt
+    },
+    muteHttpExceptions: true
+  });
+
+  const tokenData = JSON.parse(response.getContentText());
+  return tokenData.access_token;
+}
+
 
