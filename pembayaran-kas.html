@@ -993,7 +993,7 @@
                                 <span onclick="toggleAccordion(${index})" class="text-[9px] font-mono px-2 py-0.5 rounded-md font-bold bg-neutral-900 text-cyan-400 border border-neutral-800 cursor-pointer">
                                     ${monthsPaidCount}/12 Bln
                                 </span>
-                                <button data-id="${member.id}" data-name="${member.name}" data-nim="${member.nim || ''}" data-divisi="${member.divisi}" data-tracking='${JSON.stringify(tracking)}' onclick="openPaymentWizard(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
+                                <button onclick="openPaymentWizard('${member.id}')" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
                                     BAYAR
                                 </button>
                                 <span onclick="toggleAccordion(${index})" id="arrow-${index}" class="text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
@@ -1066,29 +1066,36 @@
         let currentPaymentDivisi = '';
         let compressedImageBase64 = '';
 
-        function openPaymentWizard(btn) {
-            const id = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name');
-            const divisi = btn.getAttribute('data-divisi');
-            const fullData = JSON.parse(btn.getAttribute('data-tracking'));
-            const rawNim = btn.getAttribute('data-nim') || '';
-            // Hanya set correctNim jika NIM valid (bukan 'undefined' atau kosong)
+        function openPaymentWizard(memberId) {
+            const member = databaseMembers.find(m => m.id.toString() === memberId.toString());
+            if (!member) return;
+
+            const name = member.name;
+            const divisi = member.divisi;
+            const rawNim = member.nim || '';
             correctNim = (rawNim && rawNim !== 'undefined' && rawNim !== 'null') ? rawNim : '';
+
+            // Calculate tracking data dynamically
+            const userPayments = databaseKas.filter(k => k.user_id.toString() === memberId.toString());
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+            const tracking = { id: memberId, name: name, divisi: divisi };
+            months.forEach(m => {
+                tracking[m] = userPayments.some(k => k.bulan === m);
+            });
 
             currentPaymentName = name;
             currentPaymentDivisi = divisi;
             compressedImageBase64 = ''; // Reset image
 
-            document.getElementById('wizardUserId').value = id;
+            document.getElementById('wizardUserId').value = memberId;
             document.getElementById('wizardTitleName').innerText = `${name} (${divisi})`;
 
             const grid = document.getElementById('monthsCheckboxGrid');
             grid.innerHTML = '';
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
             
             let blockCount = 0;
             months.forEach(m => {
-                if (!fullData[m]) {
+                if (!tracking[m]) {
                     blockCount++;
                     grid.innerHTML += `
                         <label class="border border-neutral-800 bg-neutral-900 rounded-lg p-2.5 flex items-center justify-center gap-1.5 cursor-pointer text-[11px] font-mono text-neutral-200">
