@@ -851,7 +851,7 @@
                                 <span onclick="toggleAccordion(${index})" id="badge-count-${member.id}" data-total="${monthsPaidCount}" class="text-[9px] font-mono px-2 py-0.5 rounded-md font-bold bg-neutral-900 ${monthsPaidCount === 12 ? 'text-emerald-400 border border-emerald-900/50' : 'text-cyan-400 border border-neutral-800'} cursor-pointer">
                                     ${monthsPaidCount}/12 Bln
                                 </span>
-                                <button data-id="${member.id}" data-name="${member.name}" data-tracking='${JSON.stringify(tracking)}' onclick="bukaModalInputKas(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
+                                <button data-id="${member.id}" onclick="bukaModalInputKas(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
                                     BAYAR
                                 </button>
                                 <span onclick="toggleAccordion(${index})" id="arrow-${index}" class="text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
@@ -924,16 +924,11 @@
 
         function bukaModalInputKas(btn) {
             const id = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name');
-            const fullData = JSON.parse(btn.getAttribute('data-tracking'));
+            const currentData = localTrackingCache[id] || { name: 'Anggota' };
+            const name = currentData.name || 'Anggota';
 
             document.getElementById('modalUserId').value = id;
             document.getElementById('modalTargetName').innerText = name;
-
-            if (!localTrackingCache[id]) {
-                localTrackingCache[id] = fullData;
-            }
-            const currentData = localTrackingCache[id];
 
             const grid = document.getElementById('modalMonthsGrid');
             grid.innerHTML = '';
