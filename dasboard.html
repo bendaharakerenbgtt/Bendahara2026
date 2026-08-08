@@ -411,6 +411,56 @@
             background: var(--orange-soft);
         }
 
+        /* DYNAMIC RICH SOFT MESH GRADIENT BACKGROUND (MATCHING WONDERFUL-BOSE REFERENCE) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -100px;
+            left: -100px;
+            width: calc(100% + 200px);
+            height: calc(100% + 200px);
+            background: 
+                radial-gradient(circle at 12% 18%, rgba(255, 115, 0, 0.20) 0%, transparent 48%),
+                radial-gradient(circle at 88% 82%, rgba(123, 142, 205, 0.22) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(255, 165, 0, 0.14) 0%, transparent 52%);
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: -2;
+            animation: pulseGlow 14s ease-in-out infinite alternate;
+        }
+
+        html.light-mode body::before {
+            background: 
+                radial-gradient(circle at 10% 15%, rgba(255, 115, 0, 0.24) 0%, transparent 48%),
+                radial-gradient(circle at 90% 85%, rgba(123, 142, 205, 0.26) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(255, 165, 0, 0.16) 0%, transparent 52%);
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.08) translate(20px, -20px); }
+        }
+
+        /* ELEGANT ISLAMIC GEOMETRIC PATTERN WATERMARK BACKGROUND */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FF7300' fill-opacity='0.06' fill-rule='evenodd'%3E%3Cpath d='M40 40L20 0h40L40 40zM0 40l40-20v40L0 40zm80 0L40 20v40l40-20zM40 40l20 40H20l20-40z'/%3E%3Cpath d='M40 0l10 30L40 60L30 30zM0 40l30-10L60 40L30 50z' fill='%237B8ECD' fill-opacity='0.05'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 75px 75px;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.85;
+            transition: opacity 0.3s ease;
+        }
+
+        html.light-mode body::after {
+            opacity: 1;
+        }
+
         /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
         html.light-mode, html.light-mode body {
             font-weight: 500 !important;
@@ -728,8 +778,8 @@
     <header class="app-header">
         <div class="header-container">
             <div class="logo-group">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-mosque"></i>
+                <div class="logo-icon bg-neutral-900 border border-neutral-800 p-0.5 flex items-center justify-center rounded-xl overflow-hidden shadow-sm">
+                    <img src="bendahara.png" alt="Logo Bendahara" class="w-full h-full object-contain">
                 </div>
                 <div class="logo-text">
                     <h1>DANAIMIP • LDK IMIP</h1>
@@ -759,90 +809,6 @@
                 <div class="date-badge-box">
                     <span class="date-badge" id="hijri-date-badge"><i class="fa-solid fa-moon-stars"></i> <span id="hijri-date-text">-- Safar 1448 H</span></span>
                     <span class="date-badge date-badge-secondary" id="gregorian-date-badge"><i class="fa-regular fa-calendar"></i> <span id="gregorian-date-text">-- Agustus 2026</span></span>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. BANNER CAROUSEL AUTO-SLIDE -->
-        <section class="slider-section">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xs font-bold font-mono tracking-widest text-neutral-400 uppercase flex items-center gap-1.5">
-                    <i class="fa-solid fa-images text-orange-500"></i> Banner Informasi LDK IMIP
-                </h3>
-                <span class="text-[10px] text-neutral-500 font-mono">Auto-Slide Carousel</span>
-            </div>
-
-            <div id="slider-container" class="slider-container">
-                <div id="slider-wrapper" class="slider-wrapper">
-                    
-                    <!-- SLIDE 1: KAS -->
-                    <div class="slide-full-image" onclick="window.location.href='pembayaran-kas.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.88) 100%), url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1000&auto=format&fit=crop');">
-                        <div class="slide-overlay-content">
-                            <div>
-                                <span class="slide-tag-pill"><i class="fa-solid fa-coins"></i> Bayar Kas Anggota</span>
-                                <h4 class="slide-hero-title">Matriks Setoran Kas 12 Bulan Pengurus</h4>
-                                <p class="slide-hero-subtitle">Transparansi setoran uang kas bulanan LDK IMIP 2026</p>
-                            </div>
-                            <a href="pembayaran-kas.html" class="btn-action-primary" onclick="event.stopPropagation()">
-                                Buka Kas ➔
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- SLIDE 2: EVENT -->
-                    <div class="slide-full-image" onclick="window.location.href='lihat-kegiatan.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.88) 100%), url('https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=1000&auto=format&fit=crop');">
-                        <div class="slide-overlay-content">
-                            <div>
-                                <span class="slide-tag-pill" style="background: rgba(59, 130, 246, 0.92);"><i class="fa-solid fa-hand-holding-heart"></i> Program & Event</span>
-                                <h4 class="slide-hero-title">Program Kerja & Agenda Kegiatan Dakwah</h4>
-                                <p class="slide-hero-subtitle">Pantau estimasi & realisasi proker LDK IMIP 2026</p>
-                            </div>
-                            <a href="lihat-kegiatan.html" class="btn-action-primary" onclick="event.stopPropagation()">
-                                Lihat Event ➔
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- SLIDE 3: REKAP -->
-                    <div class="slide-full-image" onclick="window.location.href='riwayat-transaksi.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.88) 100%), url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1000&auto=format&fit=crop');">
-                        <div class="slide-overlay-content">
-                            <div>
-                                <span class="slide-tag-pill" style="background: rgba(16, 185, 129, 0.92);"><i class="fa-solid fa-receipt"></i> Buku Kas Ledgers</span>
-                                <h4 class="slide-hero-title">Laporan Transparansi Arus Kas Real-Time</h4>
-                                <p class="slide-hero-subtitle">Rekapitulasi mutasi kas Tunai & QRIS GoPay</p>
-                            </div>
-                            <a href="riwayat-transaksi.html" class="btn-action-primary" onclick="event.stopPropagation()">
-                                Buka Rekap ➔
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- SLIDE 4: ADMIN -->
-                    <div class="slide-full-image" onclick="window.location.href='Admin/Admin-Dashboard.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.88) 100%), url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1000&auto=format&fit=crop');">
-                        <div class="slide-overlay-content">
-                            <div>
-                                <span class="slide-tag-pill" style="background: rgba(129, 140, 248, 0.92);"><i class="fa-solid fa-user-shield"></i> Portal Admin</span>
-                                <h4 class="slide-hero-title">Dashboard Bendahara & Kelola Sistem</h4>
-                                <p class="slide-hero-subtitle">Akses khusus pengurus & kelola data keuangan</p>
-                            </div>
-                            <a href="Admin/Admin-Dashboard.html" class="btn-action-primary" onclick="event.stopPropagation()">
-                                Akses Admin ➔
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Controls & Dots -->
-                <div class="slider-controls">
-                    <button class="slider-btn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button class="slider-btn" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-                <div class="slider-dots">
-                    <span class="dot active" onclick="goToSlide(0)"></span>
-                    <span class="dot" onclick="goToSlide(1)"></span>
-                    <span class="dot" onclick="goToSlide(2)"></span>
-                    <span class="dot" onclick="goToSlide(3)"></span>
                 </div>
             </div>
         </section>
@@ -900,6 +866,7 @@
 
             <div class="lg:col-span-5 flex flex-col gap-5">
                 
+                <!-- MAIN MENU -->
                 <div class="flex flex-col gap-2.5">
                     <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block">MAIN MENU</span>
                     
@@ -937,6 +904,90 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- 2. BANNER CAROUSEL AUTO-SLIDE (BELOW MAIN MENU USING BANNER_PERBAIKAN.PNG) -->
+                <section class="slider-section">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-bold font-mono tracking-widest text-neutral-400 uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-images text-orange-500"></i> Banner Informasi LDK IMIP
+                        </h3>
+                        <span class="text-[10px] text-neutral-500 font-mono">Auto-Slide</span>
+                    </div>
+
+                    <div id="slider-container" class="slider-container">
+                        <div id="slider-wrapper" class="slider-wrapper">
+                            
+                            <!-- SLIDE 1: KAS -->
+                            <div class="slide-full-image" onclick="window.location.href='pembayaran-kas.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.88) 100%), url('banner_perbaikan.png');">
+                                <div class="slide-overlay-content">
+                                    <div>
+                                        <span class="slide-tag-pill"><i class="fa-solid fa-coins"></i> Bayar Kas Anggota</span>
+                                        <h4 class="slide-hero-title">Matriks Setoran Kas 12 Bulan Pengurus</h4>
+                                        <p class="slide-hero-subtitle">Transparansi setoran uang kas bulanan LDK IMIP 2026</p>
+                                    </div>
+                                    <a href="pembayaran-kas.html" class="btn-action-primary" onclick="event.stopPropagation()">
+                                        Buka Kas ➔
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- SLIDE 2: EVENT -->
+                            <div class="slide-full-image" onclick="window.location.href='lihat-kegiatan.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.88) 100%), url('banner_perbaikan.png');">
+                                <div class="slide-overlay-content">
+                                    <div>
+                                        <span class="slide-tag-pill" style="background: rgba(59, 130, 246, 0.92);"><i class="fa-solid fa-hand-holding-heart"></i> Program & Event</span>
+                                        <h4 class="slide-hero-title">Program Kerja & Agenda Kegiatan Dakwah</h4>
+                                        <p class="slide-hero-subtitle">Pantau estimasi & realisasi proker LDK IMIP 2026</p>
+                                    </div>
+                                    <a href="lihat-kegiatan.html" class="btn-action-primary" onclick="event.stopPropagation()">
+                                        Lihat Event ➔
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- SLIDE 3: REKAP -->
+                            <div class="slide-full-image" onclick="window.location.href='riwayat-transaksi.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.88) 100%), url('banner_perbaikan.png');">
+                                <div class="slide-overlay-content">
+                                    <div>
+                                        <span class="slide-tag-pill" style="background: rgba(16, 185, 129, 0.92);"><i class="fa-solid fa-receipt"></i> Buku Kas Ledgers</span>
+                                        <h4 class="slide-hero-title">Laporan Transparansi Arus Kas Real-Time</h4>
+                                        <p class="slide-hero-subtitle">Rekapitulasi mutasi kas Tunai & QRIS GoPay</p>
+                                    </div>
+                                    <a href="riwayat-transaksi.html" class="btn-action-primary" onclick="event.stopPropagation()">
+                                        Buka Rekap ➔
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- SLIDE 4: ADMIN -->
+                            <div class="slide-full-image" onclick="window.location.href='Admin/Admin-Dashboard.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.88) 100%), url('banner_perbaikan.png');">
+                                <div class="slide-overlay-content">
+                                    <div>
+                                        <span class="slide-tag-pill" style="background: rgba(129, 140, 248, 0.92);"><i class="fa-solid fa-user-shield"></i> Portal Admin</span>
+                                        <h4 class="slide-hero-title">Dashboard Bendahara & Kelola Sistem</h4>
+                                        <p class="slide-hero-subtitle">Akses khusus pengurus & kelola data keuangan</p>
+                                    </div>
+                                    <a href="Admin/Admin-Dashboard.html" class="btn-action-primary" onclick="event.stopPropagation()">
+                                        Akses Admin ➔
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Controls & Dots -->
+                        <div class="slider-controls">
+                            <button class="slider-btn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="slider-btn" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="slider-dots">
+                            <span class="dot active" onclick="goToSlide(0)"></span>
+                            <span class="dot" onclick="goToSlide(1)"></span>
+                            <span class="dot" onclick="goToSlide(2)"></span>
+                            <span class="dot" onclick="goToSlide(3)"></span>
+                        </div>
+                    </div>
+                </section>
 
                 <div class="flex flex-col gap-2.5">
                     <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase font-black block">Log Aktivitas Terakhir Organisasi</span>
