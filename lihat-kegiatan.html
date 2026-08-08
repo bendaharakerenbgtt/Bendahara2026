@@ -590,8 +590,10 @@
             animation: pulse-sun 4s infinite ease-in-out;
         }
     </style>
-</head>
-<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400">
+</head><body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400">
+
+    <!-- SUBTLE AMBIENT BACKGROUND PARTICLES CANVAS -->
+    <canvas id="particle-canvas"></canvas>
 
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
@@ -616,15 +618,22 @@
     </div>
 
     <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-6 h-14 flex items-center justify-between">
-        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold">
-            <span>←</span> <span>Dashboard</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner">
+                <span>←</span> <span>Dashboard</span>
+            </a>
+            <div class="hidden sm:flex items-center gap-2">
+                <img src="IMIP.png" alt="IMIP Logo" class="w-7 h-7 object-contain">
+                <span class="text-xs font-mono tracking-wider text-neutral-300 font-bold">DANAIMIP</span>
+            </div>
+        </div>
+
         <div class="flex items-center gap-3">
             <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
                 🌙
             </button>
-            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold text-emerald-400 hidden sm:inline">
-                Info Kegiatan LDK IMIP
+            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold hidden sm:inline">
+                Program & Event
             </span>
         </div>
     </header>
@@ -1876,9 +1885,58 @@
             triggerThemeAnimation(newTheme, event);
         }
 
+        function initBackgroundParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particleCount = Math.min(Math.floor(width / 35), 35);
+            const particles = [];
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2.2 + 0.8,
+                    color: Math.random() > 0.5 ? 'rgba(255, 115, 0, ' : 'rgba(123, 142, 205, ',
+                    alpha: Math.random() * 0.45 + 0.15,
+                    vx: (Math.random() - 0.5) * 0.35,
+                    vy: (Math.random() - 0.5) * 0.35
+                });
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, width, height);
+                for (let p of particles) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color + p.alpha + ')';
+                    ctx.fill();
+                }
+                requestAnimationFrame(render);
+            }
+            render();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
+            initBackgroundParticles();
         });
     </script>
 </body>

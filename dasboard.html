@@ -161,16 +161,14 @@
             gap: 12px;
         }
         .logo-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--radius-md);
-            background: linear-gradient(135deg, var(--orange-soft), var(--blue-soft));
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
-            font-size: 20px;
-            box-shadow: 0 4px 14px rgba(255, 115, 0, 0.35);
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
             flex-shrink: 0;
         }
         .logo-text h1 {
@@ -218,12 +216,17 @@
         }
         .greeting-content {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 16px;
             position: relative;
             z-index: 2;
+        }
+        @media (min-width: 768px) {
+            .greeting-content {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
         }
         .greeting-title {
             font-size: 1.35rem;
@@ -239,10 +242,17 @@
         }
         .date-badge-box {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+            flex-direction: row;
+            flex-wrap: wrap;
             gap: 8px;
+            align-items: center;
             flex-shrink: 0;
+        }
+        @media (min-width: 768px) {
+            .date-badge-box {
+                flex-direction: column;
+                align-items: flex-end;
+            }
         }
         .date-badge {
             display: inline-flex;
@@ -259,6 +269,18 @@
         .date-badge-secondary {
             color: var(--blue-soft);
             border-color: var(--blue-border);
+        }
+
+        /* SUBTLE AMBIENT BACKGROUND PARTICLES */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.75;
         }
 
         /* BANNER SLIDER CAROUSEL STYLES */
@@ -736,6 +758,9 @@
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
 
+    <!-- SUBTLE AMBIENT BACKGROUND PARTICLES CANVAS -->
+    <canvas id="particle-canvas"></canvas>
+
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
         <div class="relative flex flex-col items-center justify-center">
@@ -778,8 +803,8 @@
     <header class="app-header">
         <div class="header-container">
             <div class="logo-group">
-                <div class="logo-icon bg-neutral-900 border border-neutral-800 p-0.5 flex items-center justify-center rounded-xl overflow-hidden shadow-sm">
-                    <img src="bendahara.png" alt="Logo Bendahara" class="w-full h-full object-contain">
+                <div class="logo-icon flex items-center justify-center rounded-xl overflow-hidden">
+                    <img src="IMIP.png" alt="Logo IMIP" class="w-full h-full object-contain">
                 </div>
                 <div class="logo-text">
                     <h1>DANAIMIP • LDK IMIP</h1>
@@ -959,16 +984,16 @@
                                 </div>
                             </div>
 
-                            <!-- SLIDE 4: ADMIN -->
-                            <div class="slide-full-image" onclick="window.location.href='Admin/Admin-Dashboard.html'" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.88) 100%), url('banner_perbaikan.png');">
+                            <!-- SLIDE 4: HUBUNGI ADMIN -->
+                            <div class="slide-full-image" onclick="window.open('https://wa.me/6285972535329', '_blank')" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.88) 100%), url('banner_perbaikan.png');">
                                 <div class="slide-overlay-content">
                                     <div>
-                                        <span class="slide-tag-pill" style="background: rgba(129, 140, 248, 0.92);"><i class="fa-solid fa-user-shield"></i> Portal Admin</span>
-                                        <h4 class="slide-hero-title">Dashboard Bendahara & Kelola Sistem</h4>
-                                        <p class="slide-hero-subtitle">Akses khusus pengurus & kelola data keuangan</p>
+                                        <span class="slide-tag-pill" style="background: rgba(245, 158, 11, 0.92);"><i class="fa-solid fa-headset"></i> Hubungi Admin</span>
+                                        <h4 class="slide-hero-title">Layanan Bantuan & Kemitraan Bendahara</h4>
+                                        <p class="slide-hero-subtitle">Bila ada pertanyaan atau kendala lapor admin via WhatsApp</p>
                                     </div>
-                                    <a href="Admin/Admin-Dashboard.html" class="btn-action-primary" onclick="event.stopPropagation()">
-                                        Akses Admin ➔
+                                    <a href="https://wa.me/6285972535329" target="_blank" class="btn-action-primary" onclick="event.stopPropagation()">
+                                        Chat Admin ➔
                                     </a>
                                 </div>
                             </div>
@@ -1483,11 +1508,60 @@
         }
     }
 
+    function initBackgroundParticles() {
+        const canvas = document.getElementById('particle-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particleCount = Math.min(Math.floor(width / 35), 35);
+        const particles = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2.2 + 0.8,
+                color: Math.random() > 0.5 ? 'rgba(255, 115, 0, ' : 'rgba(123, 142, 205, ',
+                alpha: Math.random() * 0.45 + 0.15,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.35
+            });
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, width, height);
+            for (let p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + p.alpha + ')';
+                ctx.fill();
+            }
+            requestAnimationFrame(render);
+        }
+        render();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
         updateHeaderDates();
         initAutoSlider();
+        initBackgroundParticles();
         fetchInitialData();
     });
     </script>
