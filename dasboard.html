@@ -553,6 +553,20 @@
             opacity: 0.18;
         }
 
+        /* MOBILE RESPONSIVE FIX FOR CABINET DECOR & GARIS.PNG (PREVENTS LOGO/TEXT OVERLAP) */
+        @media (max-width: 768px) {
+            .cabinet-decor {
+                opacity: 0.15 !important;
+                max-width: 110px !important;
+                max-height: 110px !important;
+            }
+            html.light-mode body::after {
+                background-size: 220px auto, 180px auto !important;
+                background-position: right -40px top -40px, left -30px bottom -30px !important;
+                opacity: 0.10 !important;
+            }
+        }
+
         /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
         html.light-mode, html.light-mode body {
             font-weight: 500 !important;
@@ -1580,20 +1594,59 @@
         }
     }
 
+    function getHijriDate(date) {
+        let day = date.getDate();
+        let month = date.getMonth();
+        let year = date.getFullYear();
+
+        let m = month + 1;
+        let y = year;
+        if (m < 3) {
+            y -= 1;
+            m += 12;
+        }
+
+        let a = Math.floor(y / 100);
+        let b = 2 - a + Math.floor(a / 4);
+
+        let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5;
+        let epochAstro = 1948084;
+        let shift1 = 8.01 / 60;
+
+        let z = jd - epochAstro;
+        let cyc = Math.floor(z / 10631);
+        z -= cyc * 10631;
+        let iy = Math.floor((z - shift1) / 354.36667);
+        let hijriYear = Math.floor(cyc * 30 + iy + 1);
+        let z2 = z - Math.floor(iy * 354.36667 + shift1);
+        let hijriMonth = Math.floor((z2 + 28.5) / 29.5);
+        if (hijriMonth > 12) hijriMonth = 12;
+        let hijriDay = Math.floor(z2 - Math.floor(hijriMonth * 29.5 - 29) + 1);
+
+        const hijriMonthsIndo = [
+            "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir",
+            "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban",
+            "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"
+        ];
+
+        let monthName = hijriMonthsIndo[Math.max(0, Math.min(11, hijriMonth - 1))];
+        return `${hijriDay} ${monthName} ${hijriYear} H`;
+    }
+
     function updateHeaderDates() {
         const now = new Date();
-        const gregStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const monthsIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        
+        const dayName = daysIndo[now.getDay()];
+        const gregStr = `${dayName}, ${now.getDate()} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
+        
         const gregEl = document.getElementById('gregorian-date-text');
         if (gregEl) gregEl.textContent = gregStr;
 
-        try {
-            const hijriFormatter = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
-            const hijriStr = hijriFormatter.format(now) + ' H';
-            const hijriEl = document.getElementById('hijri-date-text');
-            if (hijriEl) hijriEl.textContent = hijriStr;
-        } catch(e) {
-            const hijriEl = document.getElementById('hijri-date-text');
-            if (hijriEl) hijriEl.textContent = '1448 H';
+        const hijriEl = document.getElementById('hijri-date-text');
+        if (hijriEl) {
+            hijriEl.textContent = getHijriDate(now);
         }
     }
 
