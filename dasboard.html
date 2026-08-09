@@ -475,6 +475,16 @@
             100% { transform: scale(1.08) translate(20px, -20px); }
         }
 
+        /* CABINET ORNAMENT SHADES & WATERMARK IN LIGHT MODE */
+        .cabinet-decor {
+            display: none;
+            pointer-events: none;
+            user-select: none;
+        }
+        html.light-mode .cabinet-decor {
+            display: block;
+        }
+
         /* ELEGANT ISLAMIC GEOMETRIC PATTERN WATERMARK BACKGROUND */
         body::after {
             content: "";
@@ -492,7 +502,11 @@
         }
 
         html.light-mode body::after {
-            opacity: 1;
+            background-image: url("assetkabinet/garis.png"), url("assetkabinet/logokabinetblur.png");
+            background-repeat: no-repeat, no-repeat;
+            background-position: right top, left bottom;
+            background-size: 550px auto, 450px auto;
+            opacity: 0.18;
         }
 
         /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
@@ -841,8 +855,19 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
         
         <!-- 1. GREETING HERO CARD -->
-        <section class="greeting-card">
-            <div class="greeting-content">
+        <section class="greeting-card relative overflow-hidden">
+            <!-- CABINET ORNAMENT SHADES (LIGHT MODE) -->
+            <div class="cabinet-decor absolute -right-6 -bottom-10 w-44 h-44 pointer-events-none opacity-40">
+                <img src="assetkabinet/bungaorangejelas.png" alt="Bunga Orange" class="w-full h-full object-contain">
+            </div>
+            <div class="cabinet-decor absolute -left-10 -top-10 w-40 h-40 pointer-events-none opacity-30">
+                <img src="assetkabinet/bungabirublur.png" alt="Bunga Biru Blur" class="w-full h-full object-contain">
+            </div>
+            <div class="cabinet-decor absolute right-40 top-3 w-8 h-8 pointer-events-none opacity-70 animate-pulse">
+                <img src="assetkabinet/bintangorange.png" alt="Bintang Orange" class="w-full h-full object-contain">
+            </div>
+
+            <div class="greeting-content relative z-10">
                 <div>
                     <h2 class="greeting-title">Assalamu'alaikum, Pejuang Dakwah</h2>
                     <p class="greeting-subtitle">Semoga hari Anda senantiasa diberkahi Allah SWT dalam setiap langkah dakwah dan kebaikan.</p>
