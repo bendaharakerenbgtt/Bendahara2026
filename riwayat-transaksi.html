@@ -2043,12 +2043,16 @@
             const particleCount = Math.min(Math.floor(width / 35), 35);
             const particles = [];
 
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const particleColor1 = isLight ? 'rgba(255, 115, 0, ' : 'rgba(16, 185, 129, ';
+            const particleColor2 = isLight ? 'rgba(123, 142, 205, ' : 'rgba(52, 211, 153, ';
+
             for (let i = 0; i < particleCount; i++) {
                 particles.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
                     radius: Math.random() * 2.2 + 0.8,
-                    color: Math.random() > 0.5 ? 'rgba(16, 185, 129, ' : 'rgba(100, 116, 139, ',
+                    color: Math.random() > 0.5 ? particleColor1 : particleColor2,
                     alpha: Math.random() * 0.45 + 0.15,
                     vx: (Math.random() - 0.5) * 0.35,
                     vy: (Math.random() - 0.5) * 0.35

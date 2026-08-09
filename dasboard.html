@@ -87,7 +87,7 @@
         
         html.light-mode {
             /* ==========================================================================
-               LIGHT MODE SYSTEM - Soft Warm Cream & Muharrik Palette (wonderful-bose)
+               LIGHT MODE SYSTEM - Official Cabinet Colors (#FF7300, #7B8ECD, #FFA500) on Cream (#FAF5EF)
                ========================================================================== */
             --bg-main: #FAF5EF;              /* Soft Warm Cream background */
             --bg-card: #FFFFFF;              /* Crisp white cards */
@@ -104,30 +104,42 @@
             
             --bg-neutral-pill: #F6EFE7;      /* Soft cream pills */
             
-            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
-            --border-cyan-pill: rgba(8, 145, 178, 0.18);
-            --text-cyan-accent: #0891b2;
+            --orange-soft: #FF7300;
+            --orange-bg: rgba(255, 115, 0, 0.12);
+            --orange-border: rgba(255, 115, 0, 0.35);
+
+            --blue-soft: #7B8ECD;
+            --blue-bg: rgba(123, 142, 205, 0.15);
+            --blue-border: rgba(123, 142, 205, 0.35);
+
+            --gold-soft: #FFA500;
+            --gold-bg: rgba(255, 165, 0, 0.12);
+            --gold-border: rgba(255, 165, 0, 0.35);
+
+            --bg-cyan-pill: rgba(123, 142, 205, 0.10);
+            --border-cyan-pill: rgba(123, 142, 205, 0.25);
+            --text-cyan-accent: #7B8ECD;
             
             --bg-green-pill: rgba(16, 185, 129, 0.08);
             --border-green-pill: rgba(16, 185, 129, 0.2);
             --text-green-accent: #059669;
             
-            --bg-amber-pill: rgba(245, 158, 11, 0.08);
-            --border-amber-pill: rgba(245, 158, 11, 0.2);
-            --text-amber-accent: #d97706;
+            --bg-amber-pill: rgba(255, 115, 0, 0.08);
+            --border-amber-pill: rgba(255, 115, 0, 0.2);
+            --text-amber-accent: #FF7300;
             
             --text-rose-accent: #e11d48;
             
             --splash-bg: #FAF5EF;
             --splash-text: #1E293B;
-            --splash-glow: rgba(255, 115, 0, 0.1);
+            --splash-glow: rgba(255, 115, 0, 0.15);
             
             --footer-bg: rgba(246, 239, 231, 0.7);
             --footer-border: #E6DACE;
             
-            --hover-cyan-border: rgba(8, 145, 178, 0.4);
+            --hover-cyan-border: rgba(123, 142, 205, 0.4);
             --hover-green-border: rgba(16, 185, 129, 0.4);
-            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-amber-border: rgba(255, 115, 0, 0.4);
             --hover-neutral-border: #E2D3C4;
 
             --shadow-card: 0 10px 30px -10px rgba(30, 41, 59, 0.08);
@@ -453,9 +465,9 @@
 
         html.light-mode body::before {
             background: 
-                radial-gradient(circle at 10% 15%, rgba(16, 185, 129, 0.20) 0%, transparent 48%),
-                radial-gradient(circle at 90% 85%, rgba(52, 211, 153, 0.18) 0%, transparent 48%),
-                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.12) 0%, transparent 52%);
+                radial-gradient(circle at 10% 15%, rgba(255, 115, 0, 0.24) 0%, transparent 48%),
+                radial-gradient(circle at 90% 85%, rgba(123, 142, 205, 0.26) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(255, 165, 0, 0.16) 0%, transparent 52%);
         }
 
         @keyframes pulseGlow {
@@ -1527,12 +1539,16 @@
         const particleCount = Math.min(Math.floor(width / 35), 35);
         const particles = [];
 
+        const isLight = document.documentElement.classList.contains('light-mode');
+        const particleColor1 = isLight ? 'rgba(255, 115, 0, ' : 'rgba(16, 185, 129, ';
+        const particleColor2 = isLight ? 'rgba(123, 142, 205, ' : 'rgba(52, 211, 153, ';
+
         for (let i = 0; i < particleCount; i++) {
             particles.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
                 radius: Math.random() * 2.2 + 0.8,
-                color: Math.random() > 0.5 ? 'rgba(16, 185, 129, ' : 'rgba(100, 116, 139, ',
+                color: Math.random() > 0.5 ? particleColor1 : particleColor2,
                 alpha: Math.random() * 0.45 + 0.15,
                 vx: (Math.random() - 0.5) * 0.35,
                 vy: (Math.random() - 0.5) * 0.35
