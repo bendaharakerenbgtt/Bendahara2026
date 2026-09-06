@@ -1297,8 +1297,14 @@
         }
 
         function getReceiptPath(tx) {
-            if (!tx.catatan) return null;
-            const c = tx.catatan.trim();
+            if (tx.bukti && tx.bukti.trim()) {
+                const b = tx.bukti.trim();
+                if (b.startsWith('http://') || b.startsWith('https://') || b.startsWith('data:image/')) {
+                    return b;
+                }
+            }
+            const c = (tx.keterangan || tx.catatan || '').trim();
+            if (!c) return null;
             if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
                 return c;
             }

@@ -102,15 +102,15 @@ function getAllData() {
 
   const transaksiRaw   = sheetToJson(transaksiSheet);
   const transaksiData  = transaksiRaw.map(t => {
-    const catatanVal   = getVal(t, "catatan") || "";
+    const ketVal       = getVal(t, "keterangan") !== undefined ? getVal(t, "keterangan") : (getVal(t, "catatan") || "");
     let proofUrl = "";
     
-    // Extract URL if present in catatan
-    const urlMatch = catatanVal.match(/https?:\/\/[^\s)]+/);
+    // Extract URL if present in keterangan or catatan
+    const urlMatch = ketVal.toString().match(/https?:\/\/[^\s)]+/);
     if (urlMatch) {
       proofUrl = urlMatch[0];
-    } else if (catatanVal.startsWith("data:image")) {
-      proofUrl = catatanVal;
+    } else if (ketVal.toString().startsWith("data:image")) {
+      proofUrl = ketVal;
     } else {
       proofUrl = getVal(t, "bukti") || "";
     }
@@ -121,9 +121,7 @@ function getAllData() {
       statusReimburse = "Tidak Perlu";
     }
     
-    // Keep the original raw value of catatan to show description details (e.g. month info)
-    const cleanCatatan = catatanVal;
-    const uraianVal = getVal(t, "uraian") !== undefined ? getVal(t, "uraian") : (getVal(t, "keterangan") || "");
+    const uraianVal = getVal(t, "uraian") !== undefined ? getVal(t, "uraian") : ketVal;
     const rawJumlah = getVal(t, "jumlah") !== undefined ? getVal(t, "jumlah") : getVal(t, "nominal");
     const jumlahVal = parseFormattedNumber(rawJumlah);
     const rawHargaSatuan = getVal(t, "harga_satuan") !== undefined ? getVal(t, "harga_satuan") : getVal(t, "harga satuan");
@@ -134,7 +132,7 @@ function getAllData() {
       divisi: getVal(t, "divisi") || "",
       kategori: getVal(t, "kategori") || "Umum",
       uraian: uraianVal,
-      keterangan: uraianVal, // Compatibility alias for frontend
+      keterangan: ketVal,
       unit: getVal(t, "unit") || "",
       harga_satuan: parseFormattedNumber(rawHargaSatuan),
       jumlah: jumlahVal,
@@ -148,7 +146,7 @@ function getAllData() {
       })(),
       jenis: getVal(t, "jenis") || "Keluar",
       metode: getVal(t, "metode") || "Tunai",
-      catatan: cleanCatatan,
+      catatan: ketVal, // Compatibility alias for frontend
       bukti: proofUrl,
       status_reimburse: statusReimburse,
       nama_pic_pengeluar: getVal(t, "nama_pic_pengeluar") || "",
