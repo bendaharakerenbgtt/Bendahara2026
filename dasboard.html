@@ -1512,21 +1512,6 @@
         const container = document.getElementById('recent-logs-container');
         if (!container) return;
 
-        const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
-        approved.sort((a, b) => {
-            const dateDiff = new Date(b.tanggal) - new Date(a.tanggal);
-            if (dateDiff !== 0) return dateDiff;
-            return (b.id || "").toString().localeCompare((a.id || "").toString());
-        });
-
-        const recent = approved.slice(0, 3);
-        
-        if (recent.length === 0) {
-            container.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500 font-mono italic">Belum ada riwayat transaksi.</div>`;
-            return;
-        }
-
-        container.innerHTML = '';
         const approved = transactions.filter(t => !t.status_reimburse || t.status_reimburse === "Tidak Perlu" || t.status_reimburse === "Disetujui" || t.status_reimburse.toString().trim() === "");
         approved.sort((a, b) => {
             const dateDiff = new Date(b.tanggal) - new Date(a.tanggal);
