@@ -1758,7 +1758,7 @@
                 const prokerName = (txProkerIdStr !== '' && txProkerIdStr.toUpperCase() !== 'NULL')
                     ? (prokersMap[txProkerIdStr] || txProkerIdStr) 
                     : "NULL / Tidak Ada";
-                const txUraian = String(tx.uraian || tx.keterangan || "");
+                const txUraian = String(tx.keterangan || tx.uraian || "");
                 const txDivisi = String(tx.divisi || "");
                 const txUnit = String(tx.unit || "");
                 const txCatatan = String(tx.catatan || "");
@@ -1826,7 +1826,7 @@
             itemsToRender.forEach(tx => {
                 renderCount++;
                 const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
-                const rawTitle = tx.uraian || tx.keterangan || "Tanpa Keterangan";
+                const rawTitle = tx.keterangan || tx.uraian || "Tanpa Keterangan";
                 const txTitle = cleanTitle(rawTitle) || "Tanpa Keterangan";
                 const dateFormated = formatReadableDate(tx.tanggal);
                 const isMasuk = tx.jenis === 'Masuk';
@@ -2202,13 +2202,13 @@
                         </div>
 
                         <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
-                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">URAIAN</span>
-                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${cleanTitle(tx.uraian || tx.keterangan) || '-'}</span>
+                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">KETERANGAN</span>
+                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${cleanTitle(tx.keterangan || tx.uraian) || '-'}</span>
                         </div>
 
                         <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
-                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">KETERANGAN / CATATAN</span>
-                            <span class="text-neutral-300 block text-xs leading-relaxed">${cleanTitle(tx.catatan || tx.keterangan) || '-'}</span>
+                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">URAIAN / CATATAN</span>
+                            <span class="text-neutral-300 block text-xs leading-relaxed">${cleanTitle(tx.catatan || tx.uraian) || '-'}</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-[9px] font-mono text-neutral-500 pt-1">

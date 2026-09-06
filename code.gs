@@ -96,10 +96,14 @@ function getAllData(callback) {
   const transaksiSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
   const transaksiRaw   = sheetToJson(transaksiSheet);
   const transaksiData  = transaksiRaw.map(t => {
-    const ketVal       = getVal(t, "keterangan") !== undefined ? getVal(t, "keterangan") : (getVal(t, "catatan") || "");
-    const catatanVal   = getVal(t, "catatan") || "";
+    const ketRaw       = getVal(t, "keterangan");
+    const catatanRaw   = getVal(t, "catatan") || "";
     const uraianRaw    = getVal(t, "uraian") || "";
     const buktiRaw     = getVal(t, "bukti") || "";
+    const ketVal       = (ketRaw !== undefined && ketRaw !== null && String(ketRaw).trim() !== "")
+      ? String(ketRaw).trim()
+      : (catatanRaw || uraianRaw || "");
+    const catatanVal   = catatanRaw;
     let proofUrl = "";
     
     // Extract URL or base64 if present in bukti, keterangan, catatan, or uraian
@@ -124,7 +128,9 @@ function getAllData(callback) {
       statusReimburse = "Tidak Perlu";
     }
     
-    const uraianVal = getVal(t, "uraian") !== undefined ? getVal(t, "uraian") : ketVal;
+    const uraianVal = (uraianRaw !== undefined && uraianRaw !== null && String(uraianRaw).trim() !== "")
+      ? String(uraianRaw).trim()
+      : ketVal;
     const rawJumlah = getVal(t, "jumlah") !== undefined ? getVal(t, "jumlah") : getVal(t, "nominal");
     const jumlahVal = parseFormattedNumber(rawJumlah);
     const rawHargaSatuan = getVal(t, "harga_satuan") !== undefined ? getVal(t, "harga_satuan") : getVal(t, "harga satuan");
