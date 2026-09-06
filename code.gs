@@ -20,8 +20,9 @@ const SHEET_NAME_KEGIATAN    = "kegiatan";
 
 // Default header fallback jika spreadsheet kosong/tidak memiliki header
 const defaultTransactionHeaders = [
-  "id_transaksi", "tanggal", "keterangan", "id_anggota", "id_kegiatan", 
-  "jenis", "metode", "kategori", "nominal", "catatan", "status_reimburse", "created_at", "updated_at"
+  "id_transaksi", "tanggal", "divisi", "kategori", "uraian", "unit", 
+  "harga_satuan", "jumlah", "id_anggota", "id_kegiatan", "jenis", 
+  "metode", "catatan", "created_at", "updated_at"
 ];
 
 const defaultProkerHeaders = [
@@ -122,11 +123,22 @@ function getAllData() {
     
     // Keep the original raw value of catatan to show description details (e.g. month info)
     const cleanCatatan = catatanVal;
+    const uraianVal = getVal(t, "uraian") !== undefined ? getVal(t, "uraian") : (getVal(t, "keterangan") || "");
+    const rawJumlah = getVal(t, "jumlah") !== undefined ? getVal(t, "jumlah") : getVal(t, "nominal");
+    const jumlahVal = parseFormattedNumber(rawJumlah);
+    const rawHargaSatuan = getVal(t, "harga_satuan") !== undefined ? getVal(t, "harga_satuan") : getVal(t, "harga satuan");
     
     return {
       id: getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || ""),
       tanggal: getVal(t, "tanggal") || "",
-      keterangan: getVal(t, "keterangan") || "",
+      divisi: getVal(t, "divisi") || "",
+      kategori: getVal(t, "kategori") || "Umum",
+      uraian: uraianVal,
+      keterangan: uraianVal, // Compatibility alias for frontend
+      unit: getVal(t, "unit") || "",
+      harga_satuan: parseFormattedNumber(rawHargaSatuan),
+      jumlah: jumlahVal,
+      nominal: jumlahVal, // Compatibility alias for frontend
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
       proker_id: (() => {
         const val = getVal(t, "id_kegiatan") !== undefined ? getVal(t, "id_kegiatan") : getVal(t, "proker_id");
@@ -136,8 +148,6 @@ function getAllData() {
       })(),
       jenis: getVal(t, "jenis") || "Keluar",
       metode: getVal(t, "metode") || "Tunai",
-      kategori: getVal(t, "kategori") || "Umum",
-      nominal: parseFormattedNumber(getVal(t, "nominal")),
       catatan: cleanCatatan,
       bukti: proofUrl,
       status_reimburse: statusReimburse,
@@ -295,12 +305,14 @@ function insertTransaction(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
 
-  // Auto-heal sheet headers to make sure status_reimburse exists in the spreadsheet
   healSheetHeaders(sheet, defaultTransactionHeaders);
 
-  // Tentukan jenis otomatis dari kategori
+  const uraianInput = p.uraian !== undefined ? p.uraian : (p.keterangan || "");
+  const rawNominal = p.jumlah !== undefined ? p.jumlah : p.nominal;
+  const parsedJumlah = parseFormattedNumber(rawNominal);
+
   const catLower = (p.kategori || "").toLowerCase();
-  const ketLower = (p.keterangan || "").toLowerCase();
+  const ketLower = (uraianInput || "").toLowerCase();
   const isKasPayment = catLower.includes("kas pengurus") || 
                        catLower.includes("kas pengerus") || 
                        catLower.includes("kas bulanan") || 
@@ -320,7 +332,6 @@ function insertTransaction(p) {
   const jenis = p.jenis || (isIncome ? "Masuk" : "Keluar");
   const today = new Date().toISOString().substring(0, 10);
 
-  // Save image to Google Drive if it's base64
   let driveUrl = "";
   if (p.bukti && p.bukti.toString().startsWith("data:image")) {
     const nextId = getNextTransactionId(sheet);
@@ -330,52 +341,49 @@ function insertTransaction(p) {
   }
 
   const memberName = getMemberNameById(ss, p.user_id);
-  const parsedNominal = parseFormattedNumber(p.nominal);
 
-  // Jika ini adalah pembayaran kas bulanan, dan nominalnya lebih besar dari 10.000,
-  // pecah transaksi ini menjadi entri terpisah masing-masing Rp10.000 (satu baris per bulan).
-  if (isKasPayment && parsedNominal > 10000) {
+  if (isKasPayment && parsedJumlah > 10000) {
     let months = [];
-    const match = (p.keterangan || "").match(/\(([^)]+)\)/);
+    const match = (uraianInput || "").match(/\(([^)]+)\)/);
     if (match) {
       months = match[1].split(",").map(b => b.trim());
     } else {
-      // Jika tidak ada bulan eksplisit, cari bulan yang belum dibayar untuk member ini
       const unpaid = getUnpaidMonthsForMember(ss, p.user_id);
-      const count = Math.round(parsedNominal / 10000);
+      const count = Math.round(parsedJumlah / 10000);
       for (let i = 0; i < count; i++) {
         if (unpaid.length > 0) {
           months.push(unpaid.shift());
         } else {
-          months.push("Kas"); // fallback label jika lunas
+          months.push("Kas");
         }
       }
     }
 
     let lastInsertedId = null;
     months.forEach((m) => {
-      // Generate ID otomatis per sub-transaksi secara cerdas (mendukung prefix "TRX" dll)
       const newId = getNextTransactionId(sheet);
-
-      // Keterangan: "Kas [Name]"
-      const finalKet = memberName ? "Kas " + memberName : (p.keterangan || "Kas Anggota");
-      // Catatan: "Kas Bulan [Bulan] (Bukti: [Drive URL])"
+      const finalKet = memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota");
       const finalCatatan = "Kas Bulan " + m + (driveUrl ? " (Bukti: " + driveUrl + ")" : "");
 
       const txObj = {
         id_transaksi: newId,
         id: newId,
         tanggal: p.tanggal || today,
+        divisi: p.divisi || "",
+        kategori: "Kas Pengurus",
+        uraian: finalKet,
         keterangan: finalKet,
+        unit: p.unit || "1",
+        harga_satuan: 10000,
+        jumlah: 10000,
+        nominal: 10000,
         id_anggota: p.user_id !== undefined ? p.user_id : "",
         user_id: p.user_id !== undefined ? p.user_id : "",
         proker_id: p.proker_id !== undefined ? p.proker_id : "",
         jenis: jenis,
         metode: p.metode || "Tunai",
-        kategori: "Kas Pengurus",
-        nominal: 10000, // Simpan Rp10.000 per baris
         catatan: finalCatatan,
-        status_reimburse: p.status_reimburse || "Belum",
+        status_reimburse: p.status_reimburse || "Tidak Perlu",
         nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
         created_at: today,
         updated_at: today
@@ -385,19 +393,16 @@ function insertTransaction(p) {
       lastInsertedId = newId;
     });
 
-    // Kirim notifikasi Firebase FCM (HTTP v1)
     kirimNotifikasiFirebaseV1(
       "Transaksi Masuk!",
-      "Pembayaran kas baru dari " + (memberName || "Anggota") + " senilai Rp " + Number(parsedNominal).toLocaleString('id-ID')
+      "Pembayaran kas baru dari " + (memberName || "Anggota") + " senilai Rp " + Number(parsedJumlah).toLocaleString('id-ID')
     );
 
     return jsonResponse({ status: "success", id: lastInsertedId });
   }
 
-  // Fallback normal untuk transaksi non-kas atau nominal <= 10.000
   const newId = getNextTransactionId(sheet);
-
-  let finalKet = p.keterangan || "";
+  let finalKet = uraianInput || "";
   let finalCatatan = p.catatan || "";
   if (driveUrl) {
     if (finalCatatan) {
@@ -408,11 +413,9 @@ function insertTransaction(p) {
   }
 
   if (isKasPayment) {
-    finalKet = memberName ? "Kas " + memberName : (p.keterangan || "Kas Anggota");
-    
-    // Extract month for normal single payment
+    finalKet = memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota");
     let m = "Kas";
-    const monthsFound = extractMonthsFromText(p.keterangan);
+    const monthsFound = extractMonthsFromText(uraianInput);
     if (monthsFound.length > 0) {
       m = monthsFound[0];
     } else {
@@ -428,16 +431,21 @@ function insertTransaction(p) {
     id_transaksi: newId,
     id: newId,
     tanggal: p.tanggal || today,
+    divisi: p.divisi || "",
+    kategori: isKasPayment ? "Kas Pengurus" : (p.kategori || "Umum"),
+    uraian: finalKet,
     keterangan: finalKet,
+    unit: p.unit || "",
+    harga_satuan: parseFormattedNumber(p.harga_satuan),
+    jumlah: parsedJumlah,
+    nominal: parsedJumlah,
     id_anggota: p.user_id !== undefined ? p.user_id : "",
     user_id: p.user_id !== undefined ? p.user_id : "",
     proker_id: p.proker_id !== undefined ? p.proker_id : "",
     jenis: jenis,
     metode: p.metode || "Tunai",
-    kategori: isKasPayment ? "Kas Pengurus" : (p.kategori || "Umum"),
-    nominal: parsedNominal,
     catatan: finalCatatan,
-    status_reimburse: p.status_reimburse || "Belum",
+    status_reimburse: p.status_reimburse || "Tidak Perlu",
     nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
     created_at: today,
     updated_at: today
@@ -1135,15 +1143,15 @@ function purgeEmptyIdRows(ss) {
   }
 }
 
-/** Bersihkan kolom duplikat yang berada di sebelah kanan (kolom 14 ke atas) */
+/** Bersihkan kolom duplikat yang berada di sebelah kanan (kolom 16 ke atas) */
 function cleanDuplicateColumns(ss) {
   try {
     const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
     if (!sheet) return;
     const lastCol = sheet.getLastColumn();
-    if (lastCol <= 13) return; // Tidak ada kolom tambahan
+    if (lastCol <= 15) return; // Tidak ada kolom tambahan
     
-    const maxColsToKeep = 13;
+    const maxColsToKeep = 15;
     const colsToDelete = lastCol - maxColsToKeep;
     
     sheet.deleteColumns(maxColsToKeep + 1, colsToDelete);
