@@ -22,7 +22,7 @@ const SHEET_NAME_KEGIATAN    = "kegiatan";
 const defaultTransactionHeaders = [
   "id_transaksi", "tanggal", "divisi", "kategori", "uraian", "unit", 
   "harga_satuan", "jumlah", "id_anggota", "id_kegiatan", "jenis", 
-  "metode", "catatan", "created_at", "updated_at"
+  "metode", "keterangan", "created_at", "updated_at"
 ];
 
 const defaultProkerHeaders = [
@@ -434,7 +434,7 @@ function insertTransaction(p) {
     divisi: p.divisi || "",
     kategori: isKasPayment ? "Kas Pengurus" : (p.kategori || "Umum"),
     uraian: finalKet,
-    keterangan: finalKet,
+    keterangan: finalCatatan || p.keterangan || finalKet,
     unit: p.unit || "",
     harga_satuan: parseFormattedNumber(p.harga_satuan),
     jumlah: parsedJumlah,

@@ -530,80 +530,107 @@
                     </div>
 
                     <form id="pemasukanLainnyaForm" onsubmit="tambahPemasukanLokal(event)" class="flex flex-col gap-4">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Tanggal Pemasukan</label>
-                            <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
-                        </div>
-                        
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
-                            <select id="in_kategori_select" onchange="checkCustomCategory('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
-                                <option value="">Pilih Kategori...</option>
-                                <option value="Kas Umum">Kas Umum</option>
-                                <option value="Donasi">Donasi</option>
-                                <option value="Biaya Admin">Biaya Admin</option>
-                                <option value="Transportasi">Transportasi</option>
-                                <option value="Bingkisan">Bingkisan</option>
-                                <option value="Usaha">Usaha</option>
-                                <option value="Acara">Acara</option>
-                                <option value="HTM Acara">HTM Acara</option>
-                                <option value="Logistik">Logistik</option>
-                                <option value="Konsumsi">Konsumsi</option>
-                                <option value="Kas Pengurus">Kas Pengurus</option>
-                                <option value="custom">✏️ Tulis Kategori Kustom...</option>
-                            </select>
-                            <input type="text" id="in_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor (Opsional)</label>
-                            <input type="text" id="in_user_search" list="in_members_list" placeholder="Cari & pilih anggota penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
-                            <datalist id="in_members_list"></datalist>
-                            <input type="hidden" id="in_user_id">
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Program Kerja (Proker)</label>
-                            <select id="in_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
-                                <option value="">General / Kas Umum</option>
-                            </select>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode</label>
-                                <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
-                                    <option value="Tunai">💵 Tunai</option>
-                                    <option value="GoPay">📱 GoPay</option>
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Tanggal Pemasukan</label>
+                                <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Divisi</label>
+                                <select id="in_divisi" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                    <option value="">Umum / Tanpa Divisi</option>
+                                    <option value="Pimpinan Utama">Pimpinan Utama</option>
+                                    <option value="Biro Bendahara">Biro Bendahara</option>
+                                    <option value="Biro Kesekretariatan">Biro Kesekretariatan</option>
+                                    <option value="Departemen Kaderisasi">Departemen Kaderisasi</option>
+                                    <option value="Departemen Sosial Masyarakat">Departemen Sosial Masyarakat</option>
+                                    <option value="Departemen Syi'ar Islam">Departemen Syi'ar Islam</option>
+                                    <option value="Departemen HuMed">Departemen HuMed</option>
+                                    <option value="Divisi UUS">Divisi UUS</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nominal (Rp)</label>
-                                <input type="text" id="pemasukanNominal" required onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs font-bold text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
+                                <select id="in_kategori_select" onchange="checkCustomCategory('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                    <option value="">Pilih Kategori...</option>
+                                    <option value="Kas Umum">Kas Umum</option>
+                                    <option value="Donasi">Donasi</option>
+                                    <option value="Biaya Admin">Biaya Admin</option>
+                                    <option value="Transportasi">Transportasi</option>
+                                    <option value="Bingkisan">Bingkisan</option>
+                                    <option value="Usaha">Usaha</option>
+                                    <option value="Acara">Acara</option>
+                                    <option value="HTM Acara">HTM Acara</option>
+                                    <option value="Logistik">Logistik</option>
+                                    <option value="Konsumsi">Konsumsi</option>
+                                    <option value="Kas Pengurus">Kas Pengurus</option>
+                                    <option value="custom">✏️ Tulis Kategori Kustom...</option>
+                                </select>
+                                <input type="text" id="in_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                             </div>
                         </div>
-                        
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan</label>
-                            <textarea id="in_keterangan" rows="2" required placeholder="Contoh: Donasi Dari UKM Badminton..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans resize-none leading-relaxed"></textarea>
-                        </div>
-                        
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Rincian</label>
-                            <input type="text" id="in_catatan" placeholder="Contoh: Donasi Dari UKM Badminton Juni..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
-                        </div>
-                        
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Transaksi (Opsional)</label>
-                            <input type="file" id="in_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
-                            <!-- Image preview container -->
-                            <div id="in_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center gap-2 overflow-hidden">
-                                    <img id="in_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
-                                    <span id="in_image_reduction_info" class="text-[9px] font-mono text-neutral-500"></span>
+
+                        <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Uraian Pemasukan</label>
+                                <input type="text" id="in_keterangan" placeholder="Contoh: Dana Turunan Mukamil, Donasi Hamba Allah..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode Pembayaran</label>
+                                    <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                                        <option value="Tunai">💵 Tunai</option>
+                                        <option value="GoPay">📱 GoPay</option>
+                                    </select>
                                 </div>
-                                <button type="button" onclick="resetPemasukanImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor (Opsional)</label>
+                                    <input type="text" id="in_user_search" list="in_members_list" placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                    <datalist id="in_members_list"></datalist>
+                                    <input type="hidden" id="in_user_id">
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Proker</label>
+                                    <select id="in_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
+                                        <option value="">General / Kas Umum</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Jumlah Unit (Qty)</label>
+                                    <input type="number" id="in_jumlah_unit" placeholder="1" min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
+                                    <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Total Jumlah (Rp)</label>
+                                    <input type="text" id="pemasukanNominal" required onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs font-bold text-emerald-400 focus:outline-none focus:border-cyan-500 font-mono">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Catatan / Keterangan Tambahan</label>
+                                <input type="text" id="in_catatan" placeholder="Contoh: Dana Operasional Turunan Tahun Lalu..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Transaksi (Opsional)</label>
+                                <input type="file" id="in_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
+                                <div id="in_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center gap-2 overflow-hidden">
+                                        <img id="in_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
+                                        <span id="in_image_reduction_info" class="text-[9px] font-mono text-neutral-500"></span>
+                                    </div>
+                                    <button type="button" onclick="resetPemasukanImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
+                                </div>
                             </div>
                         </div>
-                        
+
                         <button type="submit" id="btnSubmitPemasukan" class="w-full bg-emerald-600 hover:bg-emerald-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
                             💾 Simpan Pemasukan ✓
                         </button>
@@ -624,6 +651,20 @@
                             <input type="date" id="out_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
                         </div>
                         <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Divisi</label>
+                            <select id="out_divisi" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
+                                <option value="">Umum / Tanpa Divisi</option>
+                                <option value="Pimpinan Utama">Pimpinan Utama</option>
+                                <option value="Biro Bendahara">Biro Bendahara</option>
+                                <option value="Biro Kesekretariatan">Biro Kesekretariatan</option>
+                                <option value="Departemen Kaderisasi">Departemen Kaderisasi</option>
+                                <option value="Departemen Sosial Masyarakat">Departemen Sosial Masyarakat</option>
+                                <option value="Departemen Syi'ar Islam">Departemen Syi'ar Islam</option>
+                                <option value="Departemen HuMed">Departemen HuMed</option>
+                                <option value="Divisi UUS">Divisi UUS</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
                             <select id="out_kategori_select" onchange="checkCustomCategory('out')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                 <option value="">Pilih Kategori...</option>
@@ -642,33 +683,33 @@
                             </select>
                             <input type="text" id="out_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                         </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode Pembayaran</label>
-                            <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
-                                <option value="Tunai">💵 Uang Tunai (Cash)</option>
-                                <option value="GoPay">📱 E-Wallet GoPay</option>
-                            </select>
-                        </div>
                     </div>
- 
+
                     <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nama Barang / Uraian</label>
                             <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
                         </div>
- 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Program Kerja (Proker)</label>
-                                <select id="out_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
-                                    <option value="">General / Kas Umum</option>
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode Pembayaran</label>
+                                <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
+                                    <option value="Tunai">💵 Uang Tunai (Cash)</option>
+                                    <option value="GoPay">📱 E-Wallet GoPay</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penanggung Jawab (Pilih Nama)</label>
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penanggung Jawab</label>
                                 <input type="text" id="out_user_search" list="out_members_list" required placeholder="Cari & pilih penanggung jawab..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                                 <datalist id="out_members_list"></datalist>
                                 <input type="hidden" id="out_user_id">
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Proker</label>
+                                <select id="out_proker_id" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
+                                    <option value="">General / Kas Umum</option>
+                                </select>
                             </div>
                         </div>
 
@@ -684,14 +725,13 @@
                         </div>
                         
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Catatan (Opsional)</label>
+                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Catatan / Keterangan Tambahan</label>
                             <input type="text" id="out_catatan" placeholder="Contoh: Konsumsi untuk tamu pembicara..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                         </div>
 
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Pembelian / Kwitansi (Opsional)</label>
                             <input type="file" id="out_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-rose-400 file:cursor-pointer hover:file:bg-rose-950/40">
-                            <!-- Image preview container -->
                             <div id="out_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
                                 <div class="flex items-center gap-2 overflow-hidden">
                                     <img id="out_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
@@ -700,13 +740,13 @@
                                 <button type="button" onclick="resetPengeluaranImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
                             </div>
                         </div>
- 
+
                         <div class="bg-rose-950/20 p-3 rounded-xl text-center flex flex-col gap-0.5 border border-rose-900/30 mt-1">
                             <span class="text-[9px] font-mono text-rose-400 uppercase font-bold tracking-wider">ESTIMASI TOTAL HARGA</span>
                             <div id="exp_total_display" class="text-base font-black text-white font-mono tracking-tight">Rp0</div>
                         </div>
                     </div>
- 
+
                     <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
                         💾 Simpan Pengeluaran ✓
                     </button>
@@ -1238,7 +1278,25 @@
             }
         }
 
-        // Kalkulator Qty x Satuan Pengeluaran
+        // Kalkulator Qty x Satuan Pemasukan & Pengeluaran
+        const inQty = document.getElementById('in_jumlah_unit');
+        const inPrice = document.getElementById('in_harga_satuan');
+        const inNominal = document.getElementById('pemasukanNominal');
+
+        function calculateInTotal() {
+            if (!inQty || !inPrice || !inNominal) return;
+            const qty = parseFloat(inQty.value) || 0;
+            const price = parseFloat(inPrice.value.replace(/[^0-9]/g, '')) || 0;
+            if (qty > 0 && price > 0) {
+                const total = qty * price;
+                inNominal.value = total.toLocaleString('id-ID');
+            }
+        }
+        if (inQty && inPrice) {
+            inQty.addEventListener('input', calculateInTotal);
+            inPrice.addEventListener('input', calculateInTotal);
+        }
+
         const expQty = document.getElementById('exp_jumlah_unit');
         const expPrice = document.getElementById('exp_harga_satuan');
         const expTotal = document.getElementById('exp_total_display');
@@ -1258,11 +1316,14 @@
         function tambahPemasukanLokal(e) {
             e.preventDefault();
             const date = document.getElementById('in_tanggal').value;
+            const divisi = document.getElementById('in_divisi').value;
             const catSelect = document.getElementById('in_kategori_select').value;
             const catCustom = document.getElementById('in_kategori_custom').value;
             const cat = catSelect === 'custom' ? catCustom : catSelect;
             const method = document.getElementById('in_metode').value;
-            const amount = parseInt(document.getElementById('pemasukanNominal').value.replace(/[^0-9]/g, '')) || 0;
+            const unit = parseFloat(document.getElementById('in_jumlah_unit').value) || 1;
+            const price = parseFloat(document.getElementById('in_harga_satuan').value.replace(/[^0-9]/g, '')) || 0;
+            const amount = parseInt(document.getElementById('pemasukanNominal').value.replace(/[^0-9]/g, '')) || (unit * price);
             const desc = document.getElementById('in_keterangan').value;
             const prokerId = document.getElementById('in_proker_id').value;
             const userId = document.getElementById('in_user_id').value;
@@ -1270,7 +1331,7 @@
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, uraian: desc, keterangan: desc, jenis: "Masuk", metode: method, kategori: cat, jumlah: amount, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64, catatan: catatan
+                    id: Date.now(), tanggal: date, divisi: divisi, uraian: desc, keterangan: catatan || desc, unit: unit, harga_satuan: price, jenis: "Masuk", metode: method, kategori: cat, jumlah: amount, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64, catatan: catatan
                 });
                 Swal.fire({ icon: 'success', title: 'Pemasukan Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pemasukanLainnyaForm').reset();
@@ -1296,8 +1357,11 @@
                 body: JSON.stringify({
                     action: "insert_transaction",
                     tanggal: date,
+                    divisi: divisi,
                     uraian: desc,
-                    keterangan: desc,
+                    keterangan: catatan || desc,
+                    unit: unit,
+                    harga_satuan: price,
                     jenis: "Masuk",
                     metode: method,
                     kategori: cat,
@@ -1331,6 +1395,7 @@
         function tambahPengeluaranLokal(e) {
             e.preventDefault();
             const date = document.getElementById('out_tanggal').value;
+            const divisi = document.getElementById('out_divisi').value;
             const catSelect = document.getElementById('out_kategori_select').value;
             const catCustom = document.getElementById('out_kategori_custom').value;
             const cat = catSelect === 'custom' ? catCustom : catSelect;
@@ -1346,7 +1411,7 @@
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, uraian: desc, keterangan: `${desc} (${qty}x)`, unit: qty, harga_satuan: price, jenis: "Keluar", metode: method, kategori: cat, jumlah: total, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64, catatan: catatan
+                    id: Date.now(), tanggal: date, divisi: divisi, uraian: desc, keterangan: catatan || `${desc} (${qty}x)`, unit: qty, harga_satuan: price, jenis: "Keluar", metode: method, kategori: cat, jumlah: total, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64, catatan: catatan
                 });
                 Swal.fire({ icon: 'success', title: 'Pengeluaran Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pengeluaranForm').reset();
@@ -1373,8 +1438,9 @@
                 body: JSON.stringify({
                     action: "insert_transaction",
                     tanggal: date,
+                    divisi: divisi,
                     uraian: desc,
-                    keterangan: `${desc} (${qty}x)`,
+                    keterangan: catatan || `${desc} (${qty}x)`,
                     unit: qty,
                     harga_satuan: price,
                     jumlah: total,
