@@ -515,7 +515,7 @@
 
                 <div>
                     <label class="text-[9px] font-mono uppercase text-neutral-500 block mb-1 font-bold">3. Bukti Transaksi (Opsional)</label>
-                    <input type="file" id="modal_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
+                    <input type="file" id="modal_bukti_file" onchange="handleModalKasImage(this)" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
                     <!-- Image preview container -->
                     <div id="modal_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
                         <div class="flex items-center gap-2 overflow-hidden">
@@ -716,40 +716,82 @@
                 });
             }
 
-            const modalFileInput = document.getElementById('modal_bukti_file');
-            if (modalFileInput) {
-                modalFileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
+        });
 
-                    const container = document.getElementById('modal_preview_container');
-                    const preview = document.getElementById('modal_image_preview');
-                    const info = document.getElementById('modal_image_reduction_info');
-
-                    container.classList.remove('hidden');
-
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const img = new Image();
-                        img.onload = function() {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width > 800 ? 800 : img.width;
-                            canvas.height = img.width > 800 ? (img.height * (800 / img.width)) : img.height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                            canvas.toBlob(function(blob) {
-                                preview.src = URL.createObjectURL(blob);
-                                info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(blob.size / 1024).toFixed(1)} KB`;
-                                kasImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                            }, 'image/jpeg', 0.7);
-                        };
-                        img.src = event.target.result;
+        function compressImageFile(file, maxDim = 800, quality = 0.6) {
+            return new Promise((resolve) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    resolve('');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) {
+                                h = Math.round((h * maxDim) / w);
+                                w = maxDim;
+                            } else {
+                                w = Math.round((w * maxDim) / h);
+                                h = maxDim;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const base64 = canvas.toDataURL('image/jpeg', quality);
+                        resolve(base64);
                     };
-                    reader.readAsDataURL(file);
+                    img.onerror = () => resolve('');
+                    img.src = event.target.result;
+                };
+                reader.onerror = () => resolve('');
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.handleModalKasImage = async function(input) {
+            const file = input && input.files ? input.files[0] : null;
+            if (!file) return;
+
+            const container = document.getElementById('modal_preview_container');
+            const preview = document.getElementById('modal_image_preview');
+            const info = document.getElementById('modal_image_reduction_info');
+
+            if (container) container.classList.remove('hidden');
+            if (preview) preview.src = '';
+            if (info) info.innerText = 'Mengompres foto...';
+
+            const base64 = await compressImageFile(file);
+            kasImageBase64 = base64;
+            if (preview) preview.src = base64;
+            if (info && base64) {
+                const originalSize = (file.size / 1024).toFixed(1);
+                const compressedSize = (Math.round(base64.length * 0.75) / 1024).toFixed(1);
+                info.innerText = `${originalSize} KB ➔ ${compressedSize} KB`;
+            }
+        };
+
+        function setupModalImageInput() {
+            const modalFileInput = document.getElementById('modal_bukti_file');
+            if (modalFileInput && !modalFileInput._bound) {
+                modalFileInput._bound = true;
+                modalFileInput.addEventListener('change', function() {
+                    handleModalKasImage(this);
                 });
             }
-        });
+        }
+
+        if (document.readyState !== 'loading') {
+            setupModalImageInput();
+        } else {
+            document.addEventListener('DOMContentLoaded', setupModalImageInput);
+        }
 
         window.resetModalImage = function() {
             kasImageBase64 = '';
@@ -998,7 +1040,7 @@
             resetModalImage();
         }
 
-        function simpanKasRealTime(e) {
+        async function simpanKasRealTime(e) {
             e.preventDefault();
             
             const userId = document.getElementById('modalUserId').value;
@@ -1007,6 +1049,12 @@
             if (checkboxSelected.length === 0) {
                 Swal.fire({ icon: 'warning', title: 'Pilih Bulan!', text: 'Centang minimal 1 bulan angsuran kas, bro.' });
                 return;
+            }
+
+            // Failsafe: jika ada berkas gambar dipilih tapi belum selesai di-compress, kompres sekarang
+            const fileInput = document.getElementById('modal_bukti_file');
+            if (fileInput && fileInput.files && fileInput.files[0] && !kasImageBase64) {
+                kasImageBase64 = await compressImageFile(fileInput.files[0]);
             }
 
             let bulanArray = [];

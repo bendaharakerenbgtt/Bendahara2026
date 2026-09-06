@@ -625,7 +625,7 @@
 
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Transaksi (Opsional)</label>
-                                <input type="file" id="in_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
+                                <input type="file" id="in_bukti_file" onchange="handlePemasukanImage(this)" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
                                 <div id="in_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
                                     <div class="flex items-center gap-2 overflow-hidden">
                                         <img id="in_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
@@ -741,7 +741,7 @@
 
                         <div class="flex flex-col gap-1.5">
                             <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Pembelian / Kwitansi (Opsional)</label>
-                            <input type="file" id="out_bukti_file" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-rose-400 file:cursor-pointer hover:file:bg-rose-950/40">
+                            <input type="file" id="out_bukti_file" onchange="handlePengeluaranImage(this)" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-rose-400 file:cursor-pointer hover:file:bg-rose-950/40">
                             <div id="out_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
                                 <div class="flex items-center gap-2 overflow-hidden">
                                     <img id="out_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
@@ -1265,96 +1265,93 @@
                 });
             }
 
+        // Helper kompresi gambar universal ke base64
+        function compressImageFile(file, maxDim = 800, quality = 0.7) {
+            return new Promise((resolve) => {
+                if (!file || !file.type || !file.type.startsWith('image/')) {
+                    return resolve('');
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) {
+                                h = Math.round((h * maxDim) / w);
+                                w = maxDim;
+                            } else {
+                                w = Math.round((w * maxDim) / h);
+                                h = maxDim;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const base64 = canvas.toDataURL('image/jpeg', quality);
+                        resolve(base64);
+                    };
+                    img.onerror = () => resolve('');
+                    img.src = event.target.result;
+                };
+                reader.onerror = () => resolve('');
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Global onchange handler untuk bukti pemasukan
+        window.handlePemasukanImage = async function(input) {
+            const file = input && input.files ? input.files[0] : null;
+            if (!file) return;
+            const container = document.getElementById('in_preview_container');
+            const preview = document.getElementById('in_image_preview');
+            const info = document.getElementById('in_image_reduction_info');
+            if (container) container.classList.remove('hidden');
+            if (info) info.innerText = 'Mengompres foto...';
+
+            const base64 = await compressImageFile(file);
+            pemasukanImageBase64 = base64;
+            if (preview) preview.src = base64;
+            if (info) info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(Math.round(base64.length * 0.75) / 1024).toFixed(1)} KB`;
+        };
+
+        // Global onchange handler untuk bukti pengeluaran
+        window.handlePengeluaranImage = async function(input) {
+            const file = input && input.files ? input.files[0] : null;
+            if (!file) return;
+            const container = document.getElementById('out_preview_container');
+            const preview = document.getElementById('out_image_preview');
+            const info = document.getElementById('out_image_reduction_info');
+            if (container) container.classList.remove('hidden');
+            if (info) info.innerText = 'Mengompres foto...';
+
+            const base64 = await compressImageFile(file);
+            pengeluaranImageBase64 = base64;
+            if (preview) preview.src = base64;
+            if (info) info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(Math.round(base64.length * 0.75) / 1024).toFixed(1)} KB`;
+        };
+
+        function setupImageInputs() {
             const inFileInput = document.getElementById('in_bukti_file');
-            if (inFileInput) {
-                inFileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const container = document.getElementById('in_preview_container');
-                    const preview = document.getElementById('in_image_preview');
-                    const info = document.getElementById('in_image_reduction_info');
-
-                    container.classList.remove('hidden');
-
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const img = new Image();
-                        img.onload = function() {
-                            const maxDim = 600;
-                            let w = img.width;
-                            let h = img.height;
-                            if (w > maxDim || h > maxDim) {
-                                if (w > h) {
-                                    h = Math.round((h * maxDim) / w);
-                                    w = maxDim;
-                                } else {
-                                    w = Math.round((w * maxDim) / h);
-                                    h = maxDim;
-                                }
-                            }
-                            const canvas = document.createElement('canvas');
-                            canvas.width = w;
-                            canvas.height = h;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, w, h);
-
-                            const base64 = canvas.toDataURL('image/jpeg', 0.5);
-                            pemasukanImageBase64 = base64;
-                            preview.src = base64;
-                            info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(Math.round(base64.length * 0.75) / 1024).toFixed(1)} KB`;
-                        };
-                        img.src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
+            if (inFileInput && !inFileInput._bound) {
+                inFileInput._bound = true;
+                inFileInput.addEventListener('change', function() { handlePemasukanImage(this); });
             }
-
             const outFileInput = document.getElementById('out_bukti_file');
-            if (outFileInput) {
-                outFileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const container = document.getElementById('out_preview_container');
-                    const preview = document.getElementById('out_image_preview');
-                    const info = document.getElementById('out_image_reduction_info');
-
-                    container.classList.remove('hidden');
-
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const img = new Image();
-                        img.onload = function() {
-                            const maxDim = 600;
-                            let w = img.width;
-                            let h = img.height;
-                            if (w > maxDim || h > maxDim) {
-                                if (w > h) {
-                                    h = Math.round((h * maxDim) / w);
-                                    w = maxDim;
-                                } else {
-                                    w = Math.round((w * maxDim) / h);
-                                    h = maxDim;
-                                }
-                            }
-                            const canvas = document.createElement('canvas');
-                            canvas.width = w;
-                            canvas.height = h;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, w, h);
-
-                            const base64 = canvas.toDataURL('image/jpeg', 0.5);
-                            pengeluaranImageBase64 = base64;
-                            preview.src = base64;
-                            info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(Math.round(base64.length * 0.75) / 1024).toFixed(1)} KB`;
-                        };
-                        img.src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
+            if (outFileInput && !outFileInput._bound) {
+                outFileInput._bound = true;
+                outFileInput.addEventListener('change', function() { handlePengeluaranImage(this); });
             }
-        });
+        }
+
+        if (document.readyState !== 'loading') {
+            setupImageInputs();
+        } else {
+            document.addEventListener('DOMContentLoaded', setupImageInputs);
+        }
 
         window.resetPemasukanImage = function() {
             pemasukanImageBase64 = '';
@@ -1366,7 +1363,7 @@
             if (preview) preview.src = '';
             const info = document.getElementById('in_image_reduction_info');
             if (info) info.innerText = '';
-        }
+        };
 
         window.resetPengeluaranImage = function() {
             pengeluaranImageBase64 = '';
@@ -1378,7 +1375,7 @@
             if (preview) preview.src = '';
             const info = document.getElementById('out_image_reduction_info');
             if (info) info.innerText = '';
-        }
+        };
 
         function switchLedgerInput(target) {
             const panelIn = document.getElementById('ledger-panel-in');
@@ -1449,7 +1446,7 @@
         }
 
         // Action Tambah Pemasukan
-        function tambahPemasukanLokal(e) {
+        async function tambahPemasukanLokal(e) {
             e.preventDefault();
             const date = document.getElementById('in_tanggal').value;
             const divisi = getDivisiValue('in');
@@ -1462,6 +1459,12 @@
             const desc = document.getElementById('in_keterangan').value;
             const prokerId = document.getElementById('in_proker_id').value || "NULL";
             const userId = document.getElementById('in_user_id').value;
+
+            // Pastikan jika ada berkas foto dipilih tapi belum selesai di-compress, kompres sekarang
+            const fileInput = document.getElementById('in_bukti_file');
+            if (!pemasukanImageBase64 && fileInput && fileInput.files && fileInput.files[0]) {
+                pemasukanImageBase64 = await compressImageFile(fileInput.files[0]);
+            }
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
@@ -1527,7 +1530,7 @@
         }
 
         // Action Tambah Pengeluaran
-        function tambahPengeluaranLokal(e) {
+        async function tambahPengeluaranLokal(e) {
             e.preventDefault();
             const date = document.getElementById('out_tanggal').value;
             const divisi = getDivisiValue('out');
@@ -1541,6 +1544,12 @@
             const picName = userId ? (membersMap[userId.toString()] || "") : "";
             const prokerId = document.getElementById('out_proker_id').value || "NULL";
             const total = qty * price;
+
+            // Pastikan jika ada berkas foto dipilih tapi belum selesai di-compress, kompres sekarang
+            const fileInput = document.getElementById('out_bukti_file');
+            if (!pengeluaranImageBase64 && fileInput && fileInput.files && fileInput.files[0]) {
+                pengeluaranImageBase64 = await compressImageFile(fileInput.files[0]);
+            }
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({

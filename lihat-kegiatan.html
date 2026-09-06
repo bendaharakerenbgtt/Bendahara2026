@@ -807,7 +807,7 @@
 
                     <div class="bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl flex flex-col gap-2">
                         <label class="text-[9px] font-mono uppercase text-neutral-400 block">Upload Foto Bukti Transfer</label>
-                        <input type="file" id="buktiTransferInput" accept="image/*" class="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-mono file:font-bold file:bg-neutral-900 file:text-emerald-400 border border-neutral-800 rounded-lg p-1.5 bg-neutral-900/40">
+                        <input type="file" id="buktiTransferInput" onchange="handleKegiatanBukti(this)" accept="image/*" class="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-mono file:font-bold file:bg-neutral-900 file:text-emerald-400 border border-neutral-800 rounded-lg p-1.5 bg-neutral-900/40">
                         
                         <div id="imagePreviewContainer" class="hidden mt-2 border border-neutral-800/80 bg-neutral-900/20 p-2.5 rounded-lg flex flex-col gap-2">
                             <div class="flex items-center gap-2 justify-between">
@@ -1776,10 +1776,78 @@
             document.getElementById('paymentWizardModal').classList.add('hidden');
         }
 
-        function triggerLocalhostSuccess() {
-            if (selectedMethod === 'GoPay' && !document.getElementById('buktiTransferInput').value) {
+        function compressImageFile(file, maxDim = 800, quality = 0.6) {
+            return new Promise((resolve) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    resolve('');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) {
+                                h = Math.round((h * maxDim) / w);
+                                w = maxDim;
+                            } else {
+                                w = Math.round((w * maxDim) / h);
+                                h = maxDim;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const base64 = canvas.toDataURL('image/jpeg', quality);
+                        resolve(base64);
+                    };
+                    img.onerror = () => resolve('');
+                    img.src = event.target.result;
+                };
+                reader.onerror = () => resolve('');
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.handleKegiatanBukti = async function(input) {
+            const file = input && input.files ? input.files[0] : null;
+            if (!file) return;
+
+            const container = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            const spinner = document.getElementById('resizeSpinner');
+            const info = document.getElementById('imageReductionInfo');
+
+            if (container) container.classList.remove('hidden');
+            if (spinner) spinner.classList.remove('hidden');
+            if (preview) preview.src = '';
+            if (info) info.innerText = 'Mengompres foto...';
+
+            const base64 = await compressImageFile(file);
+            compressedImageBase64 = base64;
+            if (spinner) spinner.classList.add('hidden');
+            if (preview) preview.src = base64;
+            if (info && base64) {
+                const originalSize = (file.size / 1024).toFixed(1);
+                const compressedSize = (Math.round(base64.length * 0.75) / 1024).toFixed(1);
+                info.innerText = `${originalSize} KB ➔ ${compressedSize} KB`;
+            }
+        };
+
+        async function triggerLocalhostSuccess() {
+            const fileInput = document.getElementById('buktiTransferInput');
+            if (selectedMethod === 'GoPay' && (!fileInput || !fileInput.value)) {
                 alert('Silakan sertakan file gambar bukti transfer terlebih dahulu bro!');
                 return;
+            }
+
+            // Failsafe: jika file sudah dipilih tapi compressedImageBase64 belum terisi, kompres sekarang
+            if (fileInput && fileInput.files && fileInput.files[0] && !compressedImageBase64) {
+                compressedImageBase64 = await compressImageFile(fileInput.files[0]);
             }
 
             const categoryVal = document.getElementById('realKategoriInput').value;
@@ -1841,54 +1909,33 @@
             fetchInitialData();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function setupKegiatanPage() {
             const savedTab = sessionStorage.getItem('activePublicProkerTab') || 'running';
             switchProkerTab(savedTab);
             fetchInitialData();
 
-            document.getElementById('kategoriCustomInput').addEventListener('input', function() {
-                document.getElementById('realKategoriInput').value = this.value;
-            });
-
-            // Image resize/compression
-            const fileInput = document.getElementById('buktiTransferInput');
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const container = document.getElementById('imagePreviewContainer');
-                    const preview = document.getElementById('imagePreview');
-                    const spinner = document.getElementById('resizeSpinner');
-                    const info = document.getElementById('imageReductionInfo');
-
-                    container.classList.remove('hidden');
-                    spinner.classList.remove('hidden');
-
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const img = new Image();
-                        img.onload = function() {
-                            const canvas = document.createElement('canvas');
-                            canvas.width = img.width > 800 ? 800 : img.width;
-                            canvas.height = img.width > 800 ? (img.height * (800 / img.width)) : img.height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                            canvas.toBlob(function(blob) {
-                                preview.src = URL.createObjectURL(blob);
-                                spinner.classList.add('hidden');
-                                info.innerText = `${(file.size / 1024).toFixed(1)} KB ➔ ${(blob.size / 1024).toFixed(1)} KB`;
-                                
-                                compressedImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                            }, 'image/jpeg', 0.7);
-                        };
-                        img.src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
+            const customInput = document.getElementById('kategoriCustomInput');
+            if (customInput && !customInput._bound) {
+                customInput._bound = true;
+                customInput.addEventListener('input', function() {
+                    document.getElementById('realKategoriInput').value = this.value;
                 });
             }
-        });
+
+            const fileInput = document.getElementById('buktiTransferInput');
+            if (fileInput && !fileInput._bound) {
+                fileInput._bound = true;
+                fileInput.addEventListener('change', function() {
+                    handleKegiatanBukti(this);
+                });
+            }
+        }
+
+        if (document.readyState !== 'loading') {
+            setupKegiatanPage();
+        } else {
+            document.addEventListener('DOMContentLoaded', setupKegiatanPage);
+        }
 
         function applyTheme(theme) {
             const btn = document.getElementById('themeToggleBtn');
