@@ -26,8 +26,9 @@ const defaultTransactionHeaders = [
 ];
 
 const defaultProkerHeaders = [
-  "id_kegiatan", "nama_kegiatan", "jenis", "divisi", "id_anggota", 
-  "estimasi_tanggal", "tahun", "status", "estimasi_dana", "created_at", "updated_at"
+  "id_kegiatan", "jenis", "nama_kegiatan", "anggaran", "pemasukan", 
+  "pengeluaran", "realisasi", "keterangan", "divisi", "id_anggota", 
+  "estimasi_tanggal", "tahun", "status", "created_at", "updated_at"
 ];
 
 const defaultAnggotaHeaders = [
@@ -157,22 +158,66 @@ function getAllData() {
 
   // 3. Sheet KEGIATAN → Peta ke format front-end (proker)
   const kegiatanSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
+  healSheetHeaders(kegiatanSheet, defaultProkerHeaders);
   const kegiatanRaw   = sheetToJson(kegiatanSheet);
   const prokerData    = kegiatanRaw.map(k => {
+    const idKegiatan = (getVal(k, "id_kegiatan") !== undefined ? getVal(k, "id_kegiatan") : (getVal(k, "id") || "")).toString();
+    
+    // Hitung pemasukan & pengeluaran dinamis dari transaksiData untuk proker ini
+    let dynamicIn = 0;
+    let dynamicOut = 0;
+    transaksiData.forEach(tx => {
+      if (tx.proker_id && tx.proker_id.toString().trim() === idKegiatan.trim()) {
+        const val = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+        if (tx.jenis === "Masuk") {
+          dynamicIn += val;
+        } else if (tx.jenis === "Keluar") {
+          dynamicOut += val;
+        }
+      }
+    });
+
+    const rawPemasukan = getVal(k, "pemasukan");
+    const rawPengeluaran = getVal(k, "pengeluaran");
+    const rawRealisasi = getVal(k, "realisasi");
+
+    const pemasukanVal = (rawPemasukan !== undefined && rawPemasukan !== null && rawPemasukan !== "" && Number(rawPemasukan) > 0)
+      ? parseFormattedNumber(rawPemasukan)
+      : dynamicIn;
+
+    const pengeluaranVal = (rawPengeluaran !== undefined && rawPengeluaran !== null && rawPengeluaran !== "" && Number(rawPengeluaran) > 0)
+      ? parseFormattedNumber(rawPengeluaran)
+      : dynamicOut;
+
+    const realisasiVal = (rawRealisasi !== undefined && rawRealisasi !== null && rawRealisasi !== "" && Number(rawRealisasi) > 0)
+      ? parseFormattedNumber(rawRealisasi)
+      : pengeluaranVal;
+
     let statusVal = getVal(k, "status") || "Running";
     if (statusVal.toString().trim() === "Berjalan") {
       statusVal = "Running";
     }
+
+    const namaKegiatan = getVal(k, "nama_kegiatan") !== undefined ? getVal(k, "nama_kegiatan") : (getVal(k, "nama_proker") || "");
+    const anggaranVal = parseFormattedNumber(getVal(k, "anggaran") !== undefined ? getVal(k, "anggaran") : getVal(k, "estimasi_dana"));
+
     return {
-      id: getVal(k, "id_kegiatan") !== undefined ? getVal(k, "id_kegiatan") : (getVal(k, "id") || ""),
-      nama_proker: getVal(k, "nama_kegiatan") !== undefined ? getVal(k, "nama_kegiatan") : (getVal(k, "nama_proker") || ""),
-      status: statusVal,
-      estimasi_dana: parseFormattedNumber(getVal(k, "estimasi_dana")),
-      jenis: getVal(k, "jenis") || "",
+      id: idKegiatan,
+      id_kegiatan: idKegiatan,
+      jenis: getVal(k, "jenis") || "Program Kerja",
+      nama_kegiatan: namaKegiatan,
+      nama_proker: namaKegiatan, // Compatibility alias for frontend
+      anggaran: anggaranVal,
+      estimasi_dana: anggaranVal, // Compatibility alias for frontend
+      pemasukan: pemasukanVal,
+      pengeluaran: pengeluaranVal,
+      realisasi: realisasiVal,
+      keterangan: getVal(k, "keterangan") || "",
       divisi: getVal(k, "divisi") || "",
       id_anggota: getVal(k, "id_anggota") || "",
       estimasi_tanggal: getVal(k, "estimasi_tanggal") || "",
       tahun: getVal(k, "tahun") || "",
+      status: statusVal,
       created_at: getVal(k, "created_at") || "",
       updated_at: getVal(k, "updated_at") || ""
     };
@@ -507,20 +552,30 @@ function insertProker(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
 
+  healSheetHeaders(sheet, defaultProkerHeaders);
+
   const lastRow = sheet.getLastRow();
   const newId = lastRow <= 1 ? 1 : Number(sheet.getRange(lastRow, 1).getValue() || 0) + 1;
   const today = new Date().toISOString().substring(0, 10);
 
+  const namaKegiatan = p.nama_kegiatan || p.nama_proker || "";
+  const anggaranVal = parseFormattedNumber(p.anggaran !== undefined ? p.anggaran : p.estimasi_dana);
+
   const prokerObj = {
     id_kegiatan: newId,
-    nama_kegiatan: p.nama_proker || "",
     jenis: p.jenis || "Program Kerja",
+    nama_kegiatan: namaKegiatan,
+    anggaran: anggaranVal,
+    estimasi_dana: anggaranVal,
+    pemasukan: parseFormattedNumber(p.pemasukan || 0),
+    pengeluaran: parseFormattedNumber(p.pengeluaran || 0),
+    realisasi: parseFormattedNumber(p.realisasi || 0),
+    keterangan: p.keterangan || "",
     divisi: p.divisi || "",
     id_anggota: p.id_anggota || "",
     estimasi_tanggal: p.estimasi_tanggal || "",
     tahun: p.tahun || new Date().getFullYear().toString(),
     status: p.status || "Running",
-    estimasi_dana: parseFormattedNumber(p.estimasi_dana),
     created_at: today,
     updated_at: today
   };
@@ -537,13 +592,25 @@ function editProker(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
 
-  if (p.nama_proker       !== undefined) updateColumnById(sheet, p.id, "nama_kegiatan", p.nama_proker);
-  if (p.estimasi_dana     !== undefined) updateColumnById(sheet, p.id, "estimasi_dana", parseFormattedNumber(p.estimasi_dana));
-  if (p.jenis             !== undefined) updateColumnById(sheet, p.id, "jenis", p.jenis);
-  if (p.divisi            !== undefined) updateColumnById(sheet, p.id, "divisi", p.divisi);
-  if (p.id_anggota        !== undefined) updateColumnById(sheet, p.id, "id_anggota", p.id_anggota);
-  if (p.estimasi_tanggal  !== undefined) updateColumnById(sheet, p.id, "estimasi_tanggal", p.estimasi_tanggal);
-  if (p.tahun             !== undefined) updateColumnById(sheet, p.id, "tahun", p.tahun);
+  const namaVal = p.nama_kegiatan !== undefined ? p.nama_kegiatan : p.nama_proker;
+  if (namaVal !== undefined) {
+    updateColumnById(sheet, p.id, "nama_kegiatan", namaVal);
+    updateColumnById(sheet, p.id, "nama_proker", namaVal);
+  }
+  const anggaranVal = p.anggaran !== undefined ? p.anggaran : p.estimasi_dana;
+  if (anggaranVal !== undefined) {
+    updateColumnById(sheet, p.id, "anggaran", parseFormattedNumber(anggaranVal));
+    updateColumnById(sheet, p.id, "estimasi_dana", parseFormattedNumber(anggaranVal));
+  }
+  if (p.pemasukan        !== undefined) updateColumnById(sheet, p.id, "pemasukan", parseFormattedNumber(p.pemasukan));
+  if (p.pengeluaran      !== undefined) updateColumnById(sheet, p.id, "pengeluaran", parseFormattedNumber(p.pengeluaran));
+  if (p.realisasi        !== undefined) updateColumnById(sheet, p.id, "realisasi", parseFormattedNumber(p.realisasi));
+  if (p.keterangan       !== undefined) updateColumnById(sheet, p.id, "keterangan", p.keterangan);
+  if (p.jenis            !== undefined) updateColumnById(sheet, p.id, "jenis", p.jenis);
+  if (p.divisi           !== undefined) updateColumnById(sheet, p.id, "divisi", p.divisi);
+  if (p.id_anggota       !== undefined) updateColumnById(sheet, p.id, "id_anggota", p.id_anggota);
+  if (p.estimasi_tanggal !== undefined) updateColumnById(sheet, p.id, "estimasi_tanggal", p.estimasi_tanggal);
+  if (p.tahun            !== undefined) updateColumnById(sheet, p.id, "tahun", p.tahun);
 
   return jsonResponse({ status: "success" });
 }

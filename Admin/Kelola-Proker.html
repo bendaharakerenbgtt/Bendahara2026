@@ -580,9 +580,15 @@
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="text-[9px] font-mono uppercase text-neutral-500 block mb-1 font-bold">Estimasi Anggaran (RAB)</label>
-                        <input type="text" id="estimasi_dana_input" required onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[9px] font-mono uppercase text-neutral-500 block mb-1 font-bold">Estimasi Anggaran (RAB)</label>
+                            <input type="text" id="estimasi_dana_input" required onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-mono uppercase text-neutral-500 block mb-1 font-bold">Keterangan / Catatan</label>
+                            <input type="text" id="inp_keterangan_proker" placeholder="Catatan kegiatan..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                        </div>
                     </div>
  
                     <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-mono text-xs py-3 rounded-xl font-black tracking-wider transition-all active:scale-95 cursor-pointer mt-1">
@@ -1208,9 +1214,10 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>RAB Estimasi: <span class="text-neutral-300">Rp${Number(p.estimasi_dana || 0).toLocaleString('id-ID')}</span></span>
+                                        <span>Anggaran: <span class="text-neutral-300">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Saldo Sekarang: <span class="${netSaldo >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">Rp${netSaldo.toLocaleString('id-ID')}</span></span>
+                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span></span>
+                                        ${p.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${p.keterangan}</span></span>` : ''}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -1240,18 +1247,22 @@
                             <div id="p-content-${p.id}" class="hidden p-3.5 bg-neutral-900/20 flex flex-col gap-3.5">
                                 ${categoriesHtml || `<div class="py-4 text-center text-xs text-neutral-500 font-mono italic">Belum ada rincian transaksi terkait. Silakan tautkan transaksi di atas.</div>`}
 
-                                <div class="grid grid-cols-3 gap-2.5 font-mono text-[10px] text-center mt-1 border-t border-neutral-900/40 pt-3">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-900/40 pt-3">
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL IN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp${totalIn.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
+                                        <span class="text-neutral-200 font-bold">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL OUT</span>
-                                        <span class="text-rose-400 font-bold">-Rp${totalOut.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PEMASUKAN</span>
+                                        <span class="text-emerald-400 font-bold">+Rp${Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn).toLocaleString('id-ID')}</span>
                                     </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-emerald-500 text-emerald-400">
-                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">SALDO BERSIH</span>
-                                        <span class="font-black">Rp${netSaldo.toLocaleString('id-ID')}</span>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PENGELUARAN</span>
+                                        <span class="text-rose-400 font-bold">-Rp${Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut).toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">REALISASI</span>
+                                        <span class="font-black">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1424,9 +1435,10 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Estimasi RAB: <span class="text-neutral-300">Rp${Number(p.estimasi_dana || 0).toLocaleString('id-ID')}</span></span>
+                                        <span>Anggaran: <span class="text-neutral-300">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Sisa Kas/Saldo: <span class="${netSaldo >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold">Rp${netSaldo.toLocaleString('id-ID')}</span></span>
+                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span></span>
+                                        ${p.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${p.keterangan}</span></span>` : ''}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -1450,18 +1462,22 @@
                             <div id="p-content-${p.id}" class="hidden p-3.5 bg-neutral-900/20 flex flex-col gap-3.5">
                                 ${categoriesHtml || `<div class="py-4 text-center text-xs text-neutral-500 font-mono italic">Belum ada rincian transaksi terkait. Silakan tautkan transaksi di atas.</div>`}
 
-                                <div class="grid grid-cols-3 gap-2.5 font-mono text-[10px] text-center mt-1 border-t border-neutral-900/40 pt-3">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-900/40 pt-3">
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL IN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp${totalIn.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
+                                        <span class="text-neutral-200 font-bold">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL OUT</span>
-                                        <span class="text-rose-400 font-bold">-Rp${totalOut.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PEMASUKAN</span>
+                                        <span class="text-emerald-400 font-bold">+Rp${Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn).toLocaleString('id-ID')}</span>
                                     </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-emerald-500 text-emerald-400">
-                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">SALDO BERSIH</span>
-                                        <span class="font-black">Rp${netSaldo.toLocaleString('id-ID')}</span>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PENGELUARAN</span>
+                                        <span class="text-rose-400 font-bold">-Rp${Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut).toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
+                                        <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">REALISASI</span>
+                                        <span class="font-black">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1541,6 +1557,7 @@
             const tahun = document.getElementById('inp_tahun_proker').value;
             const rabVal = document.getElementById('estimasi_dana_input').value.replace(/[^0-9]/g, '');
             const rab = Number(rabVal) || 0;
+            const keterangan = document.getElementById('inp_keterangan_proker') ? document.getElementById('inp_keterangan_proker').value : "";
 
             if (!GOOGLE_SCRIPT_URL) {
                 const randomId = "PRK-" + Date.now();
@@ -1553,6 +1570,8 @@
                     estimasi_tanggal: tanggal,
                     tahun: tahun,
                     estimasi_dana: rab,
+                    anggaran: rab,
+                    keterangan: keterangan,
                     status: "Running"
                 });
                 Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Event terdaftar secara lokal.', showConfirmButton: false, timer: 1000 });
@@ -1581,6 +1600,8 @@
                     estimasi_tanggal: tanggal,
                     tahun: tahun,
                     estimasi_dana: rab,
+                    anggaran: rab,
+                    keterangan: keterangan,
                     status: "Running"
                 })
             })
@@ -1628,6 +1649,8 @@
                 divisiOptions += `<option value="${d}" ${selectedAttr}>${d}</option>`;
             });
 
+            const currentAnggaran = Number(proker.anggaran !== undefined ? proker.anggaran : (proker.estimasi_dana || 0));
+
             Swal.fire({
                 title: 'Sunting Kegiatan',
                 html: `
@@ -1670,8 +1693,12 @@
                             </div>
                             <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Estimasi Anggaran (RAB)</label>
-                                <input type="text" id="swal-input-dana" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${Number(proker.estimasi_dana || 0).toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
+                                <input type="text" id="swal-input-dana" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${currentAnggaran.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
                             </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Keterangan / Catatan</label>
+                            <input type="text" id="swal-input-keterangan" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans" value="${proker.keterangan || ''}">
                         </div>
                     </div>
                 `,
@@ -1688,6 +1715,7 @@
                     const newTahun = document.getElementById('swal-input-tahun').value;
                     const newTanggal = document.getElementById('swal-input-tanggal').value;
                     const newRAB = parseInt(document.getElementById('swal-input-dana').value.replace(/[^0-9]/g, '')) || 0;
+                    const newKeterangan = document.getElementById('swal-input-keterangan').value;
 
                     if (!newNama) {
                         Swal.showValidationMessage('Nama kegiatan tidak boleh kosong!');
@@ -1700,7 +1728,9 @@
                         id_anggota: newKetua,
                         tahun: newTahun,
                         estimasi_tanggal: newTanggal,
-                        estimasi_dana: newRAB
+                        estimasi_dana: newRAB,
+                        anggaran: newRAB,
+                        keterangan: newKeterangan
                     };
                 }
             }).then((result) => {
