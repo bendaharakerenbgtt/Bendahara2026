@@ -1389,7 +1389,7 @@
                 
                 const optGeneral = document.createElement('option');
                 optGeneral.value = "general";
-                optGeneral.textContent = "💼 Kas Umum / General";
+                optGeneral.textContent = "💼 NULL / Tanpa Proker";
                 selectProker.appendChild(optGeneral);
 
                 if (res && res.proker) {
@@ -1426,13 +1426,19 @@
 
         function applyFiltersAndSort() {
             filteredTransactions = rawTransactions.filter(tx => {
-                const matchesSearch = 
-                    tx.keterangan.toLowerCase().includes(searchQuery) ||
-                    (tx.nama_proker && tx.nama_proker.toLowerCase().includes(searchQuery)) ||
-                    (tx.user_name && tx.user_name.toLowerCase().includes(searchQuery)) ||
-                    (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchQuery)) ||
-                    tx.kategori.toLowerCase().includes(searchQuery) ||
-                    tx.metode.toLowerCase().includes(searchQuery);
+                const searchLower = searchQuery.toLowerCase();
+                const matchesSearch = !searchQuery || 
+                    (tx.id && tx.id.toString().toLowerCase().includes(searchLower)) ||
+                    (tx.uraian && tx.uraian.toLowerCase().includes(searchLower)) ||
+                    (tx.keterangan && tx.keterangan.toLowerCase().includes(searchLower)) ||
+                    (tx.divisi && tx.divisi.toLowerCase().includes(searchLower)) ||
+                    (tx.unit && tx.unit.toLowerCase().includes(searchLower)) ||
+                    (tx.nama_proker && tx.nama_proker.toLowerCase().includes(searchLower)) ||
+                    (tx.user_name && tx.user_name.toLowerCase().includes(searchLower)) ||
+                    (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchLower)) ||
+                    (tx.kategori && tx.kategori.toLowerCase().includes(searchLower)) ||
+                    (tx.metode && tx.metode.toLowerCase().includes(searchLower)) ||
+                    (tx.catatan && tx.catatan.toLowerCase().includes(searchLower));
 
                 const matchesType = currentType === 'semua' ? true : tx.jenis === currentType;
 
@@ -1590,9 +1596,22 @@
                     statusBadge = `<span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-neutral-900 text-neutral-400 border border-neutral-800">LUNAS / VERIFIED</span>`;
                 }
 
-                const prokerTag = tx.nama_proker 
-                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">📁 ${tx.nama_proker}</span>` 
-                    : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-500 font-mono">📁 Kas Umum</span>`;
+                const prokerNameDisplay = tx.nama_proker && tx.nama_proker.trim() !== '' && tx.nama_proker.toUpperCase() !== 'NULL' 
+                    ? tx.nama_proker 
+                    : 'NULL / Tidak Ada';
+                const prokerTag = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">📁 ${prokerNameDisplay}</span>`;
+
+                const divisiValDisplay = tx.divisi && tx.divisi.trim() !== '' && tx.divisi.toUpperCase() !== 'NULL' 
+                    ? tx.divisi 
+                    : 'NULL / Tanpa Divisi';
+                const divisiTag = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">🏢 Divisi: ${divisiValDisplay}</span>`;
+
+                const unitValDisplay = tx.unit && tx.unit.trim() !== '' && tx.unit.toUpperCase() !== 'NULL' ? tx.unit : '';
+                const hargaSatuanValDisplay = Number(tx.harga_satuan) || 0;
+                const priceTextDisplay = hargaSatuanValDisplay > 0 ? `@ Rp${hargaSatuanValDisplay.toLocaleString('id-ID')}` : '';
+                const qtyPriceBadge = (unitValDisplay || priceTextDisplay)
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">📦 ${unitValDisplay} ${priceTextDisplay}</span>`.trim()
+                    : '';
 
                 const picTag = tx.nama_pic_pengeluar 
                     ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-cyan-400 font-mono font-bold">Penanggung Jawab: ${tx.nama_pic_pengeluar}</span>` 
@@ -1632,7 +1651,7 @@
                                     ${statusBadge}
                                 </div>
                                 <h3 class="text-sm font-bold text-neutral-200 mt-1 font-sans cursor-pointer hover:text-white transition-colors" onclick="toggleDetails(${tx.id})">
-                                    ${tx.keterangan}
+                                    ${tx.uraian || tx.keterangan}
                                 </h3>
                                 ${noteHtml}
                             </div>
@@ -1645,40 +1664,65 @@
 
                         <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-neutral-900/20">
                             ${prokerTag}
-                            <span class="px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-400 font-mono">🏷 ${tx.kategori}</span>
+                            ${divisiTag}
+                            <span class="px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-400 font-mono">🏷 ${tx.kategori || 'Kas'}</span>
+                            ${qtyPriceBadge}
                             <span class="px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] text-neutral-400 font-mono">💳 ${tx.metode}</span>
                             ${picTag}
                             ${userTag}
                             ${attachmentBtn}
                         </div>
 
-                        <div id="details-${tx.id}" class="hidden flex-col gap-3 pt-3 mt-1 border-t border-neutral-900/40 text-[11px] text-neutral-400 leading-relaxed font-sans bg-neutral-950/20 p-3 rounded-xl">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[10px] font-mono">
+                        <div id="details-${tx.id}" class="hidden flex-col gap-3 pt-3 mt-1 border-t border-neutral-900/40 text-[11px] text-neutral-400 leading-relaxed font-sans bg-neutral-950/40 p-3.5 rounded-xl border border-neutral-900">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-[10px] font-mono">
                                 <div>
-                                    <span class="text-neutral-600 block">ID Log Transaksi</span>
-                                    <span class="text-neutral-400">${tx.id.toString().startsWith('TX-') || tx.id.toString().startsWith('TRX-') ? tx.id : '#TRX-00' + tx.id}</span>
+                                    <span class="text-neutral-500 block font-bold">ID TRANSAKSI</span>
+                                    <span class="text-neutral-200 font-bold select-all">${tx.id}</span>
                                 </div>
                                 <div>
-                                    <span class="text-neutral-600 block">Kategori Transaksi</span>
-                                    <span class="text-neutral-400">${tx.kategori}</span>
+                                    <span class="text-neutral-500 block font-bold">TANGGAL</span>
+                                    <span class="text-neutral-300">${tx.tanggal}</span>
                                 </div>
                                 <div>
-                                    <span class="text-neutral-600 block">Metode Penyaluran</span>
-                                    <span class="text-neutral-400">${tx.metode}</span>
+                                    <span class="text-neutral-500 block font-bold">DIVISI</span>
+                                    <span class="text-neutral-300 font-bold">${divisiValDisplay}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-500 block font-bold">KATEGORI</span>
+                                    <span class="text-neutral-300 font-bold">${tx.kategori || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-500 block font-bold">UNIT (QTY)</span>
+                                    <span class="text-neutral-300">${unitValDisplay || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-500 block font-bold">HARGA SATUAN</span>
+                                    <span class="text-neutral-300">${hargaSatuanValDisplay > 0 ? 'Rp' + hargaSatuanValDisplay.toLocaleString('id-ID') : '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-500 block font-bold">${labelText}</span>
+                                    <span class="text-neutral-300 font-bold">${tx.user_name || tx.nama_pic_pengeluar || '-'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-neutral-500 block font-bold">PROKER / KEGIATAN</span>
+                                    <span class="text-neutral-300 font-bold">${prokerNameDisplay}</span>
                                 </div>
                             </div>
                             
-                            ${tx.catatan && !tx.catatan.includes('https://') && !tx.catatan.startsWith('KAS_') && !tx.catatan.startsWith('PROKER_') ? `
-                                <div class="mt-1 border-t border-neutral-900/40 pt-2">
-                                    <span class="text-neutral-600 font-mono text-[10px] block">Catatan Tambahan:</span>
-                                    <p class="text-neutral-300 font-sans mt-0.5">${tx.catatan}</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] pt-1">
+                                <div>
+                                    <span class="text-neutral-500 font-mono block font-bold">URAIAN:</span>
+                                    <p class="text-neutral-200 font-sans mt-0.5 font-semibold">${tx.uraian || tx.keterangan || '-'}</p>
                                 </div>
-                            ` : ''}
+                                <div>
+                                    <span class="text-neutral-500 font-mono block font-bold">CATATAN / MEMO:</span>
+                                    <p class="text-neutral-300 font-sans mt-0.5">${tx.catatan || tx.keterangan || '-'}</p>
+                                </div>
+                            </div>
 
-
-
-                            <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-neutral-900/40">
-                                <span class="text-[9px] font-mono text-neutral-500">Koreksi data? Hubungi Admin LDK IMIP</span>
+                            <div class="flex items-center justify-between text-[9px] font-mono text-neutral-600 pt-2 border-t border-neutral-900/60">
+                                <span>CREATED AT: ${tx.created_at || '-'}</span>
+                                <span>UPDATED AT: ${tx.updated_at || '-'}</span>
                             </div>
                         </div>
                     </div>
@@ -1849,17 +1893,25 @@
                             return {
                                 id: tx.id,
                                 tanggal: tx.tanggal,
-                                keterangan: tx.keterangan,
+                                divisi: tx.divisi || "",
+                                kategori: tx.kategori || "Umum",
+                                uraian: tx.uraian || tx.keterangan || "",
+                                keterangan: tx.keterangan || tx.uraian || "",
+                                unit: tx.unit || "",
+                                harga_satuan: tx.harga_satuan || null,
+                                jumlah: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
                                 jenis: tx.jenis,
-                                kategori: tx.kategori,
                                 metode: tx.metode,
-                                nominal: tx.nominal,
+                                nominal: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
                                 proker_id: tx.proker_id || null,
                                 nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
+                                user_id: tx.user_id || null,
                                 user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
                                 nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
                                 status_reimburse: tx.status_reimburse,
-                                catatan: tx.catatan || ""
+                                catatan: tx.catatan || "",
+                                created_at: tx.created_at || "",
+                                updated_at: tx.updated_at || ""
                             };
                         });
 
@@ -1909,17 +1961,25 @@
                             return {
                                 id: tx.id,
                                 tanggal: tx.tanggal,
-                                keterangan: tx.keterangan,
+                                divisi: tx.divisi || "",
+                                kategori: tx.kategori || "Umum",
+                                uraian: tx.uraian || tx.keterangan || "",
+                                keterangan: tx.keterangan || tx.uraian || "",
+                                unit: tx.unit || "",
+                                harga_satuan: tx.harga_satuan || null,
+                                jumlah: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
                                 jenis: tx.jenis,
-                                kategori: tx.kategori,
                                 metode: tx.metode,
-                                nominal: tx.nominal,
+                                nominal: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
                                 proker_id: tx.proker_id || null,
                                 nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
+                                user_id: tx.user_id || null,
                                 user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
                                 nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
                                 status_reimburse: tx.status_reimburse,
-                                catatan: tx.catatan || ""
+                                catatan: tx.catatan || "",
+                                created_at: tx.created_at || "",
+                                updated_at: tx.updated_at || ""
                             };
                         });
 
@@ -2117,21 +2177,26 @@
 
         window.downloadCSV = function() {
             let csvContent = "\uFEFF"; 
-            csvContent += "ID Transaksi,Tanggal,Keterangan,Jenis,Kategori,Metode,Nominal,PIC Pengeluar,Penyetor,Status Verifikasi\n";
+            csvContent += "ID Transaksi,Tanggal,Divisi,Kategori,Uraian,Unit,Harga Satuan,Jumlah,Anggota,Proker,Jenis,Metode,Keterangan,Created At,Updated At\n";
             
             rawTransactions.forEach(tx => {
                 const id = tx.id;
                 const tanggal = tx.tanggal;
-                const keterangan = `"${tx.keterangan.replace(/"/g, '""')}"`;
+                const divisi = tx.divisi || "NULL";
+                const kategori = tx.kategori || "Umum";
+                const uraian = `"${(tx.uraian || tx.keterangan || "").replace(/"/g, '""')}"`;
+                const unit = tx.unit || "NULL";
+                const hargaSatuan = tx.harga_satuan ? tx.harga_satuan : "NULL";
+                const jumlah = tx.jumlah !== undefined ? tx.jumlah : tx.nominal;
+                const memberName = tx.user_name || tx.nama_pic_pengeluar || "";
+                const prokerName = tx.nama_proker ? tx.nama_proker : "NULL / Tidak Ada";
                 const jenis = tx.jenis;
-                const kategori = tx.kategori;
                 const metode = tx.metode;
-                const nominal = tx.nominal;
-                const pic = tx.nama_pic_pengeluar ? `"${tx.nama_pic_pengeluar.replace(/"/g, '""')}"` : "";
-                const penyetor = tx.user_name ? `"${tx.user_name.replace(/"/g, '""')}"` : "";
-                const status = tx.status_reimburse === 'Belum' ? 'Pending' : 'Lunas';
+                const ketText = `"${(tx.catatan || tx.keterangan || "").replace(/"/g, '""')}"`;
+                const createdAt = tx.created_at || "";
+                const updatedAt = tx.updated_at || "";
                 
-                csvContent += `${id},${tanggal},${keterangan},${jenis},${kategori},${metode},${nominal},${pic},${penyetor},${status}\n`;
+                csvContent += `"${id}","${tanggal}","${divisi}","${kategori}",${uraian},"${unit}","${hargaSatuan}","${jumlah}","${memberName}","${prokerName}","${jenis}","${metode}",${ketText},"${createdAt}","${updatedAt}"\n`;
             });
             
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
