@@ -130,7 +130,10 @@ function getAllData() {
     return {
       id: getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || ""),
       tanggal: getVal(t, "tanggal") || "",
-      divisi: getVal(t, "divisi") || "",
+      divisi: (() => {
+        const d = getVal(t, "divisi");
+        return (d !== undefined && d !== null && d.toString().trim() !== "") ? d.toString().trim() : "NULL";
+      })(),
       kategori: getVal(t, "kategori") || "Umum",
       uraian: uraianVal,
       keterangan: ketVal,
@@ -141,9 +144,9 @@ function getAllData() {
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
       proker_id: (() => {
         const val = getVal(t, "id_kegiatan") !== undefined ? getVal(t, "id_kegiatan") : getVal(t, "proker_id");
-        if (val === undefined || val === null) return "";
+        if (val === undefined || val === null) return "NULL";
         const valStr = val.toString().trim();
-        return valStr.toLowerCase() === "null" ? "" : valStr;
+        return (valStr === "" || valStr.toLowerCase() === "null") ? "NULL" : valStr;
       })(),
       jenis: getVal(t, "jenis") || "Keluar",
       metode: getVal(t, "metode") || "Tunai",
@@ -365,6 +368,15 @@ function insertTransaction(p) {
   const rawNominal = p.jumlah !== undefined ? p.jumlah : p.nominal;
   const parsedJumlah = parseFormattedNumber(rawNominal);
 
+  const cleanDivisi = (p.divisi && p.divisi.toString().trim() !== "" && p.divisi.toString().trim().toUpperCase() !== "NULL")
+    ? p.divisi.toString().trim()
+    : "NULL";
+
+  const rawProker = p.proker_id !== undefined ? p.proker_id : p.id_kegiatan;
+  const cleanProkerId = (rawProker && rawProker.toString().trim() !== "" && rawProker.toString().trim().toUpperCase() !== "NULL")
+    ? rawProker.toString().trim()
+    : "NULL";
+
   const catLower = (p.kategori || "").toLowerCase();
   const ketLower = (uraianInput || "").toLowerCase();
   const isKasPayment = catLower.includes("kas pengurus") || 
@@ -416,27 +428,28 @@ function insertTransaction(p) {
     let lastInsertedId = null;
     months.forEach((m) => {
       const newId = getNextTransactionId(sheet);
-      const finalKet = memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota");
-      const finalCatatan = "Kas Bulan " + m + (driveUrl ? " (Bukti: " + driveUrl + ")" : "");
+      const baseKet = (memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota")) + " (" + m + ")";
+      const finalKet = baseKet + (driveUrl ? " (Bukti: " + driveUrl + ")" : "");
 
       const txObj = {
         id_transaksi: newId,
         id: newId,
         tanggal: p.tanggal || today,
-        divisi: p.divisi || "",
+        divisi: cleanDivisi,
         kategori: "Kas Pengurus",
-        uraian: finalKet,
+        uraian: baseKet,
         keterangan: finalKet,
-        unit: p.unit || "1",
+        unit: p.unit || "NULL",
         harga_satuan: 10000,
         jumlah: 10000,
         nominal: 10000,
         id_anggota: p.user_id !== undefined ? p.user_id : "",
         user_id: p.user_id !== undefined ? p.user_id : "",
-        proker_id: p.proker_id !== undefined ? p.proker_id : "",
+        id_kegiatan: cleanProkerId,
+        proker_id: cleanProkerId,
         jenis: jenis,
         metode: p.metode || "Tunai",
-        catatan: finalCatatan,
+        catatan: finalKet,
         status_reimburse: p.status_reimburse || "Tidak Perlu",
         nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
         created_at: today,
@@ -456,18 +469,8 @@ function insertTransaction(p) {
   }
 
   const newId = getNextTransactionId(sheet);
-  let finalKet = uraianInput || "";
-  let finalCatatan = p.catatan || "";
-  if (driveUrl) {
-    if (finalCatatan) {
-      finalCatatan += " (Bukti: " + driveUrl + ")";
-    } else {
-      finalCatatan = driveUrl;
-    }
-  }
-
+  let finalKet = (p.keterangan || uraianInput || "").trim();
   if (isKasPayment) {
-    finalKet = memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota");
     let m = "Kas";
     const monthsFound = extractMonthsFromText(uraianInput);
     if (monthsFound.length > 0) {
@@ -478,27 +481,36 @@ function insertTransaction(p) {
         m = unpaid[0];
       }
     }
-    finalCatatan = "Kas Bulan " + m + (driveUrl ? " (Bukti: " + driveUrl + ")" : "");
+    finalKet = (memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota")) + " (" + m + ")";
+  }
+
+  if (driveUrl) {
+    if (finalKet && !finalKet.includes("Bukti:")) {
+      finalKet += " (Bukti: " + driveUrl + ")";
+    } else if (!finalKet) {
+      finalKet = "(Bukti: " + driveUrl + ")";
+    }
   }
 
   const txObj = {
     id_transaksi: newId,
     id: newId,
     tanggal: p.tanggal || today,
-    divisi: p.divisi || "",
+    divisi: cleanDivisi,
     kategori: isKasPayment ? "Kas Pengurus" : (p.kategori || "Umum"),
-    uraian: finalKet,
-    keterangan: finalCatatan || p.keterangan || finalKet,
-    unit: p.unit || "",
+    uraian: uraianInput || finalKet,
+    keterangan: finalKet,
+    unit: p.unit || "NULL",
     harga_satuan: parseFormattedNumber(p.harga_satuan),
     jumlah: parsedJumlah,
     nominal: parsedJumlah,
     id_anggota: p.user_id !== undefined ? p.user_id : "",
     user_id: p.user_id !== undefined ? p.user_id : "",
-    proker_id: p.proker_id !== undefined ? p.proker_id : "",
+    id_kegiatan: cleanProkerId,
+    proker_id: cleanProkerId,
     jenis: jenis,
     metode: p.metode || "Tunai",
-    catatan: finalCatatan,
+    catatan: finalKet,
     status_reimburse: p.status_reimburse || "Tidak Perlu",
     nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
     created_at: today,
