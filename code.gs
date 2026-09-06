@@ -97,16 +97,25 @@ function getAllData(callback) {
   const transaksiRaw   = sheetToJson(transaksiSheet);
   const transaksiData  = transaksiRaw.map(t => {
     const ketVal       = getVal(t, "keterangan") !== undefined ? getVal(t, "keterangan") : (getVal(t, "catatan") || "");
+    const catatanVal   = getVal(t, "catatan") || "";
+    const uraianRaw    = getVal(t, "uraian") || "";
+    const buktiRaw     = getVal(t, "bukti") || "";
     let proofUrl = "";
     
-    // Extract URL if present in keterangan or catatan
-    const urlMatch = ketVal.toString().match(/https?:\/\/[^\s)]+/);
-    if (urlMatch) {
-      proofUrl = urlMatch[0];
-    } else if (ketVal.toString().startsWith("data:image")) {
-      proofUrl = ketVal;
-    } else {
-      proofUrl = getVal(t, "bukti") || "";
+    // Extract URL or base64 if present in bukti, keterangan, catatan, or uraian
+    const candidates = [buktiRaw, ketVal, catatanVal, uraianRaw];
+    for (let i = 0; i < candidates.length; i++) {
+      const c = candidates[i];
+      if (!c) continue;
+      const cStr = c.toString().trim();
+      const urlMatch = cStr.match(/https?:\/\/[^\s)]+/);
+      if (urlMatch) {
+        proofUrl = urlMatch[0];
+        break;
+      } else if (cStr.startsWith("data:image")) {
+        proofUrl = cStr;
+        break;
+      }
     }
     
     // Default status_reimburse jika kolomnya tidak ada di database baru atau kosong
@@ -149,7 +158,7 @@ function getAllData(callback) {
       })(),
       jenis: String(getVal(t, "jenis") || "Keluar").trim(),
       metode: String(getVal(t, "metode") || "Tunai").trim(),
-      catatan: String(ketVal || "").trim(), // Compatibility alias for frontend
+      catatan: String((getVal(t, "catatan") !== undefined && getVal(t, "catatan") !== null ? getVal(t, "catatan") : ketVal) || "").trim(), // Compatibility alias for frontend
       bukti: proofUrl,
       status_reimburse: String(statusReimburse || "Tidak Perlu").trim(),
       nama_pic_pengeluar: String(getVal(t, "nama_pic_pengeluar") || "").trim(),

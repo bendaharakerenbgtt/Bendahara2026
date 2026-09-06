@@ -1826,7 +1826,8 @@
             itemsToRender.forEach(tx => {
                 renderCount++;
                 const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
-                const txTitle = tx.uraian || tx.keterangan || "Tanpa Keterangan";
+                const rawTitle = tx.uraian || tx.keterangan || "Tanpa Keterangan";
+                const txTitle = cleanTitle(rawTitle) || "Tanpa Keterangan";
                 const dateFormated = formatReadableDate(tx.tanggal);
                 const isMasuk = tx.jenis === 'Masuk';
                 const sign = isMasuk ? '+' : '-';
@@ -1862,13 +1863,9 @@
 
                 let displayNote = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
                 if (displayNote) {
-                    if (displayNote.includes('https://') || displayNote.includes('http://')) {
-                        displayNote = displayNote.replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '').trim();
-                        displayNote = displayNote.replace(/https?:\/\/[^\s]+/gi, '').trim();
-                        displayNote = displayNote.replace(/\(\s*\)/g, '').trim();
-                    }
+                    displayNote = cleanTitle(displayNote);
                 }
-                const hasNote = displayNote && !displayNote.startsWith('KAS_') && !displayNote.startsWith('PROKER_') && displayNote !== '';
+                const hasNote = displayNote && !displayNote.startsWith('KAS_') && !displayNote.startsWith('PROKER_') && displayNote !== '' && displayNote !== txTitle;
                 const noteHtml = hasNote 
                     ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-cyan-500/20 pl-2 py-0.5 leading-relaxed max-w-md select-text">📝 ${displayNote}</div>` 
                     : '';
@@ -2133,12 +2130,25 @@
             const unitText = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? unitStr : '-';
             const memberName = tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "-") : (tx.nama_pic_pengeluar || "-");
             const receiptPath = getReceiptPath(tx);
-            const proofHtml = receiptPath 
-                ? `<div class="mt-2 p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-center">
-                     <span class="text-[10px] font-mono text-neutral-400 block mb-1">Bukti Transaksi:</span>
-                     <img src="${receiptPath}" class="max-h-48 rounded mx-auto border border-neutral-800 cursor-pointer" onclick="window.open('${receiptPath}', '_blank')" />
-                   </div>`
-                : '';
+            let proofHtml = '';
+            if (receiptPath) {
+                const driveId = getGoogleDriveFileId(receiptPath);
+                const previewImgSrc = driveId ? `https://lh3.googleusercontent.com/d/${driveId}` : receiptPath;
+                proofHtml = `
+                    <div class="mt-2 p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-center">
+                        <span class="text-[10px] font-mono text-neutral-400 block mb-1.5">Bukti Transaksi:</span>
+                        <img src="${previewImgSrc}" 
+                             onerror="if('${driveId}'){this.src='https://drive.google.com/thumbnail?id=${driveId}&sz=w800';}else{this.classList.add('hidden');}" 
+                             class="max-h-52 rounded mx-auto border border-neutral-800 cursor-pointer hover:opacity-90 transition-opacity" 
+                             onclick="openReceiptModal('${receiptPath}')" 
+                             title="Klik untuk memperbesar" />
+                        <div class="mt-2">
+                            <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[10px] font-mono font-bold text-cyan-400 hover:text-cyan-300 underline cursor-pointer">
+                                Buka Preview / Lampiran ↗
+                            </button>
+                        </div>
+                    </div>`;
+            }
 
             Swal.fire({
                 title: `<div class="text-xs font-mono text-cyan-400 font-bold">Detail Transaksi: ${tx.id}</div>`,
@@ -2193,12 +2203,12 @@
 
                         <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
                             <span class="text-[9px] font-mono text-neutral-500 block font-bold">URAIAN</span>
-                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${tx.uraian || tx.keterangan || '-'}</span>
+                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${cleanTitle(tx.uraian || tx.keterangan) || '-'}</span>
                         </div>
 
                         <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
                             <span class="text-[9px] font-mono text-neutral-500 block font-bold">KETERANGAN / CATATAN</span>
-                            <span class="text-neutral-300 block text-xs leading-relaxed">${tx.catatan || tx.keterangan || '-'}</span>
+                            <span class="text-neutral-300 block text-xs leading-relaxed">${cleanTitle(tx.catatan || tx.keterangan) || '-'}</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-[9px] font-mono text-neutral-500 pt-1">
@@ -2244,40 +2254,72 @@
         }
 
         function getReceiptPath(tx) {
-            const buktiStr = (tx.bukti !== undefined && tx.bukti !== null) ? String(tx.bukti).trim() : "";
-            if (buktiStr) {
-                if (buktiStr.startsWith('http://') || buktiStr.startsWith('https://') || buktiStr.startsWith('data:image/')) {
-                    return buktiStr;
+            if (!tx) return null;
+            const candidates = [tx.bukti, tx.keterangan, tx.catatan, tx.uraian];
+            for (const raw of candidates) {
+                if (!raw) continue;
+                const str = String(raw).trim();
+                if (!str) continue;
+                if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:image/')) {
+                    return str;
                 }
+                const urlMatch = str.match(/https?:\/\/[^\s)]+/);
+                if (urlMatch) return urlMatch[0];
+                const base64Match = str.match(/data:image\/[^\s)]+/);
+                if (base64Match) return base64Match[0];
             }
-            const cStr = String(tx.keterangan || tx.catatan || "").trim();
-            if (!cStr) return null;
-            if (cStr.startsWith('http://') || cStr.startsWith('https://') || cStr.startsWith('data:image/')) {
-                return cStr;
-            }
-            const urlMatch = cStr.match(/https?:\/\/[^\s)]+/);
-            if (urlMatch) return urlMatch[0];
-            
-            const base64Match = cStr.match(/data:image\/[^\s)]+/);
-            if (base64Match) return base64Match[0];
-            
             return null;
+        }
+
+        function getGoogleDriveFileId(url) {
+            if (!url) return null;
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        function cleanTitle(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '')
+                .replace(/https?:\/\/[^\s]+/gi, '')
+                .replace(/\(\s*\)/g, '')
+                .trim();
         }
 
         window.openReceiptModal = function(src) {
             const modal = document.getElementById('receipt-modal');
             const img = document.getElementById('receipt-img-preview');
             const link = document.getElementById('receipt-download-link');
-            
             let placeholder = document.getElementById('drive-receipt-placeholder');
-            const isDrive = src.includes('drive.google.com');
             
-            if (isDrive) {
+            const isDrive = src.includes('drive.google.com') || src.includes('googleusercontent.com');
+            const driveId = getGoogleDriveFileId(src);
+
+            link.removeAttribute('download');
+            link.target = "_blank";
+            link.href = src;
+
+            if (isDrive && driveId) {
+                // Tampilkan preview gambar asli dari Google Drive menggunakan endpoint direct preview lh3
+                img.classList.remove('hidden');
+                img.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+                img.onerror = function() {
+                    this.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+                    this.onerror = function() {
+                        this.classList.add('hidden');
+                        if (placeholder) placeholder.classList.remove('hidden');
+                    };
+                };
+
+                if (placeholder) placeholder.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+            } else if (isDrive) {
                 img.classList.add('hidden');
                 link.innerText = "Buka Lampiran di Google Drive ↗";
                 link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
                 link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
-                
                 if (!placeholder) {
                     placeholder = document.createElement('div');
                     placeholder.id = 'drive-receipt-placeholder';
@@ -2299,6 +2341,7 @@
             } else {
                 img.classList.remove('hidden');
                 img.src = src;
+                img.onerror = null;
                 link.innerText = "Unduh/Buka File Lampiran ↗";
                 link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
                 link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
@@ -2306,8 +2349,6 @@
                     placeholder.classList.add('hidden');
                 }
             }
-            
-            link.href = src;
             
             modal.classList.remove('hidden');
             modal.classList.remove('pointer-events-none');

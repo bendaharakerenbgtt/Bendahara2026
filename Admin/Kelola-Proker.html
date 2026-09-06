@@ -1035,19 +1035,36 @@
         }
 
         function getReceiptPath(tx) {
-            if (tx.bukti) return tx.bukti;
-            if (!tx.catatan) return null;
-            const c = tx.catatan.trim();
-            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
-                return c;
+            if (!tx) return null;
+            const candidates = [tx.bukti, tx.keterangan, tx.catatan, tx.uraian];
+            for (const raw of candidates) {
+                if (!raw) continue;
+                const str = String(raw).trim();
+                if (!str) continue;
+                if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:image/')) {
+                    return str;
+                }
+                const urlMatch = str.match(/https?:\/\/[^\s)]+/);
+                if (urlMatch) return urlMatch[0];
+                const base64Match = str.match(/data:image\/[^\s)]+/);
+                if (base64Match) return base64Match[0];
             }
-            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
-            if (urlMatch) return urlMatch[0];
-            
-            const base64Match = c.match(/data:image\/[^\s)]+/);
-            if (base64Match) return base64Match[0];
-            
             return null;
+        }
+
+        function getGoogleDriveFileId(url) {
+            if (!url) return null;
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        function cleanTitle(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '')
+                .replace(/https?:\/\/[^\s]+/gi, '')
+                .replace(/\(\s*\)/g, '')
+                .trim();
         }
 
         function populateKetuaDropdown() {
@@ -1119,10 +1136,12 @@
                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
                             
                             let detailsCardHtml = '';
-                            if (item.catatan && !item.catatan.includes('https://') && !item.catatan.startsWith('KAS_') && !item.catatan.startsWith('PROKER_')) {
+                            const cleanKet = cleanTitle(item.keterangan) || "Tanpa Keterangan";
+                            let cleanCatatan = item.catatan ? cleanTitle(item.catatan) : '';
+                            if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanKet) {
                                 detailsCardHtml = `
                                     <div class="mt-1 p-1.5 bg-neutral-900 border border-neutral-850 rounded-lg text-neutral-400 text-[9px]">
-                                        <span>${item.catatan}</span>
+                                        <span>${cleanCatatan}</span>
                                     </div>
                                 `;
                             }
@@ -1145,7 +1164,7 @@
                                 <tr class="hover:bg-neutral-900/10 transition-colors border-b border-neutral-900/10 last:border-0" id="tx-row-${item.id}">
                                     <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono text-[9px]">${dateFormatted}</td>
                                     <td class="p-2 font-sans align-top">
-                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${item.keterangan}</span>
+                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${cleanKet}</span>
                                         ${detailsCardHtml}
                                         <div class="mt-1 flex flex-wrap gap-1.5 items-center">
                                             <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-bold">Metode: ${item.metode}</span>
@@ -1340,10 +1359,12 @@
                             const dateFormatted = item.tanggal.split('-').reverse().join('/');
                             
                             let detailsCardHtml = '';
-                            if (item.catatan && !item.catatan.includes('https://') && !item.catatan.startsWith('KAS_') && !item.catatan.startsWith('PROKER_')) {
+                            const cleanKet = cleanTitle(item.keterangan) || "Tanpa Keterangan";
+                            let cleanCatatan = item.catatan ? cleanTitle(item.catatan) : '';
+                            if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanKet) {
                                 detailsCardHtml = `
                                     <div class="mt-1 p-1.5 bg-neutral-900 border border-neutral-850 rounded-lg text-neutral-400 text-[9px]">
-                                        <span>${item.catatan}</span>
+                                        <span>${cleanCatatan}</span>
                                     </div>
                                 `;
                             }
@@ -1366,7 +1387,7 @@
                                 <tr class="hover:bg-neutral-900/10 transition-colors border-b border-neutral-900/10 last:border-0" id="tx-row-${item.id}">
                                     <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono text-[9px]">${dateFormatted}</td>
                                     <td class="p-2 font-sans align-top">
-                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${item.keterangan}</span>
+                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${cleanKet}</span>
                                         ${detailsCardHtml}
                                         <div class="mt-1 flex flex-wrap gap-1.5 items-center">
                                             <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-bold">Metode: ${item.metode}</span>
@@ -2242,9 +2263,29 @@
             const link = document.getElementById('receipt-download-link');
             
             let placeholder = document.getElementById('drive-receipt-placeholder');
-            const isDrive = src.includes('drive.google.com');
+            const isDrive = src.includes('drive.google.com') || src.includes('googleusercontent.com');
+            const driveId = getGoogleDriveFileId(src);
+
+            link.removeAttribute('download');
+            link.target = "_blank";
+            link.href = src;
             
-            if (isDrive) {
+            if (isDrive && driveId) {
+                img.classList.remove('hidden');
+                img.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+                img.onerror = function() {
+                    this.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+                    this.onerror = function() {
+                        this.classList.add('hidden');
+                        if (placeholder) placeholder.classList.remove('hidden');
+                    };
+                };
+
+                if (placeholder) placeholder.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+            } else if (isDrive) {
                 img.classList.add('hidden');
                 link.innerText = "Buka Lampiran di Google Drive ↗";
                 link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
@@ -2271,6 +2312,7 @@
             } else {
                 img.classList.remove('hidden');
                 img.src = src;
+                img.onerror = null;
                 link.innerText = "Unduh/Buka File Lampiran ↗";
                 link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
                 link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');

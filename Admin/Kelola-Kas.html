@@ -554,7 +554,7 @@
                 <img id="receipt-img-preview" src="" alt="Bukti Pembayaran" class="max-w-full max-h-[50vh] object-contain rounded-lg border border-neutral-900/60 shadow-lg">
             </div>
             <div class="border-t border-neutral-800 p-3 text-center bg-neutral-950/20">
-                <a id="receipt-download-link" href="#" download class="text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-colors py-1.5 px-3 border border-neutral-800 hover:border-cyan-500/20 rounded-lg inline-block bg-neutral-900/60" target="_blank">
+                <a id="receipt-download-link" href="#" class="text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-colors py-1.5 px-3 border border-neutral-800 hover:border-cyan-500/20 rounded-lg inline-block bg-neutral-900/60" target="_blank">
                     Unduh/Buka File Lampiran ↗
                 </a>
             </div>
@@ -583,24 +583,36 @@
         let kasImageBase64 = '';
 
         function getReceiptPath(tx) {
-            if (tx.bukti && tx.bukti.trim()) {
-                const b = tx.bukti.trim();
-                if (b.startsWith('http://') || b.startsWith('https://') || b.startsWith('data:image/')) {
-                    return b;
+            if (!tx) return null;
+            const candidates = [tx.bukti, tx.keterangan, tx.catatan, tx.uraian];
+            for (const raw of candidates) {
+                if (!raw) continue;
+                const str = String(raw).trim();
+                if (!str) continue;
+                if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('data:image/')) {
+                    return str;
                 }
+                const urlMatch = str.match(/https?:\/\/[^\s)]+/);
+                if (urlMatch) return urlMatch[0];
+                const base64Match = str.match(/data:image\/[^\s)]+/);
+                if (base64Match) return base64Match[0];
             }
-            if (!tx.catatan) return null;
-            const c = tx.catatan.trim();
-            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
-                return c;
-            }
-            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
-            if (urlMatch) return urlMatch[0];
-            
-            const base64Match = c.match(/data:image\/[^\s)]+/);
-            if (base64Match) return base64Match[0];
-            
             return null;
+        }
+
+        function getGoogleDriveFileId(url) {
+            if (!url) return null;
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        function cleanTitle(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '')
+                .replace(/https?:\/\/[^\s]+/gi, '')
+                .replace(/\(\s*\)/g, '')
+                .trim();
         }
 
         window.openReceiptModal = function(src) {
@@ -609,9 +621,29 @@
             const link = document.getElementById('receipt-download-link');
             
             let placeholder = document.getElementById('drive-receipt-placeholder');
-            const isDrive = src.includes('drive.google.com');
+            const isDrive = src.includes('drive.google.com') || src.includes('googleusercontent.com');
+            const driveId = getGoogleDriveFileId(src);
+
+            link.removeAttribute('download');
+            link.target = "_blank";
+            link.href = src;
             
-            if (isDrive) {
+            if (isDrive && driveId) {
+                img.classList.remove('hidden');
+                img.src = `https://lh3.googleusercontent.com/d/${driveId}`;
+                img.onerror = function() {
+                    this.src = `https://drive.google.com/thumbnail?id=${driveId}&sz=w1200`;
+                    this.onerror = function() {
+                        this.classList.add('hidden');
+                        if (placeholder) placeholder.classList.remove('hidden');
+                    };
+                };
+
+                if (placeholder) placeholder.classList.add('hidden');
+                link.innerText = "Buka Lampiran di Google Drive ↗";
+                link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-cyan-400', 'hover:border-cyan-500/20');
+            } else if (isDrive) {
                 img.classList.add('hidden');
                 link.innerText = "Buka Lampiran di Google Drive ↗";
                 link.classList.remove('hover:text-emerald-400', 'hover:border-emerald-500/20');
@@ -638,6 +670,7 @@
             } else {
                 img.classList.remove('hidden');
                 img.src = src;
+                img.onerror = null;
                 link.innerText = "Unduh/Buka File Lampiran ↗";
                 link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
                 link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
