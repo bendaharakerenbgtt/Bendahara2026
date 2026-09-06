@@ -40,18 +40,18 @@ const defaultAnggotaHeaders = [
 // ============================================================
 function doGet(e) {
   const action = e.parameter.action;
+  const callback = e.parameter.callback; // JSONP support
 
   try {
+    let result;
     if (action === "get_all_data") {
-      return getAllData();
-    }
-    if (action === "get_raw_rows") {
+      result = getAllData(callback);
+    } else if (action === "get_raw_rows") {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
       const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
       const data = sheet.getDataRange().getValues();
-      return jsonResponse({ status: "success", data: data.slice(0, 200) });
-    }
-    if (action === "diagnose_sheets") {
+      result = jsonResponse({ status: "success", data: data.slice(0, 200) }, callback);
+    } else if (action === "diagnose_sheets") {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
       const sheets = ss.getSheets();
       const diag = {};
@@ -63,22 +63,18 @@ function doGet(e) {
           firstRow: (r[1] || []).map(v => v.toString())
         };
       });
-      return jsonResponse({ status: "success", data: diag });
+      result = jsonResponse({ status: "success", data: diag }, callback);
+    } else {
+      result = jsonResponse({ status: "error", message: "Action tidak dikenal: " + action }, callback);
     }
-    return jsonResponse({ status: "error", message: "Action tidak dikenal: " + action });
+    return result;
   } catch (err) {
-    return jsonResponse({ status: "error", message: err.toString() });
+    return jsonResponse({ status: "error", message: err.toString() }, callback);
   }
 }
 
-function getAllData() {
+function getAllData(callback) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Bersihkan kolom duplikat/korup di kanan transaksi sheet
-  cleanDuplicateColumns(ss);
-
-  // Bersihkan baris kosong/korup terlebih dahulu agar database rapi
-  purgeEmptyIdRows(ss);
 
   // 1. Sheet ANGGOTA → Peta ke format front-end { id, nim, name, divisi, jabatan }
   const anggotaSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_ANGGOTA);
@@ -98,9 +94,6 @@ function getAllData() {
 
   // 2. Sheet TRANSAKSI → Peta ke format front-end
   const transaksiSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
-  // Auto-heal sheet headers to make sure status_reimburse exists in the spreadsheet
-  healSheetHeaders(transaksiSheet, defaultTransactionHeaders);
-
   const transaksiRaw   = sheetToJson(transaksiSheet);
   const transaksiData  = transaksiRaw.map(t => {
     const ketVal       = getVal(t, "keterangan") !== undefined ? getVal(t, "keterangan") : (getVal(t, "catatan") || "");
@@ -164,7 +157,6 @@ function getAllData() {
 
   // 3. Sheet KEGIATAN → Peta ke format front-end (proker)
   const kegiatanSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
-  normalizeProkerSheet(kegiatanSheet, transaksiData);
   const kegiatanRaw   = sheetToJson(kegiatanSheet);
   const prokerData    = kegiatanRaw.map(k => {
     const idKegiatan = (getVal(k, "id_kegiatan") !== undefined ? getVal(k, "id_kegiatan") : (getVal(k, "id") || "")).toString();
@@ -328,7 +320,7 @@ function getAllData() {
     transaksi: transaksiData,
     kas:       kasData,
     proker:    prokerData
-  });
+  }, callback);
 }
 
 // ============================================================
@@ -1049,10 +1041,17 @@ function getNextTransactionId(sheet) {
   return "TRX" + (lastRow).toString().padStart(3, '0');
 }
 
-/** Bungkus response JSON dengan CORS header */
-function jsonResponse(obj) {
+/** Bungkus response JSON, support JSONP jika callback diberikan */
+function jsonResponse(obj, callback) {
+  const json = JSON.stringify(obj);
+  if (callback && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(callback)) {
+    // JSONP: wrap in callback(data); - bypass CORS restriction
+    return ContentService
+      .createTextOutput(callback + '(' + json + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
   return ContentService
-    .createTextOutput(JSON.stringify(obj))
+    .createTextOutput(json)
     .setMimeType(ContentService.MimeType.JSON);
 }
 
