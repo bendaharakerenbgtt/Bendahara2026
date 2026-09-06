@@ -990,8 +990,8 @@
                 return;
             }
 
-            const CACHE_KEY = "ldk_db_cache_v3";
-            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_KEY = "ldk_db_cache_v4";
+            const CACHE_TIME_KEY = "ldk_db_cache_time_v4";
             const CACHE_TTL = 15000; // 15 seconds cache
 
             if (forceRefresh) {
@@ -2285,25 +2285,33 @@
         };
 
         function initAdminAllTransaksi() {
-            fetchInitialData();
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme);
-            
-            const modal = document.getElementById('receipt-modal');
-            if (modal) {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        closeReceiptModal();
-                    }
-                });
-            }
+            try {
+                fetchInitialData();
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                applyTheme(savedTheme);
+                
+                const modal = document.getElementById('receipt-modal');
+                if (modal) {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            closeReceiptModal();
+                        }
+                    });
+                }
 
-            const searchInput = document.getElementById('txSearchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    searchQuery = e.target.value.toLowerCase().trim();
-                    applyMutationFilters();
-                });
+                const searchInput = document.getElementById('txSearchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        searchQuery = e.target.value.toLowerCase().trim();
+                        applyMutationFilters();
+                    });
+                }
+            } catch(initErr) {
+                console.error('[ADMIN INIT ERROR]', initErr);
+                const ov = document.getElementById('loading-overlay');
+                if (ov) ov.style.display = 'none';
+                const cont = document.getElementById('tx-table-container');
+                if (cont) cont.innerHTML = '<div class="py-6 text-center text-xs text-red-500 font-mono p-4">⚠️ Error init: ' + initErr.message + '<br><button onclick="location.reload()" class="mt-3 px-4 py-2 bg-red-900 text-white rounded cursor-pointer">Muat Ulang</button></div>';
             }
         }
 

@@ -815,6 +815,18 @@
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400 relative">
 
+    <script>
+        window.onerror = function(msg, src, line, col, err) {
+            console.error('[UNCAUGHT]', msg, src, line, col);
+            var ov = document.getElementById('loading-overlay');
+            if (ov) ov.style.display = 'none';
+            var cont = document.getElementById('ledger-container');
+            if (cont && cont.children.length === 0) {
+                cont.innerHTML = '<div class="py-6 text-center text-xs text-red-500 font-mono p-4">⚠️ JS Error: ' + msg + ' (line ' + line + ')<br><button onclick="location.reload()" class="mt-3 px-4 py-2 bg-red-900 text-white rounded cursor-pointer">Muat Ulang</button></div>';
+            }
+        };
+    </script>
+
     <!-- SUBTLE AMBIENT BACKGROUND PARTICLES CANVAS -->
     <canvas id="particle-canvas"></canvas>
 
@@ -1908,8 +1920,8 @@
                 return;
             }
 
-            const CACHE_KEY = "ldk_db_cache_v3";
-            const CACHE_TIME_KEY = "ldk_db_cache_time";
+            const CACHE_KEY = "ldk_db_cache_v4";
+            const CACHE_TIME_KEY = "ldk_db_cache_time_v4";
             const CACHE_TTL = 15000; // 15 seconds cache
 
             if (forceRefresh) {
@@ -1990,58 +2002,65 @@
             fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
                 .then(res => res.json())
                 .then(res => {
-                    if (res.status === "success") {
-                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(res));
-                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+                    try {
+                        if (res.status === "success") {
+                            sessionStorage.setItem(CACHE_KEY, JSON.stringify(res));
+                            sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
 
-                        const membersMap = {};
-                        res.anggota.forEach(m => {
-                            membersMap[m.id.toString()] = m.name;
-                        });
-                        const prokerMap = {};
-                        res.proker.forEach(p => {
-                            prokerMap[p.id.toString()] = p.nama_proker;
-                        });
+                            const membersMap = {};
+                            res.anggota.forEach(m => {
+                                membersMap[m.id.toString()] = m.name;
+                            });
+                            const prokerMap = {};
+                            res.proker.forEach(p => {
+                                prokerMap[p.id.toString()] = p.nama_proker;
+                            });
 
-                        rawTransactions = res.transaksi.map(tx => {
-                            return {
-                                id: tx.id,
-                                tanggal: tx.tanggal,
-                                divisi: tx.divisi || "",
-                                kategori: tx.kategori || "Umum",
-                                uraian: tx.uraian || tx.keterangan || "",
-                                keterangan: tx.keterangan || tx.uraian || "",
-                                unit: tx.unit || "",
-                                harga_satuan: tx.harga_satuan || null,
-                                jumlah: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
-                                jenis: tx.jenis,
-                                metode: tx.metode,
-                                nominal: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
-                                proker_id: tx.proker_id || null,
-                                nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
-                                user_id: tx.user_id || null,
-                                user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
-                                nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
-                                status_reimburse: tx.status_reimburse,
-                                catatan: tx.catatan || "",
-                                created_at: tx.created_at || "",
-                                updated_at: tx.updated_at || ""
-                            };
-                        });
+                            rawTransactions = res.transaksi.map(tx => {
+                                return {
+                                    id: tx.id,
+                                    tanggal: tx.tanggal,
+                                    divisi: tx.divisi || "",
+                                    kategori: tx.kategori || "Umum",
+                                    uraian: tx.uraian || tx.keterangan || "",
+                                    keterangan: tx.keterangan || tx.uraian || "",
+                                    unit: tx.unit || "",
+                                    harga_satuan: tx.harga_satuan || null,
+                                    jumlah: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
+                                    jenis: tx.jenis,
+                                    metode: tx.metode,
+                                    nominal: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
+                                    proker_id: tx.proker_id || null,
+                                    nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
+                                    user_id: tx.user_id || null,
+                                    user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
+                                    nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
+                                    status_reimburse: tx.status_reimburse,
+                                    catatan: tx.catatan || "",
+                                    created_at: tx.created_at || "",
+                                    updated_at: tx.updated_at || ""
+                                };
+                            });
 
-                        populateFilterDropdowns(res);
-                        applyFiltersAndSort();
-                    } else {
-                        console.error("Gagal memuat:", res.message);
+                            populateFilterDropdowns(res);
+                            applyFiltersAndSort();
+                        } else {
+                            console.error("Gagal memuat:", res.message);
+                            if (!hasRenderedFromCache && container) {
+                                container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Gagal memuat database! (${res.message})</div>`;
+                            }
+                        }
+                    } catch(renderErr) {
+                        console.error('[RENDER ERROR]', renderErr);
                         if (!hasRenderedFromCache && container) {
-                            container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Gagal memuat database! (${res.message})</div>`;
+                            container.innerHTML = '<div class="py-6 text-center text-xs text-red-500 font-mono p-4">⚠️ Error render: ' + renderErr.message + '<br><button onclick="fetchInitialData(true)" class="mt-3 px-4 py-2 bg-emerald-900 text-white rounded cursor-pointer">Coba Lagi</button></div>';
                         }
                     }
                 })
                 .catch(err => {
                     console.error("Fetch Error:", err);
                     if (!hasRenderedFromCache && container) {
-                        container.innerHTML = `<div class="py-6 text-center text-xs text-red-500 font-mono">Koneksi database terputus / gagal!</div>`;
+                        container.innerHTML = '<div class="py-6 text-center text-xs text-red-500 font-mono p-4">⚠️ Koneksi database terputus!<br><small>' + err.message + '</small><br><button onclick="fetchInitialData(true)" class="mt-3 px-4 py-2 bg-emerald-900 text-white rounded cursor-pointer">Coba Lagi</button></div>';
                     }
                 })
                 .finally(() => {
@@ -2215,10 +2234,18 @@
         }
 
         function initRiwayatPage() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme);
-            initBackgroundParticles();
-            fetchInitialData();
+            try {
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                applyTheme(savedTheme);
+                initBackgroundParticles();
+                fetchInitialData();
+            } catch(initErr) {
+                console.error('[INIT ERROR]', initErr);
+                const ov = document.getElementById('loading-overlay');
+                if (ov) ov.style.display = 'none';
+                const cont = document.getElementById('ledger-container');
+                if (cont) cont.innerHTML = '<div class="py-6 text-center text-xs text-red-500 font-mono p-4">⚠️ Error: ' + initErr.message + '<br><button onclick="location.reload()" class="mt-3 px-4 py-2 bg-red-900 text-white rounded cursor-pointer">Muat Ulang</button></div>';
+            }
         }
 
         if (document.readyState === 'loading') {
