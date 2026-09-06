@@ -1642,7 +1642,7 @@
                 
                 const optGeneral = document.createElement('option');
                 optGeneral.value = "general";
-                optGeneral.textContent = "💼 Kas Umum / General";
+                optGeneral.textContent = "💼 NULL / Tanpa Proker";
                 filterProkerSelect.appendChild(optGeneral);
 
                 for (const prokerId in prokersMap) {
@@ -1699,16 +1699,26 @@
                     }
                 }
                 
-                const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
-                      const txUraian = tx.uraian || tx.keterangan || "";
+                const prokerName = tx.proker_id && tx.proker_id.toString().trim() !== '' && tx.proker_id.toString().toUpperCase() !== 'NULL'
+                    ? (prokersMap[tx.proker_id.toString()] || tx.proker_id) 
+                    : "NULL / Tidak Ada";
+                const txUraian = tx.uraian || tx.keterangan || "";
+                const txDivisi = tx.divisi || "";
+                const txUnit = tx.unit || "";
                 const txNominal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+                const txPenyetor = (tx.user_id && membersMap[tx.user_id.toString()]) || "";
+                const txPic = tx.nama_pic_pengeluar || "";
 
                 const matchSearch = (!searchQuery || 
+                    tx.id.toString().toLowerCase().includes(searchQuery) ||
                     txUraian.toLowerCase().includes(searchQuery) || 
+                    (tx.catatan && tx.catatan.toLowerCase().includes(searchQuery)) ||
                     (tx.kategori && tx.kategori.toLowerCase().includes(searchQuery)) || 
+                    txDivisi.toLowerCase().includes(searchQuery) ||
+                    txUnit.toLowerCase().includes(searchQuery) ||
                     prokerName.toLowerCase().includes(searchQuery) ||
-                    userName.toLowerCase().includes(searchQuery) ||
-                    (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchQuery)) ||
+                    txPenyetor.toLowerCase().includes(searchQuery) ||
+                    txPic.toLowerCase().includes(searchQuery) ||
                     txNominal.toString().includes(searchQuery)
                 );
 
@@ -1763,7 +1773,20 @@
                 
                 const receiptPath = getReceiptPath(tx);
                 const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-950/40 text-cyan-400 hover:text-white border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` : '';
-                const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
+                
+                const prokerName = tx.proker_id && tx.proker_id.toString().trim() !== '' && tx.proker_id.toString().toUpperCase() !== 'NULL'
+                    ? (prokersMap[tx.proker_id.toString()] || tx.proker_id) 
+                    : "NULL / Tidak Ada";
+                const divisiText = tx.divisi && tx.divisi.trim() !== '' && tx.divisi.toUpperCase() !== 'NULL' 
+                    ? tx.divisi 
+                    : "NULL / Tanpa Divisi";
+                
+                const unitVal = tx.unit && tx.unit.trim() !== '' && tx.unit.toUpperCase() !== 'NULL' ? tx.unit : '';
+                const hargaSatuanVal = Number(tx.harga_satuan) || 0;
+                const priceText = hargaSatuanVal > 0 ? `@ Rp${hargaSatuanVal.toLocaleString('id-ID')}` : '';
+                const qtyPriceBadge = (unitVal || priceText) 
+                    ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📦 ${unitVal} ${priceText}</span>` 
+                    : '';
 
                 let displayNote = tx.catatan ? tx.catatan.trim() : '';
                 if (displayNote) {
@@ -1790,7 +1813,9 @@
                             ${noteHtml}
                             <div class="flex flex-wrap items-center gap-1.5 mt-1">
                                 <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏢 Divisi: ${divisiText}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori || 'Kas'}</span>
+                                ${qtyPriceBadge}
                                 <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
                                 ${picText}
                                 ${pengetorText}
@@ -1804,8 +1829,9 @@
                         <td class="p-3 text-right font-black text-xs align-middle ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center align-middle">
                             <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="editTransaksi('${tx.id}')" class="text-cyan-400 hover:text-cyan-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">✏️</button>
-                                <button onclick="confirmDelete('${tx.id}')" class="text-red-400 hover:text-red-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">🗑️</button>
+                                <button onclick="viewDetailTransaksi('${tx.id}')" title="Detail Transaksi" class="text-amber-400 hover:text-amber-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">👁️</button>
+                                <button onclick="editTransaksi('${tx.id}')" title="Edit Transaksi" class="text-cyan-400 hover:text-cyan-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">✏️</button>
+                                <button onclick="confirmDelete('${tx.id}')" title="Hapus Transaksi" class="text-red-400 hover:text-red-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -1826,11 +1852,13 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-bold text-neutral-200 leading-normal">${tx.keterangan}</span>
+                            <span class="text-xs font-bold text-neutral-200 leading-normal">${txTitle}</span>
                             ${noteHtml}
                             <div class="flex flex-wrap gap-1">
                                 <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏢 Divisi: ${divisiText}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori || 'Kas'}</span>
+                                ${qtyPriceBadge}
                                 ${picText}
                                 ${pengetorText}
                                 ${attachmentBtn}
@@ -1839,6 +1867,7 @@
                         <div class="flex items-center justify-between border-t border-neutral-900/60 pt-3 mt-1">
                             <span class="text-sm font-black tracking-tight ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
                             <div class="flex items-center gap-1.5">
+                                <button onclick="viewDetailTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">👁️ Detail</button>
                                 <button onclick="editTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">✏️ Edit</button>
                                 <button onclick="confirmDelete('${tx.id}')" class="text-[10px] font-mono font-bold text-red-400 hover:text-red-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">🗑️ Hapus</button>
                             </div>
@@ -2013,14 +2042,119 @@
             });
         }
 
-        // Backup CSV Backup
+        // Detail Modal (Showing all 15 schema columns)
+        function viewDetailTransaksi(id) {
+            const tx = localTransactions.find(t => t.id.toString() === id.toString());
+            if (!tx) return;
+
+            const isMasuk = tx.jenis === 'Masuk';
+            const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+            const sign = isMasuk ? '+' : '-';
+            const valColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
+            const prokerName = tx.proker_id && tx.proker_id.toString().trim() !== '' && tx.proker_id.toString().toUpperCase() !== 'NULL' 
+                ? (prokersMap[tx.proker_id.toString()] || tx.proker_id) 
+                : "NULL / Tidak Ada";
+            const divisiText = tx.divisi && tx.divisi.trim() !== '' && tx.divisi.toUpperCase() !== 'NULL' ? tx.divisi : "NULL / Tanpa Divisi";
+            const memberName = tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "-") : (tx.nama_pic_pengeluar || "-");
+            const receiptPath = getReceiptPath(tx);
+            const proofHtml = receiptPath 
+                ? `<div class="mt-2 p-2 bg-neutral-900 border border-neutral-800 rounded-lg text-center">
+                     <span class="text-[10px] font-mono text-neutral-400 block mb-1">Bukti Transaksi:</span>
+                     <img src="${receiptPath}" class="max-h-48 rounded mx-auto border border-neutral-800 cursor-pointer" onclick="window.open('${receiptPath}', '_blank')" />
+                   </div>`
+                : '';
+
+            Swal.fire({
+                title: `<div class="text-xs font-mono text-cyan-400 font-bold">Detail Transaksi: ${tx.id}</div>`,
+                html: `
+                    <div class="text-left text-xs font-sans text-neutral-300 flex flex-col gap-2 max-h-[70vh] overflow-y-auto custom-scroll pr-1">
+                        <div class="p-3 bg-neutral-900/80 border border-neutral-800 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-[9px] font-mono text-neutral-500 uppercase block font-bold">Jumlah Total</span>
+                                <span class="text-base font-black font-mono ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] font-mono text-neutral-500 uppercase block font-bold mb-0.5">Jenis & Metode</span>
+                                <span class="inline-block px-2 py-0.5 rounded text-[9px] font-mono font-bold ${isMasuk ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900' : 'bg-rose-950/40 text-rose-400 border border-rose-900'}">${tx.jenis}</span>
+                                <span class="inline-block px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-neutral-900 text-cyan-400 border border-neutral-800">${tx.metode}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-[11px]">
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">ID TRANSAKSI</span>
+                                <span class="font-mono text-neutral-200 font-bold select-all">${tx.id}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">TANGGAL</span>
+                                <span class="font-mono text-neutral-200">${tx.tanggal}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">DIVISI</span>
+                                <span class="text-neutral-200 font-bold">${divisiText}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">KATEGORI</span>
+                                <span class="text-neutral-200 font-bold">${tx.kategori || '-'}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">UNIT (QTY)</span>
+                                <span class="font-mono text-neutral-200">${tx.unit && tx.unit !== 'NULL' ? tx.unit : '-'}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">HARGA SATUAN</span>
+                                <span class="font-mono text-neutral-200">${tx.harga_satuan ? 'Rp' + Number(tx.harga_satuan).toLocaleString('id-ID') : '-'}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">ANGGOTA / PIC</span>
+                                <span class="text-neutral-200">${memberName}</span>
+                            </div>
+                            <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                                <span class="text-[9px] font-mono text-neutral-500 block font-bold">PROKER / KEGIATAN</span>
+                                <span class="text-neutral-200">${prokerName}</span>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">URAIAN</span>
+                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${tx.uraian || tx.keterangan || '-'}</span>
+                        </div>
+
+                        <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
+                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">KETERANGAN / CATATAN</span>
+                            <span class="text-neutral-300 block text-xs leading-relaxed">${tx.catatan || tx.keterangan || '-'}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-[9px] font-mono text-neutral-500 pt-1">
+                            <div>CREATED AT: <span class="text-neutral-400">${tx.created_at || '-'}</span></div>
+                            <div>UPDATED AT: <span class="text-neutral-400">${tx.updated_at || '-'}</span></div>
+                        </div>
+
+                        ${proofHtml}
+                    </div>
+                `,
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#06b6d4'
+            });
+        }
+
+        // Backup CSV Backup (15 Columns Schema)
         function downloadCSVBackup() {
-            let csvContent = "\uFEFFID,Tanggal,Keterangan,Jenis,Kategori,Proker,PIC Pengeluar,Metode,Nominal,Status\n";
+            let csvContent = "\uFEFFID Transaksi,Tanggal,Divisi,Kategori,Uraian,Unit,Harga Satuan,Jumlah,Anggota,Proker,Jenis,Metode,Keterangan,Created At,Updated At\n";
             localTransactions.forEach(t => {
-                const prokerName = t.proker_id ? (prokersMap[t.proker_id.toString()] || "Kas Umum") : "Kas Umum";
-                const picName = t.nama_pic_pengeluar || "";
-                const status = t.status_reimburse === 'Belum' ? 'Pending' : 'Verified';
-                csvContent += `${t.id},${t.tanggal},"${t.keterangan.replace(/"/g, '""')}",${t.jenis},${t.kategori},"${prokerName}","${picName}",${t.metode},${t.nominal},${status}\n`;
+                const prokerName = t.proker_id && t.proker_id.toString().trim() !== '' && t.proker_id.toString().toUpperCase() !== 'NULL' 
+                    ? (prokersMap[t.proker_id.toString()] || t.proker_id) 
+                    : "NULL / Tidak Ada";
+                const divisiVal = t.divisi || "NULL";
+                const unitVal = t.unit || "NULL";
+                const hargaSatuanVal = t.harga_satuan ? t.harga_satuan : "NULL";
+                const jumlahVal = t.jumlah !== undefined ? t.jumlah : t.nominal;
+                const memberName = t.user_id ? (membersMap[t.user_id.toString()] || t.nama_pic_pengeluar || "") : (t.nama_pic_pengeluar || "");
+                const uraianText = (t.uraian || t.keterangan || "").replace(/"/g, '""');
+                const ketText = (t.catatan || t.keterangan || "").replace(/"/g, '""');
+                const createdAt = t.created_at || "";
+                const updatedAt = t.updated_at || "";
+                csvContent += `"${t.id}","${t.tanggal}","${divisiVal}","${t.kategori}","${uraianText}","${unitVal}","${hargaSatuanVal}","${jumlahVal}","${memberName}","${prokerName}","${t.jenis}","${t.metode}","${ketText}","${createdAt}","${updatedAt}"\n`;
             });
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
