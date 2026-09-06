@@ -456,7 +456,7 @@ function insertTransaction(p) {
   // Kirim notifikasi Firebase FCM (HTTP v1)
   kirimNotifikasiFirebaseV1(
     "Transaksi Masuk!",
-    "Ada transaksi baru: " + txObj.keterangan + " senilai Rp " + Number(parsedNominal).toLocaleString('id-ID')
+    "Ada transaksi baru: " + txObj.keterangan + " senilai Rp " + Number(parsedJumlah).toLocaleString('id-ID')
   );
 
   return jsonResponse({ status: "success", id: newId });
