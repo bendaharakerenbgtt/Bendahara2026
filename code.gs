@@ -127,9 +127,12 @@ function getAllData() {
     const jumlahVal = parseFormattedNumber(rawJumlah);
     const rawHargaSatuan = getVal(t, "harga_satuan") !== undefined ? getVal(t, "harga_satuan") : getVal(t, "harga satuan");
     
+    const rawTanggal = getVal(t, "tanggal");
+    const formattedTanggal = formatDateStandard(rawTanggal);
+    
     return {
       id: getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || ""),
-      tanggal: getVal(t, "tanggal") || "",
+      tanggal: formattedTanggal,
       divisi: (() => {
         const d = getVal(t, "divisi");
         return (d !== undefined && d !== null && d.toString().trim() !== "") ? d.toString().trim() : "NULL";
@@ -137,16 +140,16 @@ function getAllData() {
       kategori: getVal(t, "kategori") || "Umum",
       uraian: uraianVal,
       keterangan: ketVal,
-      unit: getVal(t, "unit") || "",
+      unit: getVal(t, "unit") || "NULL",
       harga_satuan: parseFormattedNumber(rawHargaSatuan),
       jumlah: jumlahVal,
       nominal: jumlahVal, // Compatibility alias for frontend
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
       proker_id: (() => {
         const val = getVal(t, "id_kegiatan") !== undefined ? getVal(t, "id_kegiatan") : getVal(t, "proker_id");
-        if (val === undefined || val === null) return "NULL";
+        if (val === undefined || val === null) return "";
         const valStr = val.toString().trim();
-        return (valStr === "" || valStr.toLowerCase() === "null") ? "NULL" : valStr;
+        return valStr.toLowerCase() === "null" ? "" : valStr;
       })(),
       jenis: getVal(t, "jenis") || "Keluar",
       metode: getVal(t, "metode") || "Tunai",
@@ -1375,23 +1378,63 @@ function purgeEmptyIdRows(ss) {
   }
 }
 
-/** Bersihkan kolom duplikat yang berada di sebelah kanan (kolom 16 ke atas) */
+/** Bersihkan kolom duplikat/kosong secara aman dari kanan ke kiri berdasarkan header */
 function cleanDuplicateColumns(ss) {
   try {
     const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
     if (!sheet) return;
     const lastCol = sheet.getLastColumn();
-    if (lastCol <= 15) return; // Tidak ada kolom tambahan
+    if (lastCol <= 1) return;
     
-    const maxColsToKeep = 15;
-    const colsToDelete = lastCol - maxColsToKeep;
+    const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    const seen = new Set();
     
-    sheet.deleteColumns(maxColsToKeep + 1, colsToDelete);
+    for (let c = lastCol - 1; c >= 0; c--) {
+      const header = headers[c] ? headers[c].toString().trim().toLowerCase() : "";
+      if (header === "" || seen.has(header)) {
+        sheet.deleteColumn(c + 1);
+        Logger.log("Menghapus kolom duplikat/kosong di posisi " + (c + 1) + ": '" + headers[c] + "'");
+      } else {
+        seen.add(header);
+      }
+    }
     SpreadsheetApp.flush();
-    Logger.log("Berhasil membersihkan " + colsToDelete + " kolom duplikat/tambahan.");
   } catch (err) {
     Logger.log("Gagal membersihkan kolom duplikat: " + err.toString());
   }
+}
+
+/** Mengonversi berbagai format tanggal ke format standar YYYY-MM-DD */
+function formatDateStandard(dateVal) {
+  if (dateVal === undefined || dateVal === null || dateVal === "") return "";
+  if (dateVal instanceof Date) {
+    if (isNaN(dateVal.getTime())) return "";
+    const yyyy = dateVal.getFullYear();
+    const mm = String(dateVal.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateVal.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  const str = dateVal.toString().trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    return str.substring(0, 10);
+  }
+  const parts = str.split(/[\/\-\.]/);
+  if (parts.length >= 3) {
+    let day, month, year;
+    if (parts[0].length === 4) {
+      year = parts[0];
+      month = parts[1].padStart(2, '0');
+      day = parts[2].padStart(2, '0');
+    } else if (parts[2].length === 4) {
+      year = parts[2];
+      day = parts[0].padStart(2, '0');
+      month = parts[1].padStart(2, '0');
+    }
+    if (year && month && day) {
+      return `${year}-${month}-${day}`;
+    }
+  }
+  return str;
 }
 
 /** Mengonversi string format mata uang rupiah (contoh: "Rp10,000", "Rp1.920,00") menjadi angka desimal murni secara robust */
