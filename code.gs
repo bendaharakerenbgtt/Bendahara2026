@@ -6,12 +6,34 @@
 
 // ============================================================
 // FUNGSI UNTUK OTORISASI GOOGLE DRIVE
-// Jalankan fungsi ini sekali saja di editor (klik Run/Jalankan) 
-// untuk memunculkan popup izin akses Google Drive!
+// Jalankan fungsi ini langsung di editor Apps Script (pilih testDriveAccess lalu klik Run/Jalankan)
+// untuk memicu popup otorisasi Google Drive (Authorization Required -> Izinkan).
 // ============================================================
 function testDriveAccess() {
-  const folders = DriveApp.getFoldersByName("bukti transaksi");
-  Logger.log("Akses Drive OK! Ada folder: " + folders.hasNext());
+  Logger.log("Memulai uji coba izin Google Drive...");
+  const folderName = "bukti transaksi";
+  let folder = null;
+  const folders = DriveApp.getFoldersByName(folderName);
+  while (folders.hasNext()) {
+    const f = folders.next();
+    if (!f.isTrashed()) {
+      folder = f;
+      break;
+    }
+  }
+  if (!folder) {
+    folder = DriveApp.createFolder(folderName);
+    Logger.log("Folder '" + folderName + "' berhasil dibuat di Google Drive Anda!");
+  } else {
+    Logger.log("Folder '" + folderName + "' ditemukan (ID: " + folder.getId() + ")");
+  }
+
+  // Buat file tes mini untuk memastikan izin tulis
+  const dummyBlob = Utilities.newBlob("test-permission-check", "text/plain", "test_drive_permission.txt");
+  const testFile = folder.createFile(dummyBlob);
+  Logger.log("File tes berhasil dibuat! ID: " + testFile.getId());
+  testFile.setTrashed(true); // Langsung hapus file tes ke tempat sampah
+  Logger.log("OTORISASI GOOGLE DRIVE 100% SUKSES DAN SIAP DIGUNAKAN!");
 }
 
 const SHEET_NAME_ANGGOTA     = "anggota";
@@ -22,7 +44,7 @@ const SHEET_NAME_KEGIATAN    = "kegiatan";
 const defaultTransactionHeaders = [
   "id_transaksi", "tanggal", "divisi", "kategori", "uraian", "unit", 
   "harga_satuan", "jumlah", "id_anggota", "id_kegiatan", "jenis", 
-  "metode", "keterangan", "created_at", "updated_at"
+  "metode", "keterangan", "created_at", "updated_at", "catatan"
 ];
 
 const defaultProkerHeaders = [
@@ -64,6 +86,30 @@ function doGet(e) {
         };
       });
       result = jsonResponse({ status: "success", data: diag }, callback);
+    } else if (action === "test_drive_and_version") {
+      let driveStatus = "OK";
+      let folderId = "";
+      try {
+        const folders = DriveApp.getFoldersByName("bukti transaksi");
+        while (folders.hasNext()) {
+          const f = folders.next();
+          if (!f.isTrashed()) {
+            folderId = f.getId();
+            break;
+          }
+        }
+        if (!folderId) {
+          driveStatus = "DriveApp aktif, folder 'bukti transaksi' belum ada.";
+        }
+      } catch (e) {
+        driveStatus = "ERROR: " + e.toString();
+      }
+      result = jsonResponse({
+        status: "success",
+        script_version: "2026-09-06_v4_auto_drive_keterangan",
+        drive_status: driveStatus,
+        folder_id: folderId
+      }, callback);
     } else {
       result = jsonResponse({ status: "error", message: "Action tidak dikenal: " + action }, callback);
     }
@@ -840,11 +886,13 @@ function deleteRowById(sheet, id) {
 
   for (let i = data.length - 1; i >= 1; i--) {
     if (safeCompareIds(data[i][idCol], id)) {
-      // Cari kolom catatan atau bukti untuk mendeteksi file Drive
+      // Cari kolom keterangan, catatan, atau bukti untuk mendeteksi file Drive
+      const ketCol = headers.indexOf("keterangan");
       const catatanCol = headers.indexOf("catatan");
       const buktiCol = headers.indexOf("bukti");
       let fileUrl = "";
-      if (catatanCol !== -1) fileUrl = data[i][catatanCol];
+      if (ketCol !== -1) fileUrl = data[i][ketCol];
+      if (!fileUrl && catatanCol !== -1) fileUrl = data[i][catatanCol];
       if (!fileUrl && buktiCol !== -1) fileUrl = data[i][buktiCol];
       
       // Jika ditemukan URL file Drive, hapus filenya jika tidak digunakan oleh baris lain
@@ -855,7 +903,8 @@ function deleteRowById(sheet, id) {
           for (let r = 1; r < data.length; r++) {
             if (r === i) continue; // Lewati baris yang sedang dihapus
             let otherUrl = "";
-            if (catatanCol !== -1) otherUrl = data[r][catatanCol];
+            if (ketCol !== -1) otherUrl = data[r][ketCol];
+            if (!otherUrl && catatanCol !== -1) otherUrl = data[r][catatanCol];
             if (!otherUrl && buktiCol !== -1) otherUrl = data[r][buktiCol];
             if (otherUrl) {
               const otherFileId = extractDriveFileId(otherUrl.toString());
@@ -1271,19 +1320,24 @@ function saveImageToDrive(base64Data, transactionId) {
     }
     
     const decoded = Utilities.base64Decode(base64Image);
-    const ext = contentType.split("/")[1] || "jpg";
+    const ext = contentType.split(";")[0].split("/")[1] || "jpg";
     const blob = Utilities.newBlob(decoded, contentType, "bukti_" + transactionId + "." + ext);
     
     const folderName = "bukti transaksi";
-    let folder;
+    let folder = null;
     const folders = DriveApp.getFoldersByName(folderName);
-    if (folders.hasNext()) {
-      folder = folders.next();
-    } else {
+    while (folders.hasNext()) {
+      const f = folders.next();
+      if (!f.isTrashed()) {
+        folder = f;
+        break;
+      }
+    }
+    if (!folder) {
       folder = DriveApp.createFolder(folderName);
     }
     
-    const file = folder.createFile(blob);
+    const file = folder ? folder.createFile(blob) : DriveApp.createFile(blob);
     try {
       file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     } catch (e) {
