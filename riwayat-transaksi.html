@@ -2214,12 +2214,18 @@
             render();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function initRiwayatPage() {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
             initBackgroundParticles();
             fetchInitialData();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRiwayatPage);
+        } else {
+            initRiwayatPage();
+        }
 
         window.downloadCSV = function() {
             let csvContent = "\uFEFF"; 

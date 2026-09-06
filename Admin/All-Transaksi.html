@@ -769,7 +769,7 @@
                 <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black">DAFTAR SEMUA TRANSAKSI</span>
                 <div class="flex items-center gap-2">
                     <span class="text-[9px] font-mono text-neutral-400 bg-neutral-950 border border-neutral-900 px-2.5 py-1.5 rounded-md" id="total-trx-badge">
-                        Total: 3 transaksi
+                        Memuat transaksi...
                     </span>
                 </div>
             </div>
@@ -2284,7 +2284,7 @@
             }, 300);
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
+        function initAdminAllTransaksi() {
             fetchInitialData();
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
@@ -2305,7 +2305,13 @@
                     applyMutationFilters();
                 });
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAdminAllTransaksi);
+        } else {
+            initAdminAllTransaksi();
+        }
  
         function applyTheme(theme) {
             const btn = document.getElementById('themeToggleBtn');

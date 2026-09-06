@@ -372,13 +372,18 @@
 
         let localAnggota = [];
 
-        window.addEventListener('DOMContentLoaded', () => {
-            // Load theme icon
+        function initKelolaAnggotaPage() {
             const currentTheme = localStorage.getItem('theme') || 'dark';
-            document.getElementById('themeToggleBtn').innerText = currentTheme === 'light' ? '☀️' : '🌙';
-            
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.innerText = currentTheme === 'light' ? '☀️' : '🌙';
             fetchInitialData();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initKelolaAnggotaPage);
+        } else {
+            initKelolaAnggotaPage();
+        }
 
         // Fetch data awal
         function fetchInitialData(silent = false) {
