@@ -1198,6 +1198,11 @@
                         catIndex++;
                     }
 
+                    const effAnggaran = Number(p.anggaran !== undefined && p.anggaran !== "" && p.anggaran !== null ? p.anggaran : (p.estimasi_dana || 0));
+                    const effPemasukan = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn);
+                    const effPengeluaran = Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut);
+                    const effRealisasi = Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : effPengeluaran);
+
                     const ketuaNama = getMemberName(p.id_anggota);
                     runningContainer.innerHTML += `
                         <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${p.id}">
@@ -1214,9 +1219,9 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Anggaran: <span class="text-neutral-300">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span></span>
+                                        <span>Anggaran: <span class="text-neutral-300">Rp${effAnggaran.toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span></span>
+                                        <span>Realisasi: <span class="text-cyan-400 font-bold">${effRealisasi > 0 ? 'Rp' + effRealisasi.toLocaleString('id-ID') : '-'}</span></span>
                                         ${p.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${p.keterangan}</span></span>` : ''}
                                     </div>
                                 </div>
@@ -1250,19 +1255,19 @@
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-900/40 pt-3">
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
-                                        <span class="text-neutral-200 font-bold">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-200 font-bold">Rp${effAnggaran.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PEMASUKAN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp${Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn).toLocaleString('id-ID')}</span>
+                                        <span class="text-emerald-400 font-bold">+Rp${effPemasukan.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PENGELUARAN</span>
-                                        <span class="text-rose-400 font-bold">-Rp${Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut).toLocaleString('id-ID')}</span>
+                                        <span class="text-rose-400 font-bold">-Rp${effPengeluaran.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">REALISASI</span>
-                                        <span class="font-black">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span>
+                                        <span class="font-black">${effRealisasi > 0 ? 'Rp' + effRealisasi.toLocaleString('id-ID') : '-'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1414,6 +1419,11 @@
                         catIndex++;
                     }
 
+                    const effAnggaran = Number(p.anggaran !== undefined && p.anggaran !== "" && p.anggaran !== null ? p.anggaran : (p.estimasi_dana || 0));
+                    const effPemasukan = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn);
+                    const effPengeluaran = Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut);
+                    const effRealisasi = Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : effPengeluaran);
+
                     const ketuaNama = getMemberName(p.id_anggota);
                     selesaiContainer.innerHTML += `
                         <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${p.id}">
@@ -1435,9 +1445,9 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Anggaran: <span class="text-neutral-300">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span></span>
+                                        <span>Anggaran: <span class="text-neutral-300">Rp${effAnggaran.toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span></span>
+                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp${effRealisasi.toLocaleString('id-ID')}</span></span>
                                         ${p.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${p.keterangan}</span></span>` : ''}
                                     </div>
                                 </div>
@@ -1465,19 +1475,19 @@
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-900/40 pt-3">
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
-                                        <span class="text-neutral-200 font-bold">Rp${Number(p.anggaran !== undefined ? p.anggaran : (p.estimasi_dana || 0)).toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-200 font-bold">Rp${effAnggaran.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PEMASUKAN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp${Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn).toLocaleString('id-ID')}</span>
+                                        <span class="text-emerald-400 font-bold">+Rp${effPemasukan.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">PENGELUARAN</span>
-                                        <span class="text-rose-400 font-bold">-Rp${Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut).toLocaleString('id-ID')}</span>
+                                        <span class="text-rose-400 font-bold">-Rp${effPengeluaran.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
                                         <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">REALISASI</span>
-                                        <span class="font-black">Rp${Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : (p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut)).toLocaleString('id-ID')}</span>
+                                        <span class="font-black">Rp${effRealisasi.toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>

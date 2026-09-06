@@ -1275,6 +1275,11 @@
                         catIdx++;
                     }
 
+                    const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
+                    const effPemasukan = Number(proker.pemasukan !== undefined && Number(proker.pemasukan) > 0 ? proker.pemasukan : totalIn);
+                    const effPengeluaran = Number(proker.pengeluaran !== undefined && Number(proker.pengeluaran) > 0 ? proker.pengeluaran : totalOut);
+                    const effRealisasi = Number(proker.realisasi !== undefined && Number(proker.realisasi) > 0 ? proker.realisasi : effPengeluaran);
+
                     const prokerHtml = `
                         <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
                             <div class="p-4 flex items-center justify-between bg-neutral-900/10 border-b border-neutral-900/50">
@@ -1290,9 +1295,10 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Estimasi RAB: <span class="text-neutral-300">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span></span>
+                                        <span>Anggaran: <span class="text-neutral-300">Rp ${effAnggaran.toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Saldo Sekarang: <span class="${netClass}">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span></span>
+                                        <span>Realisasi: <span class="text-cyan-400 font-bold">${effRealisasi > 0 ? 'Rp ' + effRealisasi.toLocaleString('id-ID') : '-'}</span></span>
+                                        ${proker.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${proker.keterangan}</span></span>` : ''}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
@@ -1306,18 +1312,22 @@
                             <div id="p-content-${proker.id}" class="hidden p-3 bg-neutral-900/20 flex flex-col gap-3">
                                 ${categoriesHtml || `<div class="text-center py-4 text-[10px] text-neutral-500 italic font-mono">Belum ada rincian transaksi approved.</div>`}
 
-                                <div class="grid grid-cols-3 gap-2.5 font-mono text-[10px] text-center">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-[10px] text-center">
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">TOTAL IN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px]">ANGGARAN</span>
+                                        <span class="text-neutral-200 font-bold">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">TOTAL OUT</span>
-                                        <span class="text-rose-400 font-bold">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px]">PEMASUKAN</span>
+                                        <span class="text-emerald-400 font-bold">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
                                     </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-emerald-500 text-emerald-400">
-                                        <span class="text-neutral-500 text-[8px]">SALDO BERSIH</span>
-                                        <span class="font-black">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px]">PENGELUARAN</span>
+                                        <span class="text-rose-400 font-bold">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
+                                        <span class="text-neutral-500 text-[8px]">REALISASI</span>
+                                        <span class="font-black">${effRealisasi > 0 ? 'Rp ' + effRealisasi.toLocaleString('id-ID') : '-'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1458,6 +1468,11 @@
                         catIdx++;
                     }
 
+                    const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
+                    const effPemasukan = Number(proker.pemasukan !== undefined && Number(proker.pemasukan) > 0 ? proker.pemasukan : totalIn);
+                    const effPengeluaran = Number(proker.pengeluaran !== undefined && Number(proker.pengeluaran) > 0 ? proker.pengeluaran : totalOut);
+                    const effRealisasi = Number(proker.realisasi !== undefined && Number(proker.realisasi) > 0 ? proker.realisasi : effPengeluaran);
+
                     const prokerHtml = `
                         <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
                             <div class="p-4 flex items-center justify-between bg-neutral-900/10 border-b border-neutral-900/50">
@@ -1473,9 +1488,10 @@
                                         <span class="text-neutral-700">|</span>
                                         <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Estimasi RAB: <span class="text-neutral-300">Rp ${(Number(proker.estimasi_dana) || 0).toLocaleString('id-ID')}</span></span>
+                                        <span>Anggaran: <span class="text-neutral-300">Rp ${effAnggaran.toLocaleString('id-ID')}</span></span>
                                         <span class="text-neutral-700">|</span>
-                                        <span>Sisa Kas Akhir: <span class="${netClass}">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span></span>
+                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp ${effRealisasi.toLocaleString('id-ID')}</span></span>
+                                        ${proker.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${proker.keterangan}</span></span>` : ''}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
@@ -1486,18 +1502,22 @@
                             <div id="p-content-${proker.id}" class="hidden p-3 bg-neutral-900/20 flex flex-col gap-3">
                                 ${categoriesHtml || `<div class="text-center py-4 text-[10px] text-neutral-500 italic font-mono">Belum ada rincian transaksi approved.</div>`}
 
-                                <div class="grid grid-cols-3 gap-2.5 font-mono text-[10px] text-center">
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-[10px] text-center">
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">TOTAL IN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px]">ANGGARAN</span>
+                                        <span class="text-neutral-200 font-bold">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">TOTAL OUT</span>
-                                        <span class="text-rose-400 font-bold">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                                        <span class="text-neutral-500 text-[8px]">PEMASUKAN</span>
+                                        <span class="text-emerald-400 font-bold">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
                                     </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-emerald-500 text-emerald-400">
-                                        <span class="text-neutral-500 text-[8px]">SALDO BERSIH</span>
-                                        <span class="font-black">${netSign}Rp ${Math.abs(netSaldo).toLocaleString('id-ID')}</span>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                        <span class="text-neutral-500 text-[8px]">PENGELUARAN</span>
+                                        <span class="text-rose-400 font-bold">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
+                                        <span class="text-neutral-500 text-[8px]">REALISASI</span>
+                                        <span class="font-black">Rp ${effRealisasi.toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>

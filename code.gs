@@ -158,7 +158,7 @@ function getAllData() {
 
   // 3. Sheet KEGIATAN → Peta ke format front-end (proker)
   const kegiatanSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
-  healSheetHeaders(kegiatanSheet, defaultProkerHeaders);
+  normalizeProkerSheet(kegiatanSheet);
   const kegiatanRaw   = sheetToJson(kegiatanSheet);
   const prokerData    = kegiatanRaw.map(k => {
     const idKegiatan = (getVal(k, "id_kegiatan") !== undefined ? getVal(k, "id_kegiatan") : (getVal(k, "id") || "")).toString();
@@ -189,17 +189,28 @@ function getAllData() {
       ? parseFormattedNumber(rawPengeluaran)
       : dynamicOut;
 
-    const realisasiVal = (rawRealisasi !== undefined && rawRealisasi !== null && rawRealisasi !== "" && Number(rawRealisasi) > 0)
-      ? parseFormattedNumber(rawRealisasi)
-      : pengeluaranVal;
+    let realisasiVal = 0;
+    if (rawRealisasi !== undefined && rawRealisasi !== null && rawRealisasi !== "" && Number(rawRealisasi) > 0) {
+      realisasiVal = parseFormattedNumber(rawRealisasi);
+    } else {
+      realisasiVal = pengeluaranVal;
+    }
 
     let statusVal = getVal(k, "status") || "Running";
     if (statusVal.toString().trim() === "Berjalan") {
       statusVal = "Running";
     }
 
-    const namaKegiatan = getVal(k, "nama_kegiatan") !== undefined ? getVal(k, "nama_kegiatan") : (getVal(k, "nama_proker") || "");
-    const anggaranVal = parseFormattedNumber(getVal(k, "anggaran") !== undefined ? getVal(k, "anggaran") : getVal(k, "estimasi_dana"));
+    const namaKegiatan = (getVal(k, "nama_kegiatan") !== undefined && getVal(k, "nama_kegiatan") !== "") 
+      ? getVal(k, "nama_kegiatan") 
+      : (getVal(k, "nama_proker") || "");
+      
+    const rawAnggaran = (getVal(k, "anggaran") !== undefined && getVal(k, "anggaran") !== "") 
+      ? getVal(k, "anggaran") 
+      : getVal(k, "estimasi_dana");
+    const anggaranVal = parseFormattedNumber(rawAnggaran);
+
+    const cleanMemberId = cleanAnggotaId(getVal(k, "id_anggota"));
 
     return {
       id: idKegiatan,
@@ -214,7 +225,7 @@ function getAllData() {
       realisasi: realisasiVal,
       keterangan: getVal(k, "keterangan") || "",
       divisi: getVal(k, "divisi") || "",
-      id_anggota: getVal(k, "id_anggota") || "",
+      id_anggota: cleanMemberId,
       estimasi_tanggal: getVal(k, "estimasi_tanggal") || "",
       tahun: getVal(k, "tahun") || "",
       status: statusVal,
@@ -552,7 +563,7 @@ function insertProker(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
 
-  healSheetHeaders(sheet, defaultProkerHeaders);
+  normalizeProkerSheet(sheet);
 
   const lastRow = sheet.getLastRow();
   const newId = lastRow <= 1 ? 1 : Number(sheet.getRange(lastRow, 1).getValue() || 0) + 1;
@@ -572,7 +583,7 @@ function insertProker(p) {
     realisasi: parseFormattedNumber(p.realisasi || 0),
     keterangan: p.keterangan || "",
     divisi: p.divisi || "",
-    id_anggota: p.id_anggota || "",
+    id_anggota: cleanAnggotaId(p.id_anggota || ""),
     estimasi_tanggal: p.estimasi_tanggal || "",
     tahun: p.tahun || new Date().getFullYear().toString(),
     status: p.status || "Running",
@@ -591,6 +602,8 @@ function insertProker(p) {
 function editProker(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
+
+  normalizeProkerSheet(sheet);
 
   const namaVal = p.nama_kegiatan !== undefined ? p.nama_kegiatan : p.nama_proker;
   if (namaVal !== undefined) {
@@ -1057,6 +1070,95 @@ function healSheetHeaders(sheet, defaultHeaders) {
     const writeRange = sheet.getRange(1, nextCol, 1, missingHeaders.length);
     writeRange.setValues([missingHeaders]);
     SpreadsheetApp.flush();
+  }
+}
+
+/** Clean id_anggota value if it was mistakenly formatted as a Date in Google Sheets */
+function cleanAnggotaId(val) {
+  if (val === undefined || val === null) return "";
+  if (typeof val === 'number') return Math.floor(val).toString();
+  if (val instanceof Date) {
+    if (val.getFullYear() <= 1900) {
+      const date = val.getDate();
+      return date.toString();
+    }
+  }
+  const str = val.toString().trim();
+  if (str === "") return "";
+  const dateMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/1900$/);
+  if (dateMatch) {
+    const m = parseInt(dateMatch[1], 10);
+    const d = parseInt(dateMatch[2], 10);
+    if (m === 1) return d.toString();
+    return m.toString();
+  }
+  return str;
+}
+
+/** Normalize sheet kegiatan to match exact 15-column defaultProkerHeaders order and clean date formats */
+function normalizeProkerSheet(sheet) {
+  if (!sheet) return;
+  const lastRow = sheet.getLastRow();
+  if (lastRow === 0) {
+    sheet.appendRow(defaultProkerHeaders);
+    return;
+  }
+
+  const rawValues = sheet.getDataRange().getValues();
+  if (rawValues.length === 0) return;
+
+  const currentHeaders = rawValues[0].map(h => h.toString().trim().toLowerCase());
+
+  // Build row objects mapping old/new header names
+  const rowObjects = [];
+  for (let r = 1; r < rawValues.length; r++) {
+    const row = rawValues[r];
+    const isBlank = row.every(v => v === "" || v === null || v === undefined);
+    if (isBlank) continue;
+
+    const obj = {};
+    currentHeaders.forEach((h, colIdx) => {
+      if (h) {
+        let key = h;
+        if (h === "nama_proker" || h === "nama proker") key = "nama_kegiatan";
+        if (h === "estimasi_dana" || h === "estimasi dana" || h === "rab") key = "anggaran";
+        if (h === "user_id") key = "id_anggota";
+        
+        if (obj[key] === undefined || obj[key] === "" || obj[key] === null) {
+          obj[key] = row[colIdx];
+        }
+      }
+    });
+    rowObjects.push(obj);
+  }
+
+  sheet.clearContents();
+  sheet.clearFormats();
+
+  const newMatrix = [defaultProkerHeaders];
+  rowObjects.forEach(obj => {
+    const newRow = defaultProkerHeaders.map(h => {
+      let val = getVal(obj, h);
+
+      if (h === "id_anggota") {
+        val = cleanAnggotaId(val);
+      }
+      if (h === "nama_kegiatan" && (!val || val === "")) {
+        val = getVal(obj, "nama_proker") || "";
+      }
+      if (h === "anggaran" && (val === undefined || val === "" || val === null)) {
+        val = getVal(obj, "estimasi_dana") || "";
+      }
+      return val !== undefined ? val : "";
+    });
+    newMatrix.push(newRow);
+  });
+
+  sheet.getRange(1, 1, newMatrix.length, defaultProkerHeaders.length).setValues(newMatrix);
+  
+  // Format id_anggota column (Column 10 / J) as Plain Text
+  if (newMatrix.length > 1) {
+    sheet.getRange(2, 10, newMatrix.length - 1, 1).setNumberFormat("@");
   }
 }
 
