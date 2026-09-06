@@ -1270,7 +1270,7 @@
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, keterangan: desc, jenis: "Masuk", metode: method, kategori: cat, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64, catatan: catatan
+                    id: Date.now(), tanggal: date, uraian: desc, keterangan: desc, jenis: "Masuk", metode: method, kategori: cat, jumlah: amount, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64, catatan: catatan
                 });
                 Swal.fire({ icon: 'success', title: 'Pemasukan Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pemasukanLainnyaForm').reset();
@@ -1296,10 +1296,12 @@
                 body: JSON.stringify({
                     action: "insert_transaction",
                     tanggal: date,
+                    uraian: desc,
                     keterangan: desc,
                     jenis: "Masuk",
                     metode: method,
                     kategori: cat,
+                    jumlah: amount,
                     nominal: amount,
                     proker_id: prokerId,
                     user_id: userId,
@@ -1344,7 +1346,7 @@
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, keterangan: `${desc} (${qty}x)`, jenis: "Keluar", metode: method, kategori: cat, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64, catatan: catatan
+                    id: Date.now(), tanggal: date, uraian: desc, keterangan: `${desc} (${qty}x)`, unit: qty, harga_satuan: price, jenis: "Keluar", metode: method, kategori: cat, jumlah: total, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64, catatan: catatan
                 });
                 Swal.fire({ icon: 'success', title: 'Pengeluaran Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pengeluaranForm').reset();
@@ -1371,11 +1373,15 @@
                 body: JSON.stringify({
                     action: "insert_transaction",
                     tanggal: date,
+                    uraian: desc,
                     keterangan: `${desc} (${qty}x)`,
+                    unit: qty,
+                    harga_satuan: price,
+                    jumlah: total,
+                    nominal: total,
                     jenis: "Keluar",
                     metode: method,
                     kategori: cat,
-                    nominal: total,
                     proker_id: prokerId,
                     user_id: userId,
                     nama_pic_pengeluar: picName,
@@ -1539,15 +1545,16 @@
                 }
                 
                 const prokerName = tx.proker_id ? (prokersMap[tx.proker_id.toString()] || "Kas Umum") : "Kas Umum";
-                const userName = tx.user_id ? (membersMap[tx.user_id.toString()] || "") : "";
-                
+                      const txUraian = tx.uraian || tx.keterangan || "";
+                const txNominal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+
                 const matchSearch = (!searchQuery || 
-                    tx.keterangan.toLowerCase().includes(searchQuery) || 
-                    tx.kategori.toLowerCase().includes(searchQuery) || 
+                    txUraian.toLowerCase().includes(searchQuery) || 
+                    (tx.kategori && tx.kategori.toLowerCase().includes(searchQuery)) || 
                     prokerName.toLowerCase().includes(searchQuery) ||
                     userName.toLowerCase().includes(searchQuery) ||
                     (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchQuery)) ||
-                    tx.nominal.toString().includes(searchQuery)
+                    txNominal.toString().includes(searchQuery)
                 );
 
                 return matchType && matchMonth && matchMetode && matchKategori && matchProker && matchSearch;
@@ -1555,21 +1562,23 @@
 
             // 2. Sort
             filtered.sort((a, b) => {
+                const nomA = Number(a.jumlah !== undefined ? a.jumlah : a.nominal) || 0;
+                const nomB = Number(b.jumlah !== undefined ? b.jumlah : b.nominal) || 0;
                 if (currentSort === 'terbaru') {
                     return b.tanggal.localeCompare(a.tanggal) || b.id - a.id;
                 } else if (currentSort === 'terlama') {
                     return a.tanggal.localeCompare(b.tanggal) || a.id - b.id;
                 } else if (currentSort === 'termahal') {
-                    return parseFloat(b.nominal) - parseFloat(a.nominal);
+                    return nomB - nomA;
                 } else if (currentSort === 'termurah') {
-                    return parseFloat(a.nominal) - parseFloat(b.nominal);
+                    return nomA - nomB;
                 }
                 return 0;
             });
 
             // Calculate totals over all filtered transactions
             filtered.forEach(tx => {
-                const nominalVal = Number(tx.nominal) || 0;
+                const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
                 if (tx.jenis === 'Masuk') totalMasuk += nominalVal;
                 else totalKeluar += nominalVal;
             });
@@ -1582,7 +1591,8 @@
 
             itemsToRender.forEach(tx => {
                 renderCount++;
-                const nominalVal = Number(tx.nominal) || 0;
+                const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+                const txTitle = tx.uraian || tx.keterangan || "Tanpa Keterangan";
                 const dateFormated = formatReadableDate(tx.tanggal);
                 const isMasuk = tx.jenis === 'Masuk';
                 const sign = isMasuk ? '+' : '-';
@@ -1621,7 +1631,7 @@
                             <div class="text-[7px] text-neutral-600 font-mono mt-0.5 select-all">${tx.id}</div>
                         </td>
                         <td class="p-3 font-sans align-middle">
-                            <span class="font-bold text-neutral-200 block text-xs leading-normal">${tx.keterangan}</span>
+                            <span class="font-bold text-neutral-200 block text-xs leading-normal">${txTitle}</span>`                    <span class="font-bold text-neutral-200 block text-xs leading-normal">${tx.keterangan}</span>
                             ${noteHtml}
                             <div class="flex flex-wrap items-center gap-1.5 mt-1">
                                 <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>

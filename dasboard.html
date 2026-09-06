@@ -1431,7 +1431,7 @@
     }
 
     function calculateAndRenderStats(transactions) {
-        const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+        const approved = transactions.filter(t => !t.status_reimburse || t.status_reimburse === "Tidak Perlu" || t.status_reimburse === "Disetujui" || t.status_reimburse.toString().trim() === "");
 
         let totalSaldo = 0;
         let gopaySaldo = 0;
@@ -1440,7 +1440,7 @@
         let totalKeluar = 0;
 
         approved.forEach(t => {
-            const nominal = Number(t.nominal) || 0;
+            const nominal = Number(t.jumlah !== undefined ? t.jumlah : t.nominal) || 0;
             if (t.jenis === "Masuk") {
                 totalMasuk += nominal;
                 if (t.metode === "GoPay") gopaySaldo += nominal;
@@ -1464,7 +1464,7 @@
     function updateChartWithData(transactions) {
         if (!window.ldkChart) return;
         const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-        const approvedTx = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+        const approvedTx = transactions.filter(t => !t.status_reimburse || t.status_reimburse === "Tidak Perlu" || t.status_reimburse === "Disetujui" || t.status_reimburse.toString().trim() === "");
         
         approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
@@ -1481,7 +1481,7 @@
             const d = new Date(tx.tanggal);
             const mIdx = d.getMonth();
             if (mIdx >= 0 && mIdx < 12) {
-                const nominal = Number(tx.nominal) || 0;
+                const nominal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
                 const factor = tx.jenis === "Masuk" ? 1 : -1;
                 const change = nominal * factor;
                 if (tx.metode === "GoPay") {
@@ -1527,12 +1527,29 @@
         }
 
         container.innerHTML = '';
+        const approved = transactions.filter(t => !t.status_reimburse || t.status_reimburse === "Tidak Perlu" || t.status_reimburse === "Disetujui" || t.status_reimburse.toString().trim() === "");
+        approved.sort((a, b) => {
+            const dateDiff = new Date(b.tanggal) - new Date(a.tanggal);
+            if (dateDiff !== 0) return dateDiff;
+            return (b.id || "").toString().localeCompare((a.id || "").toString());
+        });
+
+        const recent = approved.slice(0, 3);
+        
+        if (recent.length === 0) {
+            container.innerHTML = `<div class="py-6 text-center text-xs text-neutral-500 font-mono italic">Belum ada riwayat transaksi.</div>`;
+            return;
+        }
+
+        container.innerHTML = '';
         recent.forEach(t => {
             const isIncoming = t.jenis === "Masuk";
             const sign = isIncoming ? "+" : "-";
             const colorClass = isIncoming ? "text-green-400" : "text-rose-400";
             const methodColor = t.metode === "GoPay" ? "text-cyan-400" : "text-green-400";
-            const nominalFormatted = sign + "Rp" + (Number(t.nominal) || 0).toLocaleString('id-ID');
+            const nominalVal = Number(t.jumlah !== undefined ? t.jumlah : t.nominal) || 0;
+            const nominalFormatted = sign + "Rp" + nominalVal.toLocaleString('id-ID');
+            const descText = t.uraian || t.keterangan || "Transaksi";
             
             let dateStr = t.tanggal;
             try {
@@ -1546,7 +1563,7 @@
             const itemHtml = `
                 <div class="p-3 bg-neutral-950 border border-neutral-900 rounded-xl flex items-center justify-between gap-3">
                     <div class="overflow-hidden">
-                        <p class="text-xs font-semibold text-neutral-200 truncate font-sans max-w-[150px] sm:max-w-none">${t.keterangan}</p>
+                        <p class="text-xs font-semibold text-neutral-200 truncate font-sans max-w-[150px] sm:max-w-none">${descText}</p>
                         <span class="text-[9px] font-mono text-neutral-500 block mt-0.5">
                             ${dateStr} • <span class="${methodColor}">${t.metode}</span> ${t.id ? `• <span class="text-neutral-600 select-all font-light">${t.id}</span>` : ''}
                         </span>
