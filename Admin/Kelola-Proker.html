@@ -1016,8 +1016,22 @@
 
         function getMemberName(memberId) {
             if (!memberId) return "-";
-            const member = localAnggota.find(m => m.id.toString() === memberId.toString());
-            return member ? member.name : "-";
+            const targetStr = memberId.toString().trim().toLowerCase();
+            
+            const memberById = localAnggota.find(m => m.id && m.id.toString().trim().toLowerCase() === targetStr);
+            if (memberById) return memberById.name;
+
+            const memberByNim = localAnggota.find(m => m.nim && m.nim.toString().trim().toLowerCase() === targetStr);
+            if (memberByNim) return memberByNim.name;
+
+            const memberByName = localAnggota.find(m => m.name && m.name.toString().trim().toLowerCase() === targetStr);
+            if (memberByName) return memberByName.name;
+
+            if (isNaN(Number(targetStr)) && !targetStr.includes('/')) {
+                return memberId;
+            }
+
+            return "-";
         }
 
         function getReceiptPath(tx) {

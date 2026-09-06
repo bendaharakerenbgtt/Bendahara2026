@@ -1129,8 +1129,22 @@
 
         function getMemberName(memberId) {
             if (!memberId) return "-";
-            const member = pengurusList.find(m => m.id.toString() === memberId.toString());
-            return member ? member.name : "-";
+            const targetStr = memberId.toString().trim().toLowerCase();
+            
+            const memberById = pengurusList.find(m => m.id && m.id.toString().trim().toLowerCase() === targetStr);
+            if (memberById) return memberById.name;
+
+            const memberByNim = pengurusList.find(m => m.nim && m.nim.toString().trim().toLowerCase() === targetStr);
+            if (memberByNim) return memberByNim.name;
+
+            const memberByName = pengurusList.find(m => m.name && m.name.toString().trim().toLowerCase() === targetStr);
+            if (memberByName) return memberByName.name;
+
+            if (isNaN(Number(targetStr)) && !targetStr.includes('/')) {
+                return memberId;
+            }
+
+            return "-";
         }
 
         function renderProkers() {

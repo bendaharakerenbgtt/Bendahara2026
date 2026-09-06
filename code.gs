@@ -158,7 +158,7 @@ function getAllData() {
 
   // 3. Sheet KEGIATAN → Peta ke format front-end (proker)
   const kegiatanSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_KEGIATAN);
-  normalizeProkerSheet(kegiatanSheet);
+  normalizeProkerSheet(kegiatanSheet, transaksiData);
   const kegiatanRaw   = sheetToJson(kegiatanSheet);
   const prokerData    = kegiatanRaw.map(k => {
     const idKegiatan = (getVal(k, "id_kegiatan") !== undefined ? getVal(k, "id_kegiatan") : (getVal(k, "id") || "")).toString();
@@ -700,14 +700,22 @@ function getIdColumnIndex(headers, sheet) {
 /** Dapatkan nilai dari object berdasarkan key case-insensitive dengan spasi/underscore */
 function getVal(obj, key) {
   if (!obj) return undefined;
-  const target = key.toLowerCase();
+  const target = key.toString().trim().toLowerCase();
   const keyUnderscore = target.replace(/ /g, "_");
   const keySpace = target.replace(/_/g, " ");
   
-  if (obj[keyUnderscore] !== undefined) return obj[keyUnderscore];
-  if (obj[keySpace] !== undefined) return obj[keySpace];
-  if (obj[target] !== undefined) return obj[target];
+  if (obj[keyUnderscore] !== undefined && obj[keyUnderscore] !== "") return obj[keyUnderscore];
+  if (obj[keySpace] !== undefined && obj[keySpace] !== "") return obj[keySpace];
+  if (obj[target] !== undefined && obj[target] !== "") return obj[target];
   
+  for (let k in obj) {
+    const kClean = k.toString().trim().toLowerCase();
+    const kUnderscore = kClean.replace(/ /g, "_");
+    const kSpace = kClean.replace(/_/g, " ");
+    if (kClean === target || kUnderscore === keyUnderscore || kSpace === keySpace) {
+      if (obj[k] !== undefined && obj[k] !== "") return obj[k];
+    }
+  }
   return undefined;
 }
 
@@ -1095,8 +1103,8 @@ function cleanAnggotaId(val) {
   return str;
 }
 
-/** Normalize sheet kegiatan to match exact 15-column defaultProkerHeaders order and clean date formats */
-function normalizeProkerSheet(sheet) {
+/** Normalize sheet kegiatan to match exact 15-column defaultProkerHeaders order, clean date formats, and auto-populate financial columns */
+function normalizeProkerSheet(sheet, transaksiData) {
   if (!sheet) return;
   const lastRow = sheet.getLastRow();
   if (lastRow === 0) {
@@ -1137,18 +1145,63 @@ function normalizeProkerSheet(sheet) {
 
   const newMatrix = [defaultProkerHeaders];
   rowObjects.forEach(obj => {
-    const newRow = defaultProkerHeaders.map(h => {
-      let val = getVal(obj, h);
+    const idKegiatan = (getVal(obj, "id_kegiatan") !== undefined && getVal(obj, "id_kegiatan") !== "" ? getVal(obj, "id_kegiatan") : (getVal(obj, "id") || "")).toString();
 
-      if (h === "id_anggota") {
-        val = cleanAnggotaId(val);
-      }
-      if (h === "nama_kegiatan" && (!val || val === "")) {
-        val = getVal(obj, "nama_proker") || "";
-      }
-      if (h === "anggaran" && (val === undefined || val === "" || val === null)) {
-        val = getVal(obj, "estimasi_dana") || "";
-      }
+    // Hitung pemasukan & pengeluaran dinamis dari transaksiData untuk proker ini
+    let dynamicIn = 0;
+    let dynamicOut = 0;
+    if (Array.isArray(transaksiData)) {
+      transaksiData.forEach(tx => {
+        if (tx.proker_id && tx.proker_id.toString().trim() === idKegiatan.trim()) {
+          const val = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+          if (tx.jenis === "Masuk") {
+            dynamicIn += val;
+          } else if (tx.jenis === "Keluar") {
+            dynamicOut += val;
+          }
+        }
+      });
+    }
+
+    const rawPemasukan = getVal(obj, "pemasukan");
+    const rawPengeluaran = getVal(obj, "pengeluaran");
+    const rawRealisasi = getVal(obj, "realisasi");
+
+    const pemasukanVal = (rawPemasukan !== undefined && rawPemasukan !== null && rawPemasukan !== "" && Number(rawPemasukan) > 0)
+      ? parseFormattedNumber(rawPemasukan)
+      : dynamicIn;
+
+    const pengeluaranVal = (rawPengeluaran !== undefined && rawPengeluaran !== null && rawPengeluaran !== "" && Number(rawPengeluaran) > 0)
+      ? parseFormattedNumber(rawPengeluaran)
+      : dynamicOut;
+
+    let realisasiVal = 0;
+    if (rawRealisasi !== undefined && rawRealisasi !== null && rawRealisasi !== "" && Number(rawRealisasi) > 0) {
+      realisasiVal = parseFormattedNumber(rawRealisasi);
+    } else {
+      realisasiVal = pengeluaranVal;
+    }
+
+    const rawAnggaran = (getVal(obj, "anggaran") !== undefined && getVal(obj, "anggaran") !== "") 
+      ? getVal(obj, "anggaran") 
+      : getVal(obj, "estimasi_dana");
+    const anggaranVal = parseFormattedNumber(rawAnggaran);
+
+    const formattedAnggaran = anggaranVal > 0 ? "Rp" + anggaranVal.toLocaleString('id-ID') : (rawAnggaran || "");
+    const formattedPemasukan = pemasukanVal > 0 ? "Rp" + pemasukanVal.toLocaleString('id-ID') : "";
+    const formattedPengeluaran = pengeluaranVal > 0 ? "Rp" + pengeluaranVal.toLocaleString('id-ID') : "";
+    const formattedRealisasi = realisasiVal > 0 ? "Rp" + realisasiVal.toLocaleString('id-ID') : "";
+
+    const newRow = defaultProkerHeaders.map(h => {
+      if (h === "id_kegiatan") return idKegiatan;
+      if (h === "nama_kegiatan") return getVal(obj, "nama_kegiatan") || getVal(obj, "nama_proker") || "";
+      if (h === "anggaran") return formattedAnggaran;
+      if (h === "pemasukan") return formattedPemasukan;
+      if (h === "pengeluaran") return formattedPengeluaran;
+      if (h === "realisasi") return formattedRealisasi;
+      if (h === "id_anggota") return cleanAnggotaId(getVal(obj, "id_anggota"));
+
+      let val = getVal(obj, h);
       return val !== undefined ? val : "";
     });
     newMatrix.push(newRow);
