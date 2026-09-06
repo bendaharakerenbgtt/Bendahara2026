@@ -1335,13 +1335,13 @@
         }
 
         function getReceiptPath(tx) {
-            if (tx.bukti && tx.bukti.trim()) {
-                const b = tx.bukti.trim();
+            if (tx.bukti) {
+                const b = String(tx.bukti).trim();
                 if (b.startsWith('http://') || b.startsWith('https://') || b.startsWith('data:image/')) {
                     return b;
                 }
             }
-            const c = (tx.keterangan || tx.catatan || '').trim();
+            const c = String(tx.keterangan || tx.catatan || '').trim();
             if (!c) return null;
             if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
                 return c;
@@ -1402,8 +1402,9 @@
             if (selectKategori) {
                 const categories = new Set();
                 rawTransactions.forEach(t => {
-                    if (t.kategori && t.kategori.trim() !== '') {
-                        categories.add(t.kategori.trim());
+                    const kat = (t.kategori !== undefined && t.kategori !== null) ? String(t.kategori).trim() : '';
+                    if (kat !== '') {
+                        categories.add(kat);
                     }
                 });
                 const currentVal = currentKategori || '';
@@ -1470,19 +1471,19 @@
 
         function applyFiltersAndSort() {
             filteredTransactions = rawTransactions.filter(tx => {
-                const searchLower = searchQuery.toLowerCase();
+                const searchLower = (searchQuery || '').toLowerCase();
                 const matchesSearch = !searchQuery || 
-                    (tx.id && tx.id.toString().toLowerCase().includes(searchLower)) ||
-                    (tx.uraian && tx.uraian.toLowerCase().includes(searchLower)) ||
-                    (tx.keterangan && tx.keterangan.toLowerCase().includes(searchLower)) ||
-                    (tx.divisi && tx.divisi.toLowerCase().includes(searchLower)) ||
-                    (tx.unit && tx.unit.toLowerCase().includes(searchLower)) ||
-                    (tx.nama_proker && tx.nama_proker.toLowerCase().includes(searchLower)) ||
-                    (tx.user_name && tx.user_name.toLowerCase().includes(searchLower)) ||
-                    (tx.nama_pic_pengeluar && tx.nama_pic_pengeluar.toLowerCase().includes(searchLower)) ||
-                    (tx.kategori && tx.kategori.toLowerCase().includes(searchLower)) ||
-                    (tx.metode && tx.metode.toLowerCase().includes(searchLower)) ||
-                    (tx.catatan && tx.catatan.toLowerCase().includes(searchLower));
+                    (tx.id && String(tx.id).toLowerCase().includes(searchLower)) ||
+                    (tx.uraian && String(tx.uraian).toLowerCase().includes(searchLower)) ||
+                    (tx.keterangan && String(tx.keterangan).toLowerCase().includes(searchLower)) ||
+                    (tx.divisi && String(tx.divisi).toLowerCase().includes(searchLower)) ||
+                    (tx.unit && String(tx.unit).toLowerCase().includes(searchLower)) ||
+                    (tx.nama_proker && String(tx.nama_proker).toLowerCase().includes(searchLower)) ||
+                    (tx.user_name && String(tx.user_name).toLowerCase().includes(searchLower)) ||
+                    (tx.nama_pic_pengeluar && String(tx.nama_pic_pengeluar).toLowerCase().includes(searchLower)) ||
+                    (tx.kategori && String(tx.kategori).toLowerCase().includes(searchLower)) ||
+                    (tx.metode && String(tx.metode).toLowerCase().includes(searchLower)) ||
+                    (tx.catatan && String(tx.catatan).toLowerCase().includes(searchLower));
 
                 const matchesType = currentType === 'semua' ? true : tx.jenis === currentType;
 
@@ -1504,14 +1505,15 @@
 
                 const matchesMetode = currentMetode === 'all' ? true : tx.metode === currentMetode;
 
-                const matchesKategori = currentKategori === '' ? true : (tx.kategori && tx.kategori.toLowerCase() === currentKategori.toLowerCase());
+                const matchesKategori = currentKategori === '' ? true : (tx.kategori && String(tx.kategori).toLowerCase() === currentKategori.toLowerCase());
                 
                 let matchesProker = true;
+                const txProkerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
                 if (currentProker !== '') {
                     if (currentProker === 'general') {
-                        matchesProker = !tx.proker_id || tx.proker_id.toString().trim() === '' || tx.proker_id.toString().toUpperCase() === 'NULL';
+                        matchesProker = (!txProkerIdStr || txProkerIdStr === '' || txProkerIdStr.toUpperCase() === 'NULL');
                     } else {
-                        matchesProker = tx.proker_id && tx.proker_id.toString() === currentProker.toString();
+                        matchesProker = (txProkerIdStr === String(currentProker).trim());
                     }
                 }
 
@@ -1654,17 +1656,20 @@
                     statusBadge = `<span class="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-neutral-900 text-neutral-400 border border-neutral-800">LUNAS / VERIFIED</span>`;
                 }
 
-                const prokerNameDisplay = tx.nama_proker && tx.nama_proker.trim() !== '' && tx.nama_proker.toUpperCase() !== 'NULL' 
-                    ? tx.nama_proker 
+                const prokerStr = tx.nama_proker ? String(tx.nama_proker).trim() : '';
+                const prokerNameDisplay = (prokerStr !== '' && prokerStr.toUpperCase() !== 'NULL') 
+                    ? prokerStr 
                     : 'NULL / Tidak Ada';
                 const prokerTag = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">📁 ${prokerNameDisplay}</span>`;
 
-                const divisiValDisplay = tx.divisi && tx.divisi.trim() !== '' && tx.divisi.toUpperCase() !== 'NULL' 
-                    ? tx.divisi 
+                const divisiStr = tx.divisi ? String(tx.divisi).trim() : '';
+                const divisiValDisplay = (divisiStr !== '' && divisiStr.toUpperCase() !== 'NULL') 
+                    ? divisiStr 
                     : 'NULL / Tanpa Divisi';
                 const divisiTag = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-neutral-400 font-mono">🏢 Divisi: ${divisiValDisplay}</span>`;
 
-                const unitValDisplay = tx.unit && tx.unit.trim() !== '' && tx.unit.toUpperCase() !== 'NULL' ? tx.unit : '';
+                const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                const unitValDisplay = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? unitStr : '';
                 const hargaSatuanValDisplay = Number(tx.harga_satuan) || 0;
                 const priceTextDisplay = hargaSatuanValDisplay > 0 ? `@ Rp${hargaSatuanValDisplay.toLocaleString('id-ID')}` : '';
                 const qtyPriceBadge = (unitValDisplay || priceTextDisplay)
@@ -1686,7 +1691,7 @@
                     ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-950/40 text-emerald-400 hover:text-white border border-emerald-500/20 hover:border-emerald-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` 
                     : '';
 
-                let displayNote = tx.catatan ? tx.catatan.trim() : '';
+                let displayNote = tx.catatan ? String(tx.catatan).trim() : '';
                 if (displayNote) {
                     if (displayNote.includes('https://') || displayNote.includes('http://')) {
                         displayNote = displayNote.replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '').trim();
@@ -1708,7 +1713,7 @@
                                     <span class="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold tracking-wider uppercase ${typeBadgeClass}">${typeText}</span>
                                     ${statusBadge}
                                 </div>
-                                <h3 class="text-sm font-bold text-neutral-200 mt-1 font-sans cursor-pointer hover:text-white transition-colors" onclick="toggleDetails(${tx.id})">
+                                <h3 class="text-sm font-bold text-neutral-200 mt-1 font-sans cursor-pointer hover:text-white transition-colors" onclick="toggleDetails('${tx.id}')">
                                     ${tx.uraian || tx.keterangan}
                                 </h3>
                                 ${noteHtml}
@@ -1949,25 +1954,25 @@
 
                         rawTransactions = (data.transaksi || []).map(tx => {
                             return {
-                                id: tx.id,
-                                tanggal: tx.tanggal,
-                                divisi: tx.divisi || "",
-                                kategori: tx.kategori || "Umum",
-                                uraian: tx.uraian || tx.keterangan || "",
-                                keterangan: tx.keterangan || tx.uraian || "",
-                                unit: tx.unit || "",
+                                id: String(tx.id || ""),
+                                tanggal: String(tx.tanggal || ""),
+                                divisi: String(tx.divisi || ""),
+                                kategori: String(tx.kategori || "Umum"),
+                                uraian: String(tx.uraian || tx.keterangan || ""),
+                                keterangan: String(tx.keterangan || tx.uraian || ""),
+                                unit: (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : "",
                                 harga_satuan: tx.harga_satuan || null,
                                 jumlah: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
-                                jenis: tx.jenis,
-                                metode: tx.metode,
+                                jenis: String(tx.jenis || "Keluar"),
+                                metode: String(tx.metode || "Tunai"),
                                 nominal: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
-                                proker_id: tx.proker_id || null,
+                                proker_id: tx.proker_id ? String(tx.proker_id).trim() : null,
                                 nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
                                 user_id: tx.user_id || null,
                                 user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
-                                nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
-                                status_reimburse: tx.status_reimburse,
-                                catatan: tx.catatan || "",
+                                nama_pic_pengeluar: tx.nama_pic_pengeluar ? String(tx.nama_pic_pengeluar).trim() : null,
+                                status_reimburse: String(tx.status_reimburse || "Tidak Perlu"),
+                                catatan: String(tx.catatan || ""),
                                 created_at: tx.created_at || "",
                                 updated_at: tx.updated_at || ""
                             };
@@ -2018,25 +2023,25 @@
 
                             rawTransactions = res.transaksi.map(tx => {
                                 return {
-                                    id: tx.id,
-                                    tanggal: tx.tanggal,
-                                    divisi: tx.divisi || "",
-                                    kategori: tx.kategori || "Umum",
-                                    uraian: tx.uraian || tx.keterangan || "",
-                                    keterangan: tx.keterangan || tx.uraian || "",
-                                    unit: tx.unit || "",
+                                    id: String(tx.id || ""),
+                                    tanggal: String(tx.tanggal || ""),
+                                    divisi: String(tx.divisi || ""),
+                                    kategori: String(tx.kategori || "Umum"),
+                                    uraian: String(tx.uraian || tx.keterangan || ""),
+                                    keterangan: String(tx.keterangan || tx.uraian || ""),
+                                    unit: (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : "",
                                     harga_satuan: tx.harga_satuan || null,
                                     jumlah: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
-                                    jenis: tx.jenis,
-                                    metode: tx.metode,
+                                    jenis: String(tx.jenis || "Keluar"),
+                                    metode: String(tx.metode || "Tunai"),
                                     nominal: tx.jumlah !== undefined ? tx.jumlah : tx.nominal,
-                                    proker_id: tx.proker_id || null,
+                                    proker_id: tx.proker_id ? String(tx.proker_id).trim() : null,
                                     nama_proker: tx.proker_id ? (prokerMap[tx.proker_id.toString()] || null) : null,
                                     user_id: tx.user_id || null,
                                     user_name: tx.user_id ? (membersMap[tx.user_id.toString()] || null) : null,
-                                    nama_pic_pengeluar: tx.nama_pic_pengeluar || null,
-                                    status_reimburse: tx.status_reimburse,
-                                    catatan: tx.catatan || "",
+                                    nama_pic_pengeluar: tx.nama_pic_pengeluar ? String(tx.nama_pic_pengeluar).trim() : null,
+                                    status_reimburse: String(tx.status_reimburse || "Tidak Perlu"),
+                                    catatan: String(tx.catatan || ""),
                                     created_at: tx.created_at || "",
                                     updated_at: tx.updated_at || ""
                                 };

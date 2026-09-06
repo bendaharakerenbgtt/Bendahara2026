@@ -124,16 +124,19 @@ function getAllData(callback) {
     const formattedTanggal = formatDateStandard(rawTanggal);
     
     return {
-      id: getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || ""),
+      id: (getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || "")).toString(),
       tanggal: formattedTanggal,
       divisi: (() => {
         const d = getVal(t, "divisi");
         return (d !== undefined && d !== null && d.toString().trim() !== "") ? d.toString().trim() : "NULL";
       })(),
-      kategori: getVal(t, "kategori") || "Umum",
-      uraian: uraianVal,
-      keterangan: ketVal,
-      unit: getVal(t, "unit") || "NULL",
+      kategori: String(getVal(t, "kategori") || "Umum").trim(),
+      uraian: String(uraianVal || "").trim(),
+      keterangan: String(ketVal || "").trim(),
+      unit: (() => {
+        const u = getVal(t, "unit");
+        return (u !== undefined && u !== null && u.toString().trim() !== "") ? u.toString().trim() : "NULL";
+      })(),
       harga_satuan: parseFormattedNumber(rawHargaSatuan),
       jumlah: jumlahVal,
       nominal: jumlahVal, // Compatibility alias for frontend
@@ -144,12 +147,12 @@ function getAllData(callback) {
         const valStr = val.toString().trim();
         return valStr.toLowerCase() === "null" ? "" : valStr;
       })(),
-      jenis: getVal(t, "jenis") || "Keluar",
-      metode: getVal(t, "metode") || "Tunai",
-      catatan: ketVal, // Compatibility alias for frontend
+      jenis: String(getVal(t, "jenis") || "Keluar").trim(),
+      metode: String(getVal(t, "metode") || "Tunai").trim(),
+      catatan: String(ketVal || "").trim(), // Compatibility alias for frontend
       bukti: proofUrl,
-      status_reimburse: statusReimburse,
-      nama_pic_pengeluar: getVal(t, "nama_pic_pengeluar") || "",
+      status_reimburse: String(statusReimburse || "Tidak Perlu").trim(),
+      nama_pic_pengeluar: String(getVal(t, "nama_pic_pengeluar") || "").trim(),
       created_at: getVal(t, "created_at") || "",
       updated_at: getVal(t, "updated_at") || ""
     };

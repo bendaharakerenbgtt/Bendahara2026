@@ -1004,11 +1004,48 @@
             const now = Date.now();
             let hasRenderedFromCache = false;
 
+            function sanitizeTransactions(list) {
+                return (list || []).map(tx => {
+                    const idStr = (tx.id !== undefined && tx.id !== null) ? String(tx.id).trim() : '';
+                    const tglStr = (tx.tanggal !== undefined && tx.tanggal !== null) ? String(tx.tanggal).trim() : '';
+                    const divStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
+                    const katStr = (tx.kategori !== undefined && tx.kategori !== null) ? String(tx.kategori).trim() : 'Kas';
+                    const uraianStr = String(tx.uraian || tx.keterangan || '').trim();
+                    const ketStr = String(tx.keterangan || tx.uraian || '').trim();
+                    const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                    const catStr = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
+                    const jenisStr = String(tx.jenis || 'Keluar').trim();
+                    const metodeStr = String(tx.metode || 'Tunai').trim();
+                    const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : null;
+                    const picStr = (tx.nama_pic_pengeluar !== undefined && tx.nama_pic_pengeluar !== null) ? String(tx.nama_pic_pengeluar).trim() : null;
+                    const reimbStr = (tx.status_reimburse !== undefined && tx.status_reimburse !== null) ? String(tx.status_reimburse).trim() : 'Tidak Perlu';
+                    const buktiStr = (tx.bukti !== undefined && tx.bukti !== null) ? String(tx.bukti).trim() : '';
+
+                    return {
+                        ...tx,
+                        id: idStr,
+                        tanggal: tglStr,
+                        divisi: divStr,
+                        kategori: katStr,
+                        uraian: uraianStr,
+                        keterangan: ketStr,
+                        unit: unitStr,
+                        catatan: catStr,
+                        jenis: jenisStr,
+                        metode: metodeStr,
+                        proker_id: prokerIdStr,
+                        nama_pic_pengeluar: picStr,
+                        status_reimburse: reimbStr,
+                        bukti: buktiStr
+                    };
+                });
+            }
+
             if (cachedData && cachedTime) {
                 try {
                     const data = JSON.parse(cachedData);
                     if (data && data.status === "success") {
-                        localTransactions = data.transaksi || [];
+                        localTransactions = sanitizeTransactions(data.transaksi);
                         localAnggota = data.anggota || [];
                         
                         prokersMap = {};
@@ -1047,20 +1084,20 @@
                         sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
                         sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
 
-                        localTransactions = data.transaksi;
+                        localTransactions = sanitizeTransactions(data.transaksi);
                         localAnggota = data.anggota || [];
                         
                         prokersMap = {};
-                        data.proker.forEach(p => {
+                        (data.proker || []).forEach(p => {
                             prokersMap[p.id.toString()] = p.nama_proker;
                         });
 
                         membersMap = {};
-                        data.anggota.forEach(m => {
+                        (data.anggota || []).forEach(m => {
                             membersMap[m.id.toString()] = m.name;
                         });
 
-                        populateProkerDropdowns(data.proker);
+                        populateProkerDropdowns(data.proker || []);
                         populateMemberDropdowns(localAnggota);
                         populateFilterDropdowns();
                         applyMutationFilters();
@@ -1619,8 +1656,9 @@
             if (filterKategoriSelect) {
                 const categories = new Set();
                 localTransactions.forEach(t => {
-                    if (t.kategori && t.kategori.trim() !== '') {
-                        categories.add(t.kategori.trim());
+                    const kat = (t.kategori !== undefined && t.kategori !== null) ? String(t.kategori).trim() : '';
+                    if (kat !== '') {
+                        categories.add(kat);
                     }
                 });
                 const currentVal = currentKategori || 'all';
@@ -1704,34 +1742,37 @@
                 const matchMetode = (currentMetode === 'all' || tx.metode === currentMetode);
                 
                 // Filter Kategori
-                const matchKategori = (currentKategori === 'all' || (tx.kategori && tx.kategori.toLowerCase() === currentKategori.toLowerCase()));
+                const matchKategori = (currentKategori === 'all' || (String(tx.kategori || '').toLowerCase() === currentKategori.toLowerCase()));
                 
                 // Filter Proker
                 let matchProker = true;
+                const txProkerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
                 if (currentProker !== 'all') {
                     if (currentProker === 'general') {
-                        matchProker = (!tx.proker_id || tx.proker_id.toString().trim() === '' || tx.proker_id.toString().toUpperCase() === 'NULL');
+                        matchProker = (!txProkerIdStr || txProkerIdStr === '' || txProkerIdStr.toUpperCase() === 'NULL');
                     } else {
-                        matchProker = (tx.proker_id && tx.proker_id.toString() === currentProker.toString());
+                        matchProker = (txProkerIdStr === String(currentProker).trim());
                     }
                 }
                 
-                const prokerName = tx.proker_id && tx.proker_id.toString().trim() !== '' && tx.proker_id.toString().toUpperCase() !== 'NULL'
-                    ? (prokersMap[tx.proker_id.toString()] || tx.proker_id) 
+                const prokerName = (txProkerIdStr !== '' && txProkerIdStr.toUpperCase() !== 'NULL')
+                    ? (prokersMap[txProkerIdStr] || txProkerIdStr) 
                     : "NULL / Tidak Ada";
-                const txUraian = tx.uraian || tx.keterangan || "";
-                const txDivisi = tx.divisi || "";
-                const txUnit = tx.unit || "";
+                const txUraian = String(tx.uraian || tx.keterangan || "");
+                const txDivisi = String(tx.divisi || "");
+                const txUnit = String(tx.unit || "");
+                const txCatatan = String(tx.catatan || "");
+                const txKategori = String(tx.kategori || "");
                 const txNominal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
-                const txPenyetor = (tx.user_id && membersMap[tx.user_id.toString()]) || "";
-                const txPic = tx.nama_pic_pengeluar || "";
-                const txIdStr = (tx.id !== undefined && tx.id !== null) ? tx.id.toString() : "";
+                const txPenyetor = (tx.user_id && membersMap[String(tx.user_id)]) || "";
+                const txPic = String(tx.nama_pic_pengeluar || "");
+                const txIdStr = String(tx.id || "");
 
                 const matchSearch = (!searchQuery || 
                     txIdStr.toLowerCase().includes(searchQuery) ||
                     txUraian.toLowerCase().includes(searchQuery) || 
-                    (tx.catatan && tx.catatan.toLowerCase().includes(searchQuery)) ||
-                    (tx.kategori && tx.kategori.toLowerCase().includes(searchQuery)) || 
+                    txCatatan.toLowerCase().includes(searchQuery) ||
+                    txKategori.toLowerCase().includes(searchQuery) || 
                     txDivisi.toLowerCase().includes(searchQuery) ||
                     txUnit.toLowerCase().includes(searchQuery) ||
                     prokerName.toLowerCase().includes(searchQuery) ||
@@ -1802,21 +1843,24 @@
                 const receiptPath = getReceiptPath(tx);
                 const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-950/40 text-cyan-400 hover:text-white border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` : '';
                 
-                const prokerName = tx.proker_id && tx.proker_id.toString().trim() !== '' && tx.proker_id.toString().toUpperCase() !== 'NULL'
-                    ? (prokersMap[tx.proker_id.toString()] || tx.proker_id) 
+                const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
+                const prokerName = (prokerIdStr !== '' && prokerIdStr.toUpperCase() !== 'NULL')
+                    ? (prokersMap[prokerIdStr] || prokerIdStr) 
                     : "NULL / Tidak Ada";
-                const divisiText = tx.divisi && tx.divisi.trim() !== '' && tx.divisi.toUpperCase() !== 'NULL' 
-                    ? tx.divisi 
+                const divisiStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
+                const divisiText = (divisiStr !== '' && divisiStr.toUpperCase() !== 'NULL') 
+                    ? divisiStr 
                     : "NULL / Tanpa Divisi";
                 
-                const unitVal = tx.unit && tx.unit.trim() !== '' && tx.unit.toUpperCase() !== 'NULL' ? tx.unit : '';
+                const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                const unitVal = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? unitStr : '';
                 const hargaSatuanVal = Number(tx.harga_satuan) || 0;
                 const priceText = hargaSatuanVal > 0 ? `@ Rp${hargaSatuanVal.toLocaleString('id-ID')}` : '';
                 const qtyPriceBadge = (unitVal || priceText) 
                     ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📦 ${unitVal} ${priceText}</span>` 
                     : '';
 
-                let displayNote = tx.catatan ? tx.catatan.trim() : '';
+                let displayNote = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
                 if (displayNote) {
                     if (displayNote.includes('https://') || displayNote.includes('http://')) {
                         displayNote = displayNote.replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '').trim();
@@ -2079,10 +2123,14 @@
             const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
             const sign = isMasuk ? '+' : '-';
             const valColor = isMasuk ? 'text-emerald-400' : 'text-rose-400';
-            const prokerName = tx.proker_id && tx.proker_id.toString().trim() !== '' && tx.proker_id.toString().toUpperCase() !== 'NULL' 
-                ? (prokersMap[tx.proker_id.toString()] || tx.proker_id) 
+            const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
+            const prokerName = prokerIdStr !== '' && prokerIdStr.toUpperCase() !== 'NULL' 
+                ? (prokersMap[prokerIdStr] || prokerIdStr) 
                 : "NULL / Tidak Ada";
-            const divisiText = tx.divisi && tx.divisi.trim() !== '' && tx.divisi.toUpperCase() !== 'NULL' ? tx.divisi : "NULL / Tanpa Divisi";
+            const divisiStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
+            const divisiText = divisiStr !== '' && divisiStr.toUpperCase() !== 'NULL' ? divisiStr : "NULL / Tanpa Divisi";
+            const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+            const unitText = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? unitStr : '-';
             const memberName = tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "-") : (tx.nama_pic_pengeluar || "-");
             const receiptPath = getReceiptPath(tx);
             const proofHtml = receiptPath 
@@ -2127,7 +2175,7 @@
                             </div>
                             <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
                                 <span class="text-[9px] font-mono text-neutral-500 block font-bold">UNIT (QTY)</span>
-                                <span class="font-mono text-neutral-200">${tx.unit && tx.unit !== 'NULL' ? tx.unit : '-'}</span>
+                                <span class="font-mono text-neutral-200">${unitText}</span>
                             </div>
                             <div class="p-2 bg-neutral-900/40 border border-neutral-850 rounded-lg">
                                 <span class="text-[9px] font-mono text-neutral-500 block font-bold">HARGA SATUAN</span>
@@ -2170,16 +2218,17 @@
         function downloadCSVBackup() {
             let csvContent = "\uFEFFID Transaksi,Tanggal,Divisi,Kategori,Uraian,Unit,Harga Satuan,Jumlah,Anggota,Proker,Jenis,Metode,Keterangan,Created At,Updated At\n";
             localTransactions.forEach(t => {
-                const prokerName = t.proker_id && t.proker_id.toString().trim() !== '' && t.proker_id.toString().toUpperCase() !== 'NULL' 
-                    ? (prokersMap[t.proker_id.toString()] || t.proker_id) 
+                const prokerIdStr = (t.proker_id !== undefined && t.proker_id !== null) ? String(t.proker_id).trim() : '';
+                const prokerName = prokerIdStr !== '' && prokerIdStr.toUpperCase() !== 'NULL' 
+                    ? (prokersMap[prokerIdStr] || prokerIdStr) 
                     : "NULL / Tidak Ada";
-                const divisiVal = t.divisi || "NULL";
-                const unitVal = t.unit || "NULL";
+                const divisiVal = (t.divisi !== undefined && t.divisi !== null && String(t.divisi).trim() !== '') ? String(t.divisi).trim() : "NULL";
+                const unitVal = (t.unit !== undefined && t.unit !== null && String(t.unit).trim() !== '') ? String(t.unit).trim() : "NULL";
                 const hargaSatuanVal = t.harga_satuan ? t.harga_satuan : "NULL";
                 const jumlahVal = t.jumlah !== undefined ? t.jumlah : t.nominal;
                 const memberName = t.user_id ? (membersMap[t.user_id.toString()] || t.nama_pic_pengeluar || "") : (t.nama_pic_pengeluar || "");
-                const uraianText = (t.uraian || t.keterangan || "").replace(/"/g, '""');
-                const ketText = (t.catatan || t.keterangan || "").replace(/"/g, '""');
+                const uraianText = String(t.uraian || t.keterangan || "").replace(/"/g, '""');
+                const ketText = String(t.catatan || t.keterangan || "").replace(/"/g, '""');
                 const createdAt = t.created_at || "";
                 const updatedAt = t.updated_at || "";
                 csvContent += `"${t.id}","${t.tanggal}","${divisiVal}","${t.kategori}","${uraianText}","${unitVal}","${hargaSatuanVal}","${jumlahVal}","${memberName}","${prokerName}","${t.jenis}","${t.metode}","${ketText}","${createdAt}","${updatedAt}"\n`;
@@ -2195,21 +2244,21 @@
         }
 
         function getReceiptPath(tx) {
-            if (tx.bukti && tx.bukti.trim()) {
-                const b = tx.bukti.trim();
-                if (b.startsWith('http://') || b.startsWith('https://') || b.startsWith('data:image/')) {
-                    return b;
+            const buktiStr = (tx.bukti !== undefined && tx.bukti !== null) ? String(tx.bukti).trim() : "";
+            if (buktiStr) {
+                if (buktiStr.startsWith('http://') || buktiStr.startsWith('https://') || buktiStr.startsWith('data:image/')) {
+                    return buktiStr;
                 }
             }
-            const c = (tx.keterangan || tx.catatan || "").trim();
-            if (!c) return null;
-            if (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('data:image/')) {
-                return c;
+            const cStr = String(tx.keterangan || tx.catatan || "").trim();
+            if (!cStr) return null;
+            if (cStr.startsWith('http://') || cStr.startsWith('https://') || cStr.startsWith('data:image/')) {
+                return cStr;
             }
-            const urlMatch = c.match(/https?:\/\/[^\s)]+/);
+            const urlMatch = cStr.match(/https?:\/\/[^\s)]+/);
             if (urlMatch) return urlMatch[0];
             
-            const base64Match = c.match(/data:image\/[^\s)]+/);
+            const base64Match = cStr.match(/data:image\/[^\s)]+/);
             if (base64Match) return base64Match[0];
             
             return null;
