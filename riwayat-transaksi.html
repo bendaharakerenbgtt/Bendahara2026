@@ -1288,12 +1288,38 @@
         }
 
         function formatDateIndo(dateStr) {
-            const [year, month, day] = dateStr.split('-');
-            const monthsIndo = [
-                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-            ];
-            return `${parseInt(day)} ${monthsIndo[parseInt(month) - 1]} ${year}`;
+            if (!dateStr) return '-';
+            const str = dateStr.toString().trim();
+            const parts = str.split(/[\/\-\.]/);
+            if (parts.length >= 3) {
+                let year, month, day;
+                if (parts[0].length === 4) {
+                    year = parts[0];
+                    month = parts[1];
+                    day = parts[2];
+                } else if (parts[2].length === 4) {
+                    day = parts[0];
+                    month = parts[1];
+                    year = parts[2];
+                }
+                if (year && month && day) {
+                    const monthsIndo = [
+                        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                    ];
+                    const mIdx = parseInt(month, 10) - 1;
+                    if (mIdx >= 0 && mIdx < 12) {
+                        return `${parseInt(day, 10)} ${monthsIndo[mIdx]} ${year}`;
+                    }
+                }
+            }
+            return str;
+        }
+
+        function compareTxIds(idA, idB) {
+            const aStr = (idA !== undefined && idA !== null) ? idA.toString().trim() : '';
+            const bStr = (idB !== undefined && idB !== null) ? idB.toString().trim() : '';
+            return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' });
         }
 
         function getReceiptPath(tx) {
@@ -1450,8 +1476,18 @@
 
                 let matchesMonth = true;
                 if (currentMonth !== '') {
-                    const [yr, mn, dy] = tx.tanggal.split('-');
-                    matchesMonth = mn === currentMonth;
+                    let txMonth = '';
+                    if (tx.tanggal) {
+                        const parts = tx.tanggal.toString().split(/[\/\-\.]/);
+                        if (parts.length >= 3) {
+                            if (parts[0].length === 4) {
+                                txMonth = parts[1].padStart(2, '0');
+                            } else if (parts[2].length === 4) {
+                                txMonth = parts[1].padStart(2, '0');
+                            }
+                        }
+                    }
+                    matchesMonth = (txMonth === currentMonth.padStart(2, '0'));
                 }
 
                 const matchesMetode = currentMetode === 'all' ? true : tx.metode === currentMetode;
@@ -1461,7 +1497,7 @@
                 let matchesProker = true;
                 if (currentProker !== '') {
                     if (currentProker === 'general') {
-                        matchesProker = !tx.proker_id || tx.proker_id.toString().trim() === '';
+                        matchesProker = !tx.proker_id || tx.proker_id.toString().trim() === '' || tx.proker_id.toString().toUpperCase() === 'NULL';
                     } else {
                         matchesProker = tx.proker_id && tx.proker_id.toString() === currentProker.toString();
                     }
@@ -1472,13 +1508,17 @@
 
             filteredTransactions.sort((a, b) => {
                 if (currentSort === 'terbaru') {
-                    return b.tanggal.localeCompare(a.tanggal) || b.id - a.id;
+                    const dateCmp = (b.tanggal || "").localeCompare(a.tanggal || "");
+                    if (dateCmp !== 0) return dateCmp;
+                    return compareTxIds(b.id, a.id);
                 } else if (currentSort === 'terlama') {
-                    return a.tanggal.localeCompare(b.tanggal) || a.id - b.id;
+                    const dateCmp = (a.tanggal || "").localeCompare(b.tanggal || "");
+                    if (dateCmp !== 0) return dateCmp;
+                    return compareTxIds(a.id, b.id);
                 } else if (currentSort === 'termahal') {
-                    return parseFloat(b.nominal) - parseFloat(a.nominal);
+                    return (parseFloat(b.nominal) || 0) - (parseFloat(a.nominal) || 0);
                 } else if (currentSort === 'termurah') {
-                    return parseFloat(a.nominal) - parseFloat(b.nominal);
+                    return (parseFloat(a.nominal) || 0) - (parseFloat(b.nominal) || 0);
                 }
                 return 0;
             });
@@ -1868,7 +1908,7 @@
                 return;
             }
 
-            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_KEY = "ldk_db_cache_v3";
             const CACHE_TIME_KEY = "ldk_db_cache_time";
             const CACHE_TTL = 15000; // 15 seconds cache
 

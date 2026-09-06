@@ -990,7 +990,7 @@
                 return;
             }
 
-            const CACHE_KEY = "ldk_db_cache";
+            const CACHE_KEY = "ldk_db_cache_v3";
             const CACHE_TIME_KEY = "ldk_db_cache_time";
             const CACHE_TTL = 15000; // 15 seconds cache
 
@@ -1688,10 +1688,19 @@
 
             // 1. Filter
             let filtered = localTransactions.filter(tx => {
-                const parts = tx.tanggal.split('-');
-                const txMonth = parts[1];
+                let txMonth = '';
+                if (tx.tanggal) {
+                    const parts = tx.tanggal.toString().split(/[\/\-\.]/);
+                    if (parts.length >= 3) {
+                        if (parts[0].length === 4) {
+                            txMonth = parts[1].padStart(2, '0');
+                        } else if (parts[2].length === 4) {
+                            txMonth = parts[1].padStart(2, '0');
+                        }
+                    }
+                }
                 const matchType = (currentType === 'all' || tx.jenis === currentType);
-                const matchMonth = (currentMonth === 'all' || txMonth === currentMonth);
+                const matchMonth = (currentMonth === 'all' || txMonth === currentMonth.padStart(2, '0'));
                 const matchMetode = (currentMetode === 'all' || tx.metode === currentMetode);
                 
                 // Filter Kategori
@@ -1701,7 +1710,7 @@
                 let matchProker = true;
                 if (currentProker !== 'all') {
                     if (currentProker === 'general') {
-                        matchProker = (!tx.proker_id || tx.proker_id.toString().trim() === '');
+                        matchProker = (!tx.proker_id || tx.proker_id.toString().trim() === '' || tx.proker_id.toString().toUpperCase() === 'NULL');
                     } else {
                         matchProker = (tx.proker_id && tx.proker_id.toString() === currentProker.toString());
                     }
@@ -1716,9 +1725,10 @@
                 const txNominal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
                 const txPenyetor = (tx.user_id && membersMap[tx.user_id.toString()]) || "";
                 const txPic = tx.nama_pic_pengeluar || "";
+                const txIdStr = (tx.id !== undefined && tx.id !== null) ? tx.id.toString() : "";
 
                 const matchSearch = (!searchQuery || 
-                    tx.id.toString().toLowerCase().includes(searchQuery) ||
+                    txIdStr.toLowerCase().includes(searchQuery) ||
                     txUraian.toLowerCase().includes(searchQuery) || 
                     (tx.catatan && tx.catatan.toLowerCase().includes(searchQuery)) ||
                     (tx.kategori && tx.kategori.toLowerCase().includes(searchQuery)) || 
@@ -1734,13 +1744,23 @@
             });
 
             // 2. Sort
+            function compareTxIds(idA, idB) {
+                const aStr = (idA !== undefined && idA !== null) ? idA.toString().trim() : '';
+                const bStr = (idB !== undefined && idB !== null) ? idB.toString().trim() : '';
+                return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' });
+            }
+
             filtered.sort((a, b) => {
                 const nomA = Number(a.jumlah !== undefined ? a.jumlah : a.nominal) || 0;
                 const nomB = Number(b.jumlah !== undefined ? b.jumlah : b.nominal) || 0;
                 if (currentSort === 'terbaru') {
-                    return b.tanggal.localeCompare(a.tanggal) || b.id - a.id;
+                    const dateCmp = (b.tanggal || "").localeCompare(a.tanggal || "");
+                    if (dateCmp !== 0) return dateCmp;
+                    return compareTxIds(b.id, a.id);
                 } else if (currentSort === 'terlama') {
-                    return a.tanggal.localeCompare(b.tanggal) || a.id - b.id;
+                    const dateCmp = (a.tanggal || "").localeCompare(b.tanggal || "");
+                    if (dateCmp !== 0) return dateCmp;
+                    return compareTxIds(a.id, b.id);
                 } else if (currentSort === 'termahal') {
                     return nomB - nomA;
                 } else if (currentSort === 'termurah') {
