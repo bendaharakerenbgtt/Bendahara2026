@@ -106,7 +106,7 @@ function doGet(e) {
       }
       result = jsonResponse({
         status: "success",
-        script_version: "2026-09-07_v5_distinct_uraian_keterangan",
+        script_version: "2026-09-07_v6_purge_catatan_drive_fix",
         drive_status: driveStatus,
         folder_id: folderId
       }, callback);
@@ -140,6 +140,7 @@ function getAllData(callback) {
 
   // 2. Sheet TRANSAKSI → Peta ke format front-end
   const transaksiSheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
+  removeDeprecatedColumns(transaksiSheet, ["catatan"]);
   const transaksiRaw   = sheetToJson(transaksiSheet);
   const transaksiData  = transaksiRaw.map(t => {
     const ketRaw       = getVal(t, "keterangan");
@@ -421,6 +422,7 @@ function insertTransaction(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
 
+  removeDeprecatedColumns(sheet, ["catatan"]);
   healSheetHeaders(sheet, defaultTransactionHeaders);
 
   const uraianInput = p.uraian !== undefined ? p.uraian : (p.keterangan || "");
@@ -458,7 +460,7 @@ function insertTransaction(p) {
   const today = new Date().toISOString().substring(0, 10);
 
   let driveUrl = "";
-  if (p.bukti && p.bukti.toString().startsWith("data:image")) {
+  if (p.bukti && p.bukti.toString().trim().startsWith("data:")) {
     const nextId = getNextTransactionId(sheet);
     driveUrl = saveImageToDrive(p.bukti, nextId);
   } else {
@@ -869,8 +871,8 @@ function appendRowByHeader(sheet, obj, defaultHeaders) {
     if (val !== undefined) return val;
     
     // Aliases fallbacks
-    if (h === "catatan" || h === "bukti") {
-      const b = getVal(obj, "bukti") || getVal(obj, "catatan");
+    if (h === "bukti") {
+      const b = getVal(obj, "bukti");
       if (b !== undefined) return b;
     }
     if (h === "id_anggota" || h === "id anggota" || h === "user_id") {
@@ -1153,6 +1155,29 @@ function editTransaction(p) {
   return jsonResponse({ status: "success" });
 }
 
+/** Auto-remove deprecated columns (e.g. 'catatan' from sheet transaksi) */
+function removeDeprecatedColumns(sheet, deprecatedColNames) {
+  if (!sheet) return;
+  try {
+    const lastCol = sheet.getLastColumn();
+    if (lastCol === 0) return;
+    
+    const headerRange = sheet.getRange(1, 1, 1, lastCol);
+    const existingHeaders = headerRange.getValues()[0].map(h => h.toString().trim().toLowerCase());
+    
+    // Iterate backwards so deleting a column does not alter previous indices
+    for (let i = existingHeaders.length - 1; i >= 0; i--) {
+      const colName = existingHeaders[i];
+      if (deprecatedColNames.indexOf(colName) !== -1) {
+        sheet.deleteColumn(i + 1);
+        Logger.log("Removed deprecated column: " + colName + " at index " + (i + 1));
+      }
+    }
+  } catch (err) {
+    Logger.log("Error removing deprecated columns: " + err.toString());
+  }
+}
+
 /** Auto-heal spreadsheet headers to add missing default columns */
 function healSheetHeaders(sheet, defaultHeaders) {
   if (!sheet) return;
@@ -1319,7 +1344,7 @@ function normalizeProkerSheet(sheet, transaksiData) {
 function saveImageToDrive(base64Data, transactionId) {
   if (!base64Data) return "";
   const base64Str = base64Data.toString().trim();
-  if (!base64Str.startsWith("data:image")) {
+  if (!base64Str.startsWith("data:")) {
     return base64Str;
   }
   

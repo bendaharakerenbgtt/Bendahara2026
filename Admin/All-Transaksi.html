@@ -1283,36 +1283,46 @@
         // Helper kompresi gambar universal ke base64
         function compressImageFile(file, maxDim = 800, quality = 0.7) {
             return new Promise((resolve) => {
-                if (!file || !file.type || !file.type.startsWith('image/')) {
-                    return resolve('');
-                }
+                if (!file) return resolve('');
                 const reader = new FileReader();
                 reader.onload = function(event) {
+                    const rawData = event.target.result;
+                    if (!rawData || typeof rawData !== 'string') return resolve('');
                     const img = new Image();
                     img.onload = function() {
-                        let w = img.width;
-                        let h = img.height;
-                        if (w > maxDim || h > maxDim) {
-                            if (w > h) {
-                                h = Math.round((h * maxDim) / w);
-                                w = maxDim;
-                            } else {
-                                w = Math.round((w * maxDim) / h);
-                                h = maxDim;
+                        try {
+                            let w = img.width;
+                            let h = img.height;
+                            if (w > maxDim || h > maxDim) {
+                                if (w > h) {
+                                    h = Math.round((h * maxDim) / w);
+                                    w = maxDim;
+                                } else {
+                                    w = Math.round((w * maxDim) / h);
+                                    h = maxDim;
+                                }
                             }
+                            const canvas = document.createElement('canvas');
+                            canvas.width = w;
+                            canvas.height = h;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, w, h);
+                            const compressed = canvas.toDataURL('image/jpeg', quality);
+                            resolve(compressed);
+                        } catch (err) {
+                            console.warn('[COMPRESS ERROR - USING RAW BASE64]', err);
+                            resolve(rawData);
                         }
-                        const canvas = document.createElement('canvas');
-                        canvas.width = w;
-                        canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        const base64 = canvas.toDataURL('image/jpeg', quality);
-                        resolve(base64);
                     };
-                    img.onerror = () => resolve('');
-                    img.src = event.target.result;
+                    img.onerror = function(err) {
+                        console.warn('[IMG LOAD ERROR - USING RAW BASE64]', err);
+                        resolve(rawData);
+                    };
+                    img.src = rawData;
                 };
-                reader.onerror = () => resolve('');
+                reader.onerror = function() {
+                    resolve('');
+                };
                 reader.readAsDataURL(file);
             });
         }
