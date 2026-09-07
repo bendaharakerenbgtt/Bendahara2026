@@ -44,7 +44,7 @@ const SHEET_NAME_KEGIATAN    = "kegiatan";
 const defaultTransactionHeaders = [
   "id_transaksi", "tanggal", "divisi", "kategori", "uraian", "unit", 
   "harga_satuan", "jumlah", "id_anggota", "id_kegiatan", "jenis", 
-  "metode", "keterangan", "created_at", "updated_at", "catatan"
+  "metode", "keterangan", "created_at", "updated_at"
 ];
 
 const defaultProkerHeaders = [
@@ -508,7 +508,6 @@ function insertTransaction(p) {
         proker_id: cleanProkerId,
         jenis: jenis,
         metode: p.metode || "Tunai",
-        catatan: finalKet,
         status_reimburse: p.status_reimburse || "Tidak Perlu",
         nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
         created_at: today,
@@ -589,7 +588,6 @@ function insertTransaction(p) {
     proker_id: cleanProkerId,
     jenis: jenis,
     metode: p.metode || "Tunai",
-    catatan: finalKet,
     status_reimburse: p.status_reimburse || "Tidak Perlu",
     nama_pic_pengeluar: p.nama_pic_pengeluar !== undefined ? p.nama_pic_pengeluar : "",
     created_at: today,
