@@ -600,11 +600,11 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="grid grid-cols-2 gap-3">
                                 <div class="grid grid-cols-2 gap-2">
                                     <div class="flex flex-col gap-1.5">
                                         <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Jumlah (Qty)</label>
-                                        <input type="number" id="in_jumlah_unit" placeholder="1" min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                                        <input type="number" id="in_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
                                     </div>
                                     <div class="flex flex-col gap-1.5">
                                         <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Satuan</label>
@@ -621,13 +621,10 @@
                                 </div>
                                 <div class="flex flex-col gap-1.5">
                                     <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
-                                    <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
-                                </div>
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Total Jumlah (Rp)</label>
-                                    <input type="text" id="pemasukanNominal" required onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs font-bold text-emerald-400 focus:outline-none focus:border-cyan-500 font-mono">
+                                    <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="Harga" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
                                 </div>
                             </div>
+                            <input type="hidden" id="pemasukanNominal" value="0">
 
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Transaksi (Opsional)</label>
@@ -639,6 +636,11 @@
                                     </div>
                                     <button type="button" onclick="resetPemasukanImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
                                 </div>
+                            </div>
+
+                            <div class="bg-emerald-950/20 p-3 rounded-xl text-center flex flex-col gap-0.5 border border-emerald-900/30 mt-1">
+                                <span class="text-[9px] font-mono text-emerald-400 uppercase font-bold tracking-wider">TOTAL HARGA</span>
+                                <div id="in_total_display" class="text-base font-black text-white font-mono tracking-tight">Rp0</div>
                             </div>
                         </div>
 
@@ -1428,15 +1430,14 @@
         const inQty = document.getElementById('in_jumlah_unit');
         const inPrice = document.getElementById('in_harga_satuan');
         const inNominal = document.getElementById('pemasukanNominal');
+        const inTotal = document.getElementById('in_total_display');
 
         function calculateInTotal() {
-            if (!inQty || !inPrice || !inNominal) return;
             const qty = parseFloat(inQty.value) || 0;
             const price = parseFloat(inPrice.value.replace(/[^0-9]/g, '')) || 0;
-            if (qty > 0 && price > 0) {
-                const total = qty * price;
-                inNominal.value = total.toLocaleString('id-ID');
-            }
+            const total = qty * price;
+            if (inTotal) inTotal.innerText = 'Rp' + total.toLocaleString('id-ID');
+            if (inNominal) inNominal.value = total;
         }
         if (inQty && inPrice) {
             inQty.addEventListener('input', calculateInTotal);
@@ -1468,7 +1469,7 @@
             const unitVal = getUnitValue('in');
             const qty = parseFloat(document.getElementById('in_jumlah_unit').value) || 1;
             const price = parseFloat(document.getElementById('in_harga_satuan').value.replace(/[^0-9]/g, '')) || 0;
-            const amount = parseInt(document.getElementById('pemasukanNominal').value.replace(/[^0-9]/g, '')) || (qty * price);
+            const amount = qty * price;
             const desc = document.getElementById('in_keterangan').value.trim();
             const optNote = (document.getElementById('in_catatan_opsional') ? document.getElementById('in_catatan_opsional').value.trim() : '');
             const prokerId = document.getElementById('in_proker_id').value || "NULL";
@@ -1491,6 +1492,8 @@
                 document.getElementById('in_satuan_custom').classList.add('hidden');
                 document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
                 resetPemasukanImage();
+                if (inTotal) inTotal.innerText = 'Rp0';
+                if (inNominal) inNominal.value = '0';
                 applyMutationFilters();
                 return;
             }
@@ -1534,6 +1537,8 @@
                 document.getElementById('in_satuan_custom').classList.add('hidden');
                 document.getElementById('in_tanggal').value = new Date().toISOString().substring(0, 10);
                 resetPemasukanImage();
+                if (inTotal) inTotal.innerText = 'Rp0';
+                if (inNominal) inNominal.value = '0';
                 fetchInitialData(true);
             })
             .catch(err => {
