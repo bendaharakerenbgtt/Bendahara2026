@@ -567,9 +567,15 @@
                         </div>
 
                         <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Uraian Pemasukan</label>
-                                <input type="text" id="in_keterangan" placeholder="Contoh: Dana Turunan Mukamil, Donasi Hamba Allah..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Uraian Pemasukan <span class="text-rose-400">*</span></label>
+                                    <input type="text" id="in_keterangan" placeholder="Contoh: Totebag, Dana Turunan Mukamil..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan (Opsional)</label>
+                                    <input type="text" id="in_catatan_opsional" placeholder="Keterangan tambahan (misal: pembelinya Fadli)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -687,9 +693,15 @@
                     </div>
 
                     <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nama Barang / Uraian</label>
-                            <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nama Barang / Uraian <span class="text-rose-400">*</span></label>
+                                <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan (Opsional)</label>
+                                <input type="text" id="out_catatan_opsional" placeholder="Keterangan tambahan (misal: untuk konsumsi rapat)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1010,8 +1022,8 @@
                     const tglStr = (tx.tanggal !== undefined && tx.tanggal !== null) ? String(tx.tanggal).trim() : '';
                     const divStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
                     const katStr = (tx.kategori !== undefined && tx.kategori !== null) ? String(tx.kategori).trim() : 'Kas';
-                    const uraianStr = String(tx.uraian || tx.keterangan || '').trim();
-                    const ketStr = String(tx.keterangan || tx.uraian || '').trim();
+                    const uraianStr = String(tx.uraian !== undefined && tx.uraian !== null ? tx.uraian : (tx.keterangan || '')).trim();
+                    const ketStr = String(tx.keterangan !== undefined && tx.keterangan !== null ? tx.keterangan : '').trim();
                     const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
                     const catStr = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
                     const jenisStr = String(tx.jenis || 'Keluar').trim();
@@ -1457,7 +1469,8 @@
             const qty = parseFloat(document.getElementById('in_jumlah_unit').value) || 1;
             const price = parseFloat(document.getElementById('in_harga_satuan').value.replace(/[^0-9]/g, '')) || 0;
             const amount = parseInt(document.getElementById('pemasukanNominal').value.replace(/[^0-9]/g, '')) || (qty * price);
-            const desc = document.getElementById('in_keterangan').value;
+            const desc = document.getElementById('in_keterangan').value.trim();
+            const optNote = (document.getElementById('in_catatan_opsional') ? document.getElementById('in_catatan_opsional').value.trim() : '');
             const prokerId = document.getElementById('in_proker_id').value || "NULL";
             const userId = document.getElementById('in_user_id').value;
 
@@ -1469,7 +1482,7 @@
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, divisi: divisi, uraian: desc, keterangan: desc, unit: unitVal, harga_satuan: price, jenis: "Masuk", metode: method, kategori: cat, jumlah: amount, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64
+                    id: Date.now(), tanggal: date, divisi: divisi, uraian: desc, keterangan: optNote, unit: unitVal, harga_satuan: price, jenis: "Masuk", metode: method, kategori: cat, jumlah: amount, nominal: amount, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, bukti: pemasukanImageBase64
                 });
                 Swal.fire({ icon: 'success', title: 'Pemasukan Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pemasukanLainnyaForm').reset();
@@ -1498,7 +1511,7 @@
                     tanggal: date,
                     divisi: divisi,
                     uraian: desc,
-                    keterangan: desc,
+                    keterangan: optNote,
                     unit: unitVal,
                     harga_satuan: price,
                     jenis: "Masuk",
@@ -1540,7 +1553,8 @@
             const unitVal = getUnitValue('out');
             const qty = parseFloat(expQty.value) || 1;
             const price = parseFloat(expPrice.value.replace(/[^0-9]/g, '')) || 0;
-            const desc = document.getElementById('exp_nama_barang').value;
+            const desc = document.getElementById('exp_nama_barang').value.trim();
+            const optNote = (document.getElementById('out_catatan_opsional') ? document.getElementById('out_catatan_opsional').value.trim() : '');
             const userId = document.getElementById('out_user_id').value;
             const picName = userId ? (membersMap[userId.toString()] || "") : "";
             const prokerId = document.getElementById('out_proker_id').value || "NULL";
@@ -1554,7 +1568,7 @@
 
             if (!GOOGLE_SCRIPT_URL) {
                 localTransactions.unshift({
-                    id: Date.now(), tanggal: date, divisi: divisi, uraian: desc, keterangan: desc, unit: unitVal, harga_satuan: price, jenis: "Keluar", metode: method, kategori: cat, jumlah: total, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64
+                    id: Date.now(), tanggal: date, divisi: divisi, uraian: desc, keterangan: optNote, unit: unitVal, harga_satuan: price, jenis: "Keluar", metode: method, kategori: cat, jumlah: total, nominal: total, status_reimburse: "Tidak Perlu", proker_id: prokerId, user_id: userId, nama_pic_pengeluar: picName, bukti: pengeluaranImageBase64
                 });
                 Swal.fire({ icon: 'success', title: 'Pengeluaran Disimpan (Lokal)!', showConfirmButton: false, timer: 1000 });
                 document.getElementById('pengeluaranForm').reset();
@@ -1584,7 +1598,7 @@
                     tanggal: date,
                     divisi: divisi,
                     uraian: desc,
-                    keterangan: desc,
+                    keterangan: optNote,
                     unit: unitVal,
                     harga_satuan: price,
                     jumlah: total,
@@ -1768,7 +1782,8 @@
                 const prokerName = (txProkerIdStr !== '' && txProkerIdStr.toUpperCase() !== 'NULL')
                     ? (prokersMap[txProkerIdStr] || txProkerIdStr) 
                     : "NULL / Tidak Ada";
-                const txUraian = String(tx.keterangan || tx.uraian || "");
+                const txUraian = String(tx.uraian || "");
+                const txKet = String(tx.keterangan || "");
                 const txDivisi = String(tx.divisi || "");
                 const txUnit = String(tx.unit || "");
                 const txCatatan = String(tx.catatan || "");
@@ -1781,6 +1796,7 @@
                 const matchSearch = (!searchQuery || 
                     txIdStr.toLowerCase().includes(searchQuery) ||
                     txUraian.toLowerCase().includes(searchQuery) || 
+                    txKet.toLowerCase().includes(searchQuery) ||
                     txCatatan.toLowerCase().includes(searchQuery) ||
                     txKategori.toLowerCase().includes(searchQuery) || 
                     txDivisi.toLowerCase().includes(searchQuery) ||
@@ -1836,8 +1852,8 @@
             itemsToRender.forEach(tx => {
                 renderCount++;
                 const nominalVal = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
-                const rawTitle = tx.keterangan || tx.uraian || "Tanpa Keterangan";
-                const txTitle = cleanTitle(rawTitle) || "Tanpa Keterangan";
+                const rawTitle = tx.uraian || tx.keterangan || "Tanpa Uraian";
+                const txTitle = cleanTitle(rawTitle) || "Tanpa Uraian";
                 const dateFormated = formatReadableDate(tx.tanggal);
                 const isMasuk = tx.jenis === 'Masuk';
                 const sign = isMasuk ? '+' : '-';
@@ -1871,10 +1887,9 @@
                     ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📦 ${unitVal} ${priceText}</span>` 
                     : '';
 
-                let displayNote = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
-                if (displayNote) {
-                    displayNote = cleanTitle(displayNote);
-                }
+                let extraKet = cleanTitle(tx.keterangan);
+                if (extraKet === txTitle) extraKet = '';
+                let displayNote = extraKet || cleanTitle(tx.catatan || '');
                 const hasNote = displayNote && !displayNote.startsWith('KAS_') && !displayNote.startsWith('PROKER_') && displayNote !== '' && displayNote !== txTitle;
                 const noteHtml = hasNote 
                     ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-cyan-500/20 pl-2 py-0.5 leading-relaxed max-w-md select-text">📝 ${displayNote}</div>` 
@@ -2047,13 +2062,20 @@
             const item = localTransactions.find(t => t.id.toString() === id.toString());
             if(!item) return;
 
+            const existingUraian = cleanTitle(item.uraian || item.keterangan || '');
+            const existingKet = cleanTitle(item.keterangan && cleanTitle(item.keterangan) !== cleanTitle(item.uraian) ? item.keterangan : '');
+
             Swal.fire({
                 title: 'Edit Transaksi',
                 html: `
                     <div class="flex flex-col gap-3 text-left text-xs font-sans text-neutral-300">
                         <div>
-                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Keterangan / Memo</label>
-                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs" value="${item.keterangan}">
+                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Uraian Transaksi</label>
+                            <input type="text" id="swal-edit-uraian" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs" value="${existingUraian}">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Keterangan (Opsional)</label>
+                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs" value="${existingKet}" placeholder="Keterangan tambahan...">
                         </div>
                         <div>
                             <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Nominal (Rp)</label>
@@ -2074,11 +2096,13 @@
                 cancelButtonColor: '#374151'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    const newUraian = document.getElementById('swal-edit-uraian').value;
                     const newKeterangan = document.getElementById('swal-edit-keterangan').value;
                     const newNominal = parseInt(document.getElementById('swal-edit-nominal').value.replace(/[^0-9]/g, '')) || 0;
                     const newMetode = document.getElementById('swal-edit-metode').value;
 
                     if (!GOOGLE_SCRIPT_URL) {
+                        item.uraian = newUraian;
                         item.keterangan = newKeterangan;
                         item.nominal = newNominal;
                         item.metode = newMetode;
@@ -2100,6 +2124,7 @@
                         body: JSON.stringify({
                             action: "edit_transaction",
                             id: id,
+                            uraian: newUraian,
                             keterangan: newKeterangan,
                             nominal: newNominal,
                             metode: newMetode
@@ -2212,13 +2237,13 @@
                         </div>
 
                         <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
-                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">KETERANGAN</span>
-                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${cleanTitle(tx.keterangan || tx.uraian) || '-'}</span>
+                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">URAIAN</span>
+                            <span class="text-neutral-200 block text-xs leading-relaxed font-semibold">${cleanTitle(tx.uraian || tx.keterangan) || '-'}</span>
                         </div>
 
                         <div class="p-2.5 bg-neutral-900/40 border border-neutral-850 rounded-lg">
-                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">URAIAN / CATATAN</span>
-                            <span class="text-neutral-300 block text-xs leading-relaxed">${cleanTitle(tx.catatan || tx.uraian) || '-'}</span>
+                            <span class="text-[9px] font-mono text-neutral-500 block font-bold">KETERANGAN (TAMBAHAN)</span>
+                            <span class="text-neutral-300 block text-xs leading-relaxed">${cleanTitle(tx.keterangan && cleanTitle(tx.keterangan) !== cleanTitle(tx.uraian) ? tx.keterangan : (tx.catatan || '')) || '-'}</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 text-[9px] font-mono text-neutral-500 pt-1">

@@ -106,7 +106,7 @@ function doGet(e) {
       }
       result = jsonResponse({
         status: "success",
-        script_version: "2026-09-06_v4_auto_drive_keterangan",
+        script_version: "2026-09-07_v5_distinct_uraian_keterangan",
         drive_status: driveStatus,
         folder_id: folderId
       }, callback);
@@ -148,7 +148,7 @@ function getAllData(callback) {
     const buktiRaw     = getVal(t, "bukti") || "";
     const ketVal       = (ketRaw !== undefined && ketRaw !== null && String(ketRaw).trim() !== "")
       ? String(ketRaw).trim()
-      : (catatanRaw || uraianRaw || "");
+      : (catatanRaw || "");
     const catatanVal   = catatanRaw;
     let proofUrl = "";
     
@@ -528,7 +528,25 @@ function insertTransaction(p) {
   }
 
   const newId = getNextTransactionId(sheet);
-  let finalKet = (p.keterangan || uraianInput || "").trim();
+
+  const hasExplicitUraian = (p.uraian !== undefined && p.uraian !== null && String(p.uraian).trim() !== "");
+  let cleanUraian = hasExplicitUraian
+    ? String(p.uraian).trim()
+    : (p.keterangan ? String(p.keterangan).trim() : "Tanpa Uraian");
+
+  let ketTambahan = "";
+  if (hasExplicitUraian) {
+    // Caller deliberately provided uraian, so p.keterangan is the optional note
+    const rawKet = (p.keterangan !== undefined && p.keterangan !== null) ? String(p.keterangan).trim() : "";
+    if (rawKet !== "" && rawKet.toLowerCase() !== cleanUraian.toLowerCase()) {
+      ketTambahan = rawKet;
+    }
+  } else {
+    // Legacy / caller only passed keterangan
+    ketTambahan = (p.keterangan !== undefined && p.keterangan !== null) ? String(p.keterangan).trim() : cleanUraian;
+  }
+
+  let finalKet = ketTambahan;
   if (isKasPayment) {
     let m = "Kas";
     const monthsFound = extractMonthsFromText(uraianInput);
@@ -540,7 +558,9 @@ function insertTransaction(p) {
         m = unpaid[0];
       }
     }
-    finalKet = (memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota")) + " (" + m + ")";
+    const baseKas = (memberName ? "Kas " + memberName : (uraianInput || "Kas Anggota")) + " (" + m + ")";
+    cleanUraian = baseKas;
+    finalKet = baseKas;
   }
 
   if (driveUrl) {
@@ -557,7 +577,7 @@ function insertTransaction(p) {
     tanggal: p.tanggal || today,
     divisi: cleanDivisi,
     kategori: isKasPayment ? "Kas Pengurus" : (p.kategori || "Umum"),
-    uraian: uraianInput || finalKet,
+    uraian: cleanUraian,
     keterangan: finalKet,
     unit: p.unit || "NULL",
     harga_satuan: parseFormattedNumber(p.harga_satuan),
@@ -1127,6 +1147,7 @@ function editTransaction(p) {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
   
+  if (p.uraian     !== undefined) updateColumnById(sheet, p.id, "uraian", p.uraian);
   if (p.keterangan !== undefined) updateColumnById(sheet, p.id, "keterangan", p.keterangan);
   if (p.nominal    !== undefined) updateColumnById(sheet, p.id, "nominal", parseFormattedNumber(p.nominal));
   if (p.metode     !== undefined) updateColumnById(sheet, p.id, "metode", p.metode);
