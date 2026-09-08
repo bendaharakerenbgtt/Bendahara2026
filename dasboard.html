@@ -955,6 +955,130 @@
             background-color: #FFF7ED !important;
             border-color: #FB923C !important;
         }
+
+        /* ==========================================================================
+           MODERN MOBILE BOTTOM NAVIGATION DOCK (2026 FINTECH STYLE)
+           ========================================================================== */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(10, 14, 23, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 115, 0, 0.25);
+            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(255, 115, 0, 0.1);
+            z-index: 40;
+            padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        html.light-mode .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top: 1.5px solid rgba(254, 215, 170, 0.95) !important;
+            box-shadow: 0 -4px 20px rgba(255, 115, 0, 0.12), 0 -1px 4px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            padding: 4px 2px;
+            color: #94a3b8;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .bottom-nav-item .nav-icon-wrap {
+            width: 34px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .bottom-nav-item .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            margin-top: 2px;
+            transition: color 0.2s ease, font-weight 0.2s ease;
+            white-space: nowrap;
+        }
+
+        /* Dark Mode Active State */
+        .bottom-nav-item.active {
+            color: #FF7300;
+        }
+        .bottom-nav-item.active .nav-icon-wrap {
+            background: rgba(255, 115, 0, 0.2);
+            color: #FF7300;
+            box-shadow: 0 0 14px rgba(255, 115, 0, 0.35);
+            border: 1px solid rgba(255, 115, 0, 0.3);
+        }
+        .bottom-nav-item.active .nav-label {
+            color: #FF7300;
+            font-weight: 800;
+        }
+
+        /* Light Mode Styling */
+        html.light-mode .bottom-nav-item {
+            color: #64748b;
+        }
+        html.light-mode .bottom-nav-item.active {
+            color: #ea580c !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-icon-wrap {
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 10px rgba(255, 115, 0, 0.38) !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-label {
+            color: #ea580c !important;
+            font-weight: 800 !important;
+        }
+
+        /* Mobile Breakpoint Overrides */
+        @media (max-width: 768px) {
+            .app-header {
+                display: none !important;
+            }
+
+            .mobile-bottom-nav {
+                display: flex !important;
+            }
+
+            body {
+                padding-bottom: 84px !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-bottom-nav {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
@@ -1043,6 +1167,9 @@
 
             <div class="greeting-content relative z-10">
                 <div>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/25 text-[9px] font-mono font-bold text-orange-600 mb-2 md:hidden">
+                        <span>✨</span> DANAIMIP 2026
+                    </div>
                     <h2 class="greeting-title">Assalamu'alaikum, Pejuang Dakwah</h2>
                     <p class="greeting-subtitle">Semoga hari Anda senantiasa diberkahi Allah SWT dalam setiap langkah dakwah dan kebaikan.</p>
                 </div>
@@ -1256,6 +1383,30 @@
         <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP © 2026</span>
     </footer>
 
+    <!-- MODERN MOBILE BOTTOM NAVIGATION DOCK -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah">
+        <a href="dasboard.html" class="bottom-nav-item active">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-house"></i></div>
+            <span class="nav-label">Beranda</span>
+        </a>
+        <a href="pembayaran-kas.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+            <span class="nav-label">Bayar Kas</span>
+        </a>
+        <a href="lihat-kegiatan.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-calendar-check"></i></div>
+            <span class="nav-label">Kegiatan</span>
+        </a>
+        <a href="riwayat-transaksi.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <span class="nav-label">Rekap</span>
+        </a>
+        <button type="button" onclick="toggleTheme(event)" class="bottom-nav-item" id="mobileThemeBtn" title="Ubah Tema">
+            <div class="nav-icon-wrap"><i id="mobileThemeIcon" class="fa-solid fa-sun text-orange-500"></i></div>
+            <span class="nav-label" id="mobileThemeLabel">Mode</span>
+        </button>
+    </nav>
+
     <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
 
@@ -1325,6 +1476,8 @@
 
     function applyTheme(theme) {
         const btn = document.getElementById('themeToggleBtn');
+        const mobileIcon = document.getElementById('mobileThemeIcon');
+        const mobileLabel = document.getElementById('mobileThemeLabel');
         const isLight = (theme === 'light');
         if (isLight) {
             document.documentElement.classList.add('light-mode');
@@ -1332,12 +1485,24 @@
             if (btn) {
                 btn.innerHTML = '<i class="fa-solid fa-sun text-orange-500"></i><span id="themeToggleText">Mode Terang</span>';
             }
+            if (mobileIcon) {
+                mobileIcon.className = 'fa-solid fa-sun text-orange-500';
+            }
+            if (mobileLabel) {
+                mobileLabel.innerText = 'Terang';
+            }
             updateChartTheme(true);
         } else {
             document.documentElement.classList.remove('light-mode');
             document.body.classList.remove('light-mode');
             if (btn) {
                 btn.innerHTML = '<i class="fa-solid fa-moon text-amber-400"></i><span id="themeToggleText">Mode Gelap</span>';
+            }
+            if (mobileIcon) {
+                mobileIcon.className = 'fa-solid fa-moon text-amber-400';
+            }
+            if (mobileLabel) {
+                mobileLabel.innerText = 'Gelap';
             }
             updateChartTheme(false);
         }
