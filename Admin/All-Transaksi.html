@@ -440,6 +440,26 @@
         html.light-mode .border-t-emerald-500 {
             border-top-color: #15803d !important;
         }
+
+        /* Sleek Segmented Pill Control for Ledger Switcher */
+        .ledger-tab-container {
+            transition: all 0.25s ease;
+        }
+        html.light-mode .ledger-tab-container {
+            background: #FFFFFF !important;
+            border-color: #CBD5E1 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+        }
+        html.light-mode .ledger-tab-btn.active-in {
+            background: rgba(6, 182, 212, 0.12) !important;
+            border-color: rgba(6, 182, 212, 0.35) !important;
+            color: #0891B2 !important;
+        }
+        html.light-mode .ledger-tab-btn.active-out {
+            background: rgba(244, 63, 94, 0.12) !important;
+            border-color: rgba(244, 63, 94, 0.35) !important;
+            color: #E11D48 !important;
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
@@ -482,20 +502,22 @@
         </div>
     </header>
 
-    <main class="w-full max-w-4xl mx-auto px-4 py-6 flex-grow flex flex-col gap-5">
+    <main class="w-full max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 flex-grow flex flex-col gap-3.5 sm:gap-5">
         
-        <div class="grid grid-cols-2 gap-2 p-1.5 bg-neutral-950 border border-neutral-900 rounded-xl">
-            <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer">
-                ⬇️ Pemasukan / Arus Masuk
+        <div class="w-full max-w-[340px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full shadow-xs ledger-tab-container">
+            <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none">
+                <span class="text-[11px]">⬇️</span>
+                <span>Pemasukan<span class="hidden sm:inline"> / Arus Masuk</span></span>
             </button>
-            <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer">
-                ⬆️ Pengeluaran / Arus Keluar
+            <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none">
+                <span class="text-[11px]">⬆️</span>
+                <span>Pengeluaran<span class="hidden sm:inline"> / Arus Keluar</span></span>
             </button>
         </div>
 
         <div class="flex flex-col gap-4">
 
-            <div id="ledger-panel-placeholder" class="bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center gap-3 shadow-xs">
+            <div id="ledger-panel-placeholder" class="bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-5 sm:p-8 text-center flex flex-col items-center justify-center gap-2.5 sm:gap-3 shadow-xs">
                 <div class="w-12 h-12 rounded-full bg-cyan-950/20 border border-cyan-800/20 flex items-center justify-center text-lg text-cyan-400 animate-pulse">
                     📊
                 </div>
@@ -1413,16 +1435,20 @@
             
             if (panelPlaceholder) panelPlaceholder.style.display = 'none';
             
+            const activeInClass = "ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all bg-neutral-900 border border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-in";
+            const activeOutClass = "ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all bg-neutral-900 border border-rose-500/40 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-out";
+            const inactiveClass = "ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none";
+
             if (target === 'in') {
                 panelIn.style.display = 'flex';
                 panelOut.style.display = 'none';
-                btnIn.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 text-cyan-400 cursor-pointer";
-                btnOut.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer";
+                btnIn.className = activeInClass;
+                btnOut.className = inactiveClass;
             } else {
                 panelIn.style.display = 'none';
                 panelOut.style.display = 'flex';
-                btnIn.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all text-neutral-500 cursor-pointer";
-                btnOut.className = "py-2.5 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 text-rose-400 cursor-pointer";
+                btnIn.className = inactiveClass;
+                btnOut.className = activeOutClass;
             }
         }
 

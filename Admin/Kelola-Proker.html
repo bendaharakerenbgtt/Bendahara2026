@@ -512,14 +512,16 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-5 w-full flex-grow flex flex-col gap-4">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-5 w-full flex-grow flex flex-col gap-3.5 sm:gap-4">
         
-        <div class="grid grid-cols-2 gap-2 p-1 bg-neutral-950 border border-neutral-900 rounded-xl">
-            <button onclick="switchProkerTab('running')" id="tab-btn-running" class="py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-cyan-400 cursor-pointer">
-                💼 Kegiatan Berjalan
+        <div class="w-full max-w-[340px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full shadow-xs">
+            <button onclick="switchProkerTab('running')" id="tab-btn-running" class="py-1.5 px-3 text-center text-[11px] sm:text-xs font-bold font-sans rounded-full transition-all bg-neutral-900 border border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none">
+                <span class="text-[11px]">💼</span>
+                <span>Kegiatan Berjalan</span>
             </button>
-            <button onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer">
-                ✅ Kegiatan Selesai
+            <button onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="py-1.5 px-3 text-center text-[11px] sm:text-xs font-bold font-sans rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none">
+                <span class="text-[11px]">✅</span>
+                <span>Kegiatan Selesai</span>
             </button>
         </div>
 
@@ -721,17 +723,19 @@
             const pSelesai = document.getElementById('panel-proker-selesai');
             const btnRunning = document.getElementById('tab-btn-running');
             const btnSelesai = document.getElementById('tab-btn-selesai');
-            if (!pRunning || !pSelesai || !btnRunning || !btnSelesai) return;
+            const activeClass = "py-1.5 px-3 text-center text-[11px] sm:text-xs font-bold font-sans rounded-full transition-all bg-neutral-900 border border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none";
+            const inactiveClass = "py-1.5 px-3 text-center text-[11px] sm:text-xs font-bold font-sans rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none";
+
             if (target === 'running') {
                 pRunning.classList.remove('tab-hidden');
                 pSelesai.classList.add('tab-hidden');
-                btnRunning.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-cyan-400 cursor-pointer";
-                btnSelesai.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer";
+                btnRunning.className = activeClass;
+                btnSelesai.className = inactiveClass;
             } else {
                 pRunning.classList.add('tab-hidden');
                 pSelesai.classList.remove('tab-hidden');
-                btnRunning.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-500 cursor-pointer";
-                btnSelesai.className = "py-2.5 text-center text-xs font-bold font-sans rounded-lg transition-all bg-neutral-900 text-cyan-400 cursor-pointer";
+                btnRunning.className = inactiveClass;
+                btnSelesai.className = activeClass;
             }
         }
 
