@@ -642,35 +642,61 @@
            PUBLIC PROKER STYLES - WARM SUNSET ORANGE FADE SYSTEM
            ========================================================================== */
 
-        /* 1. Tab Navigation */
+        /* 1. Tab Navigation (Sleek Modern Segmented Pill) */
         .proker-tab-container {
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
+            padding: 3px !important;
+            border-radius: 9999px !important;
         }
         html.light-mode .proker-tab-container {
             background: #FFFFFF !important;
-            border: 1.5px solid #FED7AA !important;
-            box-shadow: 0 4px 18px rgba(255, 115, 0, 0.08) !important;
+            border: 1px solid #FED7AA !important;
+            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.08) !important;
+        }
+        :root:not(.light-mode) .proker-tab-container {
+            background: rgba(15, 23, 42, 0.75) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
         }
         .tab-btn {
-            padding: 0.65rem 0.5rem;
+            padding: 0.38rem 0.6rem !important;
             text-align: center;
-            font-size: 0.75rem;
-            font-weight: 800;
-            font-family: inherit;
-            border-radius: 0.65rem;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.72rem !important; /* ~11.5px compact */
+            font-weight: 700 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            border-radius: 9999px !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             border: none;
             outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            user-select: none;
+        }
+        @media (min-width: 640px) {
+            .tab-btn {
+                padding: 0.48rem 1rem !important;
+                font-size: 0.78rem !important;
+            }
         }
         .tab-btn.tab-active {
             background: linear-gradient(135deg, #FF7300 0%, #FFA500 100%) !important;
             color: #FFFFFF !important;
-            box-shadow: 0 4px 14px rgba(255, 115, 0, 0.35) !important;
+            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.3) !important;
+            font-weight: 800 !important;
         }
         .tab-btn.tab-inactive {
             background: transparent !important;
-            color: var(--text-sec-400) !important;
+        }
+        html.light-mode .tab-btn.tab-inactive {
+            color: #64748B !important;
+        }
+        :root:not(.light-mode) .tab-btn.tab-inactive {
+            color: #94A3B8 !important;
         }
         .tab-btn.tab-inactive:hover {
             color: #EA580C !important;
@@ -1456,34 +1482,34 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 w-full flex-grow flex flex-col gap-3.5 sm:gap-5">
         
-        <div class="flex flex-col gap-1 border-b border-neutral-900 pb-4">
-            <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Daftar Seluruh Kegiatan <span class="bg-gradient-to-r from-[#FF7300] via-[#FFA500] to-[#FF8C00] bg-clip-text text-transparent">LDK IMIP</span></h2>
-            <p class="text-xs text-neutral-400">Disini berisi rincian finansial program kerja LDK IMIP. Jika ada keliruan dalam informasi, silakan hubungi admin.</p>
+        <div class="flex flex-col gap-1 border-b border-neutral-200/80 dark:border-neutral-900 pb-3 sm:pb-4">
+            <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight">Daftar Seluruh Kegiatan <span class="bg-gradient-to-r from-[#FF7300] via-[#FFA500] to-[#FF8C00] bg-clip-text text-transparent">LDK IMIP</span></h2>
+            <p class="text-[11px] sm:text-xs text-neutral-400">Disini berisi rincian finansial program kerja LDK IMIP. Jika ada keliruan dalam informasi, silakan hubungi admin.</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 p-1.5 bg-neutral-950 border border-neutral-900 rounded-xl proker-tab-container">
+        <div class="w-full max-w-[340px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full proker-tab-container shadow-xs">
             <button onclick="switchProkerTab('running')" id="tab-btn-running" class="tab-btn tab-active">
-                💼 Kegiatan Berjalan
+                <span>💼 Kegiatan Berjalan</span>
             </button>
             <button onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="tab-btn tab-inactive">
-                ✅ Kegiatan Selesai
+                <span>✅ Kegiatan Selesai</span>
             </button>
         </div>
 
-        <div id="panel-proker-running" class="flex flex-col gap-4">
-            <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block pl-1">KEGIATAN BERJALAN</span>
+        <div id="panel-proker-running" class="flex flex-col gap-3 sm:gap-4">
+            <span class="text-[9px] font-mono tracking-widest text-neutral-400 dark:text-neutral-500 uppercase font-black pl-1 hidden sm:block">KEGIATAN BERJALAN</span>
             
-            <div id="running-proker-list" class="flex flex-col gap-4">
+            <div id="running-proker-list" class="flex flex-col gap-3.5 sm:gap-4">
                 <!-- Program Kerja Berjalan dimasukkan secara dinamis -->
             </div>
         </div>
 
-        <div id="panel-proker-selesai" class="flex flex-col gap-3 tab-hidden">
-            <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block pl-1">DAFTAR KEGIATAN SELESAI</span>
+        <div id="panel-proker-selesai" class="flex flex-col gap-3 sm:gap-4 tab-hidden">
+            <span class="text-[9px] font-mono tracking-widest text-neutral-400 dark:text-neutral-500 uppercase font-black pl-1 hidden sm:block">DAFTAR KEGIATAN SELESAI</span>
             
-            <div id="completed-proker-list" class="flex flex-col gap-3">
+            <div id="completed-proker-list" class="flex flex-col gap-3.5 sm:gap-4">
                  <!-- Program Kerja Selesai dimasukkan secara dinamis -->
             </div>
         </div>
