@@ -696,7 +696,7 @@
         <div id="panel-proker-running" class="flex flex-col gap-4">
             <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black block pl-1">KEGIATAN BERJALAN</span>
             
-            <div id="running-proker-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="running-proker-list" class="flex flex-col gap-4">
                 <!-- Program Kerja Berjalan dimasukkan secara dinamis -->
             </div>
         </div>
@@ -1165,6 +1165,412 @@
             return "-";
         }
 
+        function formatUnitDisplay(unitVal) {
+            if (!unitVal) return "-";
+            const s = String(unitVal).trim();
+            if (!s || s.toUpperCase() === "NULL" || s === "-") return "-";
+            return s;
+        }
+
+        function formatHargaSatuanDisplay(priceVal, nominalVal) {
+            const numPrice = Number(priceVal) || 0;
+            if (numPrice > 0) {
+                return 'Rp ' + numPrice.toLocaleString('id-ID');
+            }
+            const numNom = Number(nominalVal) || 0;
+            if (numNom > 0) {
+                return 'Rp ' + numNom.toLocaleString('id-ID');
+            }
+            return "-";
+        }
+
+        function formatDivisiName(divName) {
+            if (!divName || String(divName).trim() === "" || String(divName).trim().toUpperCase() === "NULL") {
+                return "Divisi Umum / Operasional";
+            }
+            const clean = String(divName).trim();
+            if (/^divisi\s+/i.test(clean)) {
+                return clean;
+            }
+            return `Divisi ${clean}`;
+        }
+
+        function getGroupLetter(index) {
+            if (index < 26) return String.fromCharCode(65 + index);
+            const first = String.fromCharCode(65 + Math.floor(index / 26) - 1);
+            const second = String.fromCharCode(65 + (index % 26));
+            return `${first}${second}`;
+        }
+
+        function buildProkerCardPublicHtml(proker, isCompleted) {
+            const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
+
+            let totalIn = 0;
+            let totalOut = 0;
+            const inTxs = [];
+            const outTxs = [];
+
+            prokerTx.forEach(t => {
+                const nominal = Number(t.nominal) || 0;
+                const j = (t.jenis || "").trim().toLowerCase();
+                if (j === "masuk") {
+                    totalIn += nominal;
+                    inTxs.push(t);
+                } else {
+                    totalOut += nominal;
+                    outTxs.push(t);
+                }
+            });
+
+            const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
+            const effPemasukan = Number(proker.pemasukan !== undefined && Number(proker.pemasukan) > 0 ? proker.pemasukan : totalIn);
+            const effPengeluaran = Number(proker.pengeluaran !== undefined && Number(proker.pengeluaran) > 0 ? proker.pengeluaran : totalOut);
+            const effRealisasi = Number(proker.realisasi !== undefined && Number(proker.realisasi) > 0 ? proker.realisasi : effPengeluaran);
+            const effSaldo = effPemasukan - effPengeluaran;
+            const ketuaNama = getMemberName(proker.id_anggota);
+
+            // Grouping Pengeluaran by Divisi
+            const outByDivisi = {};
+            outTxs.forEach(t => {
+                const d = formatDivisiName(t.divisi);
+                if (!outByDivisi[d]) outByDivisi[d] = [];
+                outByDivisi[d].push(t);
+            });
+
+            let pengeluaranSectionHtml = '';
+            const divisiKeys = Object.keys(outByDivisi);
+
+            if (outTxs.length === 0) {
+                pengeluaranSectionHtml = `
+                    <div class="py-6 text-center text-xs text-neutral-500 font-mono italic bg-neutral-950/60 border border-neutral-900 border-dashed rounded-xl">
+                        Belum ada rincian pengeluaran untuk kegiatan ini.
+                    </div>
+                `;
+            } else {
+                let rowsHtml = '';
+                divisiKeys.forEach((divName, divIdx) => {
+                    const items = outByDivisi[divName];
+                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                    const letter = getGroupLetter(divIdx);
+
+                    // Division Header Row (A. Divisi Sekretaris, B. Divisi Acara, etc.)
+                    rowsHtml += `
+                        <tr class="bg-neutral-900/80 border-t-2 border-neutral-800 border-b border-neutral-800">
+                            <td colspan="4" class="py-2.5 px-3 font-mono font-bold text-[10px] sm:text-xs text-emerald-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="tracking-wide">${letter}. ${divName}</span>
+                                    <span class="text-[8px] sm:text-[9px] font-mono font-normal text-neutral-400 bg-neutral-950 border border-neutral-800 px-1.5 py-0.5 rounded">
+                                        ${items.length} item
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-neutral-200 whitespace-nowrap">
+                                Rp ${divSubtotal.toLocaleString('id-ID')}
+                            </td>
+                        </tr>
+                    `;
+
+                    // Item Rows
+                    items.forEach((item, itemIdx) => {
+                        const itemNominal = Number(item.nominal) || 0;
+                        const dateFormatted = formatDateShort(item.tanggal);
+                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                            ? item.uraian 
+                            : (item.keterangan || item.catatan || 'Pengeluaran');
+                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+
+                        let cleanCatatan = item.catatan ? cleanTitle(item.catatan) : '';
+                        let detailsCardHtml = '';
+                        if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanUraian && cleanCatatan !== cleanTitle(item.keterangan)) {
+                            detailsCardHtml = `
+                                <div class="mt-1 p-1.5 bg-neutral-900 border border-neutral-850 rounded text-neutral-400 text-[9px]">
+                                    <span>${cleanCatatan}</span>
+                                </div>
+                            `;
+                        }
+
+                        const receiptPath = getReceiptPath(item);
+                        const attachmentBtn = receiptPath ? `
+                            <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-emerald-950 text-neutral-400 hover:text-emerald-400 border border-neutral-900 hover:border-emerald-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
+                                📂 Lihat Bukti
+                            </button>
+                        ` : '';
+
+                        const picName = item.nama_pic_pengeluar || getMemberName(item.user_id);
+                        const picBadge = picName && picName !== '-' ? `
+                            <span class="text-[8px] text-cyan-400 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-bold font-mono uppercase">
+                                PJ: ${picName}
+                            </span>
+                        ` : '';
+
+                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
+
+                        rowsHtml += `
+                            <tr class="hover:bg-neutral-900/20 border-b border-neutral-900/60 last:border-0 transition-colors" id="tx-row-${item.id}">
+                                <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-400 align-top whitespace-nowrap">
+                                    ${itemIdx + 1}
+                                </td>
+                                <td class="py-2.5 px-3 font-sans align-top min-w-[180px] sm:min-w-[240px]">
+                                    <span class="font-bold text-neutral-200 block text-[11px] sm:text-xs leading-snug">${cleanUraian}</span>
+                                    ${detailsCardHtml}
+                                    <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+                                        <span class="text-[8px] text-neutral-500 font-mono">${dateFormatted}</span>
+                                        <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-medium">Metode: ${item.metode || "Tunai"}</span>
+                                        ${picBadge}
+                                        ${attachmentBtn}
+                                    </div>
+                                </td>
+                                <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-300 align-top whitespace-nowrap">
+                                    ${unitDisplay}
+                                </td>
+                                <td class="py-2.5 px-3 text-right font-mono text-[9px] sm:text-[10px] text-neutral-300 align-top whitespace-nowrap">
+                                    ${hargaSatuanDisplay}
+                                </td>
+                                <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-rose-400 align-top whitespace-nowrap">
+                                    -Rp ${itemNominal.toLocaleString('id-ID')}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+
+                pengeluaranSectionHtml = `
+                    <div class="overflow-x-auto w-full border border-neutral-850 rounded-xl bg-neutral-950/80 shadow-xs">
+                        <table class="w-full text-left border-collapse font-mono text-[10px]">
+                            <thead>
+                                <tr class="bg-neutral-900/60 text-neutral-400 text-[8px] sm:text-[9px] uppercase tracking-wider border-b border-neutral-800">
+                                    <th class="py-2.5 px-2 text-center w-10 sm:w-12 font-bold">NO</th>
+                                    <th class="py-2.5 px-3 font-bold text-left">URAIAN</th>
+                                    <th class="py-2.5 px-2 text-center w-20 sm:w-24 font-bold">UNIT</th>
+                                    <th class="py-2.5 px-3 text-right w-24 sm:w-32 font-bold">HARGA SATUAN</th>
+                                    <th class="py-2.5 px-3 text-right w-28 sm:w-36 font-bold">JUMLAH</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-neutral-900/40 text-neutral-300">
+                                ${rowsHtml}
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-neutral-900/90 border-t-2 border-neutral-750 text-neutral-200 font-bold">
+                                    <td colspan="4" class="py-2.5 px-3 font-mono text-[10px] sm:text-xs text-neutral-300 uppercase tracking-wider text-right">
+                                        SUBTOTAL PENGELUARAN :
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right font-mono text-[11px] sm:text-xs text-rose-400 whitespace-nowrap">
+                                        -Rp ${totalOut.toLocaleString('id-ID')}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            }
+
+            // Pemasukan Section
+            let pemasukanSectionHtml = '';
+            if (inTxs.length > 0) {
+                let inRowsHtml = '';
+                inTxs.forEach((item, itemIdx) => {
+                    const itemNominal = Number(item.nominal) || 0;
+                    const dateFormatted = formatDateShort(item.tanggal);
+                    const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                        ? item.uraian 
+                        : (item.keterangan || item.catatan || 'Pemasukan');
+                    const cleanUraian = cleanTitle(rawUraian) || 'Pemasukan';
+
+                    let cleanCatatan = item.catatan ? cleanTitle(item.catatan) : '';
+                    let detailsCardHtml = '';
+                    if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanUraian && cleanCatatan !== cleanTitle(item.keterangan)) {
+                        detailsCardHtml = `
+                            <div class="mt-1 p-1.5 bg-neutral-900 border border-neutral-850 rounded text-neutral-400 text-[9px]">
+                                <span>${cleanCatatan}</span>
+                            </div>
+                        `;
+                    }
+
+                    const receiptPath = getReceiptPath(item);
+                    const attachmentBtn = receiptPath ? `
+                        <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-emerald-950 text-neutral-400 hover:text-emerald-400 border border-neutral-900 hover:border-emerald-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
+                            📂 Lihat Bukti
+                        </button>
+                    ` : '';
+
+                    const payerName = getMemberName(item.user_id) || item.nama_pembayar || item.nama_penyetor;
+                    const payerBadge = payerName && payerName !== '-' ? `
+                        <span class="text-[8px] text-emerald-400 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-bold font-mono uppercase">
+                            Penyetor: ${payerName}
+                        </span>
+                    ` : '';
+
+                    const unitDisplay = formatUnitDisplay(item.unit);
+                    const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
+
+                    inRowsHtml += `
+                        <tr class="hover:bg-neutral-900/20 border-b border-neutral-900/60 last:border-0 transition-colors" id="tx-row-${item.id}">
+                            <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-400 align-top whitespace-nowrap">
+                                ${itemIdx + 1}
+                            </td>
+                            <td class="py-2.5 px-3 font-sans align-top min-w-[180px] sm:min-w-[240px]">
+                                <span class="font-bold text-neutral-200 block text-[11px] sm:text-xs leading-snug">${cleanUraian}</span>
+                                ${detailsCardHtml}
+                                <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+                                    <span class="text-[8px] text-neutral-500 font-mono">${dateFormatted}</span>
+                                    <span class="text-[8px] text-neutral-500 bg-neutral-900 border border-neutral-850 px-1.5 py-0.5 rounded font-mono uppercase font-medium">Metode: ${item.metode || "Tunai"}</span>
+                                    ${payerBadge}
+                                    ${attachmentBtn}
+                                </div>
+                            </td>
+                            <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-300 align-top whitespace-nowrap">
+                                ${unitDisplay}
+                            </td>
+                            <td class="py-2.5 px-3 text-right font-mono text-[9px] sm:text-[10px] text-neutral-300 align-top whitespace-nowrap">
+                                ${hargaSatuanDisplay}
+                            </td>
+                            <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-emerald-400 align-top whitespace-nowrap">
+                                +Rp ${itemNominal.toLocaleString('id-ID')}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                pemasukanSectionHtml = `
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                                <h4 class="font-mono text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">RINCIAN PEMASUKAN KEGIATAN</h4>
+                                <span class="text-[8px] sm:text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded">${inTxs.length} item</span>
+                            </div>
+                            <span class="font-mono text-[11px] sm:text-xs font-bold text-emerald-400">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="overflow-x-auto w-full border border-neutral-850 rounded-xl bg-neutral-950/80 shadow-xs">
+                            <table class="w-full text-left border-collapse font-mono text-[10px]">
+                                <thead>
+                                    <tr class="bg-neutral-900/60 text-neutral-400 text-[8px] sm:text-[9px] uppercase tracking-wider border-b border-neutral-800">
+                                        <th class="py-2.5 px-2 text-center w-10 sm:w-12 font-bold">NO</th>
+                                        <th class="py-2.5 px-3 font-bold text-left">URAIAN</th>
+                                        <th class="py-2.5 px-2 text-center w-20 sm:w-24 font-bold">UNIT</th>
+                                        <th class="py-2.5 px-3 text-right w-24 sm:w-32 font-bold">HARGA SATUAN</th>
+                                        <th class="py-2.5 px-3 text-right w-28 sm:w-36 font-bold">JUMLAH</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-neutral-900/40 text-neutral-300">
+                                    ${inRowsHtml}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-neutral-900/90 border-t-2 border-neutral-750 text-neutral-200 font-bold">
+                                        <td colspan="4" class="py-2.5 px-3 font-mono text-[10px] sm:text-xs text-neutral-300 uppercase tracking-wider text-right">
+                                            SUBTOTAL PEMASUKAN :
+                                        </td>
+                                        <td class="py-2.5 px-3 text-right font-mono text-[11px] sm:text-xs text-emerald-400 whitespace-nowrap">
+                                            +Rp ${totalIn.toLocaleString('id-ID')}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Action Buttons for Public
+            let actionsHtml = '';
+            if (!isCompleted) {
+                actionsHtml = `
+                    <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this); event.stopPropagation();" class="bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-mono text-[8px] sm:text-[9px] font-bold px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg active:scale-95 transition-all cursor-pointer shadow-md">
+                        DONASI / HTM
+                    </button>
+                `;
+            }
+
+            return `
+                <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
+                    <!-- PRATINJAU HEADER SEBELUM DIPENCET -->
+                    <div class="p-3.5 sm:p-4 bg-neutral-900/10 border-b border-neutral-900/50">
+                        <div class="flex items-start justify-between gap-2.5">
+                            <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer overflow-hidden">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-[8px] font-mono px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400 font-bold uppercase tracking-wider">${proker.jenis || "Program Kerja"}</span>
+                                    <h3 class="text-xs sm:text-sm font-bold text-neutral-100 truncate font-mono tracking-wide uppercase">${proker.nama_proker}</h3>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8px] sm:text-[9px] font-mono text-neutral-400 mt-1.5 leading-none">
+                                    <span>Divisi: <span class="text-neutral-200 font-medium">${proker.divisi || "-"}</span></span>
+                                    <span class="text-neutral-700">|</span>
+                                    <span>Ketua: <span class="text-neutral-200 font-semibold">${ketuaNama}</span></span>
+                                    <span class="text-neutral-700">|</span>
+                                    <span>Tanggal: <span class="text-neutral-200">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
+                                    ${effAnggaran > 0 ? `<span class="text-neutral-700">|</span><span>Anggaran: <span class="text-neutral-300">Rp ${effAnggaran.toLocaleString('id-ID')}</span></span>` : ''}
+                                    ${proker.keterangan ? `<span class="text-neutral-700">|</span><span>Ket: <span class="text-neutral-300">${proker.keterangan}</span></span>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                ${actionsHtml}
+                                <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="text-[10px] text-neutral-500 cursor-pointer p-1 transition-transform">▼</span>
+                            </div>
+                        </div>
+
+                        <!-- PRATINJAU KEUANGAN SEBELUM DIPENCET: PEMASUKAN, PENGELUARAN, SALDO -->
+                        <div onclick="toggleProkerAccordion('${proker.id}')" class="mt-3 grid grid-cols-3 gap-2 font-mono cursor-pointer">
+                            <div class="p-2 sm:p-2.5 bg-neutral-950/90 border border-neutral-850/90 rounded-xl flex flex-col hover:border-neutral-750 transition-colors">
+                                <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> PEMASUKAN
+                                </span>
+                                <span class="text-[11px] sm:text-xs font-bold text-emerald-400 mt-1 truncate">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="p-2 sm:p-2.5 bg-neutral-950/90 border border-neutral-850/90 rounded-xl flex flex-col hover:border-neutral-750 transition-colors">
+                                <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block"></span> PENGELUARAN
+                                </span>
+                                <span class="text-[11px] sm:text-xs font-bold text-rose-400 mt-1 truncate">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="p-2 sm:p-2.5 bg-neutral-950/90 border ${effSaldo >= 0 ? 'border-cyan-500/30 bg-cyan-950/10' : 'border-rose-500/30 bg-rose-950/10'} rounded-xl flex flex-col hover:border-neutral-750 transition-colors">
+                                <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full ${effSaldo >= 0 ? 'bg-cyan-400' : 'bg-rose-400'} inline-block"></span> SALDO
+                                </span>
+                                <span class="text-[11px] sm:text-xs font-black ${effSaldo >= 0 ? 'text-cyan-400' : 'text-rose-400'} mt-1 truncate">
+                                    ${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RINCIAN SETELAH DIPENCET (DETAIL TABULAR FORMAT LAPORAN KEUANGAN) -->
+                    <div id="p-content-${proker.id}" class="hidden p-3.5 sm:p-4 bg-neutral-900/20 flex flex-col gap-3.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                                <h4 class="font-mono text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">RINCIAN PENGELUARAN KEGIATAN</h4>
+                                <span class="text-[8px] sm:text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded">${outTxs.length} item</span>
+                            </div>
+                            <span class="font-mono text-[11px] sm:text-xs font-bold text-rose-400">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                        </div>
+
+                        ${pengeluaranSectionHtml}
+                        ${pemasukanSectionHtml}
+
+                        <!-- REKAPITULASI SUMMARY -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-2 border-t border-neutral-900/80 pt-3">
+                            <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
+                                <span class="text-neutral-200 font-bold">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PEMASUKAN</span>
+                                <span class="text-emerald-400 font-bold">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
+                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PENGELUARAN</span>
+                                <span class="text-rose-400 font-bold">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 ${effSaldo >= 0 ? 'border-t-cyan-500 text-cyan-400' : 'border-t-rose-500 text-rose-400'}">
+                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">SISA SALDO</span>
+                                <span class="font-black">${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderProkers() {
             const runningListContainer = document.getElementById('running-proker-list');
             const completedListContainer = document.getElementById('completed-proker-list');
@@ -1185,189 +1591,7 @@
                 `;
             } else {
                 runningProkers.forEach(proker => {
-                    const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
-                    
-                    const totalIn = prokerTx
-                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'masuk')
-                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-
-                    const totalOut = prokerTx
-                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'keluar')
-                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-
-                    const netSaldo = totalIn - totalOut;
-                    const netSign = netSaldo >= 0 ? '+' : '-';
-                    const netClass = netSaldo >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
-
-                    const categoriesMap = {};
-                    prokerTx.forEach(tx => {
-                        const cat = tx.kategori || "Lainnya";
-                        if (!categoriesMap[cat]) {
-                            categoriesMap[cat] = [];
-                        }
-                        categoriesMap[cat].push(tx);
-                    });
-
-                    let categoriesHtml = '';
-                    let catIdx = 0;
-
-                    for (const [catName, txs] of Object.entries(categoriesMap)) {
-                        const catTotal = txs.reduce((sum, tx) => {
-                            const val = Number(tx.nominal) || 0;
-                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
-                            return sum + (isM ? val : -val);
-                        }, 0);
-
-                        const catSign = catTotal >= 0 ? '+' : '-';
-                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
-
-                        let tableRowsHtml = '';
-                        txs.forEach(tx => {
-                            let detailsCardHtml = '';
-                            const cleanKet = cleanTitle(tx.keterangan || tx.uraian) || "Tanpa Keterangan";
-                            let cleanCatatan = tx.catatan ? cleanTitle(tx.catatan) : '';
-                            if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanKet) {
-                                detailsCardHtml = `
-                                    <div class="mt-1.5 p-2 bg-neutral-900 border border-neutral-800 rounded-lg font-mono text-[9px] text-neutral-400">
-                                        <span class="text-neutral-300">${cleanCatatan}</span>
-                                    </div>
-                                `;
-                            }
-
-                            const receiptPath = getReceiptPath(tx);
-                            let attachmentBtn = '';
-                            if (receiptPath) {
-                                attachmentBtn = `
-                                    <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-emerald-950 text-neutral-400 hover:text-emerald-400 border border-neutral-900 hover:border-emerald-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
-                                        📂 Lihat Bukti
-                                    </button>
-                                `;
-                            }
-
-                            const formattedDate = formatDateShort(tx.tanggal);
-                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
-                            const sign = isM ? '+' : '-';
-                            const valColor = isM ? 'text-emerald-400' : 'text-rose-400';
-                            
-                            const payerName = getMemberName(tx.user_id);
-                            const labelText = isM ? "Penyetor" : "Penanggung Jawab";
-                            const labelColor = isM ? "text-emerald-400" : "text-cyan-400";
-                            const payerBadge = payerName && payerName !== '-' ? `
-                                <span class="text-[8px] ${labelColor} bg-neutral-900 border border-neutral-950 px-1.5 py-0.5 rounded font-bold font-mono uppercase">${labelText}: ${payerName}</span>
-                            ` : '';
-
-                            tableRowsHtml += `
-                                <tr class="hover:bg-neutral-900/10 transition-colors">
-                                    <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono">${formattedDate}</td>
-                                    <td class="p-2 font-sans align-top">
-                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${cleanKet}</span>
-                                        ${detailsCardHtml}
-                                        <div class="mt-1 flex flex-wrap gap-1.5 items-center">
-                                            <span class="text-[8px] text-neutral-600 bg-neutral-900 inline-block px-1.5 py-0.5 rounded uppercase">Metode: ${tx.metode}</span>
-                                            ${payerBadge}
-                                            ${attachmentBtn}
-                                        </div>
-                                    </td>
-                                    <td class="p-2 text-right font-bold align-top whitespace-nowrap ${valColor}">${sign}Rp ${parseFloat(tx.nominal).toLocaleString('id-ID')}</td>
-                                </tr>
-                            `;
-                        });
-
-                        categoriesHtml += `
-                            <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2">
-                                <div onclick="toggleCategoryAccordion('${proker.id}', '${catIdx}')" class="p-3 bg-neutral-900/30 flex items-center justify-between cursor-pointer hover:bg-neutral-900/50 transition-colors">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-mono font-bold tracking-wider text-emerald-400 uppercase">📁 ${catName}</span>
-                                        <span class="text-[8px] bg-neutral-900 text-neutral-500 font-mono px-1.5 py-0.5 rounded-md border border-neutral-800">${txs.length} Item</span>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <div class="text-[9px] font-mono text-right leading-none">
-                                            <span class="${catClass}">${catSign}Rp ${(Math.abs(catTotal)).toLocaleString('id-ID')}</span>
-                                        </div>
-                                        <span id="cat-arrow-${proker.id}-${catIdx}" class="text-[9px] text-neutral-600 transition-transform">▼</span>
-                                    </div>
-                                </div>
-
-                                <div id="cat-content-${proker.id}-${catIdx}" class="hidden border-t border-neutral-900/40 bg-neutral-950/10">
-                                    <div class="overflow-x-auto w-full">
-                                        <table class="w-full text-left border-collapse text-[10px] font-mono">
-                                            <thead>
-                                                <tr class="bg-neutral-900/20 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900/30">
-                                                    <th class="p-2 w-20 whitespace-nowrap">Tanggal</th>
-                                                    <th class="p-2">Rincian Transaksi</th>
-                                                    <th class="p-2 text-right w-24 whitespace-nowrap">Jumlah</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-neutral-900/30 text-neutral-300">
-                                                ${tableRowsHtml}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        catIdx++;
-                    }
-
-                    const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
-                    const effPemasukan = Number(proker.pemasukan !== undefined && Number(proker.pemasukan) > 0 ? proker.pemasukan : totalIn);
-                    const effPengeluaran = Number(proker.pengeluaran !== undefined && Number(proker.pengeluaran) > 0 ? proker.pengeluaran : totalOut);
-                    const effRealisasi = Number(proker.realisasi !== undefined && Number(proker.realisasi) > 0 ? proker.realisasi : effPengeluaran);
-
-                    const prokerHtml = `
-                        <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
-                            <div class="p-4 flex items-center justify-between bg-neutral-900/10 border-b border-neutral-900/50">
-                                <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer overflow-hidden pr-2">
-                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                        <span class="text-[8px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400 font-bold uppercase tracking-wider">${proker.jenis || "Program Kerja"}</span>
-                                        <h3 class="text-xs font-bold text-neutral-200 truncate font-mono tracking-wide uppercase">${proker.nama_proker}</h3>
-                                    </div>
-                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8px] font-mono text-neutral-500 mt-1.5 leading-none">
-                                        <span>Divisi: <span class="text-neutral-300">${proker.divisi || "-"}</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Ketua: <span class="text-neutral-300 font-semibold">${getMemberName(proker.id_anggota)}</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Anggaran: <span class="text-neutral-300">Rp ${effAnggaran.toLocaleString('id-ID')}</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Realisasi: <span class="text-cyan-400 font-bold">${effRealisasi > 0 ? 'Rp ' + effRealisasi.toLocaleString('id-ID') : '-'}</span></span>
-                                        ${proker.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${proker.keterangan}</span></span>` : ''}
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this); event.stopPropagation();" class="bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-mono text-[8px] sm:text-[9px] font-bold px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg active:scale-95 transition-all cursor-pointer shadow-md">
-                                        DONASI / HTM
-                                    </button>
-                                    <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="text-[10px] text-neutral-600 cursor-pointer pl-1 transition-transform">▼</span>
-                                </div>
-                            </div>
-
-                            <div id="p-content-${proker.id}" class="hidden p-3 bg-neutral-900/20 flex flex-col gap-3">
-                                ${categoriesHtml || `<div class="text-center py-4 text-[10px] text-neutral-500 italic font-mono">Belum ada rincian transaksi approved.</div>`}
-
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-[10px] text-center">
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">ANGGARAN</span>
-                                        <span class="text-neutral-200 font-bold">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">PEMASUKAN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">PENGELUARAN</span>
-                                        <span class="text-rose-400 font-bold">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
-                                        <span class="text-neutral-500 text-[8px]">REALISASI</span>
-                                        <span class="font-black">${effRealisasi > 0 ? 'Rp ' + effRealisasi.toLocaleString('id-ID') : '-'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    runningListContainer.innerHTML += prokerHtml;
+                    runningListContainer.innerHTML += buildProkerCardPublicHtml(proker, false);
                 });
             }
 
@@ -1380,186 +1604,7 @@
                 `;
             } else {
                 completedProkers.forEach(proker => {
-                    const prokerTx = allTransactions.filter(t => t.proker_id && t.proker_id.toString() === proker.id.toString() && t.status_reimburse === 'Tidak Perlu');
-                    
-                    const totalIn = prokerTx
-                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'masuk')
-                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-
-                    const totalOut = prokerTx
-                        .filter(t => t.jenis && t.jenis.trim().toLowerCase() === 'keluar')
-                        .reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-
-                    const netSaldo = totalIn - totalOut;
-                    const netSign = netSaldo >= 0 ? '' : '-';
-                    const netClass = netSaldo >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
-
-                    const categoriesMap = {};
-                    prokerTx.forEach(tx => {
-                        const cat = tx.kategori || "Lainnya";
-                        if (!categoriesMap[cat]) {
-                            categoriesMap[cat] = [];
-                        }
-                        categoriesMap[cat].push(tx);
-                    });
-
-                    let categoriesHtml = '';
-                    let catIdx = 0;
-
-                    for (const [catName, txs] of Object.entries(categoriesMap)) {
-                        const catTotal = txs.reduce((sum, tx) => {
-                            const val = Number(tx.nominal) || 0;
-                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
-                            return sum + (isM ? val : -val);
-                        }, 0);
-
-                        const catSign = catTotal >= 0 ? '+' : '-';
-                        const catClass = catTotal >= 0 ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold';
-
-                        let tableRowsHtml = '';
-                        txs.forEach(tx => {
-                            let detailsCardHtml = '';
-                            const cleanKet = cleanTitle(tx.keterangan || tx.uraian) || "Tanpa Keterangan";
-                            let cleanCatatan = tx.catatan ? cleanTitle(tx.catatan) : '';
-                            if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanKet) {
-                                detailsCardHtml = `
-                                    <div class="mt-1.5 p-2 bg-neutral-900 border border-neutral-800 rounded-lg font-mono text-[9px] text-neutral-400">
-                                        <span class="text-neutral-300">${cleanCatatan}</span>
-                                    </div>
-                                `;
-                            }
-
-                            const receiptPath = getReceiptPath(tx);
-                            let attachmentBtn = '';
-                            if (receiptPath) {
-                                attachmentBtn = `
-                                    <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-emerald-950 text-neutral-400 hover:text-emerald-400 border border-neutral-900 hover:border-emerald-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
-                                        📂 Lihat Bukti
-                                    </button>
-                                `;
-                            }
-
-                            const formattedDate = formatDateShort(tx.tanggal);
-                            const isM = tx.jenis && tx.jenis.trim().toLowerCase() === 'masuk';
-                            const sign = isM ? '+' : '-';
-                            const valColor = isM ? 'text-emerald-400' : 'text-rose-400';
-                            
-                            const payerName = getMemberName(tx.user_id);
-                            const labelText = isM ? "Penyetor" : "Penanggung Jawab";
-                            const labelColor = isM ? "text-emerald-400" : "text-cyan-400";
-                            const payerBadge = payerName && payerName !== '-' ? `
-                                <span class="text-[8px] ${labelColor} bg-neutral-900 border border-neutral-950 px-1.5 py-0.5 rounded font-bold font-mono uppercase">${labelText}: ${payerName}</span>
-                            ` : '';
-
-                            tableRowsHtml += `
-                                <tr class="hover:bg-neutral-900/10 transition-colors">
-                                    <td class="p-2 text-neutral-500 whitespace-nowrap align-top font-mono">${formattedDate}</td>
-                                    <td class="p-2 font-sans align-top">
-                                        <span class="font-bold text-neutral-200 block text-[11px] leading-normal">${cleanKet}</span>
-                                        ${detailsCardHtml}
-                                        <div class="mt-1 flex flex-wrap gap-1.5 items-center">
-                                            <span class="text-[8px] text-neutral-600 bg-neutral-900 inline-block px-1.5 py-0.5 rounded uppercase">Metode: ${tx.metode}</span>
-                                            ${payerBadge}
-                                            ${attachmentBtn}
-                                        </div>
-                                    </td>
-                                    <td class="p-2 text-right font-bold align-top whitespace-nowrap ${valColor}">${sign}Rp ${parseFloat(tx.nominal).toLocaleString('id-ID')}</td>
-                                </tr>
-                            `;
-                        });
-
-                        categoriesHtml += `
-                            <div class="border border-neutral-900/60 rounded-xl overflow-hidden bg-neutral-950/60 shadow-xs mb-2">
-                                <div onclick="toggleCategoryAccordion('${proker.id}', '${catIdx}')" class="p-3 bg-neutral-900/30 flex items-center justify-between cursor-pointer hover:bg-neutral-900/50 transition-colors">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-mono font-bold tracking-wider text-emerald-400 uppercase">📁 ${catName}</span>
-                                        <span class="text-[8px] bg-neutral-900 text-neutral-500 font-mono px-1.5 py-0.5 rounded-md border border-neutral-800">${txs.length} Item</span>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <div class="text-[9px] font-mono text-right leading-none">
-                                            <span class="${catClass}">${catSign}Rp ${(Math.abs(catTotal)).toLocaleString('id-ID')}</span>
-                                        </div>
-                                        <span id="cat-arrow-${proker.id}-${catIdx}" class="text-[9px] text-neutral-600 transition-transform">▼</span>
-                                    </div>
-                                </div>
-
-                                <div id="cat-content-${proker.id}-${catIdx}" class="hidden border-t border-neutral-900/40 bg-neutral-950/10">
-                                    <div class="overflow-x-auto w-full">
-                                        <table class="w-full text-left border-collapse text-[10px] font-mono">
-                                            <thead>
-                                                <tr class="bg-neutral-900/20 text-neutral-500 text-[8px] tracking-wider uppercase border-b border-neutral-900/30">
-                                                    <th class="p-2 w-20 whitespace-nowrap">Tanggal</th>
-                                                    <th class="p-2">Rincian Transaksi</th>
-                                                    <th class="p-2 text-right w-24 whitespace-nowrap">Jumlah</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-neutral-900/30 text-neutral-300">
-                                                ${tableRowsHtml}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        catIdx++;
-                    }
-
-                    const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
-                    const effPemasukan = Number(proker.pemasukan !== undefined && Number(proker.pemasukan) > 0 ? proker.pemasukan : totalIn);
-                    const effPengeluaran = Number(proker.pengeluaran !== undefined && Number(proker.pengeluaran) > 0 ? proker.pengeluaran : totalOut);
-                    const effRealisasi = Number(proker.realisasi !== undefined && Number(proker.realisasi) > 0 ? proker.realisasi : effPengeluaran);
-
-                    const prokerHtml = `
-                        <div class="bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
-                            <div class="p-4 flex items-center justify-between bg-neutral-900/10 border-b border-neutral-900/50">
-                                <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer overflow-hidden pr-2">
-                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                        <span class="text-[8px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400 font-bold uppercase tracking-wider">${proker.jenis || "Program Kerja"}</span>
-                                        <h3 class="text-xs font-bold text-neutral-200 truncate font-mono tracking-wide uppercase">${proker.nama_proker}</h3>
-                                    </div>
-                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8px] font-mono text-neutral-500 mt-1.5 leading-none">
-                                        <span>Divisi: <span class="text-neutral-300">${proker.divisi || "-"}</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Ketua: <span class="text-neutral-300 font-semibold">${getMemberName(proker.id_anggota)}</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Tanggal: <span class="text-neutral-300">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Anggaran: <span class="text-neutral-300">Rp ${effAnggaran.toLocaleString('id-ID')}</span></span>
-                                        <span class="text-neutral-700">|</span>
-                                        <span>Realisasi: <span class="text-cyan-400 font-bold">Rp ${effRealisasi.toLocaleString('id-ID')}</span></span>
-                                        ${proker.keterangan ? `<span class="text-neutral-700">|</span><span>Keterangan: <span class="text-neutral-300">${proker.keterangan}</span></span>` : ''}
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="text-[10px] text-neutral-600 cursor-pointer pl-1 transition-transform">▼</span>
-                                </div>
-                            </div>
-
-                            <div id="p-content-${proker.id}" class="hidden p-3 bg-neutral-900/20 flex flex-col gap-3">
-                                ${categoriesHtml || `<div class="text-center py-4 text-[10px] text-neutral-500 italic font-mono">Belum ada rincian transaksi approved.</div>`}
-
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-[10px] text-center">
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">ANGGARAN</span>
-                                        <span class="text-neutral-200 font-bold">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">PEMASUKAN</span>
-                                        <span class="text-emerald-400 font-bold">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5">
-                                        <span class="text-neutral-500 text-[8px]">PENGELUARAN</span>
-                                        <span class="text-rose-400 font-bold">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
-                                    </div>
-                                    <div class="p-2.5 bg-neutral-950 border border-neutral-900 rounded-xl flex flex-col gap-0.5 border-t-2 border-t-cyan-500 text-cyan-400">
-                                        <span class="text-neutral-500 text-[8px]">REALISASI</span>
-                                        <span class="font-black">Rp ${effRealisasi.toLocaleString('id-ID')}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    completedListContainer.innerHTML += prokerHtml;
+                    completedListContainer.innerHTML += buildProkerCardPublicHtml(proker, true);
                 });
             }
         }
