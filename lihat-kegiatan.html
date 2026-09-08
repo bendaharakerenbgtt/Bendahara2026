@@ -4,6 +4,10 @@
     <script>
         if (localStorage.getItem('theme') !== 'dark') {
             document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.remove('light-mode');
+            document.documentElement.classList.add('dark');
         }
     </script>
     <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
@@ -12,6 +16,9 @@
     <title>DanaIMIP — Info Kegiatan LDKIMIP</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fredoka:wght@600;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -472,6 +479,8 @@
         /* WA Cash Overrides for Light Mode */
         html.light-mode .text-emerald-400,
         html.light-mode .text-emerald-500,
+        html.light-mode .text-emerald-600,
+        html.light-mode .text-emerald-700,
         html.light-mode .text-green-400,
         html.light-mode .text-green-500 {
             color: #15803d !important;
@@ -500,7 +509,8 @@
         }
 
         html.light-mode .text-rose-400,
-        html.light-mode .text-rose-500 {
+        html.light-mode .text-rose-500,
+        html.light-mode .text-rose-600 {
             color: #be123c !important;
         }
         html.light-mode .bg-rose-950\/40,
@@ -1132,6 +1142,59 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
         }
 
+        /* Item Title - Deep Contrast, never washed out */
+        .proker-item-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+        html.light-mode .proker-item-title {
+            color: #0F172A !important; /* Deep dark slate for 100% crisp legibility */
+        }
+        :root:not(.light-mode) .proker-item-title {
+            color: #F8FAFC !important;
+        }
+
+        /* Item Unit & Subtitle Specs */
+        .proker-item-specs {
+            font-family: 'Plus Jakarta Sans', monospace;
+            font-size: 9.5px;
+            font-weight: 600;
+        }
+        html.light-mode .proker-item-specs {
+            color: #475569 !important; /* Slate-600, clear contrast */
+        }
+        :root:not(.light-mode) .proker-item-specs {
+            color: #94A3B8 !important;
+        }
+
+        /* Item Meta Row (Date) */
+        .proker-item-date {
+            font-family: monospace;
+            font-size: 8.5px;
+            font-weight: 600;
+        }
+        html.light-mode .proker-item-date {
+            color: #475569 !important;
+        }
+        :root:not(.light-mode) .proker-item-date {
+            color: #94A3B8 !important;
+        }
+
+        /* Card Header Date (Top under PROGRAM KERJA) */
+        .proker-header-date {
+            font-family: monospace;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        html.light-mode .proker-header-date {
+            color: #475569 !important;
+        }
+        :root:not(.light-mode) .proker-header-date {
+            color: #94A3B8 !important;
+        }
+
         /* Division Banner on Mobile */
         html.light-mode .proker-mobile-div-header {
             background: linear-gradient(90deg, #FFF7ED 0%, #FFEDD5 100%) !important;
@@ -1156,9 +1219,9 @@
             font-weight: 600;
         }
         html.light-mode .proker-mobile-meta-pill {
-            background: #F8FAFC !important;
-            border: 1px solid #E2E8F0 !important;
-            color: #475569 !important;
+            background: #FFF7ED !important;
+            border: 1px solid #FED7AA !important;
+            color: #9A3412 !important;
         }
         :root:not(.light-mode) .proker-mobile-meta-pill {
             background: rgba(30, 41, 59, 0.7) !important;
@@ -1174,6 +1237,18 @@
         :root:not(.light-mode) .proker-mobile-subtotal {
             background: rgba(30, 41, 59, 0.7) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Catatan note box */
+        html.light-mode .proker-catatan-box {
+            background: #FFF7ED !important;
+            border: 1px solid #FED7AA !important;
+            color: #9A3412 !important;
+        }
+        :root:not(.light-mode) .proker-catatan-box {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #E2E8F0 !important;
         }
 
         /* 7. Rekapitulasi Summary Boxes at Bottom */
@@ -2015,7 +2090,7 @@
                         let detailsCardHtml = '';
                         if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanUraian && cleanCatatan !== cleanTitle(item.keterangan)) {
                             detailsCardHtml = `
-                                <div class="p-1.5 bg-neutral-100 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 rounded text-neutral-600 dark:text-neutral-400 text-[9px]">
+                                <div class="p-1.5 proker-catatan-box rounded text-[9px] font-sans">
                                     <span>${cleanCatatan}</span>
                                 </div>
                             `;
@@ -2045,22 +2120,22 @@
                                     ${itemIdx + 1}
                                 </td>
                                 <td class="py-2.5 px-3 font-sans align-top min-w-[180px] sm:min-w-[240px]">
-                                    <span class="font-bold text-neutral-800 dark:text-neutral-200 block text-[11px] sm:text-xs leading-snug">${cleanUraian}</span>
+                                    <span class="proker-item-title block leading-snug">${cleanUraian}</span>
                                     ${detailsCardHtml ? `<div class="mt-1">${detailsCardHtml}</div>` : ''}
                                     <div class="mt-1.5 flex flex-wrap gap-1.5 items-center">
-                                        <span class="text-[8.5px] text-neutral-400 font-mono">📅 ${dateFormatted}</span>
-                                        <span class="text-[8.5px] text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 px-1.5 py-0.5 rounded font-mono uppercase font-medium">💳 ${item.metode || "Tunai"}</span>
+                                        <span class="proker-item-date">📅 ${dateFormatted}</span>
+                                        <span class="proker-mobile-meta-pill">💳 ${item.metode || "Tunai"}</span>
                                         ${picBadge}
                                         ${attachmentBtn}
                                     </div>
                                 </td>
-                                <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-300 align-top whitespace-nowrap">
+                                <td class="py-2.5 px-2 text-center proker-item-specs align-top whitespace-nowrap">
                                     ${unitDisplay}
                                 </td>
-                                <td class="py-2.5 px-3 text-right font-mono text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-300 align-top whitespace-nowrap">
+                                <td class="py-2.5 px-3 text-right proker-item-specs align-top whitespace-nowrap">
                                     ${hargaSatuanDisplay}
                                 </td>
-                                <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-rose-500 dark:text-rose-400 align-top whitespace-nowrap">
+                                <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-rose-600 dark:text-rose-400 align-top whitespace-nowrap">
                                     -Rp ${itemNominal.toLocaleString('id-ID')}
                                 </td>
                             </tr>
@@ -2072,17 +2147,17 @@
                             <div class="proker-mobile-item p-3 rounded-xl border flex flex-col gap-2">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0 flex-1">
-                                        <div class="text-xs font-bold text-neutral-900 dark:text-neutral-100 font-sans leading-snug">
+                                        <div class="proker-item-title leading-snug">
                                             ${cleanUraian}
                                         </div>
                                         ${hasUnitOrPrice ? `
-                                        <div class="text-[9.5px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                        <div class="proker-item-specs mt-0.5">
                                             ${unitDisplay !== '-' ? `<span>📦 ${unitDisplay}</span>` : ''}
                                             ${(unitDisplay !== '-' && hargaSatuanDisplay !== '-') ? `<span class="mx-1">•</span>` : ''}
                                             ${hargaSatuanDisplay !== '-' ? `<span>@ ${hargaSatuanDisplay}</span>` : ''}
                                         </div>` : ''}
                                     </div>
-                                    <span class="font-mono font-extrabold text-xs text-rose-500 dark:text-rose-400 whitespace-nowrap pt-0.5">
+                                    <span class="font-mono font-extrabold text-xs text-rose-600 dark:text-rose-400 whitespace-nowrap pt-0.5">
                                         -Rp ${itemNominal.toLocaleString('id-ID')}
                                     </span>
                                 </div>
@@ -2090,7 +2165,7 @@
                                 ${detailsCardHtml}
 
                                 <div class="pt-2 border-t border-neutral-100 dark:border-neutral-850 flex flex-wrap items-center gap-1.5 text-[8.5px]">
-                                    <span class="text-neutral-400 font-mono">📅 ${dateFormatted}</span>
+                                    <span class="proker-item-date">📅 ${dateFormatted}</span>
                                     <span class="proker-mobile-meta-pill">💳 ${item.metode || "Tunai"}</span>
                                     ${picBadge}
                                     ${attachmentBtn}
@@ -2103,13 +2178,13 @@
                     mobileDivisionsHtml += `
                         <div class="mb-3.5 last:mb-0">
                             <div class="proker-mobile-div-header flex items-center justify-between p-2.5 rounded-xl mb-2 font-mono">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="font-bold text-[11px] truncate tracking-wide">${letter}. ${divName}</span>
-                                    <span class="text-[8.5px] px-1.5 py-0.2 rounded-full bg-white/80 dark:bg-black/40 font-bold border border-orange-200/60 dark:border-white/10 shrink-0">
+                                <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                    <span class="font-bold text-[11px] tracking-wide">${letter}. ${divName}</span>
+                                    <span class="proker-division-badge text-[8.5px] px-2 py-0.5 rounded font-bold">
                                         ${items.length} item
                                     </span>
                                 </div>
-                                <span class="font-bold text-[11px] whitespace-nowrap shrink-0">
+                                <span class="proker-division-subtotal font-bold text-[11px] whitespace-nowrap shrink-0">
                                     Rp ${divSubtotal.toLocaleString('id-ID')}
                                 </span>
                             </div>
@@ -2178,7 +2253,7 @@
                     let detailsCardHtml = '';
                     if (cleanCatatan && !cleanCatatan.startsWith('KAS_') && !cleanCatatan.startsWith('PROKER_') && cleanCatatan !== cleanUraian && cleanCatatan !== cleanTitle(item.keterangan)) {
                         detailsCardHtml = `
-                            <div class="p-1.5 bg-neutral-100 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 rounded text-neutral-600 dark:text-neutral-400 text-[9px]">
+                            <div class="p-1.5 proker-catatan-box rounded text-[9px] font-sans">
                                 <span>${cleanCatatan}</span>
                             </div>
                         `;
@@ -2208,22 +2283,22 @@
                                 ${itemIdx + 1}
                             </td>
                             <td class="py-2.5 px-3 font-sans align-top min-w-[180px] sm:min-w-[240px]">
-                                <span class="font-bold text-neutral-800 dark:text-neutral-200 block text-[11px] sm:text-xs leading-snug">${cleanUraian}</span>
+                                <span class="proker-item-title block leading-snug">${cleanUraian}</span>
                                 ${detailsCardHtml ? `<div class="mt-1">${detailsCardHtml}</div>` : ''}
                                 <div class="mt-1.5 flex flex-wrap gap-1.5 items-center">
-                                    <span class="text-[8.5px] text-neutral-400 font-mono">📅 ${dateFormatted}</span>
-                                    <span class="text-[8.5px] text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 px-1.5 py-0.5 rounded font-mono uppercase font-medium">💳 ${item.metode || "Tunai"}</span>
+                                    <span class="proker-item-date">📅 ${dateFormatted}</span>
+                                    <span class="proker-mobile-meta-pill">💳 ${item.metode || "Tunai"}</span>
                                     ${payerBadge}
                                     ${attachmentBtn}
                                 </div>
                             </td>
-                            <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-300 align-top whitespace-nowrap">
+                            <td class="py-2.5 px-2 text-center proker-item-specs align-top whitespace-nowrap">
                                 ${unitDisplay}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-mono text-[9px] sm:text-[10px] text-neutral-600 dark:text-neutral-300 align-top whitespace-nowrap">
+                            <td class="py-2.5 px-3 text-right proker-item-specs align-top whitespace-nowrap">
                                 ${hargaSatuanDisplay}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-emerald-500 dark:text-emerald-400 align-top whitespace-nowrap">
+                            <td class="py-2.5 px-3 text-right font-mono font-bold text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 align-top whitespace-nowrap">
                                 +Rp ${itemNominal.toLocaleString('id-ID')}
                             </td>
                         </tr>
@@ -2235,11 +2310,11 @@
                         <div class="proker-mobile-item p-3 rounded-xl border flex flex-col gap-2">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0 flex-1">
-                                    <div class="text-xs font-bold text-neutral-900 dark:text-neutral-100 font-sans leading-snug">
+                                    <div class="proker-item-title leading-snug">
                                         ${cleanUraian}
                                     </div>
                                     ${hasUnitOrPrice ? `
-                                    <div class="text-[9.5px] font-mono text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                    <div class="proker-item-specs mt-0.5">
                                         ${unitDisplay !== '-' ? `<span>📦 ${unitDisplay}</span>` : ''}
                                         ${(unitDisplay !== '-' && hargaSatuanDisplay !== '-') ? `<span class="mx-1">•</span>` : ''}
                                         ${hargaSatuanDisplay !== '-' ? `<span>@ ${hargaSatuanDisplay}</span>` : ''}
@@ -2253,7 +2328,7 @@
                             ${detailsCardHtml}
 
                             <div class="pt-2 border-t border-neutral-100 dark:border-neutral-850 flex flex-wrap items-center gap-1.5 text-[8.5px]">
-                                <span class="text-neutral-400 font-mono">📅 ${dateFormatted}</span>
+                                <span class="proker-item-date">📅 ${dateFormatted}</span>
                                 <span class="proker-mobile-meta-pill">💳 ${item.metode || "Tunai"}</span>
                                 ${payerBadge}
                                 ${attachmentBtn}
@@ -2264,13 +2339,13 @@
 
                 pemasukanSectionHtml = `
                     <div class="mt-4">
-                        <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap mb-2 pb-1.5 border-b border-emerald-500/20">
-                            <div class="flex items-center gap-2 min-w-0">
+                        <div class="flex items-center justify-between gap-1 sm:gap-2 mb-2 pb-1.5 border-b border-emerald-500/20">
+                            <div class="flex items-center gap-1.5 min-w-0">
                                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
-                                <h4 class="font-mono text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider truncate">RINCIAN PEMASUKAN</h4>
-                                <span class="text-[8.5px] sm:text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full shrink-0">${inTxs.length} item</span>
+                                <h4 class="font-mono text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider truncate">RINCIAN PEMASUKAN</h4>
+                                <span class="text-[8.5px] sm:text-[9px] font-mono font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 px-2 py-0.5 rounded-full shrink-0">${inTxs.length} item</span>
                             </div>
-                            <span class="font-mono text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                            <span class="font-mono text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-400 whitespace-nowrap shrink-0">+Rp ${totalIn.toLocaleString('id-ID')}</span>
                         </div>
 
                         <!-- TAMPILAN KHUSUS MOBILE (CARD LIST, NO OVERFLOW) -->
@@ -2280,7 +2355,7 @@
                             </div>
                             <div class="proker-mobile-subtotal p-2.5 rounded-xl border flex items-center justify-between font-mono font-bold text-xs mt-2.5">
                                 <span class="uppercase tracking-wide text-neutral-600 dark:text-neutral-400 text-[10px]">SUBTOTAL PEMASUKAN :</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 text-xs">+Rp ${totalIn.toLocaleString('id-ID')}</span>
+                                <span class="text-emerald-700 dark:text-emerald-400 text-xs">+Rp ${totalIn.toLocaleString('id-ID')}</span>
                             </div>
                         </div>
 
@@ -2333,7 +2408,7 @@
                             <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer min-w-0">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider proker-badge-jenis">${proker.jenis || "Program Kerja"}</span>
-                                    <span class="text-[9px] font-mono text-neutral-400">📅 ${formatReadableDate(proker.estimasi_tanggal)}</span>
+                                    <span class="proker-header-date">📅 ${formatReadableDate(proker.estimasi_tanggal)}</span>
                                 </div>
                                 <h3 class="proker-card-title text-xs sm:text-sm uppercase tracking-tight mt-1.5 truncate">${proker.nama_proker}</h3>
                                 <div class="flex flex-wrap items-center gap-1.5 mt-2">
@@ -2385,13 +2460,13 @@
 
                     <!-- RINCIAN SETELAH DIPENCET (DETAIL TABULAR FORMAT LAPORAN KEUANGAN) -->
                     <div id="p-content-${proker.id}" class="hidden p-3.5 sm:p-4 proker-detail-panel flex flex-col gap-3.5">
-                        <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap pb-1.5 border-b border-rose-500/20">
-                            <div class="flex items-center gap-2 min-w-0">
+                        <div class="flex items-center justify-between gap-1 sm:gap-2 pb-1.5 border-b border-rose-500/20">
+                            <div class="flex items-center gap-1.5 min-w-0">
                                 <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
-                                <h4 class="font-mono text-xs sm:text-sm font-extrabold text-rose-500 uppercase tracking-wider truncate">RINCIAN PENGELUARAN</h4>
-                                <span class="text-[8.5px] sm:text-[9px] font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/25 px-2 py-0.5 rounded-full shrink-0">${outTxs.length} item</span>
+                                <h4 class="font-mono text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider">RINCIAN PENGELUARAN</h4>
+                                <span class="text-[8.5px] sm:text-[9px] font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 px-2 py-0.5 rounded-full shrink-0">${outTxs.length} item</span>
                             </div>
-                            <span class="font-mono text-xs sm:text-sm font-extrabold text-rose-500 whitespace-nowrap shrink-0">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                            <span class="font-mono text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400 whitespace-nowrap shrink-0">-Rp ${totalOut.toLocaleString('id-ID')}</span>
                         </div>
 
                         ${pengeluaranSectionHtml}
@@ -2400,20 +2475,20 @@
                         <!-- REKAPITULASI SUMMARY -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-200/80 dark:border-neutral-800 pt-3">
                             <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
-                                <span class="text-neutral-700 dark:text-neutral-200 font-bold">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
+                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
+                                <span class="proker-item-title font-bold text-[11px]">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
                             </div>
                             <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PEMASUKAN</span>
-                                <span class="text-emerald-600 dark:text-emerald-400 font-bold">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
+                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PEMASUKAN</span>
+                                <span class="text-emerald-700 dark:text-emerald-400 font-bold text-[11px]">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
                             </div>
                             <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PENGELUARAN</span>
-                                <span class="text-rose-600 dark:text-rose-400 font-bold">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PENGELUARAN</span>
+                                <span class="text-rose-600 dark:text-rose-400 font-bold text-[11px]">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
                             </div>
                             <div class="p-2.5 ${effSaldo >= 0 ? 'rekap-box-saldo-positive' : 'rekap-box-saldo-negative'} rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 text-[8px] font-sans font-bold uppercase tracking-wider">SISA SALDO</span>
-                                <span class="font-black ${effSaldo >= 0 ? 'text-[#FF7300]' : 'text-rose-600 dark:text-rose-400'}">${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}</span>
+                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">SISA SALDO</span>
+                                <span class="font-black text-[11px] ${effSaldo >= 0 ? 'text-[#C2410C] dark:text-[#FF7300]' : 'text-rose-600 dark:text-rose-400'}">${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}</span>
                             </div>
                         </div>
                     </div>
@@ -2838,13 +2913,17 @@
             const mobileLabel = document.getElementById('mobileThemeLabel');
             if (theme === 'light') {
                 document.documentElement.classList.add('light-mode');
+                document.documentElement.classList.remove('dark');
                 document.body.classList.add('light-mode');
+                document.body.classList.remove('dark');
                 if (btn) btn.innerText = '☀️';
                 if (mobileIcon) mobileIcon.className = 'fa-solid fa-sun text-orange-500';
                 if (mobileLabel) mobileLabel.innerText = 'Terang';
             } else {
                 document.documentElement.classList.remove('light-mode');
+                document.documentElement.classList.add('dark');
                 document.body.classList.remove('light-mode');
+                document.body.classList.add('dark');
                 if (btn) btn.innerText = '🌙';
                 if (mobileIcon) mobileIcon.className = 'fa-solid fa-moon text-amber-400';
                 if (mobileLabel) mobileLabel.innerText = 'Gelap';
