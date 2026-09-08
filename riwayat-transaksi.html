@@ -513,6 +513,53 @@
             background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
         }
 
+        /* Stat Cards Value Sizing & Typography (Consistent & Non-truncating) */
+        .rekap-stat-val {
+            font-size: clamp(10px, 2.7vw, 16px);
+            font-weight: 800;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.025em;
+            line-height: 1.25;
+            display: block;
+        }
+        @media (min-width: 640px) {
+            .rekap-stat-val {
+                font-size: 1.25rem;
+                line-height: 1.75rem;
+            }
+        }
+
+        /* Rekap Type Segmented Control */
+        .rekap-type-container {
+            background-color: rgba(10, 10, 10, 0.85);
+            border: 1px solid rgba(38, 38, 38, 0.85);
+        }
+        .rekap-type-btn {
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 10.5px;
+            text-align: center;
+        }
+        .rekap-type-btn.active {
+            background-color: #10b981;
+            color: #09090b;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+        }
+
+        #filter-arrow {
+            display: inline-block;
+            transition: transform 0.25s ease;
+        }
+
         /* ==========================================================================
            LIGHT MODE ORANGE DOMINANT OVERRIDES (RIWAYAT TRANSAKSI)
            ========================================================================== */
@@ -520,9 +567,15 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 253, 244, 0.95) 100%) !important;
             border: 1px solid rgba(187, 247, 208, 0.95) !important;
         }
+        html.light-mode .stat-card-masuk #stat-pemasukan {
+            color: #059669 !important;
+        }
         html.light-mode .stat-card-keluar {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 241, 242, 0.95) 100%) !important;
             border: 1px solid rgba(254, 205, 211, 0.95) !important;
+        }
+        html.light-mode .stat-card-keluar #stat-pengeluaran {
+            color: #e11d48 !important;
         }
         html.light-mode .stat-card-saldo {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 247, 237, 0.95) 100%) !important;
@@ -530,6 +583,46 @@
             box-shadow: 0 4px 18px rgba(255, 115, 0, 0.1) !important;
         }
         html.light-mode .stat-card-saldo #stat-saldo {
+            color: #ea580c !important;
+        }
+        html.light-mode #stat-saldo-indicator {
+            background: #fed7aa !important;
+            border-color: #fb923c !important;
+            color: #ea580c !important;
+        }
+        html.light-mode .rekap-type-container {
+            background-color: #f1f5f9 !important;
+            border-color: rgba(254, 215, 170, 0.9) !important;
+        }
+        html.light-mode .rekap-type-btn {
+            color: #64748b !important;
+        }
+        html.light-mode .rekap-type-btn:hover {
+            color: #1e293b !important;
+        }
+        html.light-mode .rekap-type-btn.active {
+            background: linear-gradient(135deg, #ff7300 0%, #ea580c 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 10px rgba(255, 115, 0, 0.28) !important;
+        }
+        html.light-mode #btn-toggle-filters {
+            background-color: #ffffff !important;
+            border-color: rgba(254, 215, 170, 0.9) !important;
+            color: #334155 !important;
+        }
+        html.light-mode #btn-toggle-filters:hover {
+            background-color: #fff7ed !important;
+            border-color: #ff7300 !important;
+            color: #ea580c !important;
+        }
+        html.light-mode #btn-show-notice {
+            background-color: rgba(255, 237, 213, 0.9) !important;
+            border-color: rgba(254, 215, 170, 0.95) !important;
+            color: #c2410c !important;
+        }
+        html.light-mode #active-filter-badge {
+            background-color: rgba(255, 115, 0, 0.15) !important;
+            border-color: rgba(255, 115, 0, 0.35) !important;
             color: #ea580c !important;
         }
         html.light-mode .tx-card-item {
@@ -1109,104 +1202,136 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-8 w-full flex-grow flex flex-col gap-3.5 sm:gap-6 z-10 relative">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-3.5 sm:py-8 w-full flex-grow flex flex-col gap-3 sm:gap-6 z-10 relative">
         
         <div class="flex flex-col gap-1 sm:gap-1.5">
             <h1 class="text-xl sm:text-3xl font-black tracking-tight text-white bg-gradient-to-r from-white via-neutral-200 to-neutral-500 bg-clip-text text-transparent">
                 Keuangan LDK IMIP 
             </h1>
             <div class="flex items-center justify-between flex-wrap gap-2">
-                <p class="text-[11px] sm:text-xs text-neutral-400 uppercase font-mono tracking-widest">
+                <p class="text-[10px] sm:text-xs text-neutral-400 uppercase font-mono tracking-wider">
                     Seluruh Aliran Arus Kas
                 </p>
-                <button onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[9px] sm:text-[10px] font-mono text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 cursor-pointer bg-amber-500/5 px-2.5 py-1 rounded-lg border border-amber-500/10 hover:border-amber-500/30">
-                    ⚠️ Info Sinkronisasi
+                <button type="button" onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[9.5px] sm:text-[10px] font-mono text-amber-400 hover:text-amber-300 transition-all flex items-center gap-1 cursor-pointer bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/25 active:scale-95 shadow-sm">
+                    <span>⚠️</span>
+                    <span>Info Sinkron</span>
                 </button>
             </div>
         </div>
 
-        <div id="sync-notice-banner" class="relative bg-amber-500/5 border border-amber-500/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex gap-3 sm:gap-4 overflow-hidden backdrop-blur-sm animate-pulse-glow shadow-[0_0_15px_rgba(245,158,11,0.01)] transition-all duration-300 transform">
+        <!-- Sync Notice Banner (Collapsible on Mobile) -->
+        <div id="sync-notice-banner" class="relative bg-amber-500/5 border border-amber-500/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 flex gap-2.5 sm:gap-4 overflow-hidden backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.01)] transition-all duration-300 transform">
             <div class="absolute -left-16 -top-16 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg sm:rounded-xl">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="flex-shrink-0 flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg sm:rounded-xl">
+                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             </div>
             <div class="flex-grow flex flex-col justify-center pr-6">
-                <h4 class="text-[11px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider font-mono">Pemberitahuan Sinkronisasi</h4>
-                <p class="text-[10px] sm:text-[11px] leading-relaxed text-neutral-300 mt-0.5">
-                    Jika iuran kas atau pengeluaran yang baru Anda input/ajukan belum tercantum di bawah ini, mohon tunggu sebentar karena transaksi tersebut memerlukan verifikasi & validasi manual oleh Bendahara Admin. Silakan hubungi Admin Keuangan apabila terdapat kendala atau ketidakcocokan data.
+                <h4 class="text-[10.5px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider font-mono">Pemberitahuan Sinkronisasi</h4>
+                <p class="text-[9.5px] sm:text-[11px] leading-relaxed text-neutral-300 mt-0.5">
+                    Jika iuran kas atau pengeluaran yang baru Anda input belum tercantum, mohon tunggu validasi Bendahara Admin. Silakan hubungi Admin bila ada ketidakcocokan data.
                 </p>
             </div>
-            <button onclick="toggleNotice(false)" class="absolute right-2.5 top-2.5 sm:right-3 sm:top-3 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/10 text-amber-400 text-[10px] sm:text-xs flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95" title="Tutup">
+            <button type="button" onclick="toggleNotice(false)" class="absolute right-2 top-2 sm:right-3 sm:top-3 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/15 text-amber-400 text-[10px] sm:text-xs flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95" title="Tutup">
                 ✕
             </button>
         </div>
 
+        <!-- 3 Financial Stat Cards Strip (Unified Scale, Non-Truncating) -->
         <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-4.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
-                <div class="absolute -right-8 -top-8 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 truncate">Pemasukan</span>
-                    <div class="w-4 h-4 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-emerald-950/50 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-[9px] sm:text-xs shrink-0">
+            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+                <div class="absolute -right-8 -top-8 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pemasukan</span>
+                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-emerald-950/50 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-[9px] sm:text-xs shrink-0">
                         ↙
                     </div>
                 </div>
-                <span id="stat-pemasukan" class="text-xs sm:text-xl font-bold font-mono text-emerald-400 mt-0.5 sm:mt-1 truncate">Rp0</span>
+                <span id="stat-pemasukan" class="rekap-stat-val text-emerald-400 mt-0.5 sm:mt-1">Rp0</span>
             </div>
 
-            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-4.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
-                <div class="absolute -right-8 -top-8 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 truncate">Pengeluaran</span>
-                    <div class="w-4 h-4 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-rose-950/50 border border-rose-500/10 flex items-center justify-center text-rose-400 text-[9px] sm:text-xs shrink-0">
+            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+                <div class="absolute -right-8 -top-8 w-20 h-20 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pengeluaran</span>
+                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-rose-950/50 border border-rose-500/10 flex items-center justify-center text-rose-400 text-[9px] sm:text-xs shrink-0">
                         ↗
                     </div>
                 </div>
-                <span id="stat-pengeluaran" class="text-xs sm:text-xl font-bold font-mono text-rose-400 mt-0.5 sm:mt-1 truncate">Rp0</span>
+                <span id="stat-pengeluaran" class="rekap-stat-val text-rose-400 mt-0.5 sm:mt-1">Rp0</span>
             </div>
 
-            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-4.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
-                <div class="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/5 rounded-full blur-xl group-hover:bg-blue-500/10 transition-all duration-500"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 truncate">Saldo Net</span>
-                    <div id="stat-saldo-indicator" class="w-4 h-4 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[9px] sm:text-xs shrink-0">
+            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+                <div class="absolute -right-8 -top-8 w-20 h-20 bg-blue-500/5 rounded-full blur-xl group-hover:bg-blue-500/10 transition-all duration-500"></div>
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Saldo Net</span>
+                    <div id="stat-saldo-indicator" class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[9px] sm:text-xs shrink-0">
                         ⚖
                     </div>
                 </div>
-                <span id="stat-saldo" class="text-xs sm:text-xl font-bold font-mono mt-0.5 sm:mt-1 text-white truncate">Rp0</span>
+                <span id="stat-saldo" class="rekap-stat-val mt-0.5 sm:mt-1 text-white">Rp0</span>
             </div>
         </div>
 
-        <div class="glass-panel rounded-2xl p-4 flex flex-col gap-4 border border-neutral-900/60 shadow-lg">
+        <!-- Modern Compact Search & Filter Control Panel -->
+        <div class="glass-panel rounded-2xl p-2.5 sm:p-4 flex flex-col gap-2 sm:gap-3.5 border border-neutral-900/60 shadow-lg">
             
+            <!-- Quick Search Input -->
             <div class="relative w-full">
                 <input type="text" id="input-search" 
-                       placeholder="Cari keterangan, nama program kerja, PIC, kategori, atau metode..." 
-                       class="w-full bg-neutral-950/80 border border-neutral-900 text-neutral-100 placeholder-neutral-500 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/10 transition-all font-sans pr-10">
-                <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-600">
+                       placeholder="Cari keterangan, proker, PIC, kategori..." 
+                       class="w-full bg-neutral-950/80 border border-neutral-900 text-neutral-100 placeholder-neutral-500 text-xs px-3.5 py-2 sm:py-2.5 rounded-xl focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/10 transition-all font-sans pr-9">
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-neutral-900/40">
-                <div class="flex bg-neutral-950 p-1 rounded-xl border border-neutral-900 self-start">
-                    <button onclick="filterType('semua')" id="btn-type-semua" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer">
+            <!-- Segmented Pill Switcher & Drawer Toggle Row -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <!-- Segmented Type Selector (Semua | Masuk | Keluar) -->
+                <div class="grid grid-cols-3 p-1 bg-neutral-950/90 rounded-xl border border-neutral-900/90 w-full sm:w-auto sm:inline-flex rekap-type-container">
+                    <button type="button" onclick="filterType('semua')" id="btn-type-semua" class="rekap-type-btn active px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-sm">
                         Semua
                     </button>
-                    <button onclick="filterType('Masuk')" id="btn-type-masuk" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                    <button type="button" onclick="filterType('Masuk')" id="btn-type-masuk" class="rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
                         Pemasukan
                     </button>
-                    <button onclick="filterType('Keluar')" id="btn-type-keluar" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                    <button type="button" onclick="filterType('Keluar')" id="btn-type-keluar" class="rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
                         Pengeluaran
                     </button>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2">
-                    <div class="flex flex-col gap-0.5">
-                        <select id="select-month" onchange="filterMonth(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer">
+                <!-- Action Controls: Filter Drawer Toggle & CSV Download -->
+                <div class="flex items-center justify-between sm:justify-end gap-2">
+                    <button type="button" onclick="toggleFilterDrawer()" id="btn-toggle-filters" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-950/80 hover:bg-neutral-900 border border-neutral-900 text-neutral-300 text-[10.5px] font-mono font-medium transition-all cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        <span>Filter & Urutkan</span>
+                        <span id="active-filter-badge" class="hidden px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 rounded-full text-[9px] font-bold border border-emerald-500/30">0</span>
+                        <span id="filter-arrow" class="text-[9px] text-neutral-400 ml-0.5">▼</span>
+                    </button>
+
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="resetFilters()" id="btn-reset-filters" class="hidden px-2 py-1 text-[10px] font-mono text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer">
+                            Reset
+                        </button>
+                        <button type="button" onclick="downloadCSV()" class="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-[10px] sm:text-[10.5px] font-mono font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0">
+                            <span>📥</span>
+                            <span>CSV</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collapsible Advanced Filters Drawer -->
+            <div id="advanced-filters-drawer" class="hidden pt-2 border-t border-neutral-900/40">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    <div>
+                        <select id="select-month" onchange="filterMonth(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer">
                             <option value="">Semua Bulan</option>
                             <option value="01">Januari</option>
                             <option value="02">Februari</option>
@@ -1223,8 +1348,8 @@
                         </select>
                     </div>
 
-                    <div class="flex flex-col gap-0.5">
-                        <select id="select-sort" onchange="changeSort(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                    <div>
+                        <select id="select-sort" onchange="changeSort(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
                             <option value="terbaru">Terbaru (Tanggal)</option>
                             <option value="terlama">Terlama (Tanggal)</option>
                             <option value="termahal">Termahal (Nominal)</option>
@@ -1232,29 +1357,25 @@
                         </select>
                     </div>
 
-                    <div class="flex flex-col gap-0.5">
-                        <select id="select-metode" onchange="filterMetode(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                    <div>
+                        <select id="select-metode" onchange="filterMetode(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
                             <option value="all">Semua Metode</option>
                             <option value="Tunai">💵 Tunai</option>
                             <option value="GoPay">📱 GoPay</option>
                         </select>
                     </div>
 
-                    <div class="flex flex-col gap-0.5">
-                        <select id="select-kategori" onchange="filterKategori(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                    <div>
+                        <select id="select-kategori" onchange="filterKategori(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
                             <option value="">Semua Kategori</option>
                         </select>
                     </div>
 
-                    <div class="flex flex-col gap-0.5">
-                        <select id="select-proker" onchange="filterProker(this.value)" class="bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                    <div class="col-span-2 sm:col-span-1">
+                        <select id="select-proker" onchange="filterProker(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
                             <option value="">Semua Kegiatan</option>
                         </select>
                     </div>
-
-                    <button onclick="downloadCSV()" class="bg-emerald-500 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
-                        📥 Unduh CSV
-                    </button>
                 </div>
             </div>
         </div>
@@ -1646,10 +1767,11 @@
                 'Keluar': document.getElementById('btn-type-keluar')
             };
             Object.keys(btns).forEach(key => {
+                if (!btns[key]) return;
                 if (key === type) {
-                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.2)]";
+                    btns[key].className = "rekap-type-btn active px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-sm";
                 } else {
-                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer";
+                    btns[key].className = "rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer";
                 }
             });
             applyFiltersAndSort();
@@ -1657,27 +1779,99 @@
 
         window.filterMonth = function(month) {
             currentMonth = month;
+            updateActiveFilterBadge();
             applyFiltersAndSort();
         };
 
         window.changeSort = function(sort) {
             currentSort = sort;
+            updateActiveFilterBadge();
             applyFiltersAndSort();
         };
 
         window.filterMetode = function(metode) {
             currentMetode = metode;
+            updateActiveFilterBadge();
             applyFiltersAndSort();
         };
 
         window.filterKategori = function(kategori) {
             currentKategori = kategori;
+            updateActiveFilterBadge();
             applyFiltersAndSort();
         };
 
         window.filterProker = function(proker) {
             currentProker = proker;
+            updateActiveFilterBadge();
             applyFiltersAndSort();
+        };
+
+        function updateActiveFilterBadge() {
+            let activeCount = 0;
+            if (currentMonth !== '') activeCount++;
+            if (currentSort !== 'terbaru') activeCount++;
+            if (currentMetode !== 'all') activeCount++;
+            if (currentKategori !== '') activeCount++;
+            if (currentProker !== '') activeCount++;
+
+            const badge = document.getElementById('active-filter-badge');
+            const resetBtn = document.getElementById('btn-reset-filters');
+            const toggleBtn = document.getElementById('btn-toggle-filters');
+
+            if (activeCount > 0) {
+                if (badge) {
+                    badge.textContent = activeCount;
+                    badge.classList.remove('hidden');
+                }
+                if (resetBtn) resetBtn.classList.remove('hidden');
+                if (toggleBtn) {
+                    toggleBtn.classList.add('border-emerald-500/50', 'text-emerald-400');
+                }
+            } else {
+                if (badge) badge.classList.add('hidden');
+                if (resetBtn) resetBtn.classList.add('hidden');
+                if (toggleBtn) {
+                    toggleBtn.classList.remove('border-emerald-500/50', 'text-emerald-400');
+                }
+            }
+        }
+
+        window.resetFilters = function() {
+            currentMonth = '';
+            currentSort = 'terbaru';
+            currentMetode = 'all';
+            currentKategori = '';
+            currentProker = '';
+
+            const selMonth = document.getElementById('select-month');
+            const selSort = document.getElementById('select-sort');
+            const selMetode = document.getElementById('select-metode');
+            const selKategori = document.getElementById('select-kategori');
+            const selProker = document.getElementById('select-proker');
+
+            if (selMonth) selMonth.value = '';
+            if (selSort) selSort.value = 'terbaru';
+            if (selMetode) selMetode.value = 'all';
+            if (selKategori) selKategori.value = '';
+            if (selProker) selProker.value = '';
+
+            updateActiveFilterBadge();
+            applyFiltersAndSort();
+        };
+
+        window.toggleFilterDrawer = function() {
+            const drawer = document.getElementById('advanced-filters-drawer');
+            const arrow = document.getElementById('filter-arrow');
+            if (!drawer) return;
+            const isHidden = drawer.classList.contains('hidden');
+            if (isHidden) {
+                drawer.classList.remove('hidden');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            } else {
+                drawer.classList.add('hidden');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
         };
 
         function populateFilterDropdowns(res) {
@@ -1872,14 +2066,16 @@
 
             const saldoEl = document.getElementById('stat-saldo');
             const indicatorEl = document.getElementById('stat-saldo-indicator');
-            if (net >= 0) {
-                saldoEl.className = "text-xl font-bold font-mono text-white mt-1";
-                indicatorEl.className = "w-6 h-6 rounded-lg bg-emerald-950/40 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-xs";
-                indicatorEl.innerHTML = "✓";
-            } else {
-                saldoEl.className = "text-xl font-bold font-mono text-rose-400 mt-1";
-                indicatorEl.className = "w-6 h-6 rounded-lg bg-rose-950/40 border border-rose-500/10 flex items-center justify-center text-rose-400 text-xs";
-                indicatorEl.innerHTML = "⚠";
+            if (saldoEl && indicatorEl) {
+                if (net >= 0) {
+                    saldoEl.className = "rekap-stat-val text-white mt-0.5 sm:mt-1";
+                    indicatorEl.className = "w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-emerald-950/40 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-[9px] sm:text-xs shrink-0";
+                    indicatorEl.innerHTML = "✓";
+                } else {
+                    saldoEl.className = "rekap-stat-val text-rose-400 mt-0.5 sm:mt-1";
+                    indicatorEl.className = "w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-rose-950/40 border border-rose-500/10 flex items-center justify-center text-rose-400 text-[9px] sm:text-xs shrink-0";
+                    indicatorEl.innerHTML = "⚠";
+                }
             }
 
             prevStats = { masuk: totalIn, keluar: totalOut, saldo: net };
@@ -2271,9 +2467,13 @@
             }
         };
 
-        if (localStorage.getItem('hideSyncNotice') === 'true') {
-            document.getElementById('sync-notice-banner').classList.add('hidden', 'opacity-0', 'scale-95');
-            document.getElementById('btn-show-notice').classList.remove('hidden');
+        const isMobileScreen = window.innerWidth < 640;
+        const syncNoticePref = localStorage.getItem('hideSyncNotice');
+        if (syncNoticePref === 'true' || (syncNoticePref === null && isMobileScreen)) {
+            const banner = document.getElementById('sync-notice-banner');
+            const showBtn = document.getElementById('btn-show-notice');
+            if (banner) banner.classList.add('hidden', 'opacity-0', 'scale-95');
+            if (showBtn) showBtn.classList.remove('hidden');
         }
 
         function hideLoadingOverlay() {
