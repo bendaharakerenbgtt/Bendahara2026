@@ -587,8 +587,8 @@
                                     </select>
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor (Opsional)</label>
-                                    <input type="text" id="in_user_search" list="in_members_list" placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor <span class="text-rose-400">*</span></label>
+                                    <input type="text" id="in_user_search" list="in_members_list" required placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
                                     <datalist id="in_members_list"></datalist>
                                     <input type="hidden" id="in_user_id">
                                 </div>
@@ -1254,13 +1254,15 @@
             
             if (inSearch) {
                 inSearch.addEventListener('input', function() {
-                    const match = localAnggota.find(m => `${m.name} (${m.divisi})` === this.value);
+                    const val = this.value.trim().toLowerCase();
+                    const match = localAnggota.find(m => `${m.name} (${m.divisi})`.toLowerCase() === val || m.name.toLowerCase() === val);
                     document.getElementById('in_user_id').value = match ? match.id : "";
                 });
             }
             if (outSearch) {
                 outSearch.addEventListener('input', function() {
-                    const match = localAnggota.find(m => `${m.name} (${m.divisi})` === this.value);
+                    const val = this.value.trim().toLowerCase();
+                    const match = localAnggota.find(m => `${m.name} (${m.divisi})`.toLowerCase() === val || m.name.toLowerCase() === val);
                     document.getElementById('out_user_id').value = match ? match.id : "";
                 });
             }
@@ -1483,7 +1485,27 @@
             const desc = document.getElementById('in_keterangan').value.trim();
             const optNote = (document.getElementById('in_catatan_opsional') ? document.getElementById('in_catatan_opsional').value.trim() : '');
             const prokerId = document.getElementById('in_proker_id').value || "NULL";
-            const userId = document.getElementById('in_user_id').value;
+
+            const rawUserId = document.getElementById('in_user_id').value;
+            const searchVal = (document.getElementById('in_user_search') ? document.getElementById('in_user_search').value.trim() : '');
+            let userId = rawUserId;
+            if (!userId && searchVal) {
+                const valLower = searchVal.toLowerCase();
+                const match = localAnggota.find(m => `${m.name} (${m.divisi})`.toLowerCase() === valLower || m.name.toLowerCase() === valLower);
+                if (match) {
+                    userId = match.id;
+                    document.getElementById('in_user_id').value = match.id;
+                }
+            }
+
+            if (!userId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Penyetor Wajib Diisi',
+                    text: 'Silakan cari & pilih nama anggota penyetor dari daftar yang tersedia.'
+                });
+                return;
+            }
 
             // Pastikan jika ada berkas foto dipilih tapi belum selesai di-compress, kompres sekarang
             const fileInput = document.getElementById('in_bukti_file');
@@ -1570,7 +1592,28 @@
             const price = parseFloat(expPrice.value.replace(/[^0-9]/g, '')) || 0;
             const desc = document.getElementById('exp_nama_barang').value.trim();
             const optNote = (document.getElementById('out_catatan_opsional') ? document.getElementById('out_catatan_opsional').value.trim() : '');
-            const userId = document.getElementById('out_user_id').value;
+            
+            const rawUserId = document.getElementById('out_user_id').value;
+            const searchVal = (document.getElementById('out_user_search') ? document.getElementById('out_user_search').value.trim() : '');
+            let userId = rawUserId;
+            if (!userId && searchVal) {
+                const valLower = searchVal.toLowerCase();
+                const match = localAnggota.find(m => `${m.name} (${m.divisi})`.toLowerCase() === valLower || m.name.toLowerCase() === valLower);
+                if (match) {
+                    userId = match.id;
+                    document.getElementById('out_user_id').value = match.id;
+                }
+            }
+
+            if (!userId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Penanggung Jawab Wajib Diisi',
+                    text: 'Silakan cari & pilih nama anggota penanggung jawab dari daftar yang tersedia.'
+                });
+                return;
+            }
+
             const picName = userId ? (membersMap[userId.toString()] || "") : "";
             const prokerId = document.getElementById('out_proker_id').value || "NULL";
             const total = qty * price;
