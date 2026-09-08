@@ -675,23 +675,23 @@
             transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
         html.light-mode .proker-card-public {
-            background: linear-gradient(180deg, #FFFFFF 0%, #FFFBF7 50%, #FFF4E8 100%) !important;
-            border: 1.5px solid #FED7AA !important;
-            border-top: 3.5px solid #FF7300 !important;
-            box-shadow: 0 8px 24px -4px rgba(255, 115, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFFBF7 100%) !important;
+            border: 1px solid rgba(254, 215, 170, 0.95) !important;
+            border-left: 4px solid #FF7300 !important;
+            box-shadow: 0 4px 16px -2px rgba(255, 115, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03) !important;
         }
         html.light-mode .proker-card-public:hover {
             border-color: #FB923C !important;
-            box-shadow: 0 12px 30px -4px rgba(255, 115, 0, 0.20) !important;
+            box-shadow: 0 8px 24px -3px rgba(255, 115, 0, 0.16) !important;
         }
         :root:not(.light-mode) .proker-card-public {
-            border-top: 3.5px solid rgba(255, 115, 0, 0.7) !important;
+            border-left: 4px solid rgba(255, 115, 0, 0.7) !important;
         }
 
         /* Proker Header Preview Bar */
         html.light-mode .proker-header-preview {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 247, 237, 0.85) 100%) !important;
-            border-bottom: 1.5px solid #FED7AA !important;
+            background: transparent !important;
+            border-bottom: none !important;
         }
         html.light-mode .proker-badge-jenis {
             background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%) !important;
@@ -705,128 +705,249 @@
             color: #FF7300;
         }
 
-        /* 3. The 3 Financial Preview Stat Boxes */
-        .proker-stat-box {
-            padding: 0.65rem 0.75rem;
-            border-radius: 0.85rem;
+        /* Card Title */
+        .proker-card-title {
+            font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+            transition: color 0.2s ease;
+        }
+        html.light-mode .proker-card-title {
+            color: #1E293B !important;
+        }
+        :root:not(.light-mode) .proker-card-title {
+            color: #F8FAFC !important;
+        }
+
+        /* Micro Meta Badges */
+        .proker-meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 8.5px;
+            font-family: 'Plus Jakarta Sans', monospace;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+        @media (min-width: 640px) {
+            .proker-meta-badge {
+                font-size: 9.5px;
+                padding: 0.25rem 0.6rem;
+            }
+        }
+        html.light-mode .proker-meta-badge {
+            background: #F8FAFC !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            color: #64748B !important;
+        }
+        html.light-mode .proker-meta-badge strong {
+            color: #334155 !important;
+        }
+        :root:not(.light-mode) .proker-meta-badge {
+            background: rgba(15, 23, 42, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: #94A3B8 !important;
+        }
+        :root:not(.light-mode) .proker-meta-badge strong {
+            color: #E2E8F0 !important;
+        }
+
+        /* Chevron Accordion Button */
+        .proker-expand-btn {
+            width: 1.85rem;
+            height: 1.85rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8.5px;
+            cursor: pointer;
+            transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        html.light-mode .proker-expand-btn {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            color: #94A3B8;
+        }
+        html.light-mode .proker-expand-btn:hover {
+            background: #FFF7ED;
+            border-color: #FDBA74;
+            color: #EA580C;
+        }
+        :root:not(.light-mode) .proker-expand-btn {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94A3B8;
+        }
+        :root:not(.light-mode) .proker-expand-btn:hover {
+            background: rgba(255, 115, 0, 0.15);
+            border-color: rgba(255, 115, 0, 0.3);
+            color: #FF7300;
+        }
+
+        /* 3. The 3 Financial Preview Stat Boxes (Sleek, Compact, Never Truncated) */
+        .proker-stat-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.35rem;
+            margin-top: 0.75rem;
+            padding-top: 0.65rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            user-select: none;
+        }
+        :root:not(.light-mode) .proker-stat-strip {
+            border-top-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .proker-stat-pill {
+            padding: 0.45rem 0.5rem;
+            border-radius: 0.75rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            user-select: none;
+            transition: all 0.2s ease;
+            min-width: 0;
+            overflow: hidden;
         }
-        .proker-stat-box:hover {
-            transform: translateY(-1.5px);
-        }
-        .stat-box-label {
-            font-size: 8px;
+
+        .stat-pill-label {
+            font-size: 7.5px;
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 800;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
             display: flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.25rem;
+            line-height: 1;
         }
         @media (min-width: 640px) {
-            .stat-box-label {
-                font-size: 9px;
+            .stat-pill-label {
+                font-size: 8.5px;
             }
         }
-        .stat-box-dot {
-            width: 6px;
-            height: 6px;
+
+        .stat-pill-dot {
+            width: 5px;
+            height: 5px;
             border-radius: 9999px;
             display: inline-block;
             flex-shrink: 0;
         }
-        .stat-box-value {
-            font-size: 11px;
+
+        .stat-pill-value {
+            font-size: clamp(9px, 2.5vw, 11px);
             font-family: 'Plus Jakarta Sans', monospace;
             font-weight: 800;
-            margin-top: 0.25rem;
+            margin-top: 0.2rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
         }
         @media (min-width: 640px) {
-            .stat-box-value {
-                font-size: 13px;
+            .stat-pill-value {
+                font-size: 12px;
             }
         }
 
-        /* Light Mode Stat Boxes */
-        html.light-mode .stat-box-pemasukan {
-            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%) !important;
-            border: 1.5px solid #86EFAC !important;
-            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.09) !important;
+        /* Light Mode Colors */
+        html.light-mode .stat-pill-pemasukan {
+            background: rgba(16, 185, 129, 0.08) !important;
+            border: 1px solid rgba(16, 185, 129, 0.25) !important;
         }
-        html.light-mode .stat-box-pemasukan .stat-box-label {
-            color: #065F46 !important;
-        }
-        html.light-mode .stat-box-pemasukan .stat-val-pemasukan {
+        html.light-mode .stat-pill-pemasukan .stat-pill-label {
             color: #047857 !important;
+        }
+        html.light-mode .stat-pill-pemasukan .stat-pill-value {
+            color: #065F46 !important;
             font-weight: 900 !important;
         }
 
-        html.light-mode .stat-box-pengeluaran {
-            background: linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%) !important;
-            border: 1.5px solid #FDA4AF !important;
-            box-shadow: 0 2px 10px rgba(244, 63, 94, 0.09) !important;
+        html.light-mode .stat-pill-pengeluaran {
+            background: rgba(244, 63, 94, 0.07) !important;
+            border: 1px solid rgba(244, 63, 94, 0.22) !important;
         }
-        html.light-mode .stat-box-pengeluaran .stat-box-label {
-            color: #9F1239 !important;
-        }
-        html.light-mode .stat-box-pengeluaran .stat-val-pengeluaran {
+        html.light-mode .stat-pill-pengeluaran .stat-pill-label {
             color: #BE123C !important;
+        }
+        html.light-mode .stat-pill-pengeluaran .stat-pill-value {
+            color: #9F1239 !important;
             font-weight: 900 !important;
         }
 
-        /* SALDO: Sunset Orange Fade Highlight */
-        html.light-mode .stat-box-saldo-positive {
-            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 50%, #FED7AA 100%) !important;
-            border: 1.5px solid #FF7300 !important;
-            box-shadow: 0 4px 16px rgba(255, 115, 0, 0.22) !important;
+        html.light-mode .stat-pill-saldo-positive {
+            background: linear-gradient(135deg, rgba(255, 115, 0, 0.10) 0%, rgba(255, 165, 0, 0.15) 100%) !important;
+            border: 1px solid rgba(255, 115, 0, 0.35) !important;
         }
-        html.light-mode .stat-box-saldo-positive .stat-box-label {
-            color: #9A3412 !important;
-        }
-        html.light-mode .stat-box-saldo-positive .stat-val-saldo-positive {
+        html.light-mode .stat-pill-saldo-positive .stat-pill-label {
             color: #C2410C !important;
+        }
+        html.light-mode .stat-pill-saldo-positive .stat-pill-value {
+            color: #EA580C !important;
             font-weight: 900 !important;
         }
 
-        html.light-mode .stat-box-saldo-negative {
-            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%) !important;
-            border: 1.5px solid #EF4444 !important;
-            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.16) !important;
+        html.light-mode .stat-pill-saldo-negative {
+            background: rgba(239, 68, 68, 0.08) !important;
+            border: 1px solid rgba(239, 68, 68, 0.25) !important;
         }
-        html.light-mode .stat-box-saldo-negative .stat-box-label {
-            color: #991B1B !important;
+        html.light-mode .stat-pill-saldo-negative .stat-pill-label {
+            color: #B91C1C !important;
         }
-        html.light-mode .stat-box-saldo-negative .stat-val-saldo-negative {
+        html.light-mode .stat-pill-saldo-negative .stat-pill-value {
             color: #DC2626 !important;
             font-weight: 900 !important;
         }
 
-        /* Dark Mode Stat Boxes (Fallback / Obsidian) */
-        :root:not(.light-mode) .stat-box-pemasukan {
-            background: rgba(6, 78, 59, 0.25) !important;
-            border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        /* Dark Mode Colors */
+        :root:not(.light-mode) .stat-pill-pemasukan {
+            background: rgba(16, 185, 129, 0.12) !important;
+            border: 1px solid rgba(16, 185, 129, 0.25) !important;
         }
-        :root:not(.light-mode) .stat-box-pemasukan .stat-box-label {
+        :root:not(.light-mode) .stat-pill-pemasukan .stat-pill-label {
             color: #6EE7B7 !important;
         }
-        :root:not(.light-mode) .stat-box-pemasukan .stat-val-pemasukan {
+        :root:not(.light-mode) .stat-pill-pemasukan .stat-pill-value {
             color: #34D399 !important;
         }
 
-        :root:not(.light-mode) .stat-box-pengeluaran {
-            background: rgba(136, 19, 55, 0.25) !important;
-            border: 1px solid rgba(244, 63, 94, 0.35) !important;
+        :root:not(.light-mode) .stat-pill-pengeluaran {
+            background: rgba(244, 63, 94, 0.12) !important;
+            border: 1px solid rgba(244, 63, 94, 0.25) !important;
         }
-        :root:not(.light-mode) .stat-box-pengeluaran .stat-box-label {
+        :root:not(.light-mode) .stat-pill-pengeluaran .stat-pill-label {
             color: #FDA4AF !important;
         }
-        :root:not(.light-mode) .stat-box-pengeluaran .stat-val-pengeluaran {
+        :root:not(.light-mode) .stat-pill-pengeluaran .stat-pill-value {
             color: #FB7185 !important;
+        }
+
+        :root:not(.light-mode) .stat-pill-saldo-positive {
+            background: rgba(255, 115, 0, 0.15) !important;
+            border: 1px solid rgba(255, 115, 0, 0.35) !important;
+        }
+        :root:not(.light-mode) .stat-pill-saldo-positive .stat-pill-label {
+            color: #FDBA74 !important;
+        }
+        :root:not(.light-mode) .stat-pill-saldo-positive .stat-pill-value {
+            color: #FB923C !important;
+        }
+
+        :root:not(.light-mode) .stat-pill-saldo-negative {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }
+        :root:not(.light-mode) .stat-pill-saldo-negative .stat-pill-label {
+            color: #FCA5A5 !important;
+        }
+        :root:not(.light-mode) .stat-pill-saldo-negative .stat-pill-value {
+            color: #F87171 !important;
         }
 
         :root:not(.light-mode) .stat-box-saldo-positive {
@@ -2024,57 +2145,64 @@
             let actionsHtml = '';
             if (!isCompleted) {
                 actionsHtml = `
-                    <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this); event.stopPropagation();" class="btn-orange-gradient font-mono text-[8.5px] sm:text-[9.5px] font-extrabold px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl active:scale-95 transition-all cursor-pointer shadow-md uppercase tracking-wider">
+                    <button data-id="${proker.id}" data-name="${proker.nama_proker}" onclick="openPaymentWizard(this); event.stopPropagation();" class="btn-orange-gradient font-mono text-[8.5px] sm:text-[9.5px] font-extrabold px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer shadow-sm uppercase tracking-wider whitespace-nowrap">
                         DONASI / HTM
                     </button>
                 `;
             }
 
             return `
-                <div class="proker-card-public bg-neutral-950 border border-neutral-900 rounded-2xl overflow-hidden shadow-xs mb-4" id="proker-card-${proker.id}">
+                <div class="proker-card-public bg-neutral-950 border border-neutral-900 rounded-2xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
                     <!-- PRATINJAU HEADER SEBELUM DIPENCET -->
-                    <div class="p-3.5 sm:p-4 proker-header-preview border-b border-neutral-900/50">
+                    <div class="p-3.5 sm:p-4 proker-header-preview">
                         <div class="flex items-start justify-between gap-2.5">
-                            <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer overflow-hidden">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-[8.5px] font-mono px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider proker-badge-jenis">${proker.jenis || "Program Kerja"}</span>
-                                    <h3 class="text-xs sm:text-sm font-extrabold text-neutral-100 truncate font-mono tracking-wide uppercase">${proker.nama_proker}</h3>
+                            <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider proker-badge-jenis">${proker.jenis || "Program Kerja"}</span>
+                                    <span class="text-[9px] font-mono text-neutral-400">📅 ${formatReadableDate(proker.estimasi_tanggal)}</span>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8px] sm:text-[9px] font-mono text-neutral-400 mt-1.5 leading-none">
-                                    <span>Divisi: <span class="text-neutral-200 font-semibold">${proker.divisi || "-"}</span></span>
-                                    <span class="text-neutral-700">|</span>
-                                    <span>Ketua: <span class="text-neutral-200 font-semibold">${ketuaNama}</span></span>
-                                    <span class="text-neutral-700">|</span>
-                                    <span>Tanggal: <span class="text-neutral-200">${formatReadableDate(proker.estimasi_tanggal)} (${proker.tahun || new Date().getFullYear()})</span></span>
-                                    ${effAnggaran > 0 ? `<span class="text-neutral-700">|</span><span>Anggaran: <span class="text-neutral-300">Rp ${effAnggaran.toLocaleString('id-ID')}</span></span>` : ''}
-                                    ${proker.keterangan ? `<span class="text-neutral-700">|</span><span>Ket: <span class="text-neutral-300">${proker.keterangan}</span></span>` : ''}
+                                <h3 class="proker-card-title text-xs sm:text-sm uppercase tracking-tight mt-1.5 truncate">${proker.nama_proker}</h3>
+                                <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                    <span class="proker-meta-badge">
+                                        <i class="fa-solid fa-building-columns text-[8px] text-orange-500"></i>
+                                        <span>Divisi: <strong>${proker.divisi || "-"}</strong></span>
+                                    </span>
+                                    <span class="proker-meta-badge">
+                                        <i class="fa-solid fa-user text-[8px] text-amber-500"></i>
+                                        <span>Ketua: <strong>${ketuaNama}</strong></span>
+                                    </span>
+                                    ${effAnggaran > 0 ? `
+                                    <span class="proker-meta-badge">
+                                        <i class="fa-solid fa-bullseye text-[8px] text-rose-500"></i>
+                                        <span>Target: <strong>Rp ${effAnggaran.toLocaleString('id-ID')}</strong></span>
+                                    </span>` : ''}
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 shrink-0">
+                            <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
                                 ${actionsHtml}
-                                <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="text-[10px] text-neutral-500 cursor-pointer p-1.5 transition-transform duration-200">▼</span>
+                                <span onclick="toggleProkerAccordion('${proker.id}')" id="p-arrow-${proker.id}" class="proker-expand-btn" title="Buka Detail">▼</span>
                             </div>
                         </div>
 
-                        <!-- PRATINJAU KEUANGAN SEBELUM DIPENCET: PEMASUKAN, PENGELUARAN, SALDO -->
-                        <div onclick="toggleProkerAccordion('${proker.id}')" class="mt-3.5 grid grid-cols-3 gap-2 sm:gap-3 font-mono cursor-pointer">
-                            <div class="proker-stat-box stat-box-pemasukan">
-                                <span class="stat-box-label">
-                                    <span class="stat-box-dot bg-emerald-500"></span> PEMASUKAN
+                        <!-- PRATINJAU KEUANGAN SEBELUM DIPENCET: PEMASUKAN, PENGELUARAN, SALDO (SLEEK STRIP, NO TRUNCATION) -->
+                        <div onclick="toggleProkerAccordion('${proker.id}')" class="proker-stat-strip cursor-pointer">
+                            <div class="proker-stat-pill stat-pill-pemasukan">
+                                <span class="stat-pill-label">
+                                    <span class="stat-pill-dot bg-emerald-500"></span> MASUK
                                 </span>
-                                <span class="stat-box-value stat-val-pemasukan truncate">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
+                                <span class="stat-pill-value stat-val-pemasukan">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
                             </div>
-                            <div class="proker-stat-box stat-box-pengeluaran">
-                                <span class="stat-box-label">
-                                    <span class="stat-box-dot bg-rose-500"></span> PENGELUARAN
+                            <div class="proker-stat-pill stat-pill-pengeluaran">
+                                <span class="stat-pill-label">
+                                    <span class="stat-pill-dot bg-rose-500"></span> KELUAR
                                 </span>
-                                <span class="stat-box-value stat-val-pengeluaran truncate">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                                <span class="stat-pill-value stat-val-pengeluaran">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
                             </div>
-                            <div class="proker-stat-box ${effSaldo >= 0 ? 'stat-box-saldo-positive' : 'stat-box-saldo-negative'}">
-                                <span class="stat-box-label">
-                                    <span class="stat-box-dot ${effSaldo >= 0 ? 'bg-[#FF7300]' : 'bg-red-500'}"></span> SALDO
+                            <div class="proker-stat-pill ${effSaldo >= 0 ? 'stat-pill-saldo-positive' : 'stat-pill-saldo-negative'}">
+                                <span class="stat-pill-label">
+                                    <span class="stat-pill-dot ${effSaldo >= 0 ? 'bg-[#FF7300]' : 'bg-red-500'}"></span> SALDO
                                 </span>
-                                <span class="stat-box-value ${effSaldo >= 0 ? 'stat-val-saldo-positive' : 'stat-val-saldo-negative'} truncate">
+                                <span class="stat-pill-value ${effSaldo >= 0 ? 'stat-val-saldo-positive' : 'stat-val-saldo-negative'}">
                                     ${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}
                                 </span>
                             </div>
