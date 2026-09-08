@@ -106,7 +106,7 @@ function doGet(e) {
       }
       result = jsonResponse({
         status: "success",
-        script_version: "2026-09-07_v6_purge_catatan_drive_fix",
+        script_version: "2026-09-08_v7_fix_kas_payment_logic",
         drive_status: driveStatus,
         folder_id: folderId
       }, callback);
@@ -438,25 +438,32 @@ function insertTransaction(p) {
     ? rawProker.toString().trim()
     : "NULL";
 
-  const catLower = (p.kategori || "").toLowerCase();
-  const ketLower = (uraianInput || "").toLowerCase();
-  const isKasPayment = catLower.includes("kas pengurus") || 
-                       catLower.includes("kas pengerus") || 
-                       catLower.includes("kas bulanan") || 
-                       catLower === "uang kas" || 
-                       catLower === "kas" ||
-                       ketLower.includes("kas pengurus") ||
-                       ketLower.includes("kas pengerus") ||
-                       ketLower.includes("bayar kas") ||
-                       ketLower.startsWith("kas ");
+  const rawJenis = (p.jenis || "").toString().trim().toLowerCase();
+  const isKeluar = (rawJenis === "keluar");
+
+  const catLower = (p.kategori || "").toLowerCase().trim();
+  const ketLower = (uraianInput || "").toLowerCase().trim();
+
+  // Kas bulanan pengurus HANYA untuk pemasukan iuran anggota (TIDAK PERNAH untuk pengeluaran)
+  const isKasPayment = !isKeluar && (
+    catLower === "kas bulanan" || 
+    catLower === "kas pengurus" || 
+    catLower === "iuran kas" || 
+    catLower === "uang kas" ||
+    ketLower.includes("pembayaran uang kas") ||
+    ketLower.includes("pembayaran kas") ||
+    ketLower.includes("iuran kas pengurus") ||
+    p.is_kas === true
+  );
 
   const isIncome = isKasPayment || 
+                   rawJenis === "masuk" ||
                    catLower.includes("htm") || 
                    catLower.includes("donasi") || 
                    ketLower.includes("htm") || 
                    ketLower.includes("donasi");
 
-  const jenis = p.jenis || (isIncome ? "Masuk" : "Keluar");
+  const jenis = isKeluar ? "Keluar" : (isIncome ? "Masuk" : (p.jenis || "Keluar"));
   const today = new Date().toISOString().substring(0, 10);
 
   let driveUrl = "";
@@ -599,10 +606,9 @@ function insertTransaction(p) {
   appendRowByHeader(sheet, txObj, defaultTransactionHeaders);
 
   // Kirim notifikasi Firebase FCM (HTTP v1)
-  kirimNotifikasiFirebaseV1(
-    "Transaksi Masuk!",
-    "Ada transaksi baru: " + txObj.keterangan + " senilai Rp " + Number(parsedJumlah).toLocaleString('id-ID')
-  );
+  const notifTitle = (jenis === "Masuk") ? "Transaksi Masuk!" : "Transaksi Keluar!";
+  const notifMsg = ((jenis === "Masuk") ? "Pemasukan: " : "Pengeluaran: ") + (txObj.uraian || txObj.keterangan) + " senilai Rp " + Number(parsedJumlah).toLocaleString('id-ID');
+  kirimNotifikasiFirebaseV1(notifTitle, notifMsg);
 
   return jsonResponse({ status: "success", id: newId });
 }
