@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <script>
-        if (localStorage.getItem('theme') !== 'dark') {
-            document.documentElement.classList.add('light-mode');
-        }
+        document.documentElement.classList.remove('light-mode');
+        document.documentElement.classList.add('dark');
     </script>
     <link class="head-theme-sync" rel="icon" href="../bendahara.png" type="image/png">
     <meta charset="UTF-8">
@@ -69,84 +68,10 @@
             --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
         
-        html.light-mode {
-            /* ==========================================================================
-               LIGHT MODE SYSTEM - Warm Cream (#FAF5EF) & Executive Treasury Palette
-               ========================================================================== */
-            --bg-main: #FAF5EF;              /* Warm soothing cream */
-            --bg-card: #FFFFFF;              /* Crisp white cards */
-            --border-card: #E5DCD0;          /* Warm sand border */
-            --border-muted: #EFE8DE;         /* Soft sand muted border */
-            
-            --text-primary: #1C1917;         /* Deep stone for high contrast readability */
-            --text-sec-100: #292524;
-            --text-sec-200: #44403C;
-            --text-sec-300: #57534E;
-            --text-sec-400: #78716C;
-            --text-sec-500: #A8A29E;
-            --text-sec-600: #D6D3D1;
-            
-            --bg-neutral-pill: #F5EFE6;      /* Sand pill */
-            
-            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
-            --border-cyan-pill: rgba(6, 182, 212, 0.25);
-            --text-cyan-accent: #0891B2;
-            
-            --bg-green-pill: rgba(5, 150, 105, 0.08);
-            --border-green-pill: rgba(5, 150, 105, 0.25);
-            --text-green-accent: #059669;    /* Executive Emerald */
-            
-            --bg-amber-pill: rgba(217, 119, 6, 0.08);
-            --border-amber-pill: rgba(217, 119, 6, 0.25);
-            --text-amber-accent: #B45309;
-            
-            --text-rose-accent: #E11D48;
-            
-            --splash-bg: #FAF5EF;
-            --splash-text: #1C1917;
-            --splash-glow: rgba(5, 150, 105, 0.08);
-            
-            --footer-bg: rgba(255, 255, 255, 0.7);
-            --footer-border: #E5DCD0;
-            
-            --hover-cyan-border: rgba(6, 182, 212, 0.4);
-            --hover-green-border: rgba(5, 150, 105, 0.4);
-            --hover-amber-border: rgba(217, 119, 6, 0.4);
-            --hover-neutral-border: #CBD5E1;
-
-            /* Shadow & glow adjustments */
-            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.10);
-            --glow-green: 0 4px 15px rgba(16, 185, 129, 0.12);
-            --shadow-card: 0 10px 30px -10px rgba(16, 185, 129, 0.08);
-        }
-
-        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
-        html.light-mode, html.light-mode body {
-            font-weight: 500 !important;
-        }
-        html.light-mode .font-light,
-        html.light-mode .font-normal {
-            font-weight: 500 !important;
-        }
-        html.light-mode .font-medium {
-            font-weight: 600 !important;
-        }
-        html.light-mode .font-semibold {
-            font-weight: 700 !important;
-        }
-        html.light-mode .font-bold {
-            font-weight: 800 !important;
-        }
-        html.light-mode input::placeholder {
-            color: var(--text-sec-500) !important;
-            opacity: 1 !important;
-        }
-
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-main) !important; 
             color: var(--text-primary) !important; 
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             min-height: 100vh;
         }
         
@@ -173,13 +98,6 @@
             animation: pulseGlow 18s ease-in-out infinite alternate;
         }
 
-        html.light-mode body::before {
-            background: 
-                radial-gradient(circle at 12% 15%, rgba(16, 185, 129, 0.18) 0%, transparent 48%),
-                radial-gradient(circle at 88% 85%, rgba(6, 182, 212, 0.15) 0%, transparent 48%),
-                radial-gradient(circle at 50% 50%, rgba(254, 215, 170, 0.16) 0%, transparent 52%) !important;
-        }
-
         @keyframes pulseGlow {
             0% { transform: scale(1) translate(0, 0); }
             100% { transform: scale(1.06) translate(15px, -15px); }
@@ -198,11 +116,6 @@
             pointer-events: none;
             z-index: -1;
             opacity: 0.75;
-            transition: opacity 0.3s ease;
-        }
-
-        html.light-mode body::after {
-            opacity: 0.05;
         }
         
         /* Apply variables to Tailwind class instances recursively */
@@ -297,16 +210,6 @@
             color: var(--text-green-accent) !important;
         }
 
-        /* Red / error indicators for error banner in light mode */
-        html.light-mode .bg-red-950\/40 {
-            background-color: rgba(220, 38, 38, 0.08) !important;
-        }
-        html.light-mode .border-red-900\/50 {
-            border-color: rgba(220, 38, 38, 0.25) !important;
-        }
-        html.light-mode .text-red-400 {
-            color: #b91c1c !important;
-        }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-center items-center px-6 relative selection:bg-emerald-950 selection:text-emerald-400">
@@ -314,10 +217,6 @@
     <a href="../dasboard.html" class="fixed top-6 left-6 flex items-center gap-1.5 px-3.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-xs h-10" title="Kembali ke Dashboard Publik">
         <span>←</span> <span>Dashboard Publik</span>
     </a>
-
-    <button id="themeToggleBtn" onclick="toggleTheme(event)" class="fixed top-6 right-6 w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-emerald-500/40 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
-        🌙
-    </button>
 
     <div class="w-full max-w-sm bg-neutral-950 border border-neutral-900 rounded-2xl p-6 lg:p-8 shadow-xl relative overflow-hidden backdrop-blur-md">
         
@@ -358,128 +257,6 @@
     <script>
         // Kredensial disimpan sebagai hash SHA-256 untuk keamanan
         // (Bukan plaintext - tidak bisa dibaca langsung dari source code)
-
-        const savedTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
-        applyTheme(savedTheme);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            applyTheme(savedTheme);
-        });
-
-        // --- Theme System Scripts ---
-        function applyTheme(theme) {
-            const btn = document.getElementById('themeToggleBtn');
-            const isLight = (theme === 'light');
-            if (isLight) {
-                document.documentElement.classList.add('light-mode');
-                document.documentElement.classList.remove('dark');
-                document.body.classList.add('light-mode');
-                document.body.classList.remove('dark');
-                if (btn) btn.innerText = '☀️';
-            } else {
-                document.documentElement.classList.remove('light-mode');
-                document.documentElement.classList.add('dark');
-                document.body.classList.remove('light-mode');
-                document.body.classList.add('dark');
-                if (btn) btn.innerText = '🌙';
-            }
-        }
-
-        function toggleTheme(e) {
-            const event = e || window.event;
-            const currentTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-            triggerThemeAnimation(newTheme, event);
-        }
-
-        function triggerThemeAnimation(newTheme, event) {
-            const ripple = document.createElement('div');
-            ripple.style.position = 'fixed';
-            ripple.style.zIndex = '9998';
-            ripple.style.borderRadius = '50%';
-            ripple.style.pointerEvents = 'none';
-            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
-            ripple.style.backgroundColor = newTheme === 'light' ? '#FAF5EF' : '#080C14';
-            
-            let posX = window.innerWidth / 2;
-            let posY = window.innerHeight / 2;
-            
-            if (event && event.clientX) {
-                posX = event.clientX;
-                posY = event.clientY;
-            } else {
-                const btn = document.getElementById('themeToggleBtn');
-                if (btn) {
-                    const rect = btn.getBoundingClientRect();
-                    posX = rect.left + rect.width / 2;
-                    posY = rect.top + rect.height / 2;
-                }
-            }
-            
-            ripple.style.width = '10px';
-            ripple.style.height = '10px';
-            ripple.style.left = `${posX - 5}px`;
-            ripple.style.top = `${posY - 5}px`;
-            ripple.style.transform = 'scale(0)';
-            ripple.style.opacity = '1';
-            
-            const overlay = document.createElement('div');
-            overlay.style.position = 'fixed';
-            overlay.style.inset = '0';
-            overlay.style.zIndex = '9999';
-            overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.pointerEvents = 'none';
-            overlay.style.transition = 'opacity 0.4s ease-out';
-            overlay.style.opacity = '0';
-            
-            const icon = document.createElement('div');
-            icon.style.fontSize = '6rem';
-            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            icon.style.transform = 'scale(0) rotate(-45deg)';
-            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
-            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
-            
-            overlay.appendChild(icon);
-            document.body.appendChild(ripple);
-            document.body.appendChild(overlay);
-            
-            ripple.offsetWidth;
-            overlay.offsetWidth;
-            
-            const limit = Math.max(
-                Math.hypot(posX, posY),
-                Math.hypot(window.innerWidth - posX, posY),
-                Math.hypot(posX, window.innerHeight - posY),
-                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
-            );
-            const scaleFactor = (limit * 2) / 10;
-            
-            ripple.style.transform = `scale(${scaleFactor})`;
-            overlay.style.opacity = '1';
-            icon.style.transform = 'scale(1.5) rotate(0deg)';
-            
-            setTimeout(() => {
-                applyTheme(newTheme);
-            }, 380);
-            
-            setTimeout(() => {
-                ripple.style.opacity = '0';
-                overlay.style.opacity = '0';
-                icon.style.transform = 'scale(0.8) rotate(45deg)';
-                setTimeout(() => {
-                    ripple.remove();
-                    overlay.remove();
-                }, 400);
-            }, 650);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme);
-        });
 
         // --- Form Login Handler with SweetAlert2 ---
         document.getElementById('loginForm').addEventListener('submit', async function(e) {

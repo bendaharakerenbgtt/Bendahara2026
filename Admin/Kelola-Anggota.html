@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <script>
         if (sessionStorage.getItem('adminSession') !== 'active') {
             window.location.replace('Login-Admin.html');
         }
-        if (localStorage.getItem('theme') !== 'dark') {
-            document.documentElement.classList.add('light-mode');
-        }
+        document.documentElement.classList.remove('light-mode');
+        document.documentElement.classList.add('dark');
     </script>
     <link class="head-theme-sync" rel="icon" href="../bendahara.png" type="image/png">
     <meta charset="UTF-8">
@@ -72,97 +71,10 @@
             --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
         
-        html.light-mode {
-            /* ==========================================================================
-               LIGHT MODE SYSTEM - Warm Cream (#FAF5EF) & Executive Treasury Palette
-               ========================================================================== */
-            --bg-main: #FAF5EF;              /* Warm soothing cream */
-            --bg-card: #FFFFFF;              /* Crisp white cards */
-            --border-card: #E5DCD0;          /* Warm sand border */
-            --border-muted: #EFE8DE;         /* Soft sand muted border */
-            
-            --text-primary: #1C1917;         /* Deep stone for high contrast readability */
-            --text-sec-100: #292524;
-            --text-sec-200: #44403C;
-            --text-sec-300: #57534E;
-            --text-sec-400: #78716C;
-            --text-sec-500: #A8A29E;
-            --text-sec-600: #D6D3D1;
-            
-            --bg-neutral-pill: #F5EFE6;      /* Sand pill */
-            
-            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
-            --border-cyan-pill: rgba(6, 182, 212, 0.25);
-            --text-cyan-accent: #0891B2;
-            
-            --bg-green-pill: rgba(5, 150, 105, 0.08);
-            --border-green-pill: rgba(5, 150, 105, 0.25);
-            --text-green-accent: #059669;    /* Executive Emerald */
-            
-            --bg-amber-pill: rgba(217, 119, 6, 0.08);
-            --border-amber-pill: rgba(217, 119, 6, 0.25);
-            --text-amber-accent: #B45309;
-            
-            --text-rose-accent: #E11D48;
-            
-            --splash-bg: #FAF5EF;
-            --splash-text: #1C1917;
-            --splash-glow: rgba(5, 150, 105, 0.08);
-            
-            --footer-bg: rgba(255, 255, 255, 0.7);
-            --footer-border: #E5DCD0;
-            
-            --hover-cyan-border: rgba(6, 182, 212, 0.4);
-            --hover-green-border: rgba(5, 150, 105, 0.4);
-            --hover-amber-border: rgba(217, 119, 6, 0.4);
-            --hover-neutral-border: #CBD5E1;
-
-            /* Shadow & glow adjustments */
-            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.10);
-            --glow-green: 0 4px 15px rgba(16, 185, 129, 0.12);
-            --shadow-card: 0 10px 30px -10px rgba(16, 185, 129, 0.08);
-        }
-
-        /* Font weight overrides in Light Mode to ensure readability */
-        html.light-mode, html.light-mode body {
-            font-weight: 500 !important;
-        }
-        html.light-mode .font-light,
-        html.light-mode .font-normal {
-            font-weight: 500 !important;
-        }
-        html.light-mode .font-medium {
-            font-weight: 600 !important;
-        }
-        html.light-mode .font-semibold {
-            font-weight: 700 !important;
-        }
-        html.light-mode .font-bold {
-            font-weight: 800 !important;
-        }
-        html.light-mode input::placeholder {
-            color: var(--text-sec-500) !important;
-            opacity: 1 !important;
-        }
-
-        /* High contrast inputs and select fields in Light Mode */
-        html.light-mode input, 
-        html.light-mode select {
-            background-color: var(--bg-main) !important; 
-            border: 1px solid var(--border-card) !important; 
-            color: var(--text-primary) !important;
-        }
-        html.light-mode input:focus, 
-        html.light-mode select:focus {
-            border-color: var(--text-cyan-accent) !important;
-            box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15) !important;
-        }
-
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-main) !important; 
             color: var(--text-primary) !important; 
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             min-height: 100vh;
         }
         
@@ -193,13 +105,6 @@
             animation: pulseGlow 18s ease-in-out infinite alternate;
         }
 
-        html.light-mode body::before {
-            background: 
-                radial-gradient(circle at 12% 15%, rgba(16, 185, 129, 0.18) 0%, transparent 48%),
-                radial-gradient(circle at 88% 85%, rgba(6, 182, 212, 0.15) 0%, transparent 48%),
-                radial-gradient(circle at 50% 50%, rgba(254, 215, 170, 0.16) 0%, transparent 52%) !important;
-        }
-
         @keyframes pulseGlow {
             0% { transform: scale(1) translate(0, 0); }
             100% { transform: scale(1.06) translate(15px, -15px); }
@@ -218,11 +123,6 @@
             pointer-events: none;
             z-index: -1;
             opacity: 0.75;
-            transition: opacity 0.3s ease;
-        }
-
-        html.light-mode body::after {
-            opacity: 0.05;
         }
         
         /* Subtle glow animations */
@@ -318,12 +218,6 @@
             justify-content: space-around;
         }
 
-        html.light-mode .mobile-bottom-nav {
-            background: rgba(255, 255, 255, 0.96) !important;
-            border-top: 1.5px solid rgba(16, 185, 129, 0.3) !important;
-            box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.12), 0 -1px 4px rgba(0, 0, 0, 0.04) !important;
-        }
-
         .bottom-nav-item {
             display: flex;
             flex-direction: column;
@@ -383,23 +277,6 @@
             font-weight: 800;
         }
 
-        /* Light Mode Active State */
-        html.light-mode .bottom-nav-item {
-            color: #64748b;
-        }
-        html.light-mode .bottom-nav-item.active {
-            color: #059669 !important;
-        }
-        html.light-mode .bottom-nav-item.active .nav-icon-wrap {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-            color: #ffffff !important;
-            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.38) !important;
-        }
-        html.light-mode .bottom-nav-item.active .nav-label {
-            color: #059669 !important;
-            font-weight: 800 !important;
-        }
-
         @media (max-width: 768px) {
             .mobile-bottom-nav {
                 display: flex !important;
@@ -441,9 +318,6 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                     <span>KELOLA ANGGOTA</span>
                 </div>
-                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-emerald-500/40 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
-                    🌙
-                </button>
                 <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
                     <span>Logout</span> <span class="text-rose-500">↗</span>
                 </a>
@@ -567,11 +441,7 @@
 
         let localAnggota = [];
 
-        const savedTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
-        applyTheme(savedTheme);
-
         function initKelolaAnggotaPage() {
-            applyTheme(savedTheme);
             fetchInitialData();
         }
 
@@ -915,85 +785,6 @@
                 overlay.style.opacity = '0';
                 overlay.style.pointerEvents = 'none';
             }
-        }
-
-        // Premium Theme Switcher
-        function applyTheme(theme) {
-            const btn = document.getElementById('themeToggleBtn');
-            const isLight = (theme === 'light');
-            if (isLight) {
-                document.documentElement.classList.add('light-mode');
-                document.documentElement.classList.remove('dark');
-                document.body.classList.add('light-mode');
-                document.body.classList.remove('dark');
-                if (btn) btn.innerText = '☀️';
-            } else {
-                document.documentElement.classList.remove('light-mode');
-                document.documentElement.classList.add('dark');
-                document.body.classList.remove('light-mode');
-                document.body.classList.add('dark');
-                if (btn) btn.innerText = '🌙';
-            }
-        }
-
-        function toggleTheme(e) {
-            const event = e || window.event;
-            const currentTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-            triggerThemeAnimation(newTheme, event);
-        }
-
-        function triggerThemeAnimation(newTheme, event) {
-            const ripple = document.createElement('div');
-            ripple.style.position = 'fixed';
-            ripple.style.zIndex = '9998';
-            ripple.style.borderRadius = '50%';
-            ripple.style.pointerEvents = 'none';
-            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
-            ripple.style.backgroundColor = newTheme === 'light' ? '#FAF5EF' : '#080C14';
-            
-            let posX = window.innerWidth / 2;
-            let posY = window.innerHeight / 2;
-            
-            if (event && event.clientX) {
-                posX = event.clientX;
-                posY = event.clientY;
-            } else {
-                const btn = document.getElementById('themeToggleBtn');
-                if (btn) {
-                    const rect = btn.getBoundingClientRect();
-                    posX = rect.left + rect.width / 2;
-                    posY = rect.top + rect.height / 2;
-                }
-            }
-            
-            const radius = Math.max(
-                Math.hypot(posX, posY),
-                Math.hypot(window.innerWidth - posX, posY),
-                Math.hypot(window.innerWidth - posX, window.innerHeight - posY),
-                Math.hypot(posX, window.innerHeight - posY)
-            );
-            
-            ripple.style.width = '2px';
-            ripple.style.height = '2px';
-            ripple.style.left = `${posX - 1}px`;
-            ripple.style.top = `${posY - 1}px`;
-            ripple.style.transform = 'scale(0)';
-            
-            document.body.appendChild(ripple);
-            
-            ripple.offsetHeight; // Force reflow
-            
-            ripple.style.transform = `scale(${radius})`;
-            
-            setTimeout(() => {
-                applyTheme(newTheme);
-                ripple.style.opacity = '0';
-                setTimeout(() => {
-                    ripple.remove();
-                }, 400);
-            }, 350);
         }
     </script>
 </body>
