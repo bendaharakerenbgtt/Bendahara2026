@@ -446,6 +446,8 @@ function insertTransaction(p) {
 
   // Kas bulanan pengurus HANYA untuk pemasukan iuran anggota (TIDAK PERNAH untuk pengeluaran)
   const isKasPayment = !isKeluar && (
+    catLower === "kas" ||
+    catLower.startsWith("kas") ||
     catLower === "kas bulanan" || 
     catLower === "kas pengurus" || 
     catLower === "iuran kas" || 
@@ -504,7 +506,7 @@ function insertTransaction(p) {
         id: newId,
         tanggal: p.tanggal || today,
         divisi: cleanDivisi,
-        kategori: "Kas Pengurus",
+        kategori: "Kas",
         uraian: baseKet,
         keterangan: finalKet,
         unit: p.unit || "NULL",
@@ -584,7 +586,7 @@ function insertTransaction(p) {
     id: newId,
     tanggal: p.tanggal || today,
     divisi: cleanDivisi,
-    kategori: isKasPayment ? "Kas Pengurus" : (p.kategori || "Umum"),
+    kategori: isKasPayment ? "Kas" : (p.kategori || "Umum"),
     uraian: cleanUraian,
     keterangan: finalKet,
     unit: p.unit || "NULL",
