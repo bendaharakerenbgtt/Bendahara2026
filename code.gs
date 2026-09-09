@@ -304,19 +304,8 @@ function getAllData(callback) {
   anggotaData.forEach(member => {
     // Ambil semua transaksi kas yang disetujui untuk anggota ini
     const memberTxList = transaksiData.filter(t => {
-      const catLower = (t.kategori || "").toLowerCase();
-      const ketLower = (t.keterangan || "").toLowerCase();
-      const isKas = catLower.includes("kas pengurus") || 
-                    catLower.includes("kas pengerus") || 
-                    catLower.includes("kas bulanan") || 
-                    catLower === "uang kas" || 
-                    catLower === "kas" ||
-                    ketLower.includes("kas pengurus") ||
-                    ketLower.includes("kas pengerus") ||
-                    ketLower.includes("bayar kas") ||
-                    ketLower.startsWith("kas ");
       const isApproved = (t.status_reimburse === "Tidak Perlu");
-      return isKas && isApproved && isTransactionForMember(t, member);
+      return isApproved && isIuranKasTransaction(t) && isTransactionForMember(t, member);
     });
 
     // Urutkan transaksi berdasarkan ID transaksi secara kronologis
@@ -329,9 +318,9 @@ function getAllData(callback) {
     const unpaidMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
     const allocatedMonths = [];
 
-    // Pass 1: Alokasikan transaksi yang menyebutkan bulan secara eksplisit di keterangan atau catatan
+    // Pass 1: Alokasikan transaksi yang menyebutkan bulan secara eksplisit di keterangan, catatan, atau uraian
     memberTxList.forEach(t => {
-      const combinedText = (t.keterangan || "") + " " + (t.catatan || "");
+      const combinedText = (t.keterangan || "") + " " + (t.catatan || "") + " " + (t.uraian || "");
       const extracted = extractMonthsFromText(combinedText);
       extracted.forEach(bulan => {
         if (unpaidMonths.indexOf(bulan) !== -1) {
@@ -342,30 +331,21 @@ function getAllData(callback) {
       });
     });
 
-    // Pass 2: Jumlahkan nominal dari transaksi tanpa bulan eksplisit
-    let totalNominalWithoutMonths = 0;
+    // Pass 2: Transaksi kas iuran yang tidak mencantumkan bulan secara eksplisit
     memberTxList.forEach(t => {
-      const combinedText = (t.keterangan || "") + " " + (t.catatan || "");
+      const combinedText = (t.keterangan || "") + " " + (t.catatan || "") + " " + (t.uraian || "");
       const extracted = extractMonthsFromText(combinedText);
       if (extracted.length === 0) {
-        totalNominalWithoutMonths += (Number(t.nominal) || 0);
+        const nominal = Number(t.nominal) || 0;
+        const count = Math.floor(nominal / 10000);
+        for (let i = 0; i < count; i++) {
+          if (unpaidMonths.length > 0) {
+            const bulan = unpaidMonths.shift();
+            allocatedMonths.push({ bulan: bulan, txId: t.id });
+          }
+        }
       }
     });
-
-    // Hitung berapa bulan yang dibayar dari nominal gabungan (1 bulan = Rp10.000)
-    const count = Math.floor(totalNominalWithoutMonths / 10000);
-    for (let i = 0; i < count; i++) {
-      if (unpaidMonths.length > 0) {
-        const bulan = unpaidMonths.shift();
-        // Asosiasikan dengan transaksi non-spesifik pertama yang berkontribusi
-        const associatedTx = memberTxList.find(t => {
-          const combinedText = (t.keterangan || "") + " " + (t.catatan || "");
-          return extractMonthsFromText(combinedText).length === 0;
-        });
-        const txId = associatedTx ? associatedTx.id : "";
-        allocatedMonths.push({ bulan: bulan, txId: txId });
-      }
-    }
 
     // Generate objek kas untuk kompatibilitas frontend
     allocatedMonths.forEach(item => {
@@ -398,6 +378,7 @@ function doPost(e) {
 
     if (action === "insert_transaction")        return insertTransaction(payload);
     if (action === "delete_transaction")        return deleteTransaction(payload);
+    if (action === "cancel_kas_month")          return cancelKasMonth(payload);
     if (action === "edit_transaction")          return editTransaction(payload);
     if (action === "approve_transaction")       return approveTransaction(payload);
     if (action === "reject_transaction")        return rejectTransaction(payload);
@@ -623,6 +604,88 @@ function deleteTransaction(p) {
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
   const deleted = deleteRowById(sheet, p.id);
   return jsonResponse({ status: deleted ? "success" : "error", message: deleted ? "Dihapus" : "ID tidak ditemukan" });
+}
+
+// ============================================================
+// KAS PENGURUS — Batalkan Kas Bulan Tertentu Secara Aman
+// ============================================================
+function cancelKasMonth(p) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
+  const txId  = p.id ? p.id.toString().trim() : "";
+  const bulan = p.bulan ? p.bulan.toString().trim() : "";
+  const userId = p.user_id ? p.user_id.toString().trim() : "";
+
+  if (!txId) {
+    return jsonResponse({ status: "error", message: "ID Transaksi tidak valid atau kosong." });
+  }
+
+  const data = sheetToJson(sheet);
+  const tx = data.find(r => safeCompareIds(getVal(r, "id_transaksi") || getVal(r, "id"), txId));
+  if (!tx) {
+    return jsonResponse({ status: "error", message: "Transaksi dengan ID " + txId + " tidak ditemukan di spreadsheet." });
+  }
+
+  // 1. Validasi Keamanan Ketat: Pastikan benar-benar transaksi Iuran Kas
+  const tMapped = {
+    id: txId,
+    jenis: getVal(tx, "jenis"),
+    proker_id: getVal(tx, "id_kegiatan") || getVal(tx, "proker_id"),
+    kategori: getVal(tx, "kategori"),
+    uraian: getVal(tx, "uraian"),
+    keterangan: getVal(tx, "keterangan"),
+    catatan: getVal(tx, "catatan"),
+    user_id: getVal(tx, "id_anggota") || getVal(tx, "user_id"),
+    nominal: parseFormattedNumber(getVal(tx, "nominal"))
+  };
+
+  if (!isIuranKasTransaction(tMapped)) {
+    return jsonResponse({ 
+      status: "error", 
+      message: "DITOLAK: Transaksi " + txId + " (" + (tMapped.uraian || tMapped.keterangan) + ") bukan transaksi iuran kas pengurus! Transaksi operasional/kegiatan tidak boleh dihapus dari menu kelola kas." 
+    });
+  }
+
+  // 2. Validasi Anggota jika dikirimkan
+  if (userId && tMapped.user_id && !safeCompareIds(tMapped.user_id, userId)) {
+    return jsonResponse({ 
+      status: "error", 
+      message: "DITOLAK: Transaksi " + txId + " bukan milik anggota yang dipilih!" 
+    });
+  }
+
+  // 3. Penanganan Transaksi Multi-Bulan vs Single-Bulan
+  const nominal = tMapped.nominal;
+  const combinedText = (tMapped.keterangan || "") + " " + (tMapped.catatan || "") + " " + (tMapped.uraian || "");
+  const extractedMonths = extractMonthsFromText(combinedText);
+
+  // Jika transaksi hanya bernilai <= 10.000 atau hanya mencakup 1 bulan: Hapus baris transaksi
+  if (nominal <= 10000 || extractedMonths.length <= 1) {
+    const deleted = deleteRowById(sheet, txId);
+    return jsonResponse({ 
+      status: deleted ? "success" : "error", 
+      message: deleted ? "Transaksi kas bulan " + bulan + " (" + txId + ") berhasil dihapus." : "Gagal menghapus baris transaksi." 
+    });
+  } else {
+    // Jika transaksi mencakup beberapa bulan (misal Rp 20.000 untuk 2 bulan):
+    // JANGAN HAPUS BARIS! Cukup kurangi nominal 10.000 dan hapus bulan tersebut dari keterangan agar bulan lain tetap aman!
+    const newNominal = Math.max(0, nominal - 10000);
+    let newKet = tMapped.keterangan || "";
+    if (bulan) {
+      newKet = newKet.replace(new RegExp("\\b" + bulan + "\\b[,\\s]*", "gi"), "")
+                     .replace(/,\s*\)/g, ")")
+                     .replace(/\(\s*,/g, "(")
+                     .replace(/\(\s*\)/g, "")
+                     .trim();
+    }
+    updateColumnById(sheet, txId, "nominal", newNominal);
+    updateColumnById(sheet, txId, "jumlah", newNominal);
+    updateColumnById(sheet, txId, "keterangan", newKet);
+    return jsonResponse({ 
+      status: "success", 
+      message: "Kas bulan " + bulan + " dibatalkan. Transaksi " + txId + " disesuaikan menjadi Rp " + newNominal.toLocaleString('id-ID') + " agar riwayat bulan lainnya tetap aman." 
+    });
+  }
 }
 
 // ============================================================
@@ -1038,27 +1101,21 @@ function getUnpaidMonthsForMember(ss, memberId) {
   const allocatedMonths = [];
 
   const memberTxList = transaksiRaw.filter(t => {
-    const catLower = (getVal(t, "kategori") || "").toLowerCase();
-    const ketLower = (getVal(t, "keterangan") || "").toLowerCase();
-    const isKas = catLower.includes("kas pengurus") || 
-                  catLower.includes("kas pengerus") || 
-                  catLower.includes("kas bulanan") || 
-                  catLower === "uang kas" || 
-                  catLower === "kas" ||
-                  ketLower.includes("kas pengurus") ||
-                  ketLower.includes("kas pengerus") ||
-                  ketLower.includes("bayar kas") ||
-                  ketLower.startsWith("kas ");
-                  
     const tMapped = {
       id: getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || ""),
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
+      proker_id: getVal(t, "id_kegiatan") !== undefined ? getVal(t, "id_kegiatan") : (getVal(t, "proker_id") || ""),
+      jenis: getVal(t, "jenis") || "",
+      kategori: getVal(t, "kategori") || "",
+      uraian: getVal(t, "uraian") || "",
       keterangan: getVal(t, "keterangan") || "",
       catatan: getVal(t, "catatan") || "",
+      status_reimburse: getVal(t, "status_reimburse") || "",
       nominal: parseFormattedNumber(getVal(t, "nominal"))
     };
     
-    return isKas && isTransactionForMember(tMapped, member);
+    const isApproved = (tMapped.status_reimburse === "Tidak Perlu");
+    return isApproved && isIuranKasTransaction(tMapped) && isTransactionForMember(tMapped, member);
   });
 
   memberTxList.sort((a, b) => {
@@ -1067,10 +1124,12 @@ function getUnpaidMonthsForMember(ss, memberId) {
     return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
   });
 
+  // Pass 1: Alokasikan transaksi yang menyebutkan bulan secara eksplisit
   memberTxList.forEach(t => {
     const ket = getVal(t, "keterangan") || "";
     const cat = getVal(t, "catatan") || "";
-    const combinedText = ket + " " + cat;
+    const ur  = getVal(t, "uraian") || "";
+    const combinedText = ket + " " + cat + " " + ur;
     const extracted = extractMonthsFromText(combinedText);
     extracted.forEach(bulan => {
       if (unpaidMonths.indexOf(bulan) !== -1) {
@@ -1081,24 +1140,24 @@ function getUnpaidMonthsForMember(ss, memberId) {
     });
   });
 
-  let totalNominalWithoutMonths = 0;
+  // Pass 2: Transaksi kas iuran tanpa bulan eksplisit
   memberTxList.forEach(t => {
     const ket = getVal(t, "keterangan") || "";
     const cat = getVal(t, "catatan") || "";
-    const combinedText = ket + " " + cat;
+    const ur  = getVal(t, "uraian") || "";
+    const combinedText = ket + " " + cat + " " + ur;
     const extracted = extractMonthsFromText(combinedText);
     if (extracted.length === 0) {
-      totalNominalWithoutMonths += parseFormattedNumber(getVal(t, "nominal"));
+      const nominal = parseFormattedNumber(getVal(t, "nominal"));
+      const count = Math.floor(nominal / 10000);
+      for (let i = 0; i < count; i++) {
+        if (unpaidMonths.length > 0) {
+          const bulan = unpaidMonths.shift();
+          allocatedMonths.push(bulan);
+        }
+      }
     }
   });
-
-  const count = Math.floor(totalNominalWithoutMonths / 10000);
-  for (let i = 0; i < count; i++) {
-    if (unpaidMonths.length > 0) {
-      const bulan = unpaidMonths.shift();
-      allocatedMonths.push(bulan);
-    }
-  }
 
   const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
   return allMonths.filter(m => allocatedMonths.indexOf(m) === -1);
@@ -1405,25 +1464,95 @@ function saveImageToDrive(base64Data, transactionId) {
   }
 }
 
+/** 
+ * Verifikasi apakah transaksi benar-benar iuran kas pengurus/anggota:
+ * - Jenis HARUS "Masuk"
+ * - Tidak terikat pada proker tertentu (bukan HTM/donasi proker)
+ * - Bukan transaksi penyesuaian/selisih saldo/operasional umum
+ * - Kategori kas ATAU keterangan/uraian memuat indikasi kas/iuran
+ */
+function isIuranKasTransaction(t) {
+  if (!t) return false;
+
+  // 1. Jenis arus kas HARUS "Masuk"
+  const jenis = (t.jenis !== undefined && t.jenis !== null) ? t.jenis.toString().trim().toLowerCase() : "";
+  if (jenis !== "masuk") return false;
+
+  // 2. Tidak boleh terikat pada kegiatan/proker spesifik
+  const prokerId = (t.proker_id !== undefined && t.proker_id !== null) 
+    ? t.proker_id.toString().trim() 
+    : ((t.id_kegiatan !== undefined && t.id_kegiatan !== null) ? t.id_kegiatan.toString().trim() : "");
+  if (prokerId !== "" && prokerId !== "0" && prokerId !== "NULL") return false;
+
+  // 3. Filter teks keterangan, uraian, dan catatan
+  const uraian = (t.uraian || "").toString().trim().toLowerCase();
+  const ket = (t.keterangan || "").toString().trim().toLowerCase();
+  const catat = (t.catatan || "").toString().trim().toLowerCase();
+  const combined = uraian + " " + ket + " " + catat;
+
+  // Kecualikan penyesuaian selisih bulatan, saldo awal, turunan, dan transaksi non-iuran
+  if (combined.includes("penyesuaian") || 
+      combined.includes("selisih") || 
+      combined.includes("pembulatan") || 
+      combined.includes("saldo awal") || 
+      combined.includes("turunan") ||
+      combined.includes("qris & mdr") ||
+      combined.includes("e-statement")) {
+    return false;
+  }
+
+  // 4. Kategori atau uraian/keterangan harus merujuk pada iuran kas
+  const catLower = (t.kategori || "").toString().trim().toLowerCase();
+  const isExplicitKasCat = (
+    catLower === "kas" || 
+    catLower === "kas pengurus" || 
+    catLower === "kas pengerus" || 
+    catLower === "kas bulanan" || 
+    catLower === "uang kas" || 
+    catLower === "iuran kas"
+  );
+
+  const isExplicitKasText = (
+    combined.includes("kas ") || 
+    combined.startsWith("kas") || 
+    combined.includes("iuran") || 
+    combined.includes("bayar kas") || 
+    combined.includes("uang kas")
+  );
+
+  return isExplicitKasCat && isExplicitKasText;
+}
+
 /** Periksa apakah transaksi ditujukan untuk anggota tertentu secara aman */
 function isTransactionForMember(t, member) {
   if (t.user_id && safeCompareIds(t.user_id, member.id)) {
     return true;
   }
   
-  // Jika user_id kosong, coba lakukan pencocokan nama di kolom keterangan
+  // Jika user_id kosong, coba lakukan pencocokan nama di kolom keterangan / uraian
   const tUserIdStr = t.user_id ? t.user_id.toString().trim().toUpperCase() : "";
   if (!t.user_id || tUserIdStr === "" || tUserIdStr === "NULL" || tUserIdStr === "0") {
-    const ketLower = (t.keterangan || "").toLowerCase();
-    const nameLower = (member.name || "").toLowerCase();
-    const nameParts = nameLower.split(/\s+/).filter(part => part.length > 2);
-    
-    if (nameParts.length > 0) {
-      const firstName = nameParts[0];
-      const regex = new RegExp("\\b" + escapeRegExp(firstName) + "\\b", "i");
-      if (regex.test(ketLower)) {
-        return true;
-      }
+    const combined = ((t.keterangan || "") + " " + (t.uraian || "")).toLowerCase();
+    const nameLower = (member.name || "").toLowerCase().trim();
+    if (!nameLower) return false;
+
+    // 1. Cek nama lengkap
+    if (combined.includes(nameLower)) return true;
+
+    // 2. Cek bagian nama (abaikan awalan umum seperti muhammad / ahmad jika ada nama berikutnya)
+    const commonPrefixes = ["muhammad", "mohammad", "m.", "muh.", "ahmad", "achmad"];
+    const parts = nameLower.split(/\s+/).filter(p => p.length >= 3);
+    const distinctiveParts = parts.filter(p => !commonPrefixes.includes(p));
+
+    if (distinctiveParts.length > 0) {
+      const matchDistinctive = distinctiveParts.some(dp => {
+        const regex = new RegExp("\\b" + escapeRegExp(dp) + "\\b", "i");
+        return regex.test(combined);
+      });
+      if (matchDistinctive) return true;
+    } else if (parts.length > 0) {
+      const regex = new RegExp("\\b" + escapeRegExp(parts[0]) + "\\b", "i");
+      if (regex.test(combined)) return true;
     }
   }
   return false;

@@ -1121,19 +1121,37 @@
             const bulan = btn.getAttribute('data-bulan');
             const namaUser = btn.getAttribute('data-name');
 
+            if (!txId || txId === "undefined" || txId === "null") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ID Transaksi Tidak Valid',
+                    text: `Transaksi kas bulan ${bulan} untuk ${namaUser} tidak memiliki ID transaksi valid.`
+                });
+                return;
+            }
+
             Swal.fire({
-                title: 'Konfirmasi Hapus',
-                text: `Hapus status lunas bulan ${bulan} untuk ${namaUser}? Tindakan ini akan menghapus transaksi terkait di database.`,
+                title: 'Konfirmasi Batal Kas',
+                html: `
+                    <div class="text-left text-xs text-neutral-300 space-y-1.5 p-3 bg-neutral-900/70 rounded-xl border border-neutral-800">
+                        <p><strong>Anggota:</strong> <span class="text-cyan-400 font-bold">${namaUser}</span></p>
+                        <p><strong>Bulan:</strong> <span class="text-white font-bold">${bulan}</span></p>
+                        <p><strong>ID Transaksi:</strong> <code class="bg-neutral-950 px-1.5 py-0.5 rounded text-cyan-300 font-mono">${txId}</code></p>
+                        <p class="text-amber-400/90 text-[11px] mt-2 pt-2 border-t border-neutral-800 leading-relaxed">
+                            ⚠️ Sistem akan membatalkan status lunas bulan ini secara aman tanpa menghapus transaksi atau bulan lain yang tidak terkait.
+                        </p>
+                    </div>
+                `,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Hapus!',
+                confirmButtonText: 'Ya, Batalkan Kas!',
                 cancelButtonText: 'Batal',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: 'Membatalkan Uang Kas...',
-                        text: 'Sedang menghapus data di database.',
+                        text: 'Sedang memproses pembatalan di database Google Sheets.',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
@@ -1141,8 +1159,10 @@
                     });
 
                     const payload = {
-                        action: "delete_transaction",
-                        id: txId
+                        action: "cancel_kas_month",
+                        id: txId,
+                        user_id: userId,
+                        bulan: bulan
                     };
 
                     fetch(GOOGLE_SCRIPT_URL, {
@@ -1158,10 +1178,10 @@
                             Swal.close();
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Dihapus!',
-                                text: `Status lunas bulan ${bulan} resmi dibatalkan.`,
+                                title: 'Status Kas Dibatalkan!',
+                                text: `Status lunas bulan ${bulan} untuk ${namaUser} resmi dibatalkan.`,
                                 showConfirmButton: false,
-                                timer: 1200
+                                timer: 1500
                             }).then(() => {
                                 fetchInitialData(true); // Refresh UI setelah delay
                             });
