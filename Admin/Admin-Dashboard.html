@@ -401,11 +401,18 @@
         }
 
         @media (max-width: 768px) {
+            header {
+                display: none !important;
+            }
             .mobile-bottom-nav {
                 display: flex !important;
             }
             body {
                 padding-bottom: 84px !important;
+            }
+            main {
+                padding-top: 10px !important;
+                gap: 12px !important;
             }
         }
     </style>
@@ -434,9 +441,9 @@
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 w-full flex-grow flex flex-col gap-4">
+    <main class="max-w-7xl mx-auto px-3.5 sm:px-6 py-2.5 sm:py-5 w-full flex-grow flex flex-col gap-3 sm:gap-4">
         
-        <!-- TOP HEADER DESKTOP & MOBILE -->
+        <!-- TOP HEADER DESKTOP ONLY -->
         <header class="flex items-center justify-between w-full border-b border-neutral-900 pb-3 pt-1">
             <div class="flex items-center gap-3">
                 <a href="../dasboard.html" class="flex items-center gap-2 group">
@@ -458,25 +465,28 @@
         </header>
 
         <!-- GREETING HERO CARD (COMPACT MOBILE & SLEEK DESKTOP) -->
-        <div class="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
-            <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1">
+        <div class="bg-neutral-950 border border-neutral-900 rounded-xl sm:rounded-2xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 shadow-xs">
+            <div class="flex flex-col gap-0.5 sm:gap-1">
+                <div class="flex items-center justify-between sm:justify-start gap-2">
+                    <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold font-mono tracking-wider bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> EXECUTIVE PANEL
                     </span>
+                    <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="sm:hidden text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold flex items-center gap-1 active:scale-95 transition-all">
+                        <span>Logout</span> ↗
+                    </a>
                 </div>
-                <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">
+                <h1 class="text-xs sm:text-base font-extrabold tracking-tight text-white mt-1 sm:mt-0">
                     Assalamu'alaikum, Bendahara keren bgt! 👋
                 </h1>
-                <p class="text-[11px] sm:text-xs text-neutral-400">
+                <p class="text-[10px] sm:text-xs text-neutral-400">
                     Pusat kendali transparansi & pembukuan kas LDK IMIP periode 2026.
                 </p>
             </div>
-            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[10px] sm:text-[11px] font-bold text-emerald-400">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-0.5 sm:pt-0">
+                <div class="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[9px] sm:text-[11px] font-bold text-emerald-400 whitespace-nowrap">
                     <span>🌙</span> <span id="admin-hijri-date">Memuat Hijriyah...</span>
                 </div>
-                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[10px] sm:text-[11px] font-bold text-neutral-300">
+                <div class="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[9px] sm:text-[11px] font-bold text-neutral-300 whitespace-nowrap">
                     <span>📅</span> <span id="admin-masehi-date">Memuat Masehi...</span>
                 </div>
             </div>
@@ -490,12 +500,12 @@
             <button onclick="document.getElementById('simulated-alert').classList.add('hidden')" class="text-neutral-500 hover:text-neutral-300 text-xs font-mono">✕</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5 items-start">
             
-            <div class="lg:col-span-7 flex flex-col gap-4 w-full">
-                <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
+            <div class="lg:col-span-7 flex flex-col gap-3 sm:gap-4 w-full">
+                <div class="bg-neutral-950 border border-neutral-900 p-3 sm:p-4 rounded-xl flex flex-col gap-2.5 sm:gap-3 shadow-xs">
                     <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
-                    <div class="w-full h-48 sm:h-56 flex justify-center items-center">
+                    <div class="w-full h-40 sm:h-56 flex justify-center items-center">
                         <canvas id="ldkLineChart"></canvas>
                     </div>
                 </div>

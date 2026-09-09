@@ -434,11 +434,18 @@
         }
 
         @media (max-width: 768px) {
+            header {
+                display: none !important;
+            }
             .mobile-bottom-nav {
                 display: flex !important;
             }
             body {
                 padding-bottom: 84px !important;
+            }
+            main {
+                padding-top: 10px !important;
+                gap: 10px !important;
             }
         }
     </style>
@@ -467,6 +474,7 @@
         </div>
     </div>
 
+    <!-- DESKTOP HEADER -->
     <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
         <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -485,20 +493,31 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-5 w-full flex-grow flex flex-col gap-4">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-2.5 sm:py-5 w-full flex-grow flex flex-col gap-3 sm:gap-4">
         
-        <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-2.5">
-            <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-bold block">CARI NAMA</span>
+        <!-- MICRO MOBILE TOP BAR (App Header on Mobile) -->
+        <div class="flex sm:hidden items-center justify-between pb-1.5 border-b border-neutral-900/80">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">KELOLA KAS PENGURUS</span>
+            </div>
+            <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold flex items-center gap-1 active:scale-95 transition-all">
+                <span>Logout</span> ↗
+            </a>
+        </div>
+
+        <div class="bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl flex flex-col gap-2">
+            <span class="text-[8.5px] sm:text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-bold block">CARI NAMA</span>
             <div class="relative">
-                <input type="text" id="searchInput" onkeyup="filterPengurus()" placeholder="Ketik nama pengurus untuk input atau hapus iuran bulan..." class="w-full bg-neutral-900 border border-neutral-800 rounded-lg pl-9 pr-4 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
-                <div class="absolute left-3 top-2.5 text-neutral-600 text-xs">🔍</div>
+                <input type="text" id="searchInput" onkeyup="filterPengurus()" placeholder="Ketik nama pengurus untuk input atau hapus iuran bulan..." class="w-full bg-neutral-900 border border-neutral-800 rounded-lg pl-8 pr-3 py-1.5 sm:py-2 text-[11px] sm:text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                <div class="absolute left-2.5 top-2 sm:top-2.5 text-neutral-600 text-xs">🔍</div>
             </div>
         </div>
 
-        <div class="flex flex-col gap-3">
-            <div class="flex justify-between items-center bg-neutral-950 border border-neutral-900 p-3 rounded-xl">
-                <span class="text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black block">INPUT & MONITORING KAS</span>
-                <span class="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-400 font-mono px-2 py-1 rounded">
+        <div class="flex flex-col gap-2.5 sm:gap-3">
+            <div class="flex justify-between items-center bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl">
+                <span class="text-[9.5px] sm:text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black block">INPUT & MONITORING KAS</span>
+                <span class="text-[8.5px] sm:text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-400 font-mono px-2 py-0.5 sm:py-1 rounded">
                     Periode: <span class="text-cyan-400 font-bold">2026</span>
                 </span>
             </div>
@@ -964,23 +983,23 @@
 
                 const cardHtml = `
                     <div class="pengurus-card bg-neutral-950 border border-neutral-900 rounded-xl overflow-hidden shadow-xs" data-name="${member.name.toLowerCase()}">
-                        <div class="w-full p-3.5 flex items-center justify-between text-left">
+                        <div class="w-full p-2.5 sm:p-3.5 flex items-center justify-between text-left">
                             <div onclick="toggleAccordion(${index})" class="overflow-hidden pr-2 flex-grow cursor-pointer">
                                 <h4 class="text-xs font-bold text-neutral-200 truncate">${member.name}</h4>
-                                <span class="text-[9px] text-neutral-500 block truncate mt-0.5">${member.divisi} — ${member.jabatan || 'Anggota'}</span>
+                                <span class="text-[8.5px] sm:text-[9px] text-neutral-500 block truncate mt-0.5">${member.divisi} — ${member.jabatan || 'Anggota'}</span>
                             </div>
-                            <div class="text-right shrink-0 flex items-center gap-3">
-                                <span onclick="toggleAccordion(${index})" id="badge-count-${member.id}" data-total="${monthsPaidCount}" class="text-[9px] font-mono px-2 py-0.5 rounded-md font-bold bg-neutral-900 ${monthsPaidCount === 12 ? 'text-emerald-400 border border-emerald-900/50' : 'text-cyan-400 border border-neutral-800'} cursor-pointer">
+                            <div class="text-right shrink-0 flex items-center gap-2 sm:gap-3">
+                                <span onclick="toggleAccordion(${index})" id="badge-count-${member.id}" data-total="${monthsPaidCount}" class="text-[8.5px] sm:text-[9px] font-mono px-1.5 sm:px-2 py-0.5 rounded-md font-bold bg-neutral-900 ${monthsPaidCount === 12 ? 'text-emerald-400 border border-emerald-900/50' : 'text-cyan-400 border border-neutral-800'} cursor-pointer">
                                     ${monthsPaidCount}/12 Bln
                                 </span>
-                                <button data-id="${member.id}" onclick="bukaModalInputKas(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
+                                <button data-id="${member.id}" onclick="bukaModalInputKas(this)" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[9px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
                                     BAYAR
                                 </button>
-                                <span onclick="toggleAccordion(${index})" id="arrow-${index}" class="text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
+                                <span onclick="toggleAccordion(${index})" id="arrow-${index}" class="text-[9px] sm:text-[10px] text-neutral-600 transition-transform duration-200 cursor-pointer">▼</span>
                             </div>
                         </div>
-                        <div id="content-${index}" class="hidden border-t border-neutral-900/60 bg-neutral-900/10 p-3">
-                            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1.5 text-center">
+                        <div id="content-${index}" class="hidden border-t border-neutral-900/60 bg-neutral-900/10 p-2 sm:p-3">
+                            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1 sm:gap-1.5 text-center">
                                 ${months.map(m => {
                                     const kasRow = userPayments.find(k => k.bulan === m);
                                     if (kasRow) {
@@ -988,12 +1007,12 @@
                                         const txObj = txId ? databaseTransactions.find(t => t.id.toString() === txId) : null;
                                         const receiptPath = txObj ? getReceiptPath(txObj) : null;
                                         return `
-                                            <div id="box-${member.id}-${m}" class="p-2 rounded-lg border bg-cyan-950/40 border-cyan-500/20 text-cyan-400 text-[10px] font-mono font-bold flex flex-col justify-center items-center relative min-h-[56px] py-1.5">
+                                            <div id="box-${member.id}-${m}" class="p-1 sm:p-2 rounded-lg border bg-cyan-950/40 border-cyan-500/20 text-cyan-400 text-[9px] sm:text-[10px] font-mono font-bold flex flex-col justify-center items-center relative min-h-[44px] sm:min-h-[56px] py-1">
                                                  <span>${m}</span>
-                                                 <span class="text-[7px] text-cyan-500/80 font-sans block mt-0.5">LUNAS</span>
-                                                 ${txId ? `<span class="text-[6px] text-cyan-600/70 font-mono font-light select-all mt-0.5">${txId}</span>` : ''}
+                                                 <span class="text-[6.5px] sm:text-[7px] text-cyan-500/80 font-sans block mt-0.5">LUNAS</span>
+                                                 ${txId ? `<span class="text-[5.5px] sm:text-[6px] text-cyan-600/70 font-mono font-light select-all mt-0.5">${txId}</span>` : ''}
                                                  ${receiptPath ? `
-                                                     <button type="button" onclick="openReceiptModal('${receiptPath}')" class="mt-1 text-[8px] px-1 py-0.5 bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-500/30 rounded text-cyan-300 transition-all cursor-pointer">
+                                                     <button type="button" onclick="openReceiptModal('${receiptPath}')" class="mt-0.5 text-[7.5px] sm:text-[8px] px-1 py-0.5 bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-500/30 rounded text-cyan-300 transition-all cursor-pointer">
                                                          📂 Bukti
                                                      </button>
                                                  ` : ''}
@@ -1004,9 +1023,9 @@
                                         `;
                                     } else {
                                         return `
-                                            <div id="box-${member.id}-${m}" class="p-2 rounded-lg border bg-neutral-950 border-neutral-900 text-neutral-700 text-[10px] font-mono font-bold flex flex-col justify-center items-center min-h-14">
+                                            <div id="box-${member.id}-${m}" class="p-1 sm:p-2 rounded-lg border bg-neutral-950 border-neutral-900 text-neutral-700 text-[9px] sm:text-[10px] font-mono font-bold flex flex-col justify-center items-center min-h-[44px] sm:min-h-14">
                                                 <span>${m}</span>
-                                                <span class="text-[7px] text-neutral-800 font-sans block mt-0.5">BELUM</span>
+                                                <span class="text-[6.5px] sm:text-[7px] text-neutral-800 font-sans block mt-0.5">BELUM</span>
                                             </div>
                                         `;
                                     }

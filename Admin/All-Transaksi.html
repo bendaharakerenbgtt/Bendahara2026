@@ -449,11 +449,18 @@
         }
 
         @media (max-width: 768px) {
+            header {
+                display: none !important;
+            }
             .mobile-bottom-nav {
                 display: flex !important;
             }
             body {
                 padding-bottom: 84px !important;
+            }
+            main {
+                padding-top: 10px !important;
+                gap: 10px !important;
             }
         }
     </style>
@@ -500,29 +507,40 @@
         </div>
     </header>
 
-    <main class="w-full max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 flex-grow flex flex-col gap-3.5 sm:gap-5">
+    <main class="w-full max-w-4xl mx-auto px-3.5 sm:px-6 py-2.5 sm:py-6 flex-grow flex flex-col gap-3 sm:gap-5">
         
-        <div class="w-full max-w-[340px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full shadow-xs ledger-tab-container">
-            <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none">
-                <span class="text-[11px]">⬇️</span>
+        <!-- MICRO MOBILE TOP BAR (App Header on Mobile) -->
+        <div class="flex sm:hidden items-center justify-between pb-1.5 border-b border-neutral-900/80">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">MASTER LEDGER</span>
+            </div>
+            <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold flex items-center gap-1 active:scale-95 transition-all">
+                <span>Logout</span> ↗
+            </a>
+        </div>
+
+        <div class="w-full max-w-[280px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-0.5 sm:p-1 bg-neutral-950 border border-neutral-900 rounded-full shadow-xs ledger-tab-container">
+            <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-1 px-2 sm:px-3 text-center text-[10.5px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1 select-none">
+                <span class="text-[10px] sm:text-[11px]">⬇️</span>
                 <span>Pemasukan<span class="hidden sm:inline"> / Arus Masuk</span></span>
             </button>
-            <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="ledger-tab-btn py-1.5 px-2.5 sm:px-3 text-center text-[11px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1.5 select-none">
-                <span class="text-[11px]">⬆️</span>
+            <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="ledger-tab-btn py-1 px-2 sm:px-3 text-center text-[10.5px] sm:text-xs font-bold rounded-full transition-all text-neutral-500 hover:text-neutral-300 cursor-pointer flex items-center justify-center gap-1 select-none">
+                <span class="text-[10px] sm:text-[11px]">⬆️</span>
                 <span>Pengeluaran<span class="hidden sm:inline"> / Arus Keluar</span></span>
             </button>
         </div>
 
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-3 sm:gap-4">
 
-            <div id="ledger-panel-placeholder" class="bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-5 sm:p-8 text-center flex flex-col items-center justify-center gap-2.5 sm:gap-3 shadow-xs">
-                <div class="w-12 h-12 rounded-full bg-cyan-950/20 border border-cyan-800/20 flex items-center justify-center text-lg text-cyan-400 animate-pulse">
+            <div id="ledger-panel-placeholder" class="bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-2.5 sm:p-6 text-center flex flex-row sm:flex-col items-center justify-center gap-2.5 sm:gap-3 shadow-xs">
+                <div class="w-7 h-7 sm:w-11 sm:h-11 rounded-full bg-cyan-950/20 border border-cyan-800/20 flex items-center justify-center text-xs sm:text-base text-cyan-400 shrink-0">
                     📊
                 </div>
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-xs font-bold text-neutral-300 font-sans tracking-wide uppercase">Pilih Arah Transaksi</h3>
-                    <p class="text-[11px] text-neutral-500 max-w-sm mx-auto leading-relaxed">
-                        Silakan pilih tombol <b>Pemasukan</b> atau <b>Pengeluaran</b> di atas untuk membuat transaksi.
+                <div class="flex flex-col sm:gap-0.5 text-left sm:text-center">
+                    <h3 class="text-[11px] sm:text-xs font-bold text-neutral-300 font-sans tracking-wide uppercase">Pilih Arah Transaksi</h3>
+                    <p class="text-[9.5px] sm:text-[11px] text-neutral-500 max-w-sm leading-tight sm:leading-relaxed">
+                        Pilih tombol <b>Pemasukan</b> atau <b>Pengeluaran</b> di atas untuk membuat transaksi.
                     </p>
                 </div>
             </div>
@@ -808,37 +826,37 @@
                 </div>
             </div>
             
-            <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-4 shadow-xs">
+            <div class="bg-neutral-950 border border-neutral-900 p-2.5 sm:p-4 rounded-xl flex flex-col gap-2.5 sm:gap-4 shadow-xs">
                 
                 <!-- Row 1: Search -->
                 <div class="relative w-full">
                     <input type="text" id="txSearchInput" 
                            placeholder="Cari keterangan, kategori, nominal, program kerja, atau penyetor..." 
-                           class="w-full bg-neutral-900 border border-neutral-800 text-neutral-100 placeholder-neutral-500 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/10 transition-all font-sans pr-10">
-                    <div class="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-600">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           class="w-full bg-neutral-900 border border-neutral-800 text-neutral-100 placeholder-neutral-500 text-[11px] sm:text-xs px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl focus:outline-none focus:border-cyan-500/40 focus:ring-1 focus:ring-cyan-500/10 transition-all font-sans pr-9 sm:pr-10">
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 text-xs">
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
                 </div>
 
                 <!-- Row 2: Filter Actions -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-neutral-900/40">
-                    <div class="flex bg-neutral-900 p-1 rounded-xl border border-neutral-800 self-start">
-                        <button onclick="filterType('all')" id="btn-type-all" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-cyan-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 pt-1 border-t border-neutral-900/40">
+                    <div class="flex bg-neutral-900 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-neutral-800 self-start">
+                        <button onclick="filterType('all')" id="btn-type-all" class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-cyan-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.2)]">
                             Semua
                         </button>
-                        <button onclick="filterType('Masuk')" id="btn-type-masuk" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                        <button onclick="filterType('Masuk')" id="btn-type-masuk" class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
                             Pemasukan
                         </button>
-                        <button onclick="filterType('Keluar')" id="btn-type-keluar" class="px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                        <button onclick="filterType('Keluar')" id="btn-type-keluar" class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
                             Pengeluaran
                         </button>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2">
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterMonth" onchange="filterMonth(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                            <select id="filterMonth" onchange="filterMonth(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[9px] sm:text-[10px] font-mono font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
                                 <option value="all">Semua Bulan</option>
                                 <option value="01">Januari</option>
                                 <option value="02">Februari</option>
@@ -856,7 +874,7 @@
                         </div>
 
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterSort" onchange="filterSort(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                            <select id="filterSort" onchange="filterSort(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[9px] sm:text-[10px] font-mono font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
                                 <option value="terbaru">Terbaru (Tanggal)</option>
                                 <option value="terlama">Terlama (Tanggal)</option>
                                 <option value="termahal">Termahal (Nominal)</option>
@@ -865,7 +883,7 @@
                         </div>
 
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterMetode" onchange="filterMetode(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                            <select id="filterMetode" onchange="filterMetode(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[9px] sm:text-[10px] font-mono font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
                                 <option value="all">Semua Metode</option>
                                 <option value="Tunai">💵 Tunai</option>
                                 <option value="GoPay">📱 GoPay</option>
@@ -873,36 +891,36 @@
                         </div>
 
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterKategori" onchange="filterKategori(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                            <select id="filterKategori" onchange="filterKategori(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[9px] sm:text-[10px] font-mono font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
                                 <option value="all">Semua Kategori</option>
                             </select>
                         </div>
 
-                        <div class="flex flex-col gap-0.5">
-                            <select id="filterProker" onchange="filterProker(this.value)" class="bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] font-mono font-bold px-3 py-2 rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
+                        <div class="flex flex-col gap-0.5 col-span-2 sm:col-span-1">
+                            <select id="filterProker" onchange="filterProker(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[9px] sm:text-[10px] font-mono font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-cyan-500/30 transition-all cursor-pointer">
                                 <option value="all">Semua Kegiatan</option>
                             </select>
                         </div>
 
-                        <button onclick="downloadCSVBackup()" class="bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-mono font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
+                        <button onclick="downloadCSVBackup()" class="col-span-2 sm:col-span-1 w-full sm:w-auto justify-center bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[9px] sm:text-[10px] font-mono font-bold px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm active:scale-95">
                             📥 Unduh CSV
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 sm:gap-3">
-                <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-1 shadow-xs">
-                    <span class="text-[8px] font-mono text-emerald-500 uppercase font-bold tracking-wider">Total Pemasukan</span>
-                    <span id="sum-pemasukan" class="text-xs sm:text-sm font-black text-emerald-400 font-mono">Rp0</span>
+            <div class="grid grid-cols-3 gap-1.5 sm:gap-3">
+                <div class="bg-neutral-950 border border-neutral-900 p-2 sm:p-3 rounded-lg sm:rounded-xl flex flex-col gap-0.5 sm:gap-1 shadow-xs">
+                    <span class="text-[7.5px] sm:text-[8px] font-mono text-emerald-500 uppercase font-bold tracking-wider truncate">Pemasukan</span>
+                    <span id="sum-pemasukan" class="text-[11px] sm:text-xs md:text-sm font-black text-emerald-400 font-mono truncate">Rp0</span>
                 </div>
-                <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-1 shadow-xs">
-                    <span class="text-[8px] font-mono text-rose-500 uppercase font-bold tracking-wider">Total Pengeluaran</span>
-                    <span id="sum-pengeluaran" class="text-xs sm:text-sm font-black text-rose-400 font-mono">Rp0</span>
+                <div class="bg-neutral-950 border border-neutral-900 p-2 sm:p-3 rounded-lg sm:rounded-xl flex flex-col gap-0.5 sm:gap-1 shadow-xs">
+                    <span class="text-[7.5px] sm:text-[8px] font-mono text-rose-500 uppercase font-bold tracking-wider truncate">Pengeluaran</span>
+                    <span id="sum-pengeluaran" class="text-[11px] sm:text-xs md:text-sm font-black text-rose-400 font-mono truncate">Rp0</span>
                 </div>
-                <div class="bg-neutral-950 border border-neutral-900 p-3 rounded-xl flex flex-col gap-1 shadow-xs">
-                    <span class="text-[8px] font-mono text-cyan-400 uppercase font-bold tracking-wider">Net Selisih</span>
-                    <span id="sum-selisih" class="text-xs sm:text-sm font-black text-neutral-300 font-mono">Rp0</span>
+                <div class="bg-neutral-950 border border-neutral-900 p-2 sm:p-3 rounded-lg sm:rounded-xl flex flex-col gap-0.5 sm:gap-1 shadow-xs">
+                    <span class="text-[7.5px] sm:text-[8px] font-mono text-cyan-400 uppercase font-bold tracking-wider truncate">Net Selisih</span>
+                    <span id="sum-selisih" class="text-[11px] sm:text-xs md:text-sm font-black text-neutral-300 font-mono truncate">Rp0</span>
                 </div>
             </div>
 
@@ -2039,37 +2057,37 @@
 
                 // Accumulate Mobile Card
                 mobileHtml += `
-                    <div class="bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
+                    <div class="bg-neutral-950 border border-neutral-900 p-3 sm:p-4 rounded-xl flex flex-col gap-2 shadow-xs">
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col">
                                 <span class="text-[10px] font-mono text-neutral-500 font-bold leading-none">${dateFormated}</span>
                                 <span class="text-[7px] font-mono text-neutral-600 mt-0.5 leading-none select-all">${tx.id}</span>
                             </div>
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                            <div class="flex items-center gap-1 flex-wrap justify-end">
                                 ${pendingBadge}
                                 <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-cyan-400 border-neutral-850">${tx.metode}</span>
                                 <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-bold text-neutral-200 leading-normal">${txTitle}</span>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[11.5px] sm:text-xs font-bold text-neutral-200 leading-snug">${txTitle}</span>
                             ${noteHtml}
                             <div class="flex flex-wrap gap-1">
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏢 Divisi: ${divisiText}</span>
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.5 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori || 'Kas'}</span>
+                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
+                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏢 Divisi: ${divisiText}</span>
+                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori || 'Kas'}</span>
                                 ${qtyPriceBadge}
                                 ${picText}
                                 ${pengetorText}
                                 ${attachmentBtn}
                             </div>
                         </div>
-                        <div class="flex items-center justify-between border-t border-neutral-900/60 pt-3 mt-1">
-                            <span class="text-sm font-black tracking-tight ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
-                            <div class="flex items-center gap-1.5">
-                                <button onclick="viewDetailTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">👁️ Detail</button>
-                                <button onclick="editTransaksi('${tx.id}')" class="text-[10px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">✏️ Edit</button>
-                                <button onclick="confirmDelete('${tx.id}')" class="text-[10px] font-mono font-bold text-red-400 hover:text-red-300 bg-neutral-900 px-2.5 py-1.5 border border-neutral-850 rounded-lg cursor-pointer">🗑️ Hapus</button>
+                        <div class="flex items-center justify-between border-t border-neutral-900/60 pt-2 mt-0.5">
+                            <span class="text-xs sm:text-sm font-black tracking-tight ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
+                            <div class="flex items-center gap-1">
+                                <button onclick="viewDetailTransaksi('${tx.id}')" class="text-[9px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer">👁️ Detail</button>
+                                <button onclick="editTransaksi('${tx.id}')" class="text-[9px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer">✏️ Edit</button>
+                                <button onclick="confirmDelete('${tx.id}')" class="text-[9px] font-mono font-bold text-red-400 hover:text-red-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer">🗑️ Hapus</button>
                             </div>
                         </div>
                     </div>
