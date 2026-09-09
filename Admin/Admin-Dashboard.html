@@ -434,6 +434,52 @@
                 padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
                 gap: 0 !important;
             }
+
+            /* Mobile Interactive Sheet Controller */
+            #queue-sheet {
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            #queue-sheet.sheet-collapsed {
+                padding-top: 10px !important;
+                padding-bottom: 12px !important;
+                background: rgba(8, 12, 22, 0.88) !important;
+                border-top: 1px solid rgba(56, 189, 248, 0.3) !important;
+                backdrop-filter: blur(16px) !important;
+                -webkit-backdrop-filter: blur(16px) !important;
+            }
+            #queue-sheet.sheet-collapsed #queue-container {
+                display: none !important;
+            }
+            #queue-sheet.sheet-collapsed .mobile-sheet-subtext {
+                display: none !important;
+            }
+            #queue-sheet.sheet-fullscreen {
+                position: fixed !important;
+                left: 0 !important;
+                right: 0 !important;
+                top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+                bottom: 64px !important;
+                z-index: 45 !important;
+                border-radius: 28px 28px 0 0 !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 16px !important;
+                background: rgba(8, 12, 22, 0.98) !important;
+                border-top: 1px solid rgba(56, 189, 248, 0.4) !important;
+                box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.95) !important;
+            }
+            #queue-sheet.sheet-fullscreen .queue-card-col {
+                flex: 1 1 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+            #queue-sheet.sheet-fullscreen #queue-container {
+                max-height: none !important;
+                flex: 1 1 auto !important;
+                overflow-y: auto !important;
+            }
         }
     </style>
 </head>
@@ -469,25 +515,19 @@
         <!-- ======================================================================
              1. TOP COSMIC SPACE HERO CANOPY (SPACIOUS & UNCLUTTERED)
              ====================================================================== -->
-        <section class="w-full px-4 pt-3 pb-6 sm:px-0 sm:pt-1 sm:pb-2 flex flex-col gap-4 sm:gap-5 relative z-10">
+        <section id="hero-canopy" class="w-full px-4 pt-3 pb-5 sm:px-0 sm:pt-1 sm:pb-2 flex flex-col gap-4 sm:gap-5 relative z-10 transition-all duration-300">
             
-            <!-- MOBILE COSMIC TOP BAR (CLEAN: BRAND ON LEFT, DATE ON RIGHT, NO LOGOUT) -->
-            <div class="sm:hidden flex items-center justify-between w-full pt-1">
+            <!-- MOBILE TOP BAR (CLEAN: IMIP LOGO, NO ADMIN BADGE, NO DATE) -->
+            <div class="sm:hidden flex items-center justify-between w-full pt-1 pb-1">
                 <div class="flex items-center gap-2">
-                    <div class="relative w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-emerald-950 border border-cyan-500/30 flex items-center justify-center text-xs shadow-[0_0_12px_rgba(6,182,212,0.35)]">
-                        <span>🪐</span>
+                    <div class="relative w-7 h-7 flex items-center justify-center">
+                        <img src="../bendahara.png" alt="Logo IMIP" class="w-7 h-7 rounded-full border border-emerald-500/30 object-contain shadow-[0_0_10px_rgba(16,185,129,0.3)]">
                         <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                         <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="text-xs font-black tracking-wider text-white font-mono">DANA<span class="text-cyan-400">IMIP</span></span>
-                        <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">ADMIN</span>
                     </div>
-                </div>
-
-                <!-- Hijri & Masehi Date Pill in Top Bar (Saves vertical space) -->
-                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/70 border border-emerald-500/30 text-[9px] font-mono font-bold text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)]">
-                    <span>🌙</span> <span id="admin-hijri-date">Memuat Hijriyah...</span>
                 </div>
             </div>
 
@@ -520,8 +560,8 @@
                 </div>
             </header>
 
-            <!-- GREETING ROW (CLEAN & NO SUBTITLE CLUTTER) -->
-            <div class="flex flex-col gap-1 my-0.5 sm:my-1">
+            <!-- GREETING ROW (HIDDEN ON MOBILE AS REQUESTED, SHOWN ON DESKTOP) -->
+            <div class="hidden sm:flex flex-col gap-1 my-0.5 sm:my-1">
                 <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
                     Assalamu'alaikum, Bendahara keren bgt! 👋
                 </h1>
@@ -571,10 +611,10 @@
         <!-- ======================================================================
              2. BOTTOM CARD CONTAINER ("Card Sheet" focusing directly on Verification Queue)
              ====================================================================== -->
-        <section class="cosmic-content-sheet rounded-t-[32px] sm:rounded-2xl px-4 py-5 sm:p-5 flex flex-col gap-4 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] relative z-10">
+        <section id="queue-sheet" class="cosmic-content-sheet rounded-t-[32px] sm:rounded-2xl px-4 py-5 sm:p-5 flex flex-col gap-4 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] relative z-10">
             
-            <!-- Mobile Sheet Grab Indicator -->
-            <div class="w-10 h-1 bg-neutral-700/60 rounded-full mx-auto -mt-2 mb-1 sm:hidden"></div>
+            <!-- Mobile Sheet Grab Indicator (Click to toggle collapse/open) -->
+            <div onclick="toggleQueueCollapse(event)" class="w-10 h-1 bg-neutral-700/60 hover:bg-emerald-400/60 rounded-full mx-auto -mt-2 mb-1 sm:hidden cursor-pointer transition-colors" title="Buka / Tutup Antrian"></div>
 
             <!-- DESKTOP ONLY: NAVIGASI KONTROL KABINET (Hidden on mobile because mobile has bottom dock) -->
             <div class="hidden sm:flex flex-col gap-2">
@@ -638,13 +678,25 @@
                 </div>
 
                 <!-- ANTRIAN VERIFIKASI KAS ONLINE (PROMINENT FULL-WIDTH ON MOBILE) -->
-                <div class="w-full lg:col-span-5 flex flex-col gap-3">
-                    <div class="flex items-center justify-between">
+                <div class="w-full lg:col-span-5 flex flex-col gap-3 queue-card-col">
+                    <div id="queue-header-row" class="flex items-center justify-between cursor-pointer select-none" onclick="handleQueueHeaderClick(event)">
                         <div class="flex items-center gap-2">
                             <div class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping"></div>
                             <span class="text-[9px] font-mono tracking-widest text-amber-400 uppercase font-black block">🚨 ANTRIAN VERIFIKASI KAS ONLINE</span>
                         </div>
-                        <span class="text-[8px] font-mono text-neutral-500">REALTIME SYNC</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="mobile-sheet-subtext hidden sm:inline text-[8px] font-mono text-neutral-500">REALTIME SYNC</span>
+                            <!-- Mobile Action: Fullscreen Toggle -->
+                            <button type="button" id="btn-fs-queue" onclick="toggleQueueFullscreen(event)" class="sm:hidden text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-cyan-400 hover:border-cyan-500/40 active:scale-95 transition-all flex items-center gap-1" title="Tampilan Layar Penuh">
+                                <span id="fs-icon">⛶</span>
+                                <span id="fs-label">Full</span>
+                            </button>
+                            <!-- Mobile Action: Collapse / Tutup Toggle -->
+                            <button type="button" id="btn-toggle-queue" onclick="toggleQueueCollapse(event)" class="sm:hidden text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 active:scale-95 transition-all flex items-center gap-1" title="Tutup / Buka Antrian">
+                                <span id="toggle-icon">✕</span>
+                                <span id="toggle-label">Tutup</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex flex-col gap-2.5 max-h-[520px] overflow-y-auto no-scrollbar" id="queue-container">
@@ -654,6 +706,7 @@
                             <span>Memuat antrean verifikasi...</span>
                         </div>
                     </div>
+                </div>
             </div>
         </section>
     </main>
@@ -1304,6 +1357,72 @@
             }
             renderOuterSpace();
         })();
+
+        // ==========================================================================
+        // MOBILE VERIFICATION QUEUE SHEET CONTROLLER (COLLAPSE & FULLSCREEN)
+        // ==========================================================================
+        let isQueueCollapsed = false;
+        let isQueueFullscreen = false;
+
+        function toggleQueueCollapse(e) {
+            if (e) e.stopPropagation();
+            const sheet = document.getElementById('queue-sheet');
+            const toggleIcon = document.getElementById('toggle-icon');
+            const toggleLabel = document.getElementById('toggle-label');
+            const btnFs = document.getElementById('btn-fs-queue');
+            if (!sheet) return;
+
+            if (isQueueFullscreen) {
+                toggleQueueFullscreen();
+            }
+
+            isQueueCollapsed = !isQueueCollapsed;
+            if (isQueueCollapsed) {
+                sheet.classList.add('sheet-collapsed');
+                document.body.classList.add('queue-collapsed');
+                if (toggleIcon) toggleIcon.textContent = '▲';
+                if (toggleLabel) toggleLabel.textContent = 'Buka';
+                if (btnFs) btnFs.classList.add('hidden');
+            } else {
+                sheet.classList.remove('sheet-collapsed');
+                document.body.classList.remove('queue-collapsed');
+                if (toggleIcon) toggleIcon.textContent = '✕';
+                if (toggleLabel) toggleLabel.textContent = 'Tutup';
+                if (btnFs) btnFs.classList.remove('hidden');
+            }
+        }
+
+        function toggleQueueFullscreen(e) {
+            if (e) e.stopPropagation();
+            const sheet = document.getElementById('queue-sheet');
+            const fsIcon = document.getElementById('fs-icon');
+            const fsLabel = document.getElementById('fs-label');
+            if (!sheet) return;
+
+            if (isQueueCollapsed) {
+                toggleQueueCollapse();
+            }
+
+            isQueueFullscreen = !isQueueFullscreen;
+            if (isQueueFullscreen) {
+                sheet.classList.add('sheet-fullscreen');
+                document.body.classList.add('overflow-hidden');
+                if (fsIcon) fsIcon.textContent = '🗗';
+                if (fsLabel) fsLabel.textContent = 'Kecil';
+            } else {
+                sheet.classList.remove('sheet-fullscreen');
+                document.body.classList.remove('overflow-hidden');
+                if (fsIcon) fsIcon.textContent = '⛶';
+                if (fsLabel) fsLabel.textContent = 'Full';
+            }
+        }
+
+        function handleQueueHeaderClick(e) {
+            // When collapsed, tapping anywhere on header opens it
+            if (isQueueCollapsed) {
+                toggleQueueCollapse(e);
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             updateHeaderDates();
