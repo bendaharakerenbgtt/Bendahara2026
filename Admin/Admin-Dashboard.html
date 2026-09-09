@@ -413,6 +413,11 @@
             border: 1px solid rgba(56, 189, 248, 0.22) !important;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), 0 0 25px -8px rgba(6, 182, 212, 0.2) !important;
         }
+        .cosmic-content-sheet {
+            background: rgba(8, 12, 22, 0.96) !important;
+            border-top: 1px solid rgba(56, 189, 248, 0.25) !important;
+            box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.85), 0 -1px 0 rgba(255, 255, 255, 0.05) inset;
+        }
 
         @media (max-width: 768px) {
             header {
@@ -426,8 +431,8 @@
             }
             main {
                 /* Safe area + comfortable blank space at the top */
-                padding-top: calc(env(safe-area-inset-top, 0px) + 20px) !important;
-                gap: 12px !important;
+                padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+                gap: 0 !important;
             }
         }
     </style>
@@ -459,144 +464,195 @@
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-3.5 sm:px-6 py-2.5 sm:py-5 w-full flex-grow flex flex-col gap-3 sm:gap-4">
+    <main class="max-w-7xl mx-auto px-0 sm:px-6 py-0 sm:py-5 w-full flex-grow flex flex-col gap-0 sm:gap-4">
         
-        <!-- MOBILE COSMIC TOP BAR (SPACE IDENTITY & QUICK LOGOUT IN BLANK SPACE) -->
-        <div class="sm:hidden flex items-center justify-between w-full pt-1 pb-1.5 relative z-10">
-            <div class="flex items-center gap-2">
-                <div class="relative w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-emerald-950 border border-cyan-500/40 flex items-center justify-center text-xs shadow-[0_0_12px_rgba(6,182,212,0.35)]">
-                    <span>🪐</span>
-                    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400"></span>
-                </div>
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-xs font-black tracking-wider text-white font-mono">DANA<span class="text-cyan-400">IMIP</span></span>
-                        <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">ADMIN</span>
+        <!-- ======================================================================
+             1. TOP COSMIC SPACE HERO CANOPY ("yg ungu itu bintang gitu gitu kayak luar angkasa")
+             ====================================================================== -->
+        <section class="w-full px-4 pt-1 pb-4 sm:px-0 sm:pt-0 sm:pb-1 flex flex-col gap-3 sm:gap-4 relative z-10">
+            
+            <!-- MOBILE COSMIC TOP BAR (SPACE IDENTITY & QUICK LOGOUT) -->
+            <div class="sm:hidden flex items-center justify-between w-full pt-1 pb-1">
+                <div class="flex items-center gap-2">
+                    <div class="relative w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-emerald-950 border border-cyan-500/40 flex items-center justify-center text-xs shadow-[0_0_12px_rgba(6,182,212,0.35)]">
+                        <span>🪐</span>
+                        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400"></span>
                     </div>
-                    <span class="text-[7.5px] font-mono text-cyan-400/80 tracking-widest uppercase flex items-center gap-1">
-                        <span>✨</span> ORBIT STATION 2026
-                    </span>
-                </div>
-            </div>
-            <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900/80 hover:bg-neutral-900 border border-neutral-800 hover:border-rose-500/40 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 active:scale-95 transition-all shadow-xs" title="Logout Sesi Admin">
-                <span>Logout</span> ↗
-            </a>
-        </div>
-
-        <!-- TOP HEADER DESKTOP ONLY -->
-        <header class="hidden sm:flex items-center justify-between w-full border-b border-neutral-900 pb-3 pt-1">
-            <div class="flex items-center gap-3">
-                <a href="../dasboard.html" class="flex items-center gap-2 group">
-                    <img src="../bendahara.png" alt="Logo" class="w-8 h-8 rounded-full border border-emerald-500/30 group-hover:scale-105 transition-transform shadow-[0_0_12px_rgba(16,185,129,0.2)]">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-sm sm:text-base font-black tracking-tight text-white font-mono">DANA<span class="text-emerald-400">IMIP</span></span>
-                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 tracking-wider">ADMIN</span>
+                            <span class="text-xs font-black tracking-wider text-white font-mono">DANA<span class="text-cyan-400">IMIP</span></span>
+                            <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">ADMIN</span>
                         </div>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="flex items-center gap-2 sm:gap-3">
-                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
-                    <span>Logout</span> <span>↗</span>
-                </a>
-            </div>
-        </header>
-
-        <!-- GREETING HERO CARD (OUTER SPACE THEME & COMPACT) -->
-        <div class="cosmic-card relative overflow-hidden rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 shadow-xs">
-            
-            <!-- COSMIC ORBIT & CONSTELLATION WATERMARK ACCENT -->
-            <div class="absolute -right-8 -top-8 w-40 h-40 pointer-events-none opacity-25 overflow-hidden">
-                <svg viewBox="0 0 120 120" class="w-full h-full text-cyan-400 animate-spin-slow">
-                    <ellipse cx="60" cy="60" rx="52" ry="24" fill="none" stroke="currentColor" stroke-width="0.8" stroke-dasharray="4 3" transform="rotate(-25 60 60)"/>
-                    <ellipse cx="60" cy="60" rx="36" ry="17" fill="none" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.4" transform="rotate(35 60 60)"/>
-                    <circle cx="98" cy="46" r="3" fill="#38bdf8" />
-                    <circle cx="26" cy="72" r="2" fill="#34d399" />
-                    <circle cx="60" cy="18" r="1.5" fill="#fef08a" />
-                </svg>
-            </div>
-            <div class="absolute right-10 bottom-1.5 text-[9px] text-cyan-300/25 pointer-events-none select-none font-mono">
-                ✦ ✧ ✦
-            </div>
-
-            <div class="flex flex-col gap-0.5 sm:gap-1 relative z-10">
-                <h1 class="text-xs sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                    Assalamu'alaikum, Bendahara keren bgt! 👋
-                </h1>
-                <p class="text-[10px] sm:text-xs text-neutral-400">
-                    Pusat kendali transparansi & pembukuan kas LDK IMIP periode 2026.
-                </p>
-            </div>
-            <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-0.5 sm:pt-0 relative z-10">
-                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[9px] sm:text-[11px] font-bold text-emerald-400 whitespace-nowrap shadow-[0_0_12px_rgba(16,185,129,0.15)]">
-                    <span>🌙</span> <span id="admin-hijri-date">Memuat Hijriyah...</span>
-                </div>
-                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-[9px] sm:text-[11px] font-bold text-cyan-300 whitespace-nowrap shadow-[0_0_12px_rgba(6,182,212,0.15)]">
-                    <span>📅</span> <span id="admin-masehi-date">Memuat Masehi...</span>
-                </div>
-            </div>
-        </div>
-
-        <div id="simulated-alert" class="hidden bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3.5 rounded-xl text-xs font-mono flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="text-base font-bold text-emerald-400">✓</span>
-                <div id="alert-text">Transaksi kas berhasil diverifikasi masuk ke dalam master ledger!</div>
-            </div>
-            <button onclick="document.getElementById('simulated-alert').classList.add('hidden')" class="text-neutral-500 hover:text-neutral-300 text-xs font-mono">✕</button>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5 items-start">
-            
-            <div class="lg:col-span-7 flex flex-col gap-3 sm:gap-4 w-full">
-                <div class="bg-neutral-950 border border-neutral-900 p-3 sm:p-4 rounded-xl flex flex-col gap-2.5 sm:gap-3 shadow-xs">
-                    <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
-                    <div class="w-full h-36 sm:h-52 flex justify-center items-center">
-                        <canvas id="ldkLineChart"></canvas>
+                        <span class="text-[7.5px] font-mono text-cyan-400/80 tracking-widest uppercase flex items-center gap-1">
+                            <span>✨</span> ORBIT STATION 2026
+                        </span>
                     </div>
                 </div>
+                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900/80 hover:bg-neutral-900 border border-neutral-800 hover:border-rose-500/40 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 active:scale-95 transition-all shadow-xs" title="Logout Sesi Admin">
+                    <span>Logout</span> ↗
+                </a>
+            </div>
 
-                <div class="flex flex-col gap-2 sm:gap-2.5">
-                    <!-- Total Saldo Ringkas -->
-                    <div class="bg-neutral-950 border border-neutral-900 px-3 py-2 sm:px-4 sm:py-3 rounded-xl flex items-center justify-between shadow-xs">
+            <!-- TOP HEADER DESKTOP ONLY -->
+            <header class="hidden sm:flex items-center justify-between w-full border-b border-neutral-900 pb-3 pt-1">
+                <div class="flex items-center gap-3">
+                    <a href="../dasboard.html" class="flex items-center gap-2 group">
+                        <img src="../bendahara.png" alt="Logo" class="w-8 h-8 rounded-full border border-emerald-500/30 group-hover:scale-105 transition-transform shadow-[0_0_12px_rgba(16,185,129,0.2)]">
                         <div class="flex flex-col">
-                            <span class="text-[8px] sm:text-[9px] font-mono tracking-wider text-neutral-400 uppercase block font-semibold">Total Saldo Terverifikasi</span>
-                            <div id="total-saldo-text" class="text-sm sm:text-lg font-black text-white font-mono tracking-tight mt-0.5">
-                                Rp 0
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-sm sm:text-base font-black tracking-tight text-white font-mono">DANA<span class="text-emerald-400">IMIP</span></span>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 tracking-wider">ADMIN</span>
                             </div>
                         </div>
-                        <span class="text-[7.5px] sm:text-[8px] font-mono bg-emerald-950/80 border border-emerald-800/40 px-2 py-0.5 rounded text-emerald-400 font-bold">MONITORING</span>
+                    </a>
+                </div>
+                
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
+                        <span>Logout</span> <span>↗</span>
+                    </a>
+                </div>
+            </header>
+
+            <!-- GREETING & DATE ROW -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                <div class="flex flex-col">
+                    <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                        Assalamu'alaikum, Bendahara keren bgt! 👋
+                    </h1>
+                    <p class="text-[10px] sm:text-xs text-neutral-400">
+                        Pusat kendali transparansi & pembukuan kas LDK IMIP periode 2026.
+                    </p>
+                </div>
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-0.5 sm:pt-0">
+                    <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[9px] sm:text-[10.5px] font-bold text-emerald-400 whitespace-nowrap shadow-[0_0_12px_rgba(16,185,129,0.15)]">
+                        <span>🌙</span> <span id="admin-hijri-date">Memuat Hijriyah...</span>
                     </div>
-
-                    <!-- Sub-Saldo GoPay & Tunai Compact Strip -->
-                    <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
-                        <div class="bg-neutral-950 border border-neutral-900 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border-l-2 border-cyan-400 flex flex-col justify-between shadow-xs">
-                            <span class="text-[7.5px] sm:text-[8.5px] font-mono tracking-wider text-neutral-400 uppercase block font-medium truncate">GoPay (E-Wallet)</span>
-                            <div id="gopay-saldo-text" class="text-[11px] sm:text-xs font-bold text-cyan-400 font-mono mt-0.5 truncate">
-                                Rp 0
-                            </div>
-                        </div>
-
-                        <div class="bg-neutral-950 border border-neutral-900 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border-l-2 border-emerald-400 flex flex-col justify-between shadow-xs">
-                            <span class="text-[7.5px] sm:text-[8.5px] font-mono tracking-wider text-neutral-400 uppercase block font-medium truncate">Tunai (Cash)</span>
-                            <div id="cash-saldo-text" class="text-[11px] sm:text-xs font-bold text-emerald-400 font-mono mt-0.5 truncate">
-                                Rp 0
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-[9px] sm:text-[10.5px] font-bold text-cyan-300 whitespace-nowrap shadow-[0_0_12px_rgba(6,182,212,0.15)]">
+                        <span>📅</span> <span id="admin-masehi-date">Memuat Masehi...</span>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-5 flex flex-col gap-5 w-full">
-                <div class="flex flex-col gap-2.5">
+            <!-- FINANCIAL BALANCE HERO (MATCHING "AVAILABLE BALANCE" IN MOCKUP) -->
+            <div class="flex flex-col gap-1.5 mt-0.5 sm:mt-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-[8.5px] sm:text-[9.5px] font-mono tracking-widest text-neutral-400 uppercase font-bold flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        TOTAL SALDO TERVERIFIKASI
+                    </span>
+                    <span class="text-[7.5px] sm:text-[8px] font-mono bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded text-emerald-400 font-bold shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                        MONITORING
+                    </span>
+                </div>
+                
+                <div id="total-saldo-text" class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight drop-shadow-[0_2px_12px_rgba(255,255,255,0.15)]">
+                    Rp 0
+                </div>
+
+                <!-- Sub-Saldo Chips (GoPay & Tunai) -->
+                <div class="grid grid-cols-2 gap-2 mt-0.5 sm:mt-1">
+                    <div class="bg-neutral-900/60 backdrop-blur-md border border-cyan-500/25 px-2.5 py-1.5 rounded-xl flex items-center justify-between shadow-xs">
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[7.5px] sm:text-[8.5px] font-mono text-cyan-300 uppercase block truncate">GoPay (E-Wallet)</span>
+                            <div id="gopay-saldo-text" class="text-[11px] sm:text-xs font-bold text-cyan-400 font-mono truncate">
+                                Rp 0
+                            </div>
+                        </div>
+                        <span class="text-xs shrink-0 ml-1">📱</span>
+                    </div>
+
+                    <div class="bg-neutral-900/60 backdrop-blur-md border border-emerald-500/25 px-2.5 py-1.5 rounded-xl flex items-center justify-between shadow-xs">
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[7.5px] sm:text-[8.5px] font-mono text-emerald-300 uppercase block truncate">Tunai (Cash)</span>
+                            <div id="cash-saldo-text" class="text-[11px] sm:text-xs font-bold text-emerald-400 font-mono truncate">
+                                Rp 0
+                            </div>
+                        </div>
+                        <span class="text-xs shrink-0 ml-1">💵</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             2. BOTTOM CARD CONTAINER ("trs putih itu cardnya")
+             ====================================================================== -->
+        <section class="cosmic-content-sheet rounded-t-[32px] sm:rounded-2xl px-4 py-5 sm:p-5 flex flex-col gap-4 shadow-[0_-12px_40px_rgba(0,0,0,0.85)] relative z-10">
+            
+            <!-- Mobile Sheet Grab Indicator -->
+            <div class="w-10 h-1 bg-neutral-700/60 rounded-full mx-auto -mt-2 mb-1 sm:hidden"></div>
+
+            <!-- OPERATIONS / NAVIGASI KONTROL KABINET (MATCHING "OPERATIONS" IN MOCKUP) -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[8.5px] sm:text-[9.5px] font-mono tracking-widest text-neutral-400 uppercase font-black">NAVIGASI & OPERASI KABINET</span>
+                    <span class="text-[8px] font-mono text-cyan-400 font-bold">4 MODUL</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2 sm:gap-3">
+                    
+                    <a href="Kelola-Kas.html" class="bg-neutral-900/90 border border-neutral-800 hover:border-emerald-500/40 p-2 sm:p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all active:scale-95 shadow-xs group">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                            📥
+                        </div>
+                        <span class="text-[9px] sm:text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-emerald-400 transition-colors leading-tight">Uang Kas</span>
+                    </a>
+
+                    <a href="All-Transaksi.html" class="bg-neutral-900/90 border border-neutral-800 hover:border-indigo-500/40 p-2 sm:p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all active:scale-95 shadow-xs group">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-sm group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+                            📜
+                        </div>
+                        <span class="text-[9px] sm:text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-indigo-400 transition-colors leading-tight">Transaksi</span>
+                    </a>
+
+                    <a href="Kelola-Proker.html" class="bg-neutral-900/90 border border-neutral-800 hover:border-amber-500/40 p-2 sm:p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all active:scale-95 shadow-xs group">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-950/60 border border-amber-500/30 flex items-center justify-center text-amber-400 text-sm group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(245,158,11,0.2)]">
+                            💼
+                        </div>
+                        <span class="text-[9px] sm:text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-amber-400 transition-colors leading-tight">Proker</span>
+                    </a>
+
+                    <a href="Kelola-Anggota.html" class="bg-neutral-900/90 border border-neutral-800 hover:border-cyan-500/40 p-2 sm:p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 transition-all active:scale-95 shadow-xs group">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-sm group-hover:scale-110 transition-transform shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                            👥
+                        </div>
+                        <span class="text-[9px] sm:text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-cyan-400 transition-colors leading-tight">Anggota</span>
+                    </a>
+
+                </div>
+            </div>
+
+            <div id="simulated-alert" class="hidden bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 p-3 rounded-xl text-xs font-mono flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-base font-bold text-emerald-400">✓</span>
+                    <div id="alert-text">Transaksi kas berhasil diverifikasi masuk ke dalam master ledger!</div>
+                </div>
+                <button onclick="document.getElementById('simulated-alert').classList.add('hidden')" class="text-neutral-500 hover:text-neutral-300 text-xs font-mono">✕</button>
+            </div>
+
+            <!-- RESPONSIVE 2-COLUMN MAIN CONTENT (DIAGRAM & ANTRIAN VERIFIKASI) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5 items-start">
+                
+                <div class="lg:col-span-7 flex flex-col gap-3 sm:gap-4 w-full">
+                    <div class="bg-neutral-950 border border-neutral-900 p-3 sm:p-4 rounded-xl flex flex-col gap-2 sm:gap-3 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
+                            <span class="text-[8px] font-mono text-neutral-500">KAS TAHUN 2026</span>
+                        </div>
+                        <div class="w-full h-36 sm:h-52 flex justify-center items-center">
+                            <canvas id="ldkLineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 flex flex-col gap-3 w-full">
                     <div class="flex items-center gap-2">
                         <div class="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping"></div>
                         <span class="text-[9px] font-mono tracking-widest text-amber-400 uppercase font-black block">🚨 ANTRIAN VERIFIKASI KAS ONLINE</span>
                     </div>
                     
-                    <div class="flex flex-col gap-3 max-h-[360px] overflow-y-auto no-scrollbar" id="queue-container">
+                    <div class="flex flex-col gap-2.5 max-h-[360px] overflow-y-auto no-scrollbar" id="queue-container">
                         <!-- Loaded dynamically from Sheets -->
                         <div class="py-5 sm:py-8 bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-1.5">
                             <div class="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
@@ -604,47 +660,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-2 mt-4 border-t border-neutral-900/60 pt-4">
-            <span class="text-[8px] font-mono tracking-widest text-neutral-500 uppercase font-black block">NAVIGASI KONTROL MANAGEMENT KABINET</span>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                
-                <a href="Kelola-Kas.html" class="bg-neutral-950 border border-neutral-900 hover:border-emerald-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
-                    <div class="w-6 h-6 rounded-lg bg-emerald-950/40 border border-emerald-500/20 flex items-center justify-center text-xs">📥</div>
-                    <div class="mt-1">
-                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-emerald-400 transition-colors">Uang Kas</span>
-                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5">Daftar iuran pengurus LDK</span>
-                    </div>
-                </a>
-
-                <a href="Kelola-Proker.html" class="bg-neutral-950 border border-neutral-900 hover:border-amber-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
-                    <div class="w-6 h-6 rounded-lg bg-amber-950/40 border border-amber-500/20 flex items-center justify-center text-xs">💼</div>
-                    <div class="mt-1">
-                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-amber-400 transition-colors">Kelola Proker</span>
-                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5"> Estimasi Proker & realisasi Proker</span>
-                    </div>
-                </a>
-
-                <a href="All-Transaksi.html" class="bg-neutral-950 border border-neutral-900 hover:border-indigo-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
-                    <div class="w-6 h-6 rounded-lg bg-indigo-950/40 border border-indigo-500/20 flex items-center justify-center text-xs">📜</div>
-                    <div class="mt-1">
-                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-indigo-400 transition-colors">Pusat Transaksi Keuangan</span>
-                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5">Seluruh Pemasukan & Pengeluaran</span>
-                    </div>
-                </a>
-
-                <a href="Kelola-Anggota.html" class="bg-neutral-950 border border-neutral-900 hover:border-cyan-500/30 p-3.5 rounded-xl flex flex-col gap-1 transition-all active:scale-95 shadow-xs group">
-                    <div class="w-6 h-6 rounded-lg bg-cyan-950/40 border border-cyan-500/20 flex items-center justify-center text-xs">👥</div>
-                    <div class="mt-1">
-                        <span class="text-[11px] font-bold tracking-tight text-neutral-100 block group-hover:text-cyan-400 transition-colors">Kelola Anggota</span>
-                        <span class="text-[7px] text-neutral-500 block font-light leading-none mt-0.5">Database & status aktif pengurus</span>
-                    </div>
-                </a>
 
             </div>
-        </div>
+        </section>
     </main>
 
     <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center">
