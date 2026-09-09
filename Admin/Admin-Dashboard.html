@@ -435,17 +435,95 @@
                 gap: 0 !important;
             }
 
-            /* Mobile Interactive Sheet Controller */
+            /* ==========================================================================
+               FULL BALANCE & E-WALLET VIEW WHEN QUEUE SHEET IS SWIPED DOWN / COLLAPSED
+               ========================================================================== */
+            body.queue-collapsed main {
+                min-height: calc(100vh - 76px) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+            }
+
+            body.queue-collapsed #hero-canopy {
+                flex: 1 1 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                padding-top: 10px !important;
+                padding-bottom: 24px !important;
+                gap: 20px !important;
+            }
+
+            body.queue-collapsed #total-saldo-text {
+                font-size: 2.75rem !important;
+                line-height: 1.15 !important;
+                letter-spacing: -0.02em !important;
+                text-shadow: 0 0 28px rgba(16, 185, 129, 0.35) !important;
+                margin-top: 6px !important;
+                margin-bottom: 6px !important;
+            }
+
+            body.queue-collapsed #sub-saldo-grid {
+                grid-template-columns: 1fr !important;
+                gap: 14px !important;
+                margin-top: 10px !important;
+            }
+
+            body.queue-collapsed #gopay-card {
+                padding: 15px 18px !important;
+                border-radius: 20px !important;
+                background: linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(15, 23, 42, 0.90) 100%) !important;
+                border-color: rgba(34, 211, 238, 0.45) !important;
+                box-shadow: 0 12px 30px -5px rgba(6, 182, 212, 0.25), 0 0 20px -4px rgba(6, 182, 212, 0.18) !important;
+            }
+
+            body.queue-collapsed #cash-card {
+                padding: 15px 18px !important;
+                border-radius: 20px !important;
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 23, 42, 0.90) 100%) !important;
+                border-color: rgba(52, 211, 153, 0.45) !important;
+                box-shadow: 0 12px 30px -5px rgba(16, 185, 129, 0.25), 0 0 20px -4px rgba(16, 185, 129, 0.18) !important;
+            }
+
+            body.queue-collapsed .balance-subcard-amt {
+                font-size: 1.45rem !important;
+                line-height: 1.3 !important;
+                margin-top: 4px !important;
+            }
+
+            body.queue-collapsed .balance-subcard-icon {
+                font-size: 1.75rem !important;
+            }
+
+            body.queue-collapsed .card-full-badge {
+                display: inline-flex !important;
+            }
+
+            body.queue-collapsed .card-full-desc {
+                display: block !important;
+            }
+
+            /* Swipeable Mobile Interactive Sheet */
             #queue-sheet {
-                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                touch-action: pan-y;
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                            padding 0.3s ease,
+                            background 0.3s ease,
+                            border-radius 0.3s ease,
+                            box-shadow 0.3s ease;
+                user-select: none;
             }
             #queue-sheet.sheet-collapsed {
                 padding-top: 10px !important;
-                padding-bottom: 12px !important;
-                background: rgba(8, 12, 22, 0.88) !important;
-                border-top: 1px solid rgba(56, 189, 248, 0.3) !important;
-                backdrop-filter: blur(16px) !important;
-                -webkit-backdrop-filter: blur(16px) !important;
+                padding-bottom: 14px !important;
+                background: rgba(8, 14, 26, 0.94) !important;
+                border-top: 1px solid rgba(56, 189, 248, 0.35) !important;
+                border-radius: 24px 24px 0 0 !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.75) !important;
+                cursor: pointer;
             }
             #queue-sheet.sheet-collapsed #queue-container {
                 display: none !important;
@@ -568,7 +646,7 @@
             </div>
 
             <!-- FINANCIAL BALANCE HERO (SPACIOUS & MODERN FINTECH STYLE) -->
-            <div class="flex flex-col gap-2">
+            <div id="balance-hero-container" class="flex flex-col gap-2 transition-all duration-300">
                 <div class="flex items-center justify-between">
                     <span class="text-[8.5px] sm:text-[9.5px] font-mono tracking-widest text-neutral-400 uppercase font-bold flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -579,30 +657,38 @@
                     </span>
                 </div>
                 
-                <div id="total-saldo-text" class="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_2px_14px_rgba(255,255,255,0.15)]">
+                <div id="total-saldo-text" class="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_2px_14px_rgba(255,255,255,0.15)] transition-all">
                     Rp 0
                 </div>
 
-                <!-- Sub-Saldo Chips (GoPay & Tunai) with generous breathing room -->
-                <div class="grid grid-cols-2 gap-2.5 mt-1 sm:mt-2">
-                    <div class="bg-slate-900/60 backdrop-blur-md border border-cyan-500/25 px-3 py-2 rounded-xl flex items-center justify-between shadow-xs">
-                        <div class="flex flex-col min-w-0">
-                            <span class="text-[7.5px] sm:text-[8.5px] font-mono text-cyan-300 uppercase block truncate font-medium">GoPay (E-Wallet)</span>
-                            <div id="gopay-saldo-text" class="text-xs sm:text-sm font-bold text-cyan-400 font-mono truncate mt-0.5">
+                <!-- Sub-Saldo Cards (GoPay & Tunai) - Transforms into Full prominent cards when Queue is swiped down -->
+                <div id="sub-saldo-grid" class="grid grid-cols-2 gap-2.5 mt-1 sm:mt-2 transition-all duration-300">
+                    <div id="gopay-card" class="balance-subcard bg-slate-900/60 backdrop-blur-md border border-cyan-500/25 px-3 py-2 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
+                        <div class="flex flex-col min-w-0 flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-cyan-300 uppercase block truncate font-medium">GoPay (E-Wallet)</span>
+                                <span class="card-full-badge hidden text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-bold">● ONLINE</span>
+                            </div>
+                            <div id="gopay-saldo-text" class="balance-subcard-amt text-xs sm:text-sm font-bold text-cyan-400 font-mono truncate mt-0.5 transition-all">
                                 Rp 0
                             </div>
+                            <span class="card-full-desc hidden text-[9.5px] text-neutral-400 font-sans mt-1 leading-tight">Simpanan digital QRIS & transfer online bendahara</span>
                         </div>
-                        <span class="text-sm shrink-0 ml-1">📱</span>
+                        <span class="balance-subcard-icon text-sm sm:text-base shrink-0 ml-2">📱</span>
                     </div>
 
-                    <div class="bg-slate-900/60 backdrop-blur-md border border-emerald-500/25 px-3 py-2 rounded-xl flex items-center justify-between shadow-xs">
-                        <div class="flex flex-col min-w-0">
-                            <span class="text-[7.5px] sm:text-[8.5px] font-mono text-emerald-300 uppercase block truncate font-medium">Tunai (Cash)</span>
-                            <div id="cash-saldo-text" class="text-xs sm:text-sm font-bold text-emerald-400 font-mono truncate mt-0.5">
+                    <div id="cash-card" class="balance-subcard bg-slate-900/60 backdrop-blur-md border border-emerald-500/25 px-3 py-2 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
+                        <div class="flex flex-col min-w-0 flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-emerald-300 uppercase block truncate font-medium">Tunai (Cash)</span>
+                                <span class="card-full-badge hidden text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-bold">● BRANKAS</span>
+                            </div>
+                            <div id="cash-saldo-text" class="balance-subcard-amt text-xs sm:text-sm font-bold text-emerald-400 font-mono truncate mt-0.5 transition-all">
                                 Rp 0
                             </div>
+                            <span class="card-full-desc hidden text-[9.5px] text-neutral-400 font-sans mt-1 leading-tight">Kas fisik tunai tersimpan di brankas sekretariat</span>
                         </div>
-                        <span class="text-sm shrink-0 ml-1">💵</span>
+                        <span class="balance-subcard-icon text-sm sm:text-base shrink-0 ml-2">💵</span>
                     </div>
                 </div>
             </div>
@@ -613,8 +699,8 @@
              ====================================================================== -->
         <section id="queue-sheet" class="cosmic-content-sheet rounded-t-[32px] sm:rounded-2xl px-4 py-5 sm:p-5 flex flex-col gap-4 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] relative z-10">
             
-            <!-- Mobile Sheet Grab Indicator (Click to toggle collapse/open) -->
-            <div onclick="toggleQueueCollapse(event)" class="w-10 h-1 bg-neutral-700/60 hover:bg-emerald-400/60 rounded-full mx-auto -mt-2 mb-1 sm:hidden cursor-pointer transition-colors" title="Buka / Tutup Antrian"></div>
+            <!-- Mobile Sheet Grab Indicator (Swipe down to close, swipe up to open) -->
+            <div id="sheet-grab-handle" onclick="toggleQueueCollapse(event)" class="w-12 h-1.5 bg-neutral-700/60 hover:bg-emerald-400/60 rounded-full mx-auto -mt-2 mb-1 sm:hidden cursor-pointer transition-colors" title="Geser ke bawah atau klik untuk tutup antrian"></div>
 
             <!-- DESKTOP ONLY: NAVIGASI KONTROL KABINET (Hidden on mobile because mobile has bottom dock) -->
             <div class="hidden sm:flex flex-col gap-2">
@@ -1359,7 +1445,7 @@
         })();
 
         // ==========================================================================
-        // MOBILE VERIFICATION QUEUE SHEET CONTROLLER (COLLAPSE & FULLSCREEN)
+        // MOBILE VERIFICATION QUEUE SHEET CONTROLLER (SWIPE DOWN / COLLAPSE & FULLSCREEN)
         // ==========================================================================
         let isQueueCollapsed = false;
         let isQueueFullscreen = false;
@@ -1381,13 +1467,13 @@
                 sheet.classList.add('sheet-collapsed');
                 document.body.classList.add('queue-collapsed');
                 if (toggleIcon) toggleIcon.textContent = '▲';
-                if (toggleLabel) toggleLabel.textContent = 'Buka';
+                if (toggleLabel) toggleLabel.textContent = 'Buka (Swap ↑)';
                 if (btnFs) btnFs.classList.add('hidden');
             } else {
                 sheet.classList.remove('sheet-collapsed');
                 document.body.classList.remove('queue-collapsed');
                 if (toggleIcon) toggleIcon.textContent = '✕';
-                if (toggleLabel) toggleLabel.textContent = 'Tutup';
+                if (toggleLabel) toggleLabel.textContent = 'Tutup (Swap ↓)';
                 if (btnFs) btnFs.classList.remove('hidden');
             }
         }
@@ -1424,9 +1510,51 @@
             }
         }
 
+        // Touch Swipe Down / Swipe Up Controller
+        function initSheetTouchGestures() {
+            const sheet = document.getElementById('queue-sheet');
+            if (!sheet) return;
+
+            let touchStartY = 0;
+            let touchCurrentY = 0;
+            let isTouching = false;
+
+            sheet.addEventListener('touchstart', (e) => {
+                const queueContainer = document.getElementById('queue-container');
+                // Allow inner scrolling when queue has scrolled down
+                if (queueContainer && queueContainer.contains(e.target) && queueContainer.scrollTop > 5) {
+                    return;
+                }
+                touchStartY = e.touches[0].clientY;
+                touchCurrentY = touchStartY;
+                isTouching = true;
+            }, { passive: true });
+
+            sheet.addEventListener('touchmove', (e) => {
+                if (!isTouching) return;
+                touchCurrentY = e.touches[0].clientY;
+            }, { passive: true });
+
+            sheet.addEventListener('touchend', () => {
+                if (!isTouching) return;
+                isTouching = false;
+                const deltaY = touchCurrentY - touchStartY;
+
+                // Swipe down threshold: > 35px -> Close sheet (Full saldo view)
+                if (deltaY > 35 && !isQueueCollapsed) {
+                    toggleQueueCollapse();
+                }
+                // Swipe up threshold: < -35px -> Open sheet (Queue list view)
+                else if (deltaY < -35 && isQueueCollapsed) {
+                    toggleQueueCollapse();
+                }
+            }, { passive: true });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             updateHeaderDates();
             fetchInitialData();
+            initSheetTouchGestures();
         });
     </script>
 </body>
