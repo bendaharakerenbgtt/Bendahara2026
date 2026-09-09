@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LDK IMIP — Master Ledger Central</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -906,6 +907,17 @@
                             📥 Unduh CSV
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <!-- DIAGRAM ARUS KEUANGAN LDK IMIP (DIPINDAHKAN DARI DASHBOARD) -->
+            <div class="bg-neutral-950 border border-neutral-900 p-3 sm:p-4 rounded-xl flex flex-col gap-2.5 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">DIAGRAM ARUS KEUANGAN LDK IMIP</span>
+                    <span class="text-[8px] font-mono text-neutral-500">KAS TAHUN 2026</span>
+                </div>
+                <div class="w-full h-44 sm:h-56 flex justify-center items-center">
+                    <canvas id="ldkLineChart"></canvas>
                 </div>
             </div>
 
@@ -2127,6 +2139,7 @@
             const selisihEl = document.getElementById('sum-selisih');
             selisihEl.innerText = netPrefix + 'Rp' + Math.abs(netSaldo).toLocaleString('id-ID');
             selisihEl.className = netSaldo > 0 ? "text-xs sm:text-sm font-black text-emerald-400 font-mono" : (netSaldo < 0 ? "text-xs sm:text-sm font-black text-rose-400 font-mono" : "text-xs sm:text-sm font-black text-neutral-300 font-mono");
+            updateTransactionChart();
         }
 
         // Hapus Item
@@ -2533,8 +2546,110 @@
             }, 300);
         };
 
+        function initTransactionChart() {
+            const canvasEl = document.getElementById('ldkLineChart');
+            if (!canvasEl) return;
+            const ctx = canvasEl.getContext('2d');
+            window.ldkChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep"],
+                    datasets: [
+                        {
+                            label: 'Saldo GoPay',
+                            data: [400000, 650000, 800000, 950000, 1100000, 1250000, 1450000, 1600000, 1719104],
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.05)',
+                            borderWidth: 2,
+                            tension: 0.25,
+                            pointBackgroundColor: '#38bdf8',
+                            pointBorderColor: '#07090e',
+                            pointRadius: 3,
+                            fill: true
+                        },
+                        {
+                            label: 'Saldo Tunai',
+                            data: [1200000, 1500000, 1900000, 2100000, 2300000, 2500000, 2600000, 2750000, 364327],
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.05)',
+                            borderWidth: 2,
+                            tension: 0.25,
+                            pointBackgroundColor: '#4ade80',
+                            pointBorderColor: '#07090e',
+                            pointRadius: 3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { color: '#a3a3a3', boxWidth: 8, font: { family: 'Plus Jakarta Sans', size: 9, weight: 'bold' } }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } } },
+                        y: { 
+                            grid: { color: '#141a29' }, 
+                            ticks: { 
+                                color: '#64748b', 
+                                font: { family: 'Plus Jakarta Sans', size: 9 }, 
+                                callback: function(v) { return 'Rp ' + (v >= 1000000 ? (v/1000000).toFixed(1) + ' Jt' : (v/1000) + ' Rb'); } 
+                            } 
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTransactionChart() {
+            if (!window.ldkChart || !Array.isArray(localTransactions) || localTransactions.length === 0) return;
+            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+            let gopayCumulative = Array(12).fill(0);
+            let cashCumulative = Array(12).fill(0);
+            let gopayTotal = 0;
+            let cashTotal = 0;
+
+            const sorted = [...localTransactions].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+            sorted.forEach(t => {
+                if (t.status_transaksi === "Ditolak" || t.status_transaksi === "Pending Verifikasi") return;
+                const d = new Date(t.tanggal);
+                if (isNaN(d.getTime())) return;
+                const m = d.getMonth();
+                const nom = Number(t.nominal) || 0;
+                const isMasuk = t.tipe === "Masuk";
+                const isGoPay = (t.metode || '').toLowerCase().includes('gopay');
+
+                if (isGoPay) {
+                    gopayTotal += isMasuk ? nom : -nom;
+                    gopayCumulative[m] = gopayTotal;
+                } else {
+                    cashTotal += isMasuk ? nom : -nom;
+                    cashCumulative[m] = cashTotal;
+                }
+            });
+
+            for (let i = 1; i < 12; i++) {
+                if (gopayCumulative[i] === 0 && gopayCumulative[i - 1] !== 0) gopayCumulative[i] = gopayCumulative[i - 1];
+                if (cashCumulative[i] === 0 && cashCumulative[i - 1] !== 0) cashCumulative[i] = cashCumulative[i - 1];
+            }
+
+            const currentMonth = new Date().getMonth();
+            const maxMonth = Math.max(5, Math.min(11, currentMonth));
+            const activeMonths = months.slice(0, maxMonth + 1);
+
+            window.ldkChart.data.labels = activeMonths;
+            window.ldkChart.data.datasets[0].data = gopayCumulative.slice(0, maxMonth + 1);
+            window.ldkChart.data.datasets[1].data = cashCumulative.slice(0, maxMonth + 1);
+            window.ldkChart.update();
+        }
+
         function initAdminAllTransaksi() {
             try {
+                initTransactionChart();
                 fetchInitialData();
                 
                 const modal = document.getElementById('receipt-modal');
