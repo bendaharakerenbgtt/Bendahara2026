@@ -5,7 +5,7 @@
         if (sessionStorage.getItem('adminSession') !== 'active') {
             window.location.replace('Login-Admin.html');
         }
-        if (localStorage.getItem('theme') === 'light') {
+        if (localStorage.getItem('theme') !== 'dark') {
             document.documentElement.classList.add('light-mode');
         }
     </script>
@@ -17,108 +17,110 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
+        @custom-variant dark (&:where(.dark, .dark *));
+
         :root {
             /* ==========================================================================
-               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Space & Treasury Emerald / Cyber Cyan
                ========================================================================== */
-            --bg-main: #07090e;              /* Deep elegant obsidian background */
-            --bg-card: #0e111a;              /* Crisp card background with high contrast */
-            --border-card: #1d2235;          /* Sophisticated border */
-            --border-muted: #141724;         /* Subtler border */
+            --bg-main: #080C14;              /* Deep Space Cosmic Black */
+            --bg-card: #0F1623;              /* Crisp card background with high contrast */
+            --border-card: #1E293B;          /* Sophisticated border */
+            --border-muted: #151F30;         /* Subtler border */
             
-            --text-primary: #f8fafc;         /* Slate 50 */
-            --text-sec-100: #f1f5f9;         /* Slate 100 */
-            --text-sec-200: #e2e8f0;         /* Slate 200 */
-            --text-sec-300: #cbd5e1;         /* Slate 300 */
-            --text-sec-400: #94a3b8;         /* Slate 400 */
-            --text-sec-500: #64748b;         /* Slate 500 */
+            --text-primary: #F8FAFC;         /* Slate 50 */
+            --text-sec-100: #F1F5F9;         /* Slate 100 */
+            --text-sec-200: #E2E8F0;         /* Slate 200 */
+            --text-sec-300: #CBD5E1;         /* Slate 300 */
+            --text-sec-400: #94A3B8;         /* Slate 400 */
+            --text-sec-500: #64748B;         /* Slate 500 */
             --text-sec-600: #475569;         /* Slate 600 */
             
-            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            --bg-neutral-pill: #162032;      /* Background for neutral pills */
             
-            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
-            --border-cyan-pill: rgba(6, 182, 212, 0.20);
-            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            --bg-cyan-pill: rgba(6, 182, 212, 0.12);
+            --border-cyan-pill: rgba(6, 182, 212, 0.28);
+            --text-cyan-accent: #22D3EE;     /* Cyan 400 */
             
-            --bg-green-pill: rgba(34, 197, 94, 0.08);
-            --border-green-pill: rgba(34, 197, 94, 0.20);
-            --text-green-accent: #4ade80;    /* Green 400 */
+            --bg-green-pill: rgba(16, 185, 129, 0.12);
+            --border-green-pill: rgba(16, 185, 129, 0.28);
+            --text-green-accent: #10B981;    /* Emerald 500 */
             
-            --bg-amber-pill: rgba(245, 158, 11, 0.08);
-            --border-amber-pill: rgba(245, 158, 11, 0.20);
-            --text-amber-accent: #fbbf24;    /* Amber 400 */
+            --bg-amber-pill: rgba(245, 158, 11, 0.12);
+            --border-amber-pill: rgba(245, 158, 11, 0.28);
+            --text-amber-accent: #FBBF24;    /* Amber 400 */
             
-            --text-rose-accent: #fb7185;     /* Rose 400 */
+            --text-rose-accent: #FB7185;     /* Rose 400 */
             
-            --splash-bg: #07090e;
-            --splash-text: #ffffff;
-            --splash-glow: rgba(16, 185, 129, 0.08);
+            --splash-bg: #080C14;
+            --splash-text: #FFFFFF;
+            --splash-glow: rgba(16, 185, 129, 0.12);
             
-            --footer-bg: rgba(14, 17, 26, 0.4);
-            --footer-border: #141724;
+            --footer-bg: rgba(15, 22, 35, 0.6);
+            --footer-border: #1E293B;
             
-            --hover-cyan-border: rgba(6, 182, 212, 0.4);
-            --hover-green-border: rgba(34, 197, 94, 0.4);
-            --hover-amber-border: rgba(245, 158, 11, 0.4);
+            --hover-cyan-border: rgba(6, 182, 212, 0.5);
+            --hover-green-border: rgba(16, 185, 129, 0.5);
+            --hover-amber-border: rgba(245, 158, 11, 0.5);
             --hover-neutral-border: #334155;
 
             /* Accent glow variables */
-            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.15);
-            --glow-green: 0 4px 20px rgba(34, 197, 94, 0.15);
+            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.20);
+            --glow-green: 0 4px 20px rgba(16, 185, 129, 0.20);
             --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
         
         html.light-mode {
             /* ==========================================================================
-               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               LIGHT MODE SYSTEM - Warm Cream (#FAF5EF) & Executive Treasury Palette
                ========================================================================== */
-            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
-            --bg-card: #ffffff;              /* Crisp white cards for depth */
-            --border-card: #ccd9d2;          /* Soft sage borders */
-            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            --bg-main: #FAF5EF;              /* Warm soothing cream */
+            --bg-card: #FFFFFF;              /* Crisp white cards */
+            --border-card: #E5DCD0;          /* Warm sand border */
+            --border-muted: #EFE8DE;         /* Soft sand muted border */
             
-            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
-            --text-sec-100: #0a140f;
-            --text-sec-200: #12241b;
-            --text-sec-300: #1c3327;
-            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
-            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
-            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            --text-primary: #1C1917;         /* Deep stone for high contrast readability */
+            --text-sec-100: #292524;
+            --text-sec-200: #44403C;
+            --text-sec-300: #57534E;
+            --text-sec-400: #78716C;
+            --text-sec-500: #A8A29E;
+            --text-sec-600: #D6D3D1;
             
-            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            --bg-neutral-pill: #F5EFE6;      /* Sand pill */
             
-            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
-            --border-cyan-pill: rgba(8, 145, 178, 0.18);
-            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
+            --border-cyan-pill: rgba(6, 182, 212, 0.25);
+            --text-cyan-accent: #0891B2;
             
-            --bg-green-pill: rgba(21, 128, 61, 0.06);
-            --border-green-pill: rgba(21, 128, 61, 0.18);
-            --text-green-accent: #15803d;    /* Rich green */
+            --bg-green-pill: rgba(5, 150, 105, 0.08);
+            --border-green-pill: rgba(5, 150, 105, 0.25);
+            --text-green-accent: #059669;    /* Executive Emerald */
             
-            --bg-amber-pill: rgba(180, 83, 9, 0.06);
-            --border-amber-pill: rgba(180, 83, 9, 0.18);
-            --text-amber-accent: #b45309;    /* Gold/Amber */
+            --bg-amber-pill: rgba(217, 119, 6, 0.08);
+            --border-amber-pill: rgba(217, 119, 6, 0.25);
+            --text-amber-accent: #B45309;
             
-            --text-rose-accent: #be123c;     /* Deep ruby */
+            --text-rose-accent: #E11D48;
             
-            --splash-bg: #f0f5f2;
-            --splash-text: #0a140f;
-            --splash-glow: rgba(21, 128, 61, 0.05);
+            --splash-bg: #FAF5EF;
+            --splash-text: #1C1917;
+            --splash-glow: rgba(5, 150, 105, 0.08);
             
-            --footer-bg: rgba(226, 236, 231, 0.4);
-            --footer-border: #ccd9d2;
+            --footer-bg: rgba(255, 255, 255, 0.7);
+            --footer-border: #E5DCD0;
             
-            --hover-cyan-border: rgba(8, 145, 178, 0.4);
-            --hover-green-border: rgba(21, 128, 61, 0.4);
-            --hover-amber-border: rgba(180, 83, 9, 0.4);
-            --hover-neutral-border: #b0c3b7;
+            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-green-border: rgba(5, 150, 105, 0.4);
+            --hover-amber-border: rgba(217, 119, 6, 0.4);
+            --hover-neutral-border: #CBD5E1;
 
             /* Shadow & glow adjustments */
-            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.08);
-            --glow-green: 0 4px 15px rgba(21, 128, 61, 0.08);
-            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.10);
+            --glow-green: 0 4px 15px rgba(16, 185, 129, 0.12);
+            --shadow-card: 0 10px 30px -10px rgba(16, 185, 129, 0.08);
         }
 
         /* Font weight overrides in Light Mode to ensure readability */
@@ -161,6 +163,7 @@
             background-color: var(--bg-main) !important; 
             color: var(--text-primary) !important; 
             transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            min-height: 100vh;
         }
         
         .premium-card {
@@ -168,6 +171,58 @@
             border-color: var(--border-card) !important;
             box-shadow: var(--shadow-card);
             transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+        }
+
+        /* DYNAMIC COSMIC NEBULA BACKGROUND */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -120px;
+            left: -120px;
+            width: calc(100% + 240px);
+            height: calc(100% + 240px);
+            background: 
+                radial-gradient(ellipse 65% 55% at 15% 15%, rgba(16, 185, 129, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 50% at 85% 25%, rgba(6, 182, 212, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(5, 150, 105, 0.10) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.25) 0%, transparent 70%);
+            filter: blur(55px);
+            pointer-events: none;
+            z-index: -2;
+            animation: pulseGlow 18s ease-in-out infinite alternate;
+        }
+
+        html.light-mode body::before {
+            background: 
+                radial-gradient(circle at 12% 15%, rgba(16, 185, 129, 0.18) 0%, transparent 48%),
+                radial-gradient(circle at 88% 85%, rgba(6, 182, 212, 0.15) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(254, 215, 170, 0.16) 0%, transparent 52%) !important;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.06) translate(15px, -15px); }
+        }
+
+        /* AUTHENTIC OUTER SPACE STARFIELD */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg%20width%3D%22400%22%20height%3D%22400%22%20viewBox%3D%220%200%20400%20400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%23ffffff%22%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2235%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%2295%22%20cy%3D%2218%22%20r%3D%220.6%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%2290%22%20r%3D%220.8%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22230%22%20cy%3D%2230%22%20r%3D%220.7%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%2265%22%20r%3D%220.6%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22375%22%20cy%3D%2222%22%20r%3D%220.75%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%22130%22%20r%3D%220.65%22%20opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22175%22%20r%3D%220.8%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%22140%22%20r%3D%220.6%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22265%22%20cy%3D%22160%22%20r%3D%220.75%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%22340%22%20cy%3D%22120%22%20r%3D%220.7%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%22235%22%20r%3D%220.6%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22105%22%20cy%3D%22260%22%20r%3D%220.75%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22220%22%20r%3D%220.8%22%20opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22245%22%20cy%3D%22250%22%20r%3D%220.65%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22305%22%20cy%3D%22215%22%20r%3D%220.7%22%20opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22370%22%20cy%3D%22255%22%20r%3D%220.8%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%2265%22%20cy%3D%22330%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%22350%22%20r%3D%220.6%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22315%22%20r%3D%220.8%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%22285%22%20cy%3D%22345%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22355%22%20cy%3D%22355%22%20r%3D%220.65%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%2275%22%20cy%3D%2278%22%20r%3D%221.2%22%20fill%3D%22%236ee7b7%22%20opacity%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%22260%22%20cy%3D%22100%22%20r%3D%221.3%22%20fill%3D%22%2367e8f9%22%20opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%22185%22%20cy%3D%22275%22%20r%3D%221.1%22%20fill%3D%22%2334d399%22%20opacity%3D%220.7%22%2F%3E%3Ccircle%20cx%3D%22345%22%20cy%3D%22190%22%20r%3D%221.2%22%20fill%3D%22%2338bdf8%22%20opacity%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%22195%22%20r%3D%221.1%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%22230%22%20cy%3D%22370%22%20r%3D%221.2%22%20fill%3D%22%236ee7b7%22%20opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%22145%22%20cy%3D%2240%22%20r%3D%221.3%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+            background-size: 380px 380px;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.75;
+            transition: opacity 0.3s ease;
+        }
+
+        html.light-mode body::after {
+            opacity: 0.05;
         }
         
         /* Subtle glow animations */
@@ -202,8 +257,8 @@
             color: var(--splash-text);
         }
         .spinner-ring {
-            border-color: rgba(6, 182, 212, 0.1);
-            border-top-color: var(--text-cyan-accent);
+            border-color: rgba(16, 185, 129, 0.1);
+            border-top-color: var(--text-green-accent);
         }
 
         /* SwAlert overrides to match our design system */
@@ -224,7 +279,7 @@
             font-size: 0.75rem !important;
         }
         .swal2-confirm {
-            background-color: #06b6d4 !important; /* Cyan 500 */
+            background-color: #10b981 !important; /* Emerald 500 */
             color: #07090e !important;
             font-family: monospace !important;
             font-weight: 700 !important;
@@ -241,9 +296,121 @@
             border-radius: 0.75rem !important;
             padding: 0.75rem 1.5rem !important;
         }
+
+        /* ==========================================================================
+           MODERN MOBILE BOTTOM NAVIGATION DOCK (ADMIN FINTECH STYLE 2026)
+           ========================================================================== */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(8, 12, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(16, 185, 129, 0.15);
+            z-index: 40;
+            padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        html.light-mode .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top: 1.5px solid rgba(16, 185, 129, 0.3) !important;
+            box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.12), 0 -1px 4px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            padding: 4px 2px;
+            color: #94a3b8;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .bottom-nav-item .nav-icon-wrap {
+            width: 34px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .bottom-nav-item .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            margin-top: 2px;
+            transition: color 0.2s ease, font-weight 0.2s ease;
+            white-space: nowrap;
+        }
+
+        /* Dark Mode Active State - Emerald Glow */
+        .bottom-nav-item.active {
+            color: #34d399;
+        }
+        .bottom-nav-item.active .nav-icon-wrap {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+        .bottom-nav-item.active .nav-label {
+            color: #34d399;
+            font-weight: 800;
+        }
+
+        /* Light Mode Active State */
+        html.light-mode .bottom-nav-item {
+            color: #64748b;
+        }
+        html.light-mode .bottom-nav-item.active {
+            color: #059669 !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-icon-wrap {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.38) !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-label {
+            color: #059669 !important;
+            font-weight: 800 !important;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav {
+                display: flex !important;
+            }
+            body {
+                padding-bottom: 84px !important;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400 relative">
 
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
@@ -264,18 +431,22 @@
     </div>
 
     <!-- HEADER -->
-    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
+    <header class="border-b border-neutral-900 bg-neutral-950/70 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
         <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
-            <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-cyan-400 transition-all duration-300 active:scale-95 font-bold shadow-inner font-bold">
+            <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-xs">
                 <span>←</span> <span>Dashboard</span>
             </a>
             <div class="flex items-center gap-3">
-                <span class="text-xs font-mono tracking-wider text-cyan-400 uppercase font-bold hidden sm:inline">
-                    KELOLA ANGGOTA KABINET
-                </span>
-                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>KELOLA ANGGOTA</span>
+                </div>
+                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-emerald-500/40 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
                     🌙
                 </button>
+                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
+                    <span>Logout</span> <span class="text-rose-500">↗</span>
+                </a>
             </div>
         </div>
     </header>
@@ -365,6 +536,30 @@
         <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP ADMIN © 2026</span>
     </footer>
 
+    <!-- Mobile Bottom Navigation Dock (Admin Exclusive) -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah Admin">
+        <a href="Admin-Dashboard.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">📊</div>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="Kelola-Kas.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">📥</div>
+            <span class="nav-label">Uang Kas</span>
+        </a>
+        <a href="All-Transaksi.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">📜</div>
+            <span class="nav-label">Transaksi</span>
+        </a>
+        <a href="Kelola-Proker.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">💼</div>
+            <span class="nav-label">Proker</span>
+        </a>
+        <a href="Kelola-Anggota.html" class="bottom-nav-item active">
+            <div class="nav-icon-wrap">👥</div>
+            <span class="nav-label">Anggota</span>
+        </a>
+    </nav>
+
     <!-- LOGIC SCRIPTS -->
     <script>
         // SCRIPT URL backend
@@ -372,10 +567,11 @@
 
         let localAnggota = [];
 
+        const savedTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+        applyTheme(savedTheme);
+
         function initKelolaAnggotaPage() {
-            const currentTheme = localStorage.getItem('theme') || 'dark';
-            const btn = document.getElementById('themeToggleBtn');
-            if (btn) btn.innerText = currentTheme === 'light' ? '☀️' : '🌙';
+            applyTheme(savedTheme);
             fetchInitialData();
         }
 
@@ -722,9 +918,27 @@
         }
 
         // Premium Theme Switcher
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            const isLight = (theme === 'light');
+            if (isLight) {
+                document.documentElement.classList.add('light-mode');
+                document.documentElement.classList.remove('dark');
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark');
+                if (btn) btn.innerText = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.documentElement.classList.add('dark');
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark');
+                if (btn) btn.innerText = '🌙';
+            }
+        }
+
         function toggleTheme(e) {
             const event = e || window.event;
-            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const currentTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             localStorage.setItem('theme', newTheme);
             triggerThemeAnimation(newTheme, event);
@@ -737,7 +951,7 @@
             ripple.style.borderRadius = '50%';
             ripple.style.pointerEvents = 'none';
             ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
-            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#FAF5EF' : '#080C14';
             
             let posX = window.innerWidth / 2;
             let posY = window.innerHeight / 2;
@@ -774,14 +988,7 @@
             ripple.style.transform = `scale(${radius})`;
             
             setTimeout(() => {
-                if (newTheme === 'light') {
-                    document.documentElement.classList.add('light-mode');
-                    document.getElementById('themeToggleBtn').innerText = '☀️';
-                } else {
-                    document.documentElement.classList.remove('light-mode');
-                    document.getElementById('themeToggleBtn').innerText = '🌙';
-                }
-                
+                applyTheme(newTheme);
                 ripple.style.opacity = '0';
                 setTimeout(() => {
                     ripple.remove();

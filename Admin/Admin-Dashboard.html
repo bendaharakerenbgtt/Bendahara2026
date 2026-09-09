@@ -5,7 +5,7 @@
         if (sessionStorage.getItem('adminSession') !== 'active') {
             window.location.replace('Login-Admin.html');
         }
-        if (localStorage.getItem('theme') === 'light') {
+        if (localStorage.getItem('theme') !== 'dark') {
             document.documentElement.classList.add('light-mode');
         }
     </script>
@@ -18,16 +18,19 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @custom-variant dark (&:where(.dark, .dark *));
+
         :root {
             /* ==========================================================================
-               DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian
+               DARK MODE (DEFAULT) SYSTEM - Modern Deep Obsidian & Executive Treasury Emerald
                ========================================================================== */
-            --bg-main: #07090e;              /* Deep elegant obsidian background */
-            --bg-card: #0e111a;              /* Crisp card background with high contrast */
-            --border-card: #1d2235;          /* Sophisticated border */
-            --border-muted: #141724;         /* Subtler border */
+            --bg-main: #080C14;              /* Deep obsidian dark background */
+            --bg-card: rgba(14, 20, 32, 0.92);/* Crisp dark slate card with high contrast */
+            --border-card: rgba(255, 255, 255, 0.10); /* Sophisticated border */
+            --border-muted: rgba(255, 255, 255, 0.07); /* Subtler border */
             
             --text-primary: #f8fafc;         /* Slate 50 */
             --text-sec-100: #f1f5f9;         /* Slate 100 */
@@ -37,15 +40,21 @@
             --text-sec-500: #64748b;         /* Slate 500 */
             --text-sec-600: #475569;         /* Slate 600 */
             
-            --bg-neutral-pill: #151a29;      /* Background for neutral pills */
+            --bg-neutral-pill: rgba(26, 36, 56, 0.7);
+
+            /* Executive Treasury Emerald & Cyber Cyan Identifiers */
+            --admin-emerald: #10b981;
+            --admin-emerald-dark: #059669;
+            --admin-cyan: #06b6d4;
+            --admin-cyan-accent: #22d3ee;
             
-            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
-            --border-cyan-pill: rgba(6, 182, 212, 0.20);
+            --bg-cyan-pill: rgba(6, 182, 212, 0.10);
+            --border-cyan-pill: rgba(6, 182, 212, 0.25);
             --text-cyan-accent: #22d3ee;     /* Cyan 400 */
             
-            --bg-green-pill: rgba(34, 197, 94, 0.08);
-            --border-green-pill: rgba(34, 197, 94, 0.20);
-            --text-green-accent: #4ade80;    /* Green 400 */
+            --bg-green-pill: rgba(16, 185, 129, 0.10);
+            --border-green-pill: rgba(16, 185, 129, 0.25);
+            --text-green-accent: #34d399;    /* Emerald 400 */
             
             --bg-amber-pill: rgba(245, 158, 11, 0.08);
             --border-amber-pill: rgba(245, 158, 11, 0.20);
@@ -53,76 +62,81 @@
             
             --text-rose-accent: #fb7185;     /* Rose 400 */
             
-            --splash-bg: #07090e;
+            --splash-bg: #080C14;
             --splash-text: #ffffff;
-            --splash-glow: rgba(16, 185, 129, 0.08);
+            --splash-glow: rgba(16, 185, 129, 0.15);
             
-            --footer-bg: rgba(14, 17, 26, 0.4);
-            --footer-border: #141724;
+            --footer-bg: rgba(14, 20, 32, 0.6);
+            --footer-border: rgba(255, 255, 255, 0.08);
             
-            --hover-cyan-border: rgba(6, 182, 212, 0.4);
-            --hover-green-border: rgba(34, 197, 94, 0.4);
+            --hover-cyan-border: rgba(6, 182, 212, 0.45);
+            --hover-green-border: rgba(16, 185, 129, 0.45);
             --hover-amber-border: rgba(245, 158, 11, 0.4);
             --hover-neutral-border: #334155;
 
             /* Accent glow variables */
-            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.15);
-            --glow-green: 0 4px 20px rgba(34, 197, 94, 0.15);
+            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.20);
+            --glow-green: 0 4px 20px rgba(16, 185, 129, 0.20);
             --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
         
         html.light-mode {
             /* ==========================================================================
-               LIGHT MODE SYSTEM - Comfort Sage Green & Mint White (Low Glare)
+               LIGHT MODE SYSTEM - Warm Cream (#FAF5EF) & Executive Treasury Mint (#A7F3D0)
                ========================================================================== */
-            --bg-main: #f0f5f2;              /* Soft soothing sage green-white */
-            --bg-card: #ffffff;              /* Crisp white cards for depth */
-            --border-card: #ccd9d2;          /* Soft sage borders */
-            --border-muted: #e2ece7;         /* Subtler mint/sage borders */
+            --bg-main: #FAF5EF;              /* Warm Soft Cream background (Harmonized with User) */
+            --bg-card: #FFFFFF;              /* Crisp pure white cards */
+            --border-card: rgba(16, 185, 129, 0.24); /* Subtle Emerald Treasury border */
+            --border-muted: #E2ECE7;         /* Subtler mint/sage borders */
             
-            --text-primary: #0a140f;         /* Midnight spruce pine green for maximum contrast */
-            --text-sec-100: #0a140f;
-            --text-sec-200: #12241b;
-            --text-sec-300: #1c3327;
-            --text-sec-400: #284233;         /* Sage secondary (darker for readability) */
-            --text-sec-500: #3b5c49;         /* Sage muted (darker) */
-            --text-sec-600: #547862;         /* Sage lightest (darker) */
+            --text-primary: #0F172A;         /* Slate 900 for razor-sharp contrast */
+            --text-sec-100: #0F172A;
+            --text-sec-200: #1E293B;
+            --text-sec-300: #334155;
+            --text-sec-400: #475569;         /* Slate 600 */
+            --text-sec-500: #64748B;         /* Slate 500 */
+            --text-sec-600: #94A3B8;         /* Slate 400 */
             
-            --bg-neutral-pill: #e2ece7;      /* Soft mint-sage pills */
+            --bg-neutral-pill: #F1F6F3;      /* Soft mint-slate pills */
             
-            --bg-cyan-pill: rgba(8, 145, 178, 0.06);
-            --border-cyan-pill: rgba(8, 145, 178, 0.18);
-            --text-cyan-accent: #0891b2;     /* Softer cyan for readability */
+            --admin-emerald: #059669;
+            --admin-emerald-dark: #047857;
+            --admin-cyan: #0891b2;
+            --admin-cyan-accent: #0284c7;
+
+            --bg-cyan-pill: rgba(8, 145, 178, 0.08);
+            --border-cyan-pill: rgba(8, 145, 178, 0.22);
+            --text-cyan-accent: #0891b2;     /* Executive cyan */
             
-            --bg-green-pill: rgba(21, 128, 61, 0.06);
-            --border-green-pill: rgba(21, 128, 61, 0.18);
-            --text-green-accent: #15803d;    /* Rich green */
+            --bg-green-pill: rgba(16, 185, 129, 0.10);
+            --border-green-pill: rgba(16, 185, 129, 0.25);
+            --text-green-accent: #059669;    /* Rich emerald treasury */
             
-            --bg-amber-pill: rgba(180, 83, 9, 0.06);
-            --border-amber-pill: rgba(180, 83, 9, 0.18);
+            --bg-amber-pill: rgba(217, 119, 6, 0.08);
+            --border-amber-pill: rgba(217, 119, 6, 0.22);
             --text-amber-accent: #b45309;    /* Gold/Amber */
             
-            --text-rose-accent: #be123c;     /* Deep ruby */
+            --text-rose-accent: #e11d48;     /* Rose accent */
             
-            --splash-bg: #f0f5f2;
-            --splash-text: #0a140f;
-            --splash-glow: rgba(21, 128, 61, 0.05);
+            --splash-bg: #FAF5EF;
+            --splash-text: #0F172A;
+            --splash-glow: rgba(16, 185, 129, 0.20);
             
-            --footer-bg: rgba(226, 236, 231, 0.4);
-            --footer-border: #ccd9d2;
+            --footer-bg: rgba(241, 246, 243, 0.85);
+            --footer-border: #E2ECE7;
             
-            --hover-cyan-border: rgba(8, 145, 178, 0.4);
-            --hover-green-border: rgba(21, 128, 61, 0.4);
-            --hover-amber-border: rgba(180, 83, 9, 0.4);
-            --hover-neutral-border: #b0c3b7;
+            --hover-cyan-border: rgba(8, 145, 178, 0.45);
+            --hover-green-border: rgba(16, 185, 129, 0.45);
+            --hover-amber-border: rgba(217, 119, 6, 0.4);
+            --hover-neutral-border: #CBD5E1;
 
             /* Shadow & glow adjustments */
-            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.08);
-            --glow-green: 0 4px 15px rgba(21, 128, 61, 0.08);
-            --shadow-card: 0 10px 30px -10px rgba(13, 32, 21, 0.05);
+            --glow-cyan: 0 4px 15px rgba(8, 145, 178, 0.10);
+            --glow-green: 0 4px 15px rgba(16, 185, 129, 0.12);
+            --shadow-card: 0 10px 30px -10px rgba(16, 185, 129, 0.08);
         }
 
-        /* Font volume/weight overrides in Light Mode to prevent irradiation blur and thin letters */
+        /* Font volume/weight overrides in Light Mode */
         html.light-mode, html.light-mode body {
             font-weight: 500 !important;
         }
@@ -149,10 +163,63 @@
             background-color: var(--bg-main) !important; 
             color: var(--text-primary) !important; 
             transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            min-height: 100vh;
         }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* DYNAMIC COSMIC NEBULA BACKGROUND */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -120px;
+            left: -120px;
+            width: calc(100% + 240px);
+            height: calc(100% + 240px);
+            background: 
+                radial-gradient(ellipse 65% 55% at 15% 15%, rgba(16, 185, 129, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 50% at 85% 25%, rgba(6, 182, 212, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(5, 150, 105, 0.10) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.25) 0%, transparent 70%);
+            filter: blur(55px);
+            pointer-events: none;
+            z-index: -2;
+            animation: pulseGlow 18s ease-in-out infinite alternate;
+        }
+
+        html.light-mode body::before {
+            background: 
+                radial-gradient(circle at 12% 15%, rgba(16, 185, 129, 0.18) 0%, transparent 48%),
+                radial-gradient(circle at 88% 85%, rgba(6, 182, 212, 0.15) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(254, 215, 170, 0.16) 0%, transparent 52%) !important;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.06) translate(15px, -15px); }
+        }
+
+        /* AUTHENTIC OUTER SPACE STARFIELD */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg%20width%3D%22400%22%20height%3D%22400%22%20viewBox%3D%220%200%20400%20400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%23ffffff%22%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2235%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%2295%22%20cy%3D%2218%22%20r%3D%220.6%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%2290%22%20r%3D%220.8%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22230%22%20cy%3D%2230%22%20r%3D%220.7%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%2265%22%20r%3D%220.6%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22375%22%20cy%3D%2222%22%20r%3D%220.75%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%22130%22%20r%3D%220.65%22%20opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22175%22%20r%3D%220.8%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%22140%22%20r%3D%220.6%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22265%22%20cy%3D%22160%22%20r%3D%220.75%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%22340%22%20cy%3D%22120%22%20r%3D%220.7%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%22235%22%20r%3D%220.6%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22105%22%20cy%3D%22260%22%20r%3D%220.75%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%22170%22%20cy%3D%22220%22%20r%3D%220.8%22%20opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22245%22%20cy%3D%22250%22%20r%3D%220.65%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22305%22%20cy%3D%22215%22%20r%3D%220.7%22%20opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22370%22%20cy%3D%22255%22%20r%3D%220.8%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%2265%22%20cy%3D%22330%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%22350%22%20r%3D%220.6%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22315%22%20r%3D%220.8%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%22285%22%20cy%3D%22345%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22355%22%20cy%3D%22355%22%20r%3D%220.65%22%20opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%2275%22%20cy%3D%2278%22%20r%3D%221.2%22%20fill%3D%22%236ee7b7%22%20opacity%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%22260%22%20cy%3D%22100%22%20r%3D%221.3%22%20fill%3D%22%2367e8f9%22%20opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%22185%22%20cy%3D%22275%22%20r%3D%221.1%22%20fill%3D%22%2334d399%22%20opacity%3D%220.7%22%2F%3E%3Ccircle%20cx%3D%22345%22%20cy%3D%22190%22%20r%3D%221.2%22%20fill%3D%22%2338bdf8%22%20opacity%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%22195%22%20r%3D%221.1%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%22230%22%20cy%3D%22370%22%20r%3D%221.2%22%20fill%3D%22%236ee7b7%22%20opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%22145%22%20cy%3D%2240%22%20r%3D%221.3%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+            background-size: 380px 380px;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.75;
+            transition: opacity 0.3s ease;
+        }
+
+        html.light-mode body::after {
+            opacity: 0.05;
+        }
         
         /* Apply variables to Tailwind class instances recursively */
         .bg-neutral-950 { 
@@ -295,8 +362,8 @@
         
         /* Selection Override */
         body::selection, body *::selection {
-            background-color: var(--bg-cyan-pill) !important;
-            color: var(--text-cyan-accent) !important;
+            background-color: var(--bg-green-pill) !important;
+            color: var(--text-green-accent) !important;
         }
         
         /* Premium Loading Overlay */
@@ -344,12 +411,12 @@
             animation: pulse-sun 4s infinite ease-in-out;
         }
 
-        /* High-contrast green text/badge overrides for Light Mode */
+        /* High-contrast emerald text/badge overrides for Light Mode */
         html.light-mode .text-emerald-400,
         html.light-mode .text-emerald-500,
         html.light-mode .text-green-400,
         html.light-mode .text-green-500 {
-            color: #15803d !important;
+            color: #059669 !important;
         }
         html.light-mode .bg-emerald-950\/40,
         html.light-mode .bg-emerald-950\/20,
@@ -357,7 +424,7 @@
         html.light-mode .bg-green-950\/40,
         html.light-mode .bg-green-950\/20,
         html.light-mode .bg-green-950 {
-            background-color: rgba(21, 128, 61, 0.08) !important;
+            background-color: rgba(16, 185, 129, 0.10) !important;
         }
         html.light-mode .border-emerald-800\/40,
         html.light-mode .border-emerald-900\/30,
@@ -365,17 +432,129 @@
         html.light-mode .border-emerald-500\/30,
         html.light-mode .border-green-500\/20,
         html.light-mode .border-green-500\/30 {
-            border-color: rgba(21, 128, 61, 0.25) !important;
+            border-color: rgba(16, 185, 129, 0.25) !important;
         }
         html.light-mode .border-l-emerald-500 {
-            border-left-color: #15803d !important;
+            border-left-color: #059669 !important;
         }
         html.light-mode .border-t-emerald-500 {
-            border-top-color: #15803d !important;
+            border-top-color: #059669 !important;
+        }
+
+        /* ==========================================================================
+           MODERN MOBILE BOTTOM NAVIGATION DOCK (ADMIN FINTECH STYLE 2026)
+           ========================================================================== */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(8, 12, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(16, 185, 129, 0.15);
+            z-index: 40;
+            padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        html.light-mode .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top: 1.5px solid rgba(16, 185, 129, 0.3) !important;
+            box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.12), 0 -1px 4px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            padding: 4px 2px;
+            color: #94a3b8;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .bottom-nav-item .nav-icon-wrap {
+            width: 34px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .bottom-nav-item .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            margin-top: 2px;
+            transition: color 0.2s ease, font-weight 0.2s ease;
+            white-space: nowrap;
+        }
+
+        /* Dark Mode Active State - Emerald Glow */
+        .bottom-nav-item.active {
+            color: #34d399;
+        }
+        .bottom-nav-item.active .nav-icon-wrap {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+        .bottom-nav-item.active .nav-label {
+            color: #34d399;
+            font-weight: 800;
+        }
+
+        /* Light Mode Active State */
+        html.light-mode .bottom-nav-item {
+            color: #64748b;
+        }
+        html.light-mode .bottom-nav-item.active {
+            color: #059669 !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-icon-wrap {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.38) !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-label {
+            color: #059669 !important;
+            font-weight: 800 !important;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav {
+                display: flex !important;
+            }
+            body {
+                padding-bottom: 84px !important;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-cyan-950 selection:text-cyan-400">
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400">
 
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
@@ -399,26 +578,54 @@
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 w-full flex-grow flex flex-col gap-4">
         
-        <div class="flex items-center justify-between w-full border-b border-neutral-900 pb-4 pt-2">
-            <div class="flex flex-col gap-0.5">
-                <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_6px_rgba(52,211,153,0.6)]"></div>
-                    <span class="text-base font-mono tracking-widest text-white uppercase font-black">DANA<span class="text-emerald-400">IMIP</span></span>
-                </div>
-                <h1 class="text-xs font-bold tracking-tight text-neutral-400 font-sans">
-                    Assalamu'alaikum, Bendahara keren bgt!
-                </h1>
+        <!-- TOP HEADER DESKTOP & MOBILE -->
+        <header class="flex items-center justify-between w-full border-b border-neutral-900 pb-3 pt-1">
+            <div class="flex items-center gap-3">
+                <a href="../dasboard.html" class="flex items-center gap-2 group">
+                    <img src="../bendahara.png" alt="Logo" class="w-8 h-8 rounded-full border border-emerald-500/30 group-hover:scale-105 transition-transform">
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-sm sm:text-base font-black tracking-tight text-white font-mono">DANA<span class="text-emerald-400">IMIP</span></span>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 tracking-wider">ADMIN</span>
+                        </div>
+                    </div>
+                </a>
             </div>
             
-            <div class="flex items-center gap-3">
-                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-10 h-10 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-9 h-9 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-sm shadow-inner hover:border-emerald-500/40 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
                     🌙
                 </button>
-                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 px-3 py-2 rounded-xl text-neutral-400 font-bold active:scale-95 flex items-center justify-center h-10">
-                    Logout ↗
+                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
+                    <span>Logout</span> <span>↗</span>
                 </a>
+            </div>
+        </header>
+
+        <!-- GREETING HERO CARD (COMPACT MOBILE & SLEEK DESKTOP) -->
+        <div class="bg-neutral-950 border border-neutral-900 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+            <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> EXECUTIVE PANEL
+                    </span>
+                </div>
+                <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">
+                    Assalamu'alaikum, Bendahara keren bgt! 👋
+                </h1>
+                <p class="text-[11px] sm:text-xs text-neutral-400">
+                    Pusat kendali transparansi & pembukuan kas LDK IMIP periode 2026.
+                </p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[10px] sm:text-[11px] font-bold text-emerald-400">
+                    <span>🌙</span> <span id="admin-hijri-date">Memuat Hijriyah...</span>
+                </div>
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[10px] sm:text-[11px] font-bold text-neutral-300">
+                    <span>📅</span> <span id="admin-masehi-date">Memuat Masehi...</span>
+                </div>
             </div>
         </div>
 
@@ -530,6 +737,30 @@
     <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center">
         <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP ADMIN © 2026</span>
     </footer>
+
+    <!-- MOBILE BOTTOM NAVIGATION DOCK (ADMIN) -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah Admin">
+        <a href="Admin-Dashboard.html" class="bottom-nav-item active">
+            <div class="nav-icon-wrap">📊</div>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="Kelola-Kas.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">📥</div>
+            <span class="nav-label">Uang Kas</span>
+        </a>
+        <a href="All-Transaksi.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">📜</div>
+            <span class="nav-label">Transaksi</span>
+        </a>
+        <a href="Kelola-Proker.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">💼</div>
+            <span class="nav-label">Proker</span>
+        </a>
+        <a href="Kelola-Anggota.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap">👥</div>
+            <span class="nav-label">Anggota</span>
+        </a>
+    </nav>
 
     <script>
         const ctx = document.getElementById('ldkLineChart').getContext('2d');
@@ -966,18 +1197,23 @@
                 document.documentElement.classList.add('light-mode');
                 document.body.classList.add('light-mode');
                 if (btn) btn.innerText = '☀️';
-                updateChartTheme(true);
+                document.documentElement.classList.add('light-mode');
+                document.documentElement.classList.remove('dark');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerText = '☀️';
+                if (typeof updateChartTheme === 'function') updateChartTheme(true);
             } else {
                 document.documentElement.classList.remove('light-mode');
+                document.documentElement.classList.add('dark');
                 document.body.classList.remove('light-mode');
                 if (btn) btn.innerText = '🌙';
-                updateChartTheme(false);
+                if (typeof updateChartTheme === 'function') updateChartTheme(false);
             }
         }
 
         function toggleTheme(e) {
             const event = e || window.event;
-            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const currentTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             localStorage.setItem('theme', newTheme);
             triggerThemeAnimation(newTheme, event);
@@ -990,7 +1226,7 @@
             ripple.style.borderRadius = '50%';
             ripple.style.pointerEvents = 'none';
             ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
-            ripple.style.backgroundColor = newTheme === 'light' ? '#f0f5f2' : '#07090e';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#FAF5EF' : '#080C14';
             
             let posX = window.innerWidth / 2;
             let posY = window.innerHeight / 2;
@@ -1029,7 +1265,7 @@
             icon.style.fontSize = '6rem';
             icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
             icon.style.transform = 'scale(0) rotate(-45deg)';
-            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(21, 128, 61, 0.4))' : 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.4))' : 'drop-shadow(0 0 20px rgba(52, 211, 153, 0.4))';
             icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
             
             overlay.appendChild(icon);
@@ -1068,13 +1304,13 @@
 
         function updateChartTheme(isLight) {
             if (!window.ldkChart) return;
-            const gridColor = isLight ? '#ccd9d2' : '#1d2030';
-            const tickColor = isLight ? '#3b5c49' : '#64748b';
-            const legendColor = isLight ? '#0a140f' : '#f8fafc';
-            const pointBorder = isLight ? '#ffffff' : '#07090e';
+            const gridColor = isLight ? '#E2ECE7' : '#1d2030';
+            const tickColor = isLight ? '#475569' : '#94a3b8';
+            const legendColor = isLight ? '#0F172A' : '#f8fafc';
+            const pointBorder = isLight ? '#ffffff' : '#080C14';
             
-            const goPayColor = isLight ? '#0f766e' : '#38bdf8';
-            const tunaiColor = isLight ? '#15803d' : '#4ade80';
+            const goPayColor = isLight ? '#0891b2' : '#22d3ee';
+            const tunaiColor = isLight ? '#059669' : '#34d399';
             
             window.ldkChart.options.scales.x.ticks.color = tickColor;
             window.ldkChart.options.scales.y.ticks.color = tickColor;
@@ -1092,11 +1328,67 @@
             window.ldkChart.update();
         }
 
+        function getHijriDate(date = new Date()) {
+            let day = date.getDate();
+            let month = date.getMonth();
+            let year = date.getFullYear();
+
+            let m = month + 1;
+            let y = year;
+            if (m < 3) {
+                y -= 1;
+                m += 12;
+            }
+
+            let a = Math.floor(y / 100);
+            let b = 2 - a + Math.floor(a / 4);
+
+            let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524.5;
+            let epochAstro = 1948084;
+            let shift1 = 8.01 / 60;
+
+            let z = jd - epochAstro;
+            let cyc = Math.floor(z / 10631);
+            z -= cyc * 10631;
+            let iy = Math.floor((z - shift1) / 354.36667);
+            let hijriYear = Math.floor(cyc * 30 + iy + 1);
+            let z2 = z - Math.floor(iy * 354.36667 + shift1);
+            let hijriMonth = Math.floor((z2 + 28.5) / 29.5);
+            if (hijriMonth > 12) hijriMonth = 12;
+            let hijriDay = Math.floor(z2 - Math.floor(hijriMonth * 29.5 - 29) + 1);
+
+            const hijriMonthsIndo = [
+                "Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir",
+                "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban",
+                "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"
+            ];
+
+            let monthName = hijriMonthsIndo[Math.max(0, Math.min(11, hijriMonth - 1))];
+            return `${hijriDay} ${monthName} ${hijriYear} H`;
+        }
+
+        function updateHeaderDates() {
+            const now = new Date();
+            const monthsIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            
+            const dayName = daysIndo[now.getDay()];
+            const masehiStr = `${dayName}, ${now.getDate()} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
+            
+            const masehiEl = document.getElementById('admin-masehi-date');
+            if (masehiEl) masehiEl.textContent = masehiStr;
+
+            const hijriEl = document.getElementById('admin-hijri-date');
+            if (hijriEl) hijriEl.textContent = getHijriDate(now);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const savedTheme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
             applyTheme(savedTheme);
+            updateHeaderDates();
             fetchInitialData();
         });
     </script>
 </body>
 </html>
+
