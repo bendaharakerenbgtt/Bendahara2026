@@ -400,6 +400,20 @@
             font-weight: 800;
         }
 
+        /* Outer space animations & cosmic styling */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 40s linear infinite;
+        }
+        .cosmic-card {
+            background: linear-gradient(135deg, rgba(8, 14, 28, 0.95) 0%, rgba(5, 8, 18, 0.96) 100%) !important;
+            border: 1px solid rgba(56, 189, 248, 0.22) !important;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), 0 0 25px -8px rgba(6, 182, 212, 0.2) !important;
+        }
+
         @media (max-width: 768px) {
             header {
                 display: none !important;
@@ -408,16 +422,20 @@
                 display: flex !important;
             }
             body {
-                padding-bottom: 84px !important;
+                padding-bottom: 88px !important;
             }
             main {
-                padding-top: 10px !important;
+                /* Safe area + comfortable blank space at the top */
+                padding-top: calc(env(safe-area-inset-top, 0px) + 20px) !important;
                 gap: 12px !important;
             }
         }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400">
+
+    <!-- DYNAMIC OUTER SPACE COSMIC CANVAS (STARFIELD & METEORS) -->
+    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none" style="z-index: -1;"></canvas>
 
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
@@ -443,11 +461,34 @@
 
     <main class="max-w-7xl mx-auto px-3.5 sm:px-6 py-2.5 sm:py-5 w-full flex-grow flex flex-col gap-3 sm:gap-4">
         
+        <!-- MOBILE COSMIC TOP BAR (SPACE IDENTITY & QUICK LOGOUT IN BLANK SPACE) -->
+        <div class="sm:hidden flex items-center justify-between w-full pt-1 pb-1.5 relative z-10">
+            <div class="flex items-center gap-2">
+                <div class="relative w-7 h-7 rounded-xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-emerald-950 border border-cyan-500/40 flex items-center justify-center text-xs shadow-[0_0_12px_rgba(6,182,212,0.35)]">
+                    <span>🪐</span>
+                    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400"></span>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-black tracking-wider text-white font-mono">DANA<span class="text-cyan-400">IMIP</span></span>
+                        <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">ADMIN</span>
+                    </div>
+                    <span class="text-[7.5px] font-mono text-cyan-400/80 tracking-widest uppercase flex items-center gap-1">
+                        <span>✨</span> ORBIT STATION 2026
+                    </span>
+                </div>
+            </div>
+            <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900/80 hover:bg-neutral-900 border border-neutral-800 hover:border-rose-500/40 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 active:scale-95 transition-all shadow-xs" title="Logout Sesi Admin">
+                <span>Logout</span> ↗
+            </a>
+        </div>
+
         <!-- TOP HEADER DESKTOP ONLY -->
-        <header class="flex items-center justify-between w-full border-b border-neutral-900 pb-3 pt-1">
+        <header class="hidden sm:flex items-center justify-between w-full border-b border-neutral-900 pb-3 pt-1">
             <div class="flex items-center gap-3">
                 <a href="../dasboard.html" class="flex items-center gap-2 group">
-                    <img src="../bendahara.png" alt="Logo" class="w-8 h-8 rounded-full border border-emerald-500/30 group-hover:scale-105 transition-transform">
+                    <img src="../bendahara.png" alt="Logo" class="w-8 h-8 rounded-full border border-emerald-500/30 group-hover:scale-105 transition-transform shadow-[0_0_12px_rgba(16,185,129,0.2)]">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5">
                             <span class="text-sm sm:text-base font-black tracking-tight text-white font-mono">DANA<span class="text-emerald-400">IMIP</span></span>
@@ -464,21 +505,36 @@
             </div>
         </header>
 
-        <!-- GREETING HERO CARD (COMPACT MOBILE & SLEEK DESKTOP) -->
-        <div class="bg-neutral-950 border border-neutral-900 rounded-xl sm:rounded-2xl p-3 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 shadow-xs">
-            <div class="flex flex-col gap-0.5 sm:gap-1">
-                <h1 class="text-xs sm:text-base font-extrabold tracking-tight text-white">
+        <!-- GREETING HERO CARD (OUTER SPACE THEME & COMPACT) -->
+        <div class="cosmic-card relative overflow-hidden rounded-xl sm:rounded-2xl p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 shadow-xs">
+            
+            <!-- COSMIC ORBIT & CONSTELLATION WATERMARK ACCENT -->
+            <div class="absolute -right-8 -top-8 w-40 h-40 pointer-events-none opacity-25 overflow-hidden">
+                <svg viewBox="0 0 120 120" class="w-full h-full text-cyan-400 animate-spin-slow">
+                    <ellipse cx="60" cy="60" rx="52" ry="24" fill="none" stroke="currentColor" stroke-width="0.8" stroke-dasharray="4 3" transform="rotate(-25 60 60)"/>
+                    <ellipse cx="60" cy="60" rx="36" ry="17" fill="none" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.4" transform="rotate(35 60 60)"/>
+                    <circle cx="98" cy="46" r="3" fill="#38bdf8" />
+                    <circle cx="26" cy="72" r="2" fill="#34d399" />
+                    <circle cx="60" cy="18" r="1.5" fill="#fef08a" />
+                </svg>
+            </div>
+            <div class="absolute right-10 bottom-1.5 text-[9px] text-cyan-300/25 pointer-events-none select-none font-mono">
+                ✦ ✧ ✦
+            </div>
+
+            <div class="flex flex-col gap-0.5 sm:gap-1 relative z-10">
+                <h1 class="text-xs sm:text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
                     Assalamu'alaikum, Bendahara keren bgt! 👋
                 </h1>
                 <p class="text-[10px] sm:text-xs text-neutral-400">
                     Pusat kendali transparansi & pembukuan kas LDK IMIP periode 2026.
                 </p>
             </div>
-            <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-0.5 sm:pt-0">
-                <div class="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[9px] sm:text-[11px] font-bold text-emerald-400 whitespace-nowrap">
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-0.5 sm:pt-0 relative z-10">
+                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[9px] sm:text-[11px] font-bold text-emerald-400 whitespace-nowrap shadow-[0_0_12px_rgba(16,185,129,0.15)]">
                     <span>🌙</span> <span id="admin-hijri-date">Memuat Hijriyah...</span>
                 </div>
-                <div class="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-neutral-900 border border-neutral-800 text-[9px] sm:text-[11px] font-bold text-neutral-300 whitespace-nowrap">
+                <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-[9px] sm:text-[11px] font-bold text-cyan-300 whitespace-nowrap shadow-[0_0_12px_rgba(6,182,212,0.15)]">
                     <span>📅</span> <span id="admin-masehi-date">Memuat Masehi...</span>
                 </div>
             </div>
@@ -1101,6 +1157,139 @@
             const hijriEl = document.getElementById('admin-hijri-date');
             if (hijriEl) hijriEl.textContent = getHijriDate(now);
         }
+
+        // ==========================================================================
+        // DYNAMIC AUTHENTIC OUTER SPACE CANOPY (STARFIELD & METEOR ENGINE)
+        // ==========================================================================
+        (function initOuterSpaceCanvas() {
+            const canvas = document.getElementById('bg-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const count = Math.min(Math.floor(width / 24), 45);
+            const stars = [];
+
+            // Realistic Deep Space Palettes (White Starlight, Pulsar Cyan, Treasury Emerald, Nebula Lavender, Solar Amber)
+            const cosmicColors = [
+                'rgba(255, 255, 255, ',
+                'rgba(56, 189, 248, ',
+                'rgba(52, 211, 153, ',
+                'rgba(196, 181, 253, ',
+                'rgba(254, 240, 138, '
+            ];
+
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.4 + 0.6,
+                    baseAlpha: Math.random() * 0.45 + 0.25,
+                    colorIndex: Math.floor(Math.random() * cosmicColors.length),
+                    twinkleSpeed: Math.random() * 0.03 + 0.012,
+                    twinklePhase: Math.random() * Math.PI * 2,
+                    vx: (Math.random() - 0.5) * 0.16,
+                    vy: (Math.random() - 0.5) * 0.16
+                });
+            }
+
+            // Periodic Shooting Star / Meteor
+            let meteor = null;
+            let lastMeteorTime = performance.now();
+            let nextMeteorDelay = 5000 + Math.random() * 6000;
+
+            function spawnMeteor() {
+                const startX = Math.random() * (width * 0.75) + (width * 0.1);
+                const startY = Math.random() * (height * 0.35);
+                const length = Math.random() * 110 + 70;
+                const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.25;
+                const speed = Math.random() * 8 + 7;
+                meteor = {
+                    x: startX,
+                    y: startY,
+                    length: length,
+                    speedX: Math.cos(angle) * speed,
+                    speedY: Math.sin(angle) * speed,
+                    alpha: 1,
+                    decay: 0.018,
+                    color: Math.random() > 0.4 ? '255, 255, 255' : '56, 189, 248'
+                };
+            }
+
+            let time = 0;
+            function renderOuterSpace() {
+                ctx.clearRect(0, 0, width, height);
+                time += 1;
+
+                // Render Twinkling Stars
+                for (let s of stars) {
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    if (s.x < 0) s.x = width;
+                    if (s.x > width) s.x = 0;
+                    if (s.y < 0) s.y = height;
+                    if (s.y > height) s.y = 0;
+
+                    const twinkle = Math.sin(time * s.twinkleSpeed + s.twinklePhase);
+                    const currentAlpha = Math.max(0.12, Math.min(1, s.baseAlpha + twinkle * 0.35));
+
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = cosmicColors[s.colorIndex] + currentAlpha + ')';
+                    ctx.fill();
+
+                    if (s.radius > 1.3) {
+                        ctx.beginPath();
+                        ctx.arc(s.x, s.y, s.radius * 2.2, 0, Math.PI * 2);
+                        ctx.fillStyle = cosmicColors[s.colorIndex] + (currentAlpha * 0.22) + ')';
+                        ctx.fill();
+                    }
+                }
+
+                // Render Shooting Star / Meteor
+                const now = performance.now();
+                if (!meteor && now - lastMeteorTime > nextMeteorDelay) {
+                    spawnMeteor();
+                    lastMeteorTime = now;
+                    nextMeteorDelay = 6000 + Math.random() * 8000;
+                }
+
+                if (meteor) {
+                    meteor.x += meteor.speedX;
+                    meteor.y += meteor.speedY;
+                    meteor.alpha -= meteor.decay;
+
+                    if (meteor.alpha <= 0 || meteor.x > width + 100 || meteor.y > height + 100) {
+                        meteor = null;
+                    } else {
+                        ctx.save();
+                        const tailX = meteor.x - meteor.speedX * 3.5;
+                        const tailY = meteor.y - meteor.speedY * 3.5;
+                        const grad = ctx.createLinearGradient(tailX, tailY, meteor.x, meteor.y);
+                        grad.addColorStop(0, `rgba(${meteor.color}, 0)`);
+                        grad.addColorStop(1, `rgba(${meteor.color}, ${meteor.alpha * 0.85})`);
+
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth = 1.4;
+                        ctx.lineCap = 'round';
+                        ctx.beginPath();
+                        ctx.moveTo(tailX, tailY);
+                        ctx.lineTo(meteor.x, meteor.y);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                }
+
+                requestAnimationFrame(renderOuterSpace);
+            }
+            renderOuterSpace();
+        })();
 
         document.addEventListener('DOMContentLoaded', () => {
             updateHeaderDates();
