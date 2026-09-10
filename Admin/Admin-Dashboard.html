@@ -459,34 +459,52 @@
             header {
                 display: none !important;
             }
+            footer {
+                display: none !important;
+            }
             .mobile-bottom-nav {
                 display: flex !important;
             }
+            html, body {
+                overflow: hidden !important;
+                height: 100% !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overscroll-behavior: none !important;
+                overscroll-behavior-y: none !important;
+                -webkit-overflow-scrolling: auto !important;
+            }
             body {
-                padding-bottom: 88px !important;
+                padding-bottom: 0 !important;
                 -webkit-tap-highlight-color: transparent;
                 touch-action: pan-y;
             }
             main {
-                /* Exact top placement without excessive gap */
-                padding-top: max(env(safe-area-inset-top, 0px), 10px) !important;
-                padding-bottom: 0 !important;
+                /* Exact screen fit: viewport height minus bottom nav (64px) with safe area */
+                padding-top: max(env(safe-area-inset-top, 0px), 8px) !important;
+                padding-bottom: 64px !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
                 gap: 0 !important;
                 touch-action: pan-y;
-                min-height: calc(100dvh - 84px) !important;
-                height: calc(100dvh - 84px) !important;
+                min-height: 100dvh !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
                 display: flex !important;
                 flex-direction: column !important;
                 overflow: hidden !important;
                 position: relative !important;
+                box-sizing: border-box !important;
             }
 
             /* TOP BAR & LOGO FIRMLY ANCHORED AT TOP-LEFT */
             #hero-canopy {
                 padding-top: 0 !important;
-                padding-left: 16px !important;
-                padding-right: 16px !important;
-                padding-bottom: 6px !important;
+                padding-left: 14px !important;
+                padding-right: 14px !important;
+                padding-bottom: 4px !important;
                 gap: 6px !important;
                 flex-shrink: 0 !important;
                 position: relative !important;
@@ -505,27 +523,27 @@
                 width: 100% !important;
                 max-width: 440px !important;
                 margin: 0 auto !important;
-                gap: 8px !important;
+                gap: 6px !important;
                 will-change: transform;
                 transform: translate3d(0, 0, 0);
                 transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
 
             body.queue-collapsed #balance-hero-container {
-                transform: translate3d(0, clamp(55px, 12vh, 95px), 0) !important;
+                transform: translate3d(0, clamp(16px, 3.5vh, 28px), 0) !important;
             }
 
             /* ETHEREAL FROSTED GLASS HUD - TRANSLUCENT AERO-GLASS ("transparan tapi burem") */
             #main-balance-card,
             #balance-hero-container > div:first-child {
-                padding: 15px 16px !important;
-                border-radius: 22px !important;
+                padding: 13px 15px !important;
+                border-radius: 20px !important;
                 background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 23, 42, 0.16) 40%, rgba(2, 6, 23, 0.22) 100%) !important;
                 border: 1px solid rgba(255, 255, 255, 0.12) !important;
                 border-top: 1.2px solid rgba(255, 255, 255, 0.35) !important;
                 backdrop-filter: blur(8px) saturate(160%) !important;
                 -webkit-backdrop-filter: blur(8px) saturate(160%) !important;
-                box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 25px -10px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+                box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.35), 0 0 20px -8px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
             }
 
             #total-saldo-text {
@@ -538,16 +556,16 @@
             }
 
             #total-saldo-text .currency-label {
-                font-size: clamp(1.1rem, 3.8vw, 1.45rem) !important;
+                font-size: clamp(1rem, 3.5vw, 1.35rem) !important;
                 color: #34d399 !important;
-                margin-right: 6px !important;
+                margin-right: 5px !important;
                 font-weight: 800 !important;
                 line-height: 1 !important;
                 text-shadow: 0 0 14px rgba(52, 211, 153, 0.8) !important;
             }
 
             #total-saldo-text .amount-val {
-                font-size: clamp(1.9rem, 7vw, 2.5rem) !important;
+                font-size: clamp(1.75rem, 6.5vw, 2.3rem) !important;
                 line-height: 1.12 !important;
                 letter-spacing: -0.02em !important;
                 font-weight: 900 !important;
@@ -558,20 +576,22 @@
             /* Sub-saldo: Twin Cosmic Frosted Glass Capsules with Zero Overflow */
             #sub-saldo-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                gap: 10px !important;
-                margin-top: 2px !important;
+                gap: 8px !important;
+                margin-top: 1px !important;
+                transition: all 0.3s ease !important;
             }
 
             #gopay-card,
             #cash-card {
-                padding: 10px 12px !important;
-                border-radius: 18px !important;
+                padding: 8px 11px !important;
+                border-radius: 16px !important;
                 background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 23, 42, 0.18) 100%) !important;
                 border: 1px solid rgba(255, 255, 255, 0.10) !important;
                 border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
                 backdrop-filter: blur(8px) saturate(150%) !important;
                 -webkit-backdrop-filter: blur(8px) saturate(150%) !important;
                 box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+                transition: all 0.3s ease !important;
             }
 
             .balance-subcard-amt {
@@ -583,14 +603,14 @@
             }
 
             .balance-subcard-amt .currency-label {
-                font-size: clamp(0.72rem, 2.6vw, 0.82rem) !important;
+                font-size: clamp(0.7rem, 2.5vw, 0.8rem) !important;
                 margin-right: 3px !important;
                 font-weight: 800 !important;
                 flex-shrink: 0 !important;
             }
 
             .balance-subcard-amt .amount-val {
-                font-size: clamp(0.95rem, 3.5vw, 1.16rem) !important;
+                font-size: clamp(0.9rem, 3.3vw, 1.1rem) !important;
                 line-height: 1.15 !important;
                 font-weight: 900 !important;
                 letter-spacing: -0.01em !important;
@@ -610,6 +630,78 @@
 
             .balance-subcard-icon {
                 filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.2));
+            }
+
+            /* ======================================================================
+               RICIAN LEBIH MINI & SIMPEL SAAT SWAP DITUTUP (COLLAPSED MODE)
+               ====================================================================== */
+            body.queue-collapsed #sub-saldo-grid {
+                gap: 6px !important;
+                margin-top: 1px !important;
+            }
+
+            body.queue-collapsed #gopay-card,
+            body.queue-collapsed #cash-card {
+                padding: 5px 9px !important;
+                border-radius: 12px !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+            }
+
+            body.queue-collapsed #gopay-card > div:first-child,
+            body.queue-collapsed #cash-card > div:first-child {
+                margin-bottom: 0 !important;
+                width: auto !important;
+            }
+
+            body.queue-collapsed .balance-subcard-icon {
+                display: none !important;
+            }
+
+            body.queue-collapsed .balance-subcard-amt {
+                width: auto !important;
+                margin-top: 0 !important;
+                justify-content: flex-end !important;
+            }
+
+            body.queue-collapsed .balance-subcard-amt .currency-label {
+                font-size: 0.62rem !important;
+                margin-right: 2px !important;
+            }
+
+            body.queue-collapsed .balance-subcard-amt .amount-val {
+                font-size: clamp(0.75rem, 2.8vw, 0.88rem) !important;
+            }
+
+            /* ======================================================================
+               COSMIC CONSTELLATION LINE CHART ("DIAGRAM GARIS KAYAK BINTANG")
+               ====================================================================== */
+            #mobile-constellation-wrap {
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                pointer-events: none;
+                transform: scale(0.96) translate3d(0, -6px, 0);
+                transition: max-height 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+                            opacity 0.25s ease,
+                            transform 0.36s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+
+            body.queue-collapsed #mobile-constellation-wrap {
+                max-height: 190px !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                transform: scale(1) translate3d(0, 0, 0) !important;
+            }
+
+            .constellation-glass-card {
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.14) 50%, rgba(2, 6, 23, 0.2) 100%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.09) !important;
+                border-top: 1.2px solid rgba(255, 255, 255, 0.25) !important;
+                backdrop-filter: blur(8px) saturate(150%) !important;
+                -webkit-backdrop-filter: blur(8px) saturate(150%) !important;
+                box-shadow: 0 10px 25px -6px rgba(0, 0, 0, 0.35) !important;
             }
 
             /* Swipeable Mobile Interactive Sheet (GPU Accelerated Slide) */
@@ -634,7 +726,7 @@
             }
 
             #queue-sheet.sheet-collapsed {
-                transform: translate3d(0, calc(100% - 56px), 0) !important;
+                transform: translate3d(0, calc(100% - 54px), 0) !important;
                 cursor: pointer;
             }
 
@@ -870,6 +962,29 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 3. COSMIC CONSTELLATION FINANCIAL CHART (REVEALED IN COLLAPSED MODE) -->
+                <div id="mobile-constellation-wrap" class="sm:hidden w-full transition-all duration-300 mt-2">
+                    <div class="constellation-glass-card relative overflow-hidden px-3 py-2 rounded-2xl flex flex-col gap-1">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-cyan-400 text-xs animate-pulse">✦</span>
+                                <span class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">RASI KAS • TREN KEUANGAN</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-[8px] font-mono">
+                                <span class="flex items-center gap-1 text-cyan-300 font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></span> GoPay
+                                </span>
+                                <span class="flex items-center gap-1 text-emerald-300 font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span> Tunai
+                                </span>
+                            </div>
+                        </div>
+                        <div class="w-full h-24 relative">
+                            <canvas id="mobileConstellationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1071,6 +1186,139 @@
             }
         });
 
+        // Plugin: Celestial Starlight Diffraction Spikes (+) on Star Nodes
+        const starConstellationPlugin = {
+            id: 'starConstellation',
+            afterDatasetsDraw(chart) {
+                const c = chart.ctx;
+                chart.data.datasets.forEach((dataset, datasetIndex) => {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    if (meta.hidden) return;
+                    const glowColor = datasetIndex === 0 ? 'rgba(34, 211, 238, 0.9)' : 'rgba(52, 211, 153, 0.9)';
+                    meta.data.forEach(element => {
+                        const { x, y } = element.tooltipPosition();
+                        c.save();
+                        c.shadowColor = glowColor;
+                        c.shadowBlur = 8;
+                        // Draw 4-point constellation diffraction spikes (+)
+                        c.strokeStyle = glowColor;
+                        c.lineWidth = 1;
+                        c.beginPath();
+                        c.moveTo(x - 5, y);
+                        c.lineTo(x + 5, y);
+                        c.moveTo(x, y - 5);
+                        c.lineTo(x, y + 5);
+                        c.stroke();
+
+                        // Center glowing white star core
+                        c.fillStyle = '#ffffff';
+                        c.beginPath();
+                        c.arc(x, y, 2, 0, Math.PI * 2);
+                        c.fill();
+                        c.restore();
+                    });
+                });
+            }
+        };
+
+        const mobileChartCanvas = document.getElementById('mobileConstellationChart');
+        if (mobileChartCanvas) {
+            const mCtx = mobileChartCanvas.getContext('2d');
+            const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 90);
+            gopayGrad.addColorStop(0, 'rgba(34, 211, 238, 0.22)');
+            gopayGrad.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+
+            const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 90);
+            tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
+            tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+
+            window.mobileConstellationChart = new Chart(mCtx, {
+                type: 'line',
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
+                    datasets: [
+                        {
+                            label: 'GoPay',
+                            data: [400000, 650000, 800000, 950000, 1100000, 1250000],
+                            borderColor: 'rgba(34, 211, 238, 0.85)',
+                            backgroundColor: gopayGrad,
+                            borderWidth: 1.8,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#22d3ee',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 2.8,
+                            fill: true
+                        },
+                        {
+                            label: 'Tunai',
+                            data: [1200000, 1500000, 1900000, 2100000, 2300000, 2500000],
+                            borderColor: 'rgba(52, 211, 153, 0.85)',
+                            backgroundColor: tunaiGrad,
+                            borderWidth: 1.8,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#34d399',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 2.8,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(8, 14, 26, 0.92)',
+                            titleColor: '#22d3ee',
+                            bodyColor: '#f1f5f9',
+                            borderColor: 'rgba(255, 255, 255, 0.12)',
+                            borderWidth: 1,
+                            titleFont: { size: 9, family: 'Plus Jakarta Sans' },
+                            bodyFont: { size: 8.5, family: 'Plus Jakarta Sans' },
+                            padding: 6,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.dataset.label + ': Rp ' + Number(context.raw || 0).toLocaleString('id-ID');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.65)',
+                                font: { family: 'Plus Jakarta Sans', size: 8 }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.04)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: 'rgba(148, 163, 184, 0.5)',
+                                font: { family: 'Plus Jakarta Sans', size: 7.5 },
+                                callback: function(value) {
+                                    if (value >= 1000000) {
+                                        return (value / 1000000).toFixed(1).replace('.0', '') + 'M';
+                                    } else if (value >= 1000) {
+                                        return (value / 1000).toFixed(0) + 'k';
+                                    }
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [starConstellationPlugin]
+            });
+        }
+
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
         
         let rawTransactions = [];
@@ -1218,7 +1466,7 @@
         }
         
         function updateChartWithData(transactions) {
-            if (!window.ldkChart) return;
+            if (!window.ldkChart && !window.mobileConstellationChart) return;
             const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
             const approvedTx = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
             
@@ -1258,10 +1506,19 @@
             const maxMonthIndex = Math.max(5, new Date().getMonth());
             const activeMonths = months.slice(0, maxMonthIndex + 1);
             
-            window.ldkChart.data.labels = activeMonths;
-            window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
-            window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
-            window.ldkChart.update();
+            if (window.ldkChart) {
+                window.ldkChart.data.labels = activeMonths;
+                window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
+                window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
+                window.ldkChart.update();
+            }
+
+            if (window.mobileConstellationChart) {
+                window.mobileConstellationChart.data.labels = activeMonths;
+                window.mobileConstellationChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
+                window.mobileConstellationChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
+                window.mobileConstellationChart.update();
+            }
         }
         
         function formatReadableDate(dateStr) {
@@ -1935,6 +2192,11 @@
                 if (toggleIcon) toggleIcon.textContent = '▲';
                 if (toggleLabel) toggleLabel.textContent = 'Buka (Swap ↑)';
                 if (btnFs) btnFs.classList.add('hidden');
+                setTimeout(() => {
+                    if (window.mobileConstellationChart) {
+                        window.mobileConstellationChart.resize();
+                    }
+                }, 300);
             } else {
                 sheet.classList.remove('sheet-collapsed');
                 document.body.classList.remove('queue-collapsed');
