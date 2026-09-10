@@ -330,15 +330,14 @@
             left: 0;
             right: 0;
             height: 64px;
-            background: rgba(8, 12, 20, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(8, 12, 20, 0.98);
             border-top: 1px solid rgba(16, 185, 129, 0.3);
             box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(16, 185, 129, 0.15);
             z-index: 40;
             padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
             align-items: center;
             justify-content: space-around;
+            transform: translateZ(0);
         }
 
         .bottom-nav-item {
@@ -426,9 +425,10 @@
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(15, 23, 42, 0.16) 40%, rgba(2, 6, 23, 0.22) 100%);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-top: 1.2px solid rgba(255, 255, 255, 0.32);
-            backdrop-filter: blur(12px) saturate(180%);
-            -webkit-backdrop-filter: blur(12px) saturate(180%);
-            box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 30px -10px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(8px) saturate(160%);
+            -webkit-backdrop-filter: blur(8px) saturate(160%);
+            box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 25px -10px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+            transform: translateZ(0);
         }
 
         .balance-subcard {
@@ -436,16 +436,16 @@
             background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.16) 100%);
             border: 1px solid rgba(255, 255, 255, 0.10);
             border-top: 1px solid rgba(255, 255, 255, 0.22);
-            backdrop-filter: blur(10px) saturate(160%);
-            -webkit-backdrop-filter: blur(10px) saturate(160%);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px) saturate(150%);
+            -webkit-backdrop-filter: blur(8px) saturate(150%);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            transform: translateZ(0);
         }
         .balance-subcard-amt {
             display: flex;
             align-items: baseline;
             width: 100%;
             white-space: nowrap;
-            overflow: hidden;
         }
 
         /* Mobile Scroll & Touch Optimization */
@@ -468,10 +468,17 @@
                 touch-action: pan-y;
             }
             main {
-                /* Safe area + comfortable blank space at the top */
-                padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+                /* Exact top placement without excessive gap */
+                padding-top: max(env(safe-area-inset-top, 0px), 10px) !important;
                 gap: 0 !important;
                 touch-action: pan-y;
+            }
+
+            #hero-canopy {
+                padding-top: 0 !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                gap: 8px !important;
             }
 
             /* ==========================================================================
@@ -484,23 +491,27 @@
                 flex-direction: column !important;
                 justify-content: space-between !important;
                 overflow: hidden !important;
+                padding-top: max(env(safe-area-inset-top, 0px), 10px) !important;
             }
 
-            /* TOP BAR STAYS AT THE TOP, SALDO IS PERFECTLY CENTERED IN THE COSMIC VOID */
+            /* TOP BAR STAYS FIRMLY PINNED AT THE TOP LEFT */
             body.queue-collapsed #hero-canopy {
                 flex: 1 1 auto !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
-                padding-top: calc(env(safe-area-inset-top, 0px) + 6px) !important;
+                padding-top: 0 !important;
                 padding-bottom: 8px !important;
                 gap: 0 !important;
                 min-height: 0 !important;
             }
 
-            /* Top logo bar stays anchored at top */
-            body.queue-collapsed #hero-canopy > div:first-child {
+            /* Top logo bar stays anchored at top left */
+            body.queue-collapsed #hero-canopy > div:first-child,
+            body.queue-collapsed #mobile-top-bar {
                 flex-shrink: 0 !important;
+                margin-top: 0 !important;
+                padding-top: 0 !important;
             }
 
             /* Saldo HUD is centered vertically and horizontally */
@@ -525,9 +536,9 @@
                 background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 23, 42, 0.16) 40%, rgba(2, 6, 23, 0.22) 100%) !important;
                 border: 1px solid rgba(255, 255, 255, 0.12) !important;
                 border-top: 1.2px solid rgba(255, 255, 255, 0.35) !important;
-                backdrop-filter: blur(12px) saturate(180%) !important;
-                -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-                box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.35), 0 0 35px -10px rgba(56, 189, 248, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+                backdrop-filter: blur(8px) saturate(160%) !important;
+                -webkit-backdrop-filter: blur(8px) saturate(160%) !important;
+                box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 25px -10px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
             }
 
             body.queue-collapsed #total-saldo-text {
@@ -554,7 +565,7 @@
                 letter-spacing: -0.02em !important;
                 font-weight: 900 !important;
                 color: #ffffff !important;
-                text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 38px rgba(56, 189, 248, 0.5) !important;
+                text-shadow: 0 0 18px rgba(255, 255, 255, 0.85), 0 0 32px rgba(56, 189, 248, 0.45) !important;
             }
 
             /* Sub-saldo: Twin Cosmic Frosted Glass Capsules with Zero Overflow */
@@ -571,9 +582,9 @@
                 background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 23, 42, 0.18) 100%) !important;
                 border: 1px solid rgba(255, 255, 255, 0.10) !important;
                 border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
-                backdrop-filter: blur(10px) saturate(160%) !important;
-                -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+                backdrop-filter: blur(8px) saturate(150%) !important;
+                -webkit-backdrop-filter: blur(8px) saturate(150%) !important;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
             }
 
             body.queue-collapsed .balance-subcard-amt {
@@ -582,7 +593,6 @@
                 margin-top: 2px !important;
                 width: 100% !important;
                 white-space: nowrap !important;
-                overflow: hidden !important;
             }
 
             body.queue-collapsed .balance-subcard-amt .currency-label {
@@ -600,18 +610,21 @@
                 white-space: nowrap !important;
             }
 
-            body.queue-collapsed #gopay-card .balance-subcard-amt {
-                color: #67e8f9 !important;
-                text-shadow: 0 0 12px rgba(34, 211, 238, 0.7) !important;
+            /* Natural organic starlight emission without boxy artifacts */
+            #gopay-card .balance-subcard-amt .amount-val,
+            body.queue-collapsed #gopay-card .balance-subcard-amt .amount-val {
+                color: #ffffff !important;
+                text-shadow: 0 0 6px rgba(103, 232, 249, 0.6), 0 0 16px rgba(34, 211, 238, 0.3) !important;
             }
 
-            body.queue-collapsed #cash-card .balance-subcard-amt {
-                color: #6ee7b7 !important;
-                text-shadow: 0 0 12px rgba(52, 211, 153, 0.7) !important;
+            #cash-card .balance-subcard-amt .amount-val,
+            body.queue-collapsed #cash-card .balance-subcard-amt .amount-val {
+                color: #ffffff !important;
+                text-shadow: 0 0 6px rgba(110, 231, 183, 0.6), 0 0 16px rgba(52, 211, 153, 0.3) !important;
             }
 
             body.queue-collapsed .balance-subcard-icon {
-                filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+                filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.2));
             }
 
             /* Swipeable Mobile Interactive Sheet */
@@ -625,13 +638,13 @@
                 user-select: none;
             }
             #queue-sheet.sheet-collapsed {
-                padding-top: 10px !important;
-                padding-bottom: 14px !important;
-                background: rgba(8, 14, 26, 0.94) !important;
+                padding-top: 8px !important;
+                padding-bottom: 12px !important;
+                background: rgba(8, 14, 26, 0.96) !important;
                 border-top: 1px solid rgba(56, 189, 248, 0.35) !important;
                 border-radius: 24px 24px 0 0 !important;
-                backdrop-filter: blur(20px) !important;
-                -webkit-backdrop-filter: blur(20px) !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
                 box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.75) !important;
                 cursor: pointer;
             }
@@ -703,12 +716,12 @@
         <!-- ======================================================================
              1. TOP COSMIC SPACE HERO CANOPY (SPACIOUS & UNCLUTTERED)
              ====================================================================== -->
-        <section id="hero-canopy" class="w-full px-4 pt-3 pb-5 sm:px-0 sm:pt-1 sm:pb-2 flex flex-col gap-4 sm:gap-5 relative z-10 transition-all duration-300">
+        <section id="hero-canopy" class="w-full px-4 pt-1 pb-4 sm:px-0 sm:pt-1 sm:pb-2 flex flex-col gap-3 sm:gap-5 relative z-10 transition-all duration-300">
             
-            <!-- MOBILE TOP BAR (CLEAN: IMIP LOGO, NO ADMIN BADGE, NO DATE) -->
-            <div class="sm:hidden flex items-center justify-between w-full pt-1 pb-1">
+            <!-- MOBILE TOP BAR (CLEAN: IMIP LOGO PINNED AT TOP LEFT) -->
+            <div id="mobile-top-bar" class="sm:hidden flex items-center justify-between w-full pt-0 pb-1 shrink-0">
                 <div class="flex items-center gap-2">
-                    <div class="relative w-7 h-7 flex items-center justify-center">
+                    <div class="relative w-7 h-7 flex items-center justify-center shrink-0">
                         <img src="../bendahara.png" alt="Logo IMIP" class="w-7 h-7 rounded-full border border-emerald-500/30 object-contain shadow-[0_0_10px_rgba(16,185,129,0.3)]">
                         <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                         <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -812,9 +825,9 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id="gopay-saldo-text" class="balance-subcard-amt flex items-baseline font-mono w-full truncate transition-all">
-                            <span class="currency-label text-[10px] sm:text-xs font-bold mr-1 select-none text-cyan-400/80">Rp</span>
-                            <span class="amount-val tabular-nums font-black text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.8)]">0</span>
+                        <div id="gopay-saldo-text" class="balance-subcard-amt flex items-baseline font-mono w-full transition-all">
+                            <span class="currency-label text-[10px] sm:text-xs font-bold mr-1 select-none text-cyan-400/90">Rp</span>
+                            <span class="amount-val tabular-nums font-black text-white">0</span>
                         </div>
                     </div>
 
@@ -832,9 +845,9 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id="cash-saldo-text" class="balance-subcard-amt flex items-baseline font-mono w-full truncate transition-all">
-                            <span class="currency-label text-[10px] sm:text-xs font-bold mr-1 select-none text-emerald-400/80">Rp</span>
-                            <span class="amount-val tabular-nums font-black text-emerald-300 drop-shadow-[0_0_12px_rgba(52,211,153,0.8)]">0</span>
+                        <div id="cash-saldo-text" class="balance-subcard-amt flex items-baseline font-mono w-full transition-all">
+                            <span class="currency-label text-[10px] sm:text-xs font-bold mr-1 select-none text-emerald-400/90">Rp</span>
+                            <span class="amount-val tabular-nums font-black text-white">0</span>
                         </div>
                     </div>
                 </div>
@@ -1165,11 +1178,11 @@
             }
             const gopayEl = document.getElementById('gopay-saldo-text');
             if (gopayEl) {
-                gopayEl.innerHTML = `<span class="currency-label text-[10px] sm:text-xs font-bold text-cyan-400/80 mr-1 select-none">Rp</span><span class="amount-val tabular-nums font-black text-cyan-300 drop-shadow-[0_0_12px_rgba(34,211,238,0.8)]">${gopaySaldo.toLocaleString('id-ID')}</span>`;
+                gopayEl.innerHTML = `<span class="currency-label text-[10px] sm:text-xs font-bold text-cyan-400/90 mr-1 select-none">Rp</span><span class="amount-val tabular-nums font-black text-white">${gopaySaldo.toLocaleString('id-ID')}</span>`;
             }
             const cashEl = document.getElementById('cash-saldo-text');
             if (cashEl) {
-                cashEl.innerHTML = `<span class="currency-label text-[10px] sm:text-xs font-bold text-emerald-400/80 mr-1 select-none">Rp</span><span class="amount-val tabular-nums font-black text-emerald-300 drop-shadow-[0_0_12px_rgba(52,211,153,0.8)]">${cashSaldo.toLocaleString('id-ID')}</span>`;
+                cashEl.innerHTML = `<span class="currency-label text-[10px] sm:text-xs font-bold text-emerald-400/90 mr-1 select-none">Rp</span><span class="amount-val tabular-nums font-black text-white">${cashSaldo.toLocaleString('id-ID')}</span>`;
             }
 
             // Sync modern distribution telemetry bar
@@ -1493,25 +1506,39 @@
             
             let width = window.innerWidth;
             let height = window.innerHeight;
-            let dpr = Math.min(window.devicePixelRatio || 1, 2);
+            let isMobile = width < 768;
+            // On mobile devices, capping DPR to 1.0 eliminates GPU fill-rate bottlenecks and 4x overdraw
+            let dpr = isMobile ? 1.0 : Math.min(window.devicePixelRatio || 1, 2);
+
+            // Offscreen canvas to pre-render and cache heavy static cosmic nebulae + Milky Way band
+            const nebulaCanvas = document.createElement('canvas');
+            const nebulaCtx = nebulaCanvas.getContext('2d');
+            let cachedNebulaCy = 0;
 
             function setupCanvasSize() {
                 width = window.innerWidth;
                 height = window.innerHeight;
-                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                isMobile = width < 768;
+                dpr = isMobile ? 1.0 : Math.min(window.devicePixelRatio || 1, 2);
+
                 canvas.width = Math.floor(width * dpr);
                 canvas.height = Math.floor(height * dpr);
                 canvas.style.width = width + 'px';
                 canvas.style.height = height + 'px';
                 ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.scale(dpr, dpr);
+
+                nebulaCanvas.width = canvas.width;
+                nebulaCanvas.height = canvas.height;
+                nebulaCtx.setTransform(1, 0, 0, 1, 0, 0);
+                nebulaCtx.scale(dpr, dpr);
+
+                rebuildParticles();
+                renderStaticNebula();
             }
-            setupCanvasSize();
-            window.addEventListener('resize', setupCanvasSize);
 
             // Center of the cosmic vortex (aligned behind HUD for natural celestial starlight backlighting)
             function getVortexCenter() {
-                const isMobile = width < 768;
                 const isCollapsed = document.body.classList.contains('queue-collapsed');
                 return {
                     x: width * 0.5,
@@ -1530,64 +1557,70 @@
                 { r: 254, g: 240, b: 138 }  // Solar Gold (Amber 200)
             ];
 
-            const maxRadius = Math.hypot(width, height) * 0.72;
+            let maxRadius = Math.hypot(width, height) * 0.72;
+            let stardust = [];
+            let stars = [];
+            let beacons = [];
 
-            // 1. Distant Milky Way Stardust (Deep Space Density, Micro Twinkles)
-            const stardustCount = Math.min(Math.floor(width / 2.2), 160);
-            const stardust = [];
-            for (let i = 0; i < stardustCount; i++) {
-                const r = Math.pow(Math.random(), 1.25) * maxRadius + 15;
-                stardust.push({
-                    radius: r,
-                    angle: Math.random() * Math.PI * 2,
-                    angularSpeed: 0.00012 + (1 - r / maxRadius) * 0.00018, // Majestic slow cosmic drift
-                    radialDrift: 0.006 + Math.random() * 0.008,
-                    size: Math.random() * 0.55 + 0.35,
-                    color: stellarColors[Math.floor(Math.random() * stellarColors.length)],
-                    baseAlpha: Math.random() * 0.35 + 0.15,
-                    twinkleSpeed: Math.random() * 0.015 + 0.008,
-                    twinklePhase: Math.random() * Math.PI * 2
-                });
-            }
+            function rebuildParticles() {
+                maxRadius = Math.hypot(width, height) * 0.72;
+                stardust = [];
+                stars = [];
+                beacons = [];
 
-            // 2. Midground Orbiting Stars (Serene & Smooth Cosmic Movement)
-            const starCount = Math.min(Math.floor(width / 5.5), 65);
-            const stars = [];
-            for (let i = 0; i < starCount; i++) {
-                const r = Math.pow(Math.random(), 1.35) * maxRadius + 22;
-                stars.push({
-                    radius: r,
-                    maxRadius: maxRadius,
-                    angle: Math.random() * Math.PI * 2,
-                    // Very slow, serene cosmic orbit ("pelan pelan bintangnya")
-                    angularSpeed: 0.00035 + (1 - r / maxRadius) * 0.00045,
-                    radialDrift: 0.015 + Math.random() * 0.02,
-                    size: Math.random() * 0.7 + 0.85,
-                    color: stellarColors[Math.floor(Math.random() * stellarColors.length)],
-                    baseAlpha: Math.random() * 0.45 + 0.35,
-                    twinkleSpeed: Math.random() * 0.025 + 0.012,
-                    twinklePhase: Math.random() * Math.PI * 2
-                });
-            }
+                // 1. Distant Milky Way Stardust (Optimized count for mobile)
+                const stardustCount = isMobile ? 50 : Math.min(Math.floor(width / 2.2), 150);
+                for (let i = 0; i < stardustCount; i++) {
+                    const r = Math.pow(Math.random(), 1.25) * maxRadius + 15;
+                    stardust.push({
+                        radius: r,
+                        angle: Math.random() * Math.PI * 2,
+                        angularSpeed: 0.00012 + (1 - r / maxRadius) * 0.00018,
+                        radialDrift: 0.006 + Math.random() * 0.008,
+                        size: Math.random() * 0.55 + 0.35,
+                        color: stellarColors[Math.floor(Math.random() * stellarColors.length)],
+                        baseAlpha: Math.random() * 0.35 + 0.15,
+                        twinkleSpeed: Math.random() * 0.015 + 0.008,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
 
-            // 3. Bright Stellar Beacons / Pulsars with Optical Diffraction Spikes
-            const beaconCount = 16;
-            const beacons = [];
-            for (let i = 0; i < beaconCount; i++) {
-                const r = Math.pow(Math.random(), 1.4) * (maxRadius * 0.85) + 30;
-                beacons.push({
-                    radius: r,
-                    maxRadius: maxRadius,
-                    angle: Math.random() * Math.PI * 2,
-                    angularSpeed: 0.0004 + (1 - r / maxRadius) * 0.0004,
-                    radialDrift: 0.012 + Math.random() * 0.016,
-                    size: Math.random() * 0.7 + 1.6,
-                    color: stellarColors[Math.floor(Math.random() * 4)],
-                    baseAlpha: 0.65 + Math.random() * 0.3,
-                    twinkleSpeed: Math.random() * 0.03 + 0.015,
-                    twinklePhase: Math.random() * Math.PI * 2,
-                    spikeLen: Math.random() * 5 + 6
-                });
+                // 2. Midground Orbiting Stars (Optimized count for mobile)
+                const starCount = isMobile ? 26 : Math.min(Math.floor(width / 5.5), 60);
+                for (let i = 0; i < starCount; i++) {
+                    const r = Math.pow(Math.random(), 1.35) * maxRadius + 22;
+                    stars.push({
+                        radius: r,
+                        maxRadius: maxRadius,
+                        angle: Math.random() * Math.PI * 2,
+                        angularSpeed: 0.00035 + (1 - r / maxRadius) * 0.00045,
+                        radialDrift: 0.015 + Math.random() * 0.02,
+                        size: Math.random() * 0.7 + 0.85,
+                        color: stellarColors[Math.floor(Math.random() * stellarColors.length)],
+                        baseAlpha: Math.random() * 0.45 + 0.35,
+                        twinkleSpeed: Math.random() * 0.025 + 0.012,
+                        twinklePhase: Math.random() * Math.PI * 2
+                    });
+                }
+
+                // 3. Bright Stellar Beacons with Optical Diffraction Spikes
+                const beaconCount = isMobile ? 6 : 14;
+                for (let i = 0; i < beaconCount; i++) {
+                    const r = Math.pow(Math.random(), 1.4) * (maxRadius * 0.85) + 30;
+                    beacons.push({
+                        radius: r,
+                        maxRadius: maxRadius,
+                        angle: Math.random() * Math.PI * 2,
+                        angularSpeed: 0.0004 + (1 - r / maxRadius) * 0.0004,
+                        radialDrift: 0.012 + Math.random() * 0.016,
+                        size: Math.random() * 0.7 + 1.6,
+                        color: stellarColors[Math.floor(Math.random() * 4)],
+                        baseAlpha: 0.65 + Math.random() * 0.3,
+                        twinkleSpeed: Math.random() * 0.03 + 0.015,
+                        twinklePhase: Math.random() * Math.PI * 2,
+                        spikeLen: Math.random() * 5 + 6
+                    });
+                }
             }
 
             // Periodic Shooting Star / Meteor
@@ -1614,82 +1647,119 @@
             }
 
             // ----------------------------------------------------------------------
-            // 1. MILKY WAY GALAXY BAND (BIMA SAKTI - DIAGONAL VOLUMETRIC DUST STREAM)
+            // STATIC OFFSCREEN CACHING: MILKY WAY & VOLUMETRIC NEBULAE
+            // (Executed ONCE on resize/collapse instead of 60 times/second!)
             // ----------------------------------------------------------------------
-            function drawMilkyWay(cx, cy) {
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(-0.48); // ~ -28 degrees diagonal tilt across the sky
+            function renderStaticNebula() {
+                const center = getVortexCenter();
+                const cx = center.x;
+                const cy = center.y;
+                cachedNebulaCy = cy;
 
-                // Milky Way Galactic Bulge & Core Aura
-                const mwCore = ctx.createRadialGradient(0, 0, 0, 0, 0, width * 0.58);
-                mwCore.addColorStop(0, 'rgba(254, 240, 138, 0.085)'); // Warm stellar core
-                mwCore.addColorStop(0.22, 'rgba(52, 211, 153, 0.065)'); // Emerald interstellar gas
-                mwCore.addColorStop(0.55, 'rgba(99, 102, 241, 0.045)'); // Violet stardust
+                nebulaCtx.clearRect(0, 0, width, height);
+
+                // 1. Galaxy Core Aura (Center starlight nebula)
+                const coreRadius = Math.min(width, height) * 0.65;
+                const coreGrad = nebulaCtx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+                coreGrad.addColorStop(0, 'rgba(56, 189, 248, 0.12)');
+                coreGrad.addColorStop(0.28, 'rgba(52, 211, 153, 0.07)');
+                coreGrad.addColorStop(0.60, 'rgba(6, 182, 212, 0.035)');
+                coreGrad.addColorStop(1, 'rgba(3, 7, 18, 0)');
+                nebulaCtx.fillStyle = coreGrad;
+                nebulaCtx.beginPath();
+                nebulaCtx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+                nebulaCtx.fill();
+
+                // 2. Violet / Indigo Deep Nebula Pocket (Top-Right)
+                const neb1X = cx + width * 0.28;
+                const neb1Y = cy - height * 0.12;
+                const neb1R = width * 0.45;
+                const neb1Grad = nebulaCtx.createRadialGradient(neb1X, neb1Y, 0, neb1X, neb1Y, neb1R);
+                neb1Grad.addColorStop(0, 'rgba(99, 102, 241, 0.07)');
+                neb1Grad.addColorStop(0.55, 'rgba(139, 92, 246, 0.025)');
+                neb1Grad.addColorStop(1, 'rgba(3, 7, 18, 0)');
+                nebulaCtx.fillStyle = neb1Grad;
+                nebulaCtx.beginPath();
+                nebulaCtx.arc(neb1X, neb1Y, neb1R, 0, Math.PI * 2);
+                nebulaCtx.fill();
+
+                // 3. Milky Way Galaxy Band (Bima Sakti - Diagonal Volumetric Stream)
+                nebulaCtx.save();
+                nebulaCtx.translate(cx, cy);
+                nebulaCtx.rotate(-0.48);
+
+                const mwCore = nebulaCtx.createRadialGradient(0, 0, 0, 0, 0, width * 0.58);
+                mwCore.addColorStop(0, 'rgba(254, 240, 138, 0.085)');
+                mwCore.addColorStop(0.22, 'rgba(52, 211, 153, 0.065)');
+                mwCore.addColorStop(0.55, 'rgba(99, 102, 241, 0.045)');
                 mwCore.addColorStop(1, 'rgba(3, 7, 18, 0)');
-                ctx.fillStyle = mwCore;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, width * 0.72, height * 0.28, 0, 0, Math.PI * 2);
-                ctx.fill();
+                nebulaCtx.fillStyle = mwCore;
+                nebulaCtx.beginPath();
+                nebulaCtx.ellipse(0, 0, width * 0.72, height * 0.28, 0, 0, Math.PI * 2);
+                nebulaCtx.fill();
 
-                // Luminous Galactic Highway / Main Milky Way Stream
-                const mwStream = ctx.createLinearGradient(0, -height * 0.18, 0, height * 0.18);
+                const mwStream = nebulaCtx.createLinearGradient(0, -height * 0.18, 0, height * 0.18);
                 mwStream.addColorStop(0, 'rgba(0, 0, 0, 0)');
                 mwStream.addColorStop(0.28, 'rgba(6, 182, 212, 0.045)');
                 mwStream.addColorStop(0.50, 'rgba(165, 243, 252, 0.065)');
                 mwStream.addColorStop(0.72, 'rgba(139, 92, 246, 0.04)');
                 mwStream.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = mwStream;
-                ctx.fillRect(-width * 0.9, -height * 0.18, width * 1.8, height * 0.36);
+                nebulaCtx.fillStyle = mwStream;
+                nebulaCtx.fillRect(-width * 0.9, -height * 0.18, width * 1.8, height * 0.36);
 
-                // The Great Rift: Dark Interstellar Dust Lane (Cosmic Silhouette)
-                const darkRift = ctx.createLinearGradient(0, -height * 0.05, 0, height * 0.05);
+                const darkRift = nebulaCtx.createLinearGradient(0, -height * 0.05, 0, height * 0.05);
                 darkRift.addColorStop(0, 'rgba(3, 6, 14, 0)');
                 darkRift.addColorStop(0.5, 'rgba(2, 5, 12, 0.55)');
                 darkRift.addColorStop(1, 'rgba(3, 6, 14, 0)');
-                ctx.fillStyle = darkRift;
-                ctx.fillRect(-width * 0.7, -height * 0.04, width * 1.4, height * 0.08);
+                nebulaCtx.fillStyle = darkRift;
+                nebulaCtx.fillRect(-width * 0.7, -height * 0.04, width * 1.4, height * 0.08);
 
-                ctx.restore();
+                nebulaCtx.restore();
             }
 
+            // Expose global hook for drawer toggle to trigger static cache re-render
+            window.refreshCosmicCanvasNebula = renderStaticNebula;
+
+            setupCanvasSize();
+            window.addEventListener('resize', setupCanvasSize);
+
             let time = 0;
-            function renderOuterSpace() {
+            let lastFrameTime = 0;
+            // Frame throttle target: ~40fps on mobile for extreme battery/GPU savings and zero stutter
+            const isMobileDevice = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
+            const targetFrameDelta = isMobileDevice ? (1000 / 42) : (1000 / 60);
+
+            let currentCy = getVortexCenter().y;
+
+            function renderOuterSpace(timestamp) {
+                requestAnimationFrame(renderOuterSpace);
+
+                if (timestamp && timestamp - lastFrameTime < targetFrameDelta) {
+                    return;
+                }
+                lastFrameTime = timestamp || 0;
+
                 ctx.clearRect(0, 0, width, height);
                 time += 1;
 
                 const center = getVortexCenter();
                 const cx = center.x;
-                const cy = center.y;
+                const targetCy = center.y;
 
-                // 1. Cosmic Nebulae: Interstellar gas clouds blooming behind HUD
-                // Galaxy Core Aura (Center starlight nebula)
-                const coreRadius = Math.min(width, height) * 0.65;
-                const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
-                coreGrad.addColorStop(0, 'rgba(56, 189, 248, 0.12)');
-                coreGrad.addColorStop(0.28, 'rgba(52, 211, 153, 0.07)');
-                coreGrad.addColorStop(0.60, 'rgba(6, 182, 212, 0.035)');
-                coreGrad.addColorStop(1, 'rgba(3, 7, 18, 0)');
-                ctx.fillStyle = coreGrad;
-                ctx.beginPath();
-                ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
-                ctx.fill();
+                // Smooth easing for vortex center if drawer collapsed/opened
+                if (Math.abs(currentCy - targetCy) > 0.5) {
+                    currentCy += (targetCy - currentCy) * 0.12;
+                } else {
+                    currentCy = targetCy;
+                    if (Math.abs(cachedNebulaCy - targetCy) > 1) {
+                        renderStaticNebula();
+                    }
+                }
+                const cy = currentCy;
 
-                // Violet / Indigo Deep Nebula Pocket (Top-Right)
-                const neb1X = cx + width * 0.28;
-                const neb1Y = cy - height * 0.12;
-                const neb1R = width * 0.45;
-                const neb1Grad = ctx.createRadialGradient(neb1X, neb1Y, 0, neb1X, neb1Y, neb1R);
-                neb1Grad.addColorStop(0, 'rgba(99, 102, 241, 0.07)');
-                neb1Grad.addColorStop(0.55, 'rgba(139, 92, 246, 0.025)');
-                neb1Grad.addColorStop(1, 'rgba(3, 7, 18, 0)');
-                ctx.fillStyle = neb1Grad;
-                ctx.beginPath();
-                ctx.arc(neb1X, neb1Y, neb1R, 0, Math.PI * 2);
-                ctx.fill();
-
-                // 2. Milky Way Galaxy Band (Bima Sakti)
-                drawMilkyWay(cx, cy);
+                // Blit cached static nebulae + Milky Way in ONE single GPU hardware call!
+                const yOffset = cy - cachedNebulaCy;
+                ctx.drawImage(nebulaCanvas, 0, yOffset, width, height);
 
                 // 2. Render Layer 1: Distant Stardust
                 for (let s of stardust) {
@@ -1817,10 +1887,8 @@
                         ctx.restore();
                     }
                 }
-
-                requestAnimationFrame(renderOuterSpace);
             }
-            renderOuterSpace();
+            requestAnimationFrame(renderOuterSpace);
         })();
 
         // ==========================================================================
@@ -1854,6 +1922,10 @@
                 if (toggleIcon) toggleIcon.textContent = '✕';
                 if (toggleLabel) toggleLabel.textContent = 'Tutup (Swap ↓)';
                 if (btnFs) btnFs.classList.remove('hidden');
+            }
+
+            if (typeof window.refreshCosmicCanvasNebula === 'function') {
+                window.refreshCosmicCanvasNebula();
             }
         }
 
