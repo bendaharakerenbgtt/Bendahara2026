@@ -419,14 +419,26 @@
             box-shadow: 0 -12px 45px rgba(0, 0, 0, 0.85), 0 -1px 0 rgba(255, 255, 255, 0.05) inset;
         }
 
+        /* TRANSLUCENT FROSTED GLASS HUD - STARS VISIBLY DRIFT BEHIND IT ("transparan tapi burem") */
+        #main-balance-card,
+        #balance-hero-container > div:first-child {
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(15, 23, 42, 0.16) 40%, rgba(2, 6, 23, 0.22) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1.2px solid rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 30px -10px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+        }
+
         .balance-subcard {
             border-radius: 16px;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.035) 0%, rgba(15, 23, 42, 0.30) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.16);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.16) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(10px) saturate(160%);
+            -webkit-backdrop-filter: blur(10px) saturate(160%);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
         }
         .balance-subcard-amt {
             display: flex;
@@ -434,6 +446,13 @@
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
+        }
+
+        /* Mobile Scroll & Touch Optimization */
+        #queue-container {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            scroll-behavior: smooth;
         }
 
         @media (max-width: 768px) {
@@ -445,11 +464,14 @@
             }
             body {
                 padding-bottom: 88px !important;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: pan-y;
             }
             main {
                 /* Safe area + comfortable blank space at the top */
                 padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
                 gap: 0 !important;
+                touch-action: pan-y;
             }
 
             /* ==========================================================================
@@ -495,16 +517,17 @@
                 transform: translateY(-8px) !important;
             }
 
-            /* ETHEREAL COSMIC GLASS HUD - SEAMLESSLY BLENDED INTO DEEP SPACE */
+            /* ETHEREAL FROSTED GLASS HUD - TRANSLUCENT AERO-GLASS ("transparan tapi burem") */
+            body.queue-collapsed #main-balance-card,
             body.queue-collapsed #balance-hero-container > div:first-child {
                 padding: 18px 18px !important;
                 border-radius: 26px !important;
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.32) 45%, rgba(2, 6, 23, 0.45) 100%) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                border-top: 1px solid rgba(255, 255, 255, 0.22) !important;
-                backdrop-filter: blur(20px) saturate(150%) !important;
-                -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-                box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.65), 0 0 45px -12px rgba(16, 185, 129, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 23, 42, 0.16) 40%, rgba(2, 6, 23, 0.22) 100%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                border-top: 1.2px solid rgba(255, 255, 255, 0.35) !important;
+                backdrop-filter: blur(12px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+                box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.35), 0 0 35px -10px rgba(56, 189, 248, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
             }
 
             body.queue-collapsed #total-saldo-text {
@@ -545,12 +568,12 @@
             body.queue-collapsed #cash-card {
                 padding: 10px 12px !important;
                 border-radius: 18px !important;
-                background: linear-gradient(145deg, rgba(255, 255, 255, 0.035) 0%, rgba(15, 23, 42, 0.32) 100%) !important;
-                border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                border-top: 1px solid rgba(255, 255, 255, 0.18) !important;
-                backdrop-filter: blur(14px) !important;
-                -webkit-backdrop-filter: blur(14px) !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+                background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 23, 42, 0.18) 100%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.10) !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+                backdrop-filter: blur(10px) saturate(160%) !important;
+                -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
             }
 
             body.queue-collapsed .balance-subcard-amt {
@@ -735,8 +758,8 @@
             <!-- FINANCIAL BALANCE HERO (HOLOGRAPHIC CELESTIAL HUD - SEAMLESS WITH SPACE) -->
             <div id="balance-hero-container" class="w-full flex flex-col gap-2.5 transition-all duration-300">
                 
-                <!-- Main Executive Holographic Telemetry (Borderless, Pure Glowing Starlight) -->
-                <div class="relative overflow-hidden p-1 sm:p-2 bg-transparent transition-all duration-300">
+                <!-- Main Executive Holographic Telemetry (Translucent Frosted Glass) -->
+                <div id="main-balance-card" class="relative overflow-hidden p-3.5 sm:p-4 transition-all duration-300">
                     
                     <!-- Header Row: Telemetry Indicator (Glowing Emerald Starlight) -->
                     <div class="relative z-10 flex items-center justify-between mb-1.5">
@@ -823,8 +846,10 @@
              ====================================================================== -->
         <section id="queue-sheet" class="cosmic-content-sheet rounded-t-[32px] sm:rounded-2xl px-4 py-5 sm:p-5 flex flex-col gap-4 shadow-[0_-12px_45px_rgba(0,0,0,0.85)] relative z-10">
             
-            <!-- Mobile Sheet Grab Indicator (Swipe down to close, swipe up to open) -->
-            <div id="sheet-grab-handle" onclick="toggleQueueCollapse(event)" class="w-12 h-1.5 bg-neutral-700/60 hover:bg-emerald-400/60 rounded-full mx-auto -mt-2 mb-1 sm:hidden cursor-pointer transition-colors" title="Geser ke bawah atau klik untuk tutup antrian"></div>
+            <!-- Mobile Sheet Grab Indicator (Touch-friendly 44px hit box for effortless finger swipe/tap) -->
+            <div id="sheet-grab-handle-wrap" onclick="toggleQueueCollapse(event)" class="w-full py-2.5 -mt-3 mb-0.5 sm:hidden flex justify-center items-center cursor-pointer select-none touch-manipulation" title="Geser ke bawah atau klik untuk tutup/buka antrian">
+                <div id="sheet-grab-handle" class="w-12 h-1.5 bg-slate-600/70 hover:bg-emerald-400/80 active:bg-cyan-400 rounded-full transition-colors"></div>
+            </div>
 
             <!-- DESKTOP ONLY: NAVIGASI KONTROL KABINET (Hidden on mobile because mobile has bottom dock) -->
             <div class="hidden sm:flex flex-col gap-2">
@@ -897,12 +922,12 @@
                         <div class="flex items-center gap-1.5">
                             <span class="mobile-sheet-subtext hidden sm:inline text-[8px] font-mono text-neutral-500">REALTIME SYNC</span>
                             <!-- Mobile Action: Fullscreen Toggle -->
-                            <button type="button" id="btn-fs-queue" onclick="toggleQueueFullscreen(event)" class="sm:hidden text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-cyan-400 hover:border-cyan-500/40 active:scale-95 transition-all flex items-center gap-1" title="Tampilan Layar Penuh">
+                            <button type="button" id="btn-fs-queue" onclick="toggleQueueFullscreen(event)" class="sm:hidden text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-neutral-900/90 border border-neutral-800 text-cyan-400 hover:border-cyan-500/40 active:scale-95 transition-all flex items-center gap-1 touch-manipulation select-none" title="Tampilan Layar Penuh">
                                 <span id="fs-icon">⛶</span>
                                 <span id="fs-label">Full</span>
                             </button>
                             <!-- Mobile Action: Collapse / Tutup Toggle -->
-                            <button type="button" id="btn-toggle-queue" onclick="toggleQueueCollapse(event)" class="sm:hidden text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 active:scale-95 transition-all flex items-center gap-1" title="Tutup / Buka Antrian">
+                            <button type="button" id="btn-toggle-queue" onclick="toggleQueueCollapse(event)" class="sm:hidden text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-neutral-900/90 border border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-700 active:scale-95 transition-all flex items-center gap-1 touch-manipulation select-none" title="Tutup / Buka Antrian">
                                 <span id="toggle-icon">✕</span>
                                 <span id="toggle-label">Tutup</span>
                             </button>
@@ -1864,45 +1889,59 @@
             }
         }
 
-        // Touch Swipe Down / Swipe Up Controller
+        // Touch Swipe Down / Swipe Up Controller (Optimized for Mobile Phone UX)
         function initSheetTouchGestures() {
             const sheet = document.getElementById('queue-sheet');
-            if (!sheet) return;
+            const main = document.querySelector('main');
+            if (!sheet || !main) return;
 
             let touchStartY = 0;
             let touchCurrentY = 0;
             let isTouching = false;
+            let canSwipe = false;
 
-            sheet.addEventListener('touchstart', (e) => {
+            function onTouchStart(e) {
+                // Don't intercept button clicks or interactive inputs
+                if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input')) {
+                    canSwipe = false;
+                    return;
+                }
                 const queueContainer = document.getElementById('queue-container');
-                // Allow inner scrolling when queue has scrolled down
-                if (queueContainer && queueContainer.contains(e.target) && queueContainer.scrollTop > 5) {
+                // Allow inner scrolling when queue list has scrolled down
+                if (!isQueueCollapsed && queueContainer && queueContainer.contains(e.target) && queueContainer.scrollTop > 5) {
+                    canSwipe = false;
                     return;
                 }
                 touchStartY = e.touches[0].clientY;
                 touchCurrentY = touchStartY;
                 isTouching = true;
-            }, { passive: true });
+                canSwipe = true;
+            }
 
-            sheet.addEventListener('touchmove', (e) => {
-                if (!isTouching) return;
+            function onTouchMove(e) {
+                if (!isTouching || !canSwipe) return;
                 touchCurrentY = e.touches[0].clientY;
-            }, { passive: true });
+            }
 
-            sheet.addEventListener('touchend', () => {
-                if (!isTouching) return;
+            function onTouchEnd() {
+                if (!isTouching || !canSwipe) return;
                 isTouching = false;
+                canSwipe = false;
                 const deltaY = touchCurrentY - touchStartY;
 
-                // Swipe down threshold: > 35px -> Close sheet (Full saldo view)
-                if (deltaY > 35 && !isQueueCollapsed) {
+                // Swipe down threshold: > 45px -> Close sheet (Full centered saldo view)
+                if (deltaY > 45 && !isQueueCollapsed) {
                     toggleQueueCollapse();
                 }
-                // Swipe up threshold: < -35px -> Open sheet (Queue list view)
-                else if (deltaY < -35 && isQueueCollapsed) {
+                // Swipe up threshold: < -45px -> Open sheet (Queue list view)
+                else if (deltaY < -45 && isQueueCollapsed) {
                     toggleQueueCollapse();
                 }
-            }, { passive: true });
+            }
+
+            main.addEventListener('touchstart', onTouchStart, { passive: true });
+            main.addEventListener('touchmove', onTouchMove, { passive: true });
+            main.addEventListener('touchend', onTouchEnd, { passive: true });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
