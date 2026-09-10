@@ -468,9 +468,28 @@
             }
 
             body.queue-collapsed #total-saldo-text {
-                font-size: 2.85rem !important;
+                font-size: 1rem !important;
+                display: flex !important;
+                align-items: baseline !important;
+                justify-content: flex-start !important;
+                width: 100% !important;
+                white-space: nowrap !important;
+            }
+
+            body.queue-collapsed #total-saldo-text .currency-label {
+                font-size: clamp(1.2rem, 4.2vw, 1.6rem) !important;
+                color: #34d399 !important;
+                margin-right: 8px !important;
+                font-weight: 700 !important;
+                line-height: 1 !important;
+            }
+
+            body.queue-collapsed #total-saldo-text .amount-val {
+                font-size: clamp(2.1rem, 7.6vw, 2.85rem) !important;
                 line-height: 1.12 !important;
                 letter-spacing: -0.02em !important;
+                font-weight: 900 !important;
+                color: #ffffff !important;
                 text-shadow: 0 0 28px rgba(16, 185, 129, 0.4) !important;
             }
 
@@ -481,7 +500,7 @@
             }
 
             body.queue-collapsed #gopay-card {
-                padding: 15px 18px !important;
+                padding: 16px 20px !important;
                 border-radius: 20px !important;
                 background: linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(15, 23, 42, 0.90) 100%) !important;
                 border-color: rgba(34, 211, 238, 0.45) !important;
@@ -489,7 +508,7 @@
             }
 
             body.queue-collapsed #cash-card {
-                padding: 15px 18px !important;
+                padding: 16px 20px !important;
                 border-radius: 20px !important;
                 background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 23, 42, 0.90) 100%) !important;
                 border-color: rgba(52, 211, 153, 0.45) !important;
@@ -497,21 +516,26 @@
             }
 
             body.queue-collapsed .balance-subcard-amt {
-                font-size: 1.45rem !important;
-                line-height: 1.3 !important;
+                display: flex !important;
+                align-items: baseline !important;
                 margin-top: 4px !important;
             }
 
+            body.queue-collapsed .balance-subcard-amt .currency-label {
+                font-size: 1.05rem !important;
+                margin-right: 6px !important;
+                font-weight: 700 !important;
+                opacity: 0.85 !important;
+            }
+
+            body.queue-collapsed .balance-subcard-amt .amount-val {
+                font-size: clamp(1.45rem, 5.2vw, 1.75rem) !important;
+                line-height: 1.25 !important;
+                font-weight: 800 !important;
+            }
+
             body.queue-collapsed .balance-subcard-icon {
-                font-size: 1.75rem !important;
-            }
-
-            body.queue-collapsed .card-full-badge {
-                display: inline-flex !important;
-            }
-
-            body.queue-collapsed .card-full-desc {
-                display: block !important;
+                font-size: 1.85rem !important;
             }
 
             /* Swipeable Mobile Interactive Sheet */
@@ -665,24 +689,22 @@
                     <div class="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none"></div>
                     <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-cyan-500/15 blur-2xl pointer-events-none"></div>
 
-                    <!-- Header Row: Telemetry Badge & Live Indicator -->
-                    <div class="relative z-10 flex items-center justify-between mb-1.5">
-                        <div class="flex items-center gap-1.5 sm:gap-2">
+                    <!-- Header Row: Telemetry Indicator (Clean, No Unwanted Badges) -->
+                    <div class="relative z-10 flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
                             <span class="relative flex h-2 w-2">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
                             </span>
                             <span class="text-[8.5px] sm:text-[9.5px] font-mono tracking-widest text-neutral-300 uppercase font-bold">TOTAL SALDO TERVERIFIKASI</span>
                         </div>
-                        <span class="text-[7.5px] sm:text-[8px] font-mono bg-emerald-950/80 border border-emerald-500/35 px-2 py-0.5 rounded-full text-emerald-300 font-bold flex items-center gap-1 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
-                            <span class="text-[7px]">⚡</span> REALTIME
-                        </span>
                     </div>
 
-                    <!-- Total Balance Amount -->
+                    <!-- Total Balance Amount (Always Inline, Never Broken) -->
                     <div class="relative z-10 my-1 flex items-baseline">
-                        <div id="total-saldo-text" class="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_2px_14px_rgba(255,255,255,0.2)] transition-all">
-                            Rp 0
+                        <div id="total-saldo-text" class="flex items-baseline font-mono tracking-tight transition-all">
+                            <span class="currency-label text-base sm:text-2xl font-bold text-emerald-400/90 mr-2 select-none">Rp</span>
+                            <span class="amount-val text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums drop-shadow-[0_2px_14px_rgba(255,255,255,0.25)]">0</span>
                         </div>
                     </div>
 
@@ -703,34 +725,28 @@
                     </div>
                 </div>
 
-                <!-- Sub-Saldo Cards (GoPay & Tunai) - Transforms into Full prominent cards when Queue is swiped down -->
+                <!-- Sub-Saldo Cards (GoPay & Tunai) - Ultra-Clean Executive Cards -->
                 <div id="sub-saldo-grid" class="grid grid-cols-2 gap-2.5 mt-0.5 sm:mt-1 transition-all duration-300">
-                    <div id="gopay-card" class="balance-subcard bg-gradient-to-br from-slate-900/85 via-slate-900/65 to-slate-950/85 backdrop-blur-md border border-cyan-500/25 px-3 py-2.5 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
+                    <div id="gopay-card" class="balance-subcard bg-gradient-to-br from-slate-900/85 via-slate-900/65 to-slate-950/85 backdrop-blur-md border border-cyan-500/25 px-3.5 py-3 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
                         <div class="flex flex-col min-w-0 flex-1">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-cyan-300 uppercase block truncate font-bold">GoPay (E-Wallet)</span>
-                                <span class="card-full-badge hidden text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-bold">● ONLINE</span>
+                            <span class="text-[8px] sm:text-[9px] font-mono text-cyan-300 uppercase block truncate font-bold tracking-wider">GoPay (E-Wallet)</span>
+                            <div id="gopay-saldo-text" class="balance-subcard-amt flex items-baseline text-xs sm:text-sm font-bold text-cyan-400 font-mono truncate mt-0.5 transition-all">
+                                <span class="currency-label text-[10px] sm:text-xs font-bold mr-1 opacity-80 select-none">Rp</span>
+                                <span class="amount-val tabular-nums font-bold">0</span>
                             </div>
-                            <div id="gopay-saldo-text" class="balance-subcard-amt text-xs sm:text-sm font-bold text-cyan-400 font-mono truncate mt-0.5 transition-all">
-                                Rp 0
-                            </div>
-                            <span class="card-full-desc hidden text-[9.5px] text-neutral-400 font-sans mt-1 leading-tight">Simpanan digital QRIS & transfer online bendahara</span>
                         </div>
-                        <span class="balance-subcard-icon text-sm sm:text-base shrink-0 ml-2">📱</span>
+                        <span class="balance-subcard-icon text-base sm:text-lg shrink-0 ml-2">📱</span>
                     </div>
 
-                    <div id="cash-card" class="balance-subcard bg-gradient-to-br from-slate-900/85 via-slate-900/65 to-slate-950/85 backdrop-blur-md border border-emerald-500/25 px-3 py-2.5 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
+                    <div id="cash-card" class="balance-subcard bg-gradient-to-br from-slate-900/85 via-slate-900/65 to-slate-950/85 backdrop-blur-md border border-emerald-500/25 px-3.5 py-3 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
                         <div class="flex flex-col min-w-0 flex-1">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-emerald-300 uppercase block truncate font-bold">Tunai (Cash)</span>
-                                <span class="card-full-badge hidden text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-bold">● BRANKAS</span>
+                            <span class="text-[8px] sm:text-[9px] font-mono text-emerald-300 uppercase block truncate font-bold tracking-wider">Tunai (Cash)</span>
+                            <div id="cash-saldo-text" class="balance-subcard-amt flex items-baseline text-xs sm:text-sm font-bold text-emerald-400 font-mono truncate mt-0.5 transition-all">
+                                <span class="currency-label text-[10px] sm:text-xs font-bold mr-1 opacity-80 select-none">Rp</span>
+                                <span class="amount-val tabular-nums font-bold">0</span>
                             </div>
-                            <div id="cash-saldo-text" class="balance-subcard-amt text-xs sm:text-sm font-bold text-emerald-400 font-mono truncate mt-0.5 transition-all">
-                                Rp 0
-                            </div>
-                            <span class="card-full-desc hidden text-[9.5px] text-neutral-400 font-sans mt-1 leading-tight">Kas fisik tunai tersimpan di brankas sekretariat</span>
                         </div>
-                        <span class="balance-subcard-icon text-sm sm:text-base shrink-0 ml-2">💵</span>
+                        <span class="balance-subcard-icon text-base sm:text-lg shrink-0 ml-2">💵</span>
                     </div>
                 </div>
             </div>
@@ -1053,11 +1069,17 @@
             totalSaldo = gopaySaldo + cashSaldo;
             
             const totalEl = document.getElementById('total-saldo-text');
-            if (totalEl) totalEl.innerText = 'Rp ' + totalSaldo.toLocaleString('id-ID');
+            if (totalEl) {
+                totalEl.innerHTML = `<span class="currency-label text-base sm:text-2xl font-bold text-emerald-400/90 mr-2 select-none">Rp</span><span class="amount-val text-3xl sm:text-4xl font-black text-white tracking-tight tabular-nums">${totalSaldo.toLocaleString('id-ID')}</span>`;
+            }
             const gopayEl = document.getElementById('gopay-saldo-text');
-            if (gopayEl) gopayEl.innerText = 'Rp ' + gopaySaldo.toLocaleString('id-ID');
+            if (gopayEl) {
+                gopayEl.innerHTML = `<span class="currency-label text-[10px] sm:text-xs font-bold mr-1 opacity-80 select-none">Rp</span><span class="amount-val tabular-nums font-bold">${gopaySaldo.toLocaleString('id-ID')}</span>`;
+            }
             const cashEl = document.getElementById('cash-saldo-text');
-            if (cashEl) cashEl.innerText = 'Rp ' + cashSaldo.toLocaleString('id-ID');
+            if (cashEl) {
+                cashEl.innerHTML = `<span class="currency-label text-[10px] sm:text-xs font-bold mr-1 opacity-80 select-none">Rp</span><span class="amount-val tabular-nums font-bold">${cashSaldo.toLocaleString('id-ID')}</span>`;
+            }
 
             // Sync modern distribution telemetry bar
             const gopayPercent = totalSaldo > 0 ? Math.max(5, Math.min(95, Math.round((gopaySaldo / totalSaldo) * 100))) : 50;
@@ -1371,72 +1393,121 @@
         // ==========================================================================
         // DYNAMIC AUTHENTIC OUTER SPACE CANOPY (STARFIELD & METEOR ENGINE)
         // ==========================================================================
+        // DYNAMIC AUTHENTIC OUTER SPACE CANOPY (REALISTIC DEEP SPACE ENGINE)
+        // ==========================================================================
         (function initOuterSpaceCanvas() {
             const canvas = document.getElementById('bg-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
+            
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
+            function setupCanvasSize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+            }
+            setupCanvasSize();
+            window.addEventListener('resize', setupCanvasSize);
 
             // Center of the cosmic vortex (slightly upper-center for breathtaking backdrop)
             function getVortexCenter() {
                 return {
                     x: width * 0.5,
-                    y: height * 0.42
+                    y: height * 0.38
                 };
             }
 
-            // Palettes matching reference image: Emerald green nebula, pulsar cyan, solar gold, starlight white
-            const cosmicColors = [
-                'rgba(255, 255, 255, ',   // Pure diamond starlight
-                'rgba(52, 211, 153, ',   // Emerald 400 (LDK Treasury)
-                'rgba(16, 185, 129, ',   // Emerald 500
-                'rgba(34, 211, 238, ',   // Cyan 400
-                'rgba(6, 182, 212, ',    // Cyan 500
-                'rgba(254, 240, 138, ',  // Solar amber/gold core
-                'rgba(110, 231, 183, '   // Mint green glow
+            // Authentic Deep Space Stellar Colors
+            const stellarColors = [
+                { r: 255, g: 255, b: 255 }, // Diamond White
+                { r: 240, g: 249, b: 255 }, // Cool White
+                { r: 165, g: 243, b: 252 }, // Vega Cyan (Cyan 200)
+                { r: 56,  g: 189, b: 248 }, // Pulsar Blue (Sky 400)
+                { r: 110, g: 231, b: 183 }, // Celestial Emerald (Emerald 300)
+                { r: 52,  g: 211, b: 153 }, // Treasury Mint (Emerald 400)
+                { r: 254, g: 240, b: 138 }  // Solar Gold (Amber 200)
             ];
 
-            const starCount = Math.min(Math.floor(width / 2.6), 140);
-            const stars = [];
+            const maxRadius = Math.hypot(width, height) * 0.72;
 
+            // 1. Distant Milky Way Stardust (Deep Space Density, Micro Twinkles)
+            const stardustCount = Math.min(Math.floor(width / 2.2), 160);
+            const stardust = [];
+            for (let i = 0; i < stardustCount; i++) {
+                const r = Math.pow(Math.random(), 1.25) * maxRadius + 15;
+                stardust.push({
+                    radius: r,
+                    angle: Math.random() * Math.PI * 2,
+                    angularSpeed: 0.00012 + (1 - r / maxRadius) * 0.00018, // Majestic slow cosmic drift
+                    radialDrift: 0.006 + Math.random() * 0.008,
+                    size: Math.random() * 0.55 + 0.35,
+                    color: stellarColors[Math.floor(Math.random() * stellarColors.length)],
+                    baseAlpha: Math.random() * 0.35 + 0.15,
+                    twinkleSpeed: Math.random() * 0.015 + 0.008,
+                    twinklePhase: Math.random() * Math.PI * 2
+                });
+            }
+
+            // 2. Midground Orbiting Stars (Serene & Smooth Cosmic Movement)
+            const starCount = Math.min(Math.floor(width / 5.5), 65);
+            const stars = [];
             for (let i = 0; i < starCount; i++) {
-                const maxRadius = Math.hypot(width, height) * 0.70;
-                // Distribute so density increases slightly towards center/tunnel
-                const r = Math.pow(Math.random(), 1.35) * maxRadius + 18;
+                const r = Math.pow(Math.random(), 1.35) * maxRadius + 22;
                 stars.push({
                     radius: r,
                     maxRadius: maxRadius,
                     angle: Math.random() * Math.PI * 2,
-                    // Differential rotation (swirling vortex!)
-                    angularSpeed: 0.0032 + (1 - r / maxRadius) * 0.0048,
-                    // Gentle inward spiral drift into the vortex
-                    radialDrift: 0.12 + Math.random() * 0.22,
-                    size: Math.random() * 1.5 + 0.6,
-                    colorIndex: Math.floor(Math.random() * cosmicColors.length),
-                    baseAlpha: Math.random() * 0.5 + 0.3,
-                    twinkleSpeed: Math.random() * 0.04 + 0.015,
+                    // Very slow, serene cosmic orbit ("pelan pelan bintangnya")
+                    angularSpeed: 0.00035 + (1 - r / maxRadius) * 0.00045,
+                    radialDrift: 0.015 + Math.random() * 0.02,
+                    size: Math.random() * 0.7 + 0.85,
+                    color: stellarColors[Math.floor(Math.random() * stellarColors.length)],
+                    baseAlpha: Math.random() * 0.45 + 0.35,
+                    twinkleSpeed: Math.random() * 0.025 + 0.012,
+                    twinklePhase: Math.random() * Math.PI * 2
+                });
+            }
+
+            // 3. Bright Stellar Beacons / Pulsars with Optical Diffraction Spikes
+            const beaconCount = 16;
+            const beacons = [];
+            for (let i = 0; i < beaconCount; i++) {
+                const r = Math.pow(Math.random(), 1.4) * (maxRadius * 0.85) + 30;
+                beacons.push({
+                    radius: r,
+                    maxRadius: maxRadius,
+                    angle: Math.random() * Math.PI * 2,
+                    angularSpeed: 0.0004 + (1 - r / maxRadius) * 0.0004,
+                    radialDrift: 0.012 + Math.random() * 0.016,
+                    size: Math.random() * 0.7 + 1.6,
+                    color: stellarColors[Math.floor(Math.random() * 4)],
+                    baseAlpha: 0.65 + Math.random() * 0.3,
+                    twinkleSpeed: Math.random() * 0.03 + 0.015,
                     twinklePhase: Math.random() * Math.PI * 2,
-                    trail: Math.random() * 0.06 + 0.02
+                    spikeLen: Math.random() * 5 + 6
                 });
             }
 
             // Periodic Shooting Star / Meteor
             let meteor = null;
             let lastMeteorTime = performance.now();
-            let nextMeteorDelay = 5000 + Math.random() * 6000;
+            let nextMeteorDelay = 7000 + Math.random() * 8000;
 
             function spawnMeteor() {
                 const startX = Math.random() * (width * 0.75) + (width * 0.1);
-                const startY = Math.random() * (height * 0.35);
-                const length = Math.random() * 110 + 70;
-                const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.25;
-                const speed = Math.random() * 8 + 7;
+                const startY = Math.random() * (height * 0.3);
+                const length = Math.random() * 90 + 70;
+                const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.22;
+                const speed = Math.random() * 7 + 6;
                 meteor = {
                     x: startX,
                     y: startY,
@@ -1445,7 +1516,7 @@
                     speedY: Math.sin(angle) * speed,
                     alpha: 1,
                     decay: 0.018,
-                    color: Math.random() > 0.4 ? '255, 255, 255' : '52, 211, 153'
+                    color: Math.random() > 0.4 ? '255, 255, 255' : '165, 243, 252'
                 };
             }
 
@@ -1458,72 +1529,131 @@
                 const cx = center.x;
                 const cy = center.y;
 
-                // 1. Render glowing vortex nebula core (golden emerald aura at tunnel end)
-                const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(width, height) * 0.45);
-                coreGrad.addColorStop(0, 'rgba(254, 240, 138, 0.14)');
-                coreGrad.addColorStop(0.25, 'rgba(52, 211, 153, 0.10)');
-                coreGrad.addColorStop(0.55, 'rgba(6, 182, 212, 0.06)');
-                coreGrad.addColorStop(1, 'rgba(4, 7, 13, 0)');
+                // 1. Cosmic Nebulae: Soft undulating space gas clouds
+                // Galaxy Core Aura
+                const coreRadius = Math.min(width, height) * 0.55;
+                const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+                coreGrad.addColorStop(0, 'rgba(254, 240, 138, 0.10)');
+                coreGrad.addColorStop(0.28, 'rgba(52, 211, 153, 0.06)');
+                coreGrad.addColorStop(0.60, 'rgba(6, 182, 212, 0.035)');
+                coreGrad.addColorStop(1, 'rgba(3, 7, 18, 0)');
                 ctx.fillStyle = coreGrad;
                 ctx.beginPath();
-                ctx.arc(cx, cy, Math.min(width, height) * 0.45, 0, Math.PI * 2);
+                ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // 2. Render Swirling Stars in Vortex Motion (Gerak Muter!)
+                // Violet / Indigo Deep Nebula Pocket (Top-Right)
+                const neb1X = cx + width * 0.28;
+                const neb1Y = cy - height * 0.12;
+                const neb1R = width * 0.45;
+                const neb1Grad = ctx.createRadialGradient(neb1X, neb1Y, 0, neb1X, neb1Y, neb1R);
+                neb1Grad.addColorStop(0, 'rgba(99, 102, 241, 0.07)');
+                neb1Grad.addColorStop(0.55, 'rgba(139, 92, 246, 0.025)');
+                neb1Grad.addColorStop(1, 'rgba(3, 7, 18, 0)');
+                ctx.fillStyle = neb1Grad;
+                ctx.beginPath();
+                ctx.arc(neb1X, neb1Y, neb1R, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 2. Render Layer 1: Distant Stardust
+                for (let s of stardust) {
+                    s.angle += s.angularSpeed;
+                    s.radius -= s.radialDrift;
+                    if (s.radius < 14) {
+                        s.radius = maxRadius * (0.85 + Math.random() * 0.25);
+                        s.angle = Math.random() * Math.PI * 2;
+                    }
+                    const spiralAngle = s.angle + s.radius * 0.0018;
+                    const x = cx + Math.cos(spiralAngle) * s.radius;
+                    const y = cy + Math.sin(spiralAngle) * (s.radius * 0.85);
+
+                    const twinkle = Math.sin(time * s.twinkleSpeed + s.twinklePhase);
+                    const alpha = Math.max(0.08, Math.min(0.6, s.baseAlpha + twinkle * 0.2));
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, s.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${alpha})`;
+                    ctx.fill();
+                }
+
+                // 3. Render Layer 2: Midground Field Stars
                 for (let s of stars) {
                     s.angle += s.angularSpeed;
                     s.radius -= s.radialDrift;
-
-                    if (s.radius < 16) {
+                    if (s.radius < 18) {
                         s.radius = s.maxRadius * (0.85 + Math.random() * 0.25);
                         s.angle = Math.random() * Math.PI * 2;
                     }
-
-                    // Logarithmic spiral twist creates the tunnel vortex arms
-                    const spiralAngle = s.angle + s.radius * 0.0028;
+                    const spiralAngle = s.angle + s.radius * 0.0022;
                     const x = cx + Math.cos(spiralAngle) * s.radius;
-                    const y = cy + Math.sin(spiralAngle) * (s.radius * 0.82);
+                    const y = cy + Math.sin(spiralAngle) * (s.radius * 0.85);
 
                     const twinkle = Math.sin(time * s.twinkleSpeed + s.twinklePhase);
-                    const currentAlpha = Math.max(0.15, Math.min(1, s.baseAlpha + twinkle * 0.35));
+                    const alpha = Math.max(0.18, Math.min(0.95, s.baseAlpha + twinkle * 0.32));
 
-                    const depthScale = Math.min(1.6, Math.max(0.6, s.radius / (width * 0.35)));
-                    const starRadius = s.size * depthScale;
-
-                    // Draw swirling star particle with motion trail arc
+                    // Soft outer glow
                     ctx.beginPath();
-                    const prevAngle = spiralAngle - s.trail;
-                    const prevX = cx + Math.cos(prevAngle) * (s.radius + 0.5);
-                    const prevY = cy + Math.sin(prevAngle) * ((s.radius + 0.5) * 0.82);
-
-                    ctx.moveTo(prevX, prevY);
-                    ctx.lineTo(x, y);
-                    ctx.strokeStyle = cosmicColors[s.colorIndex] + (currentAlpha * 0.45) + ')';
-                    ctx.lineWidth = starRadius * 0.9;
-                    ctx.lineCap = 'round';
-                    ctx.stroke();
-
-                    // Star head (glowing core point)
-                    ctx.beginPath();
-                    ctx.arc(x, y, starRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = cosmicColors[s.colorIndex] + currentAlpha + ')';
+                    ctx.arc(x, y, s.size * 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${alpha * 0.18})`;
                     ctx.fill();
 
-                    // Soft aura glow for prominent stars
-                    if (starRadius > 1.2) {
+                    // Star pinpoint core
+                    ctx.beginPath();
+                    ctx.arc(x, y, s.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${alpha})`;
+                    ctx.fill();
+                }
+
+                // 4. Render Layer 3: Brilliant Beacons with Optical Diffraction Spikes
+                for (let s of beacons) {
+                    s.angle += s.angularSpeed;
+                    s.radius -= s.radialDrift;
+                    if (s.radius < 22) {
+                        s.radius = s.maxRadius * (0.82 + Math.random() * 0.25);
+                        s.angle = Math.random() * Math.PI * 2;
+                    }
+                    const spiralAngle = s.angle + s.radius * 0.0022;
+                    const x = cx + Math.cos(spiralAngle) * s.radius;
+                    const y = cy + Math.sin(spiralAngle) * (s.radius * 0.85);
+
+                    const twinkle = Math.sin(time * s.twinkleSpeed + s.twinklePhase);
+                    const alpha = Math.max(0.25, Math.min(1, s.baseAlpha + twinkle * 0.35));
+
+                    // Deep space radiant aura
+                    ctx.beginPath();
+                    ctx.arc(x, y, s.size * 3.2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${alpha * 0.12})`;
+                    ctx.fill();
+
+                    // Star head
+                    ctx.beginPath();
+                    ctx.arc(x, y, s.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${alpha})`;
+                    ctx.fill();
+
+                    // Optical 4-point diffraction spikes (Telescope Deep Space signature)
+                    if (alpha > 0.45) {
+                        const spikeAlpha = (alpha - 0.45) * 0.65;
+                        const sLen = s.spikeLen * (0.7 + (twinkle + 1) * 0.25);
                         ctx.beginPath();
-                        ctx.arc(x, y, starRadius * 2.2, 0, Math.PI * 2);
-                        ctx.fillStyle = cosmicColors[s.colorIndex] + (currentAlpha * 0.2) + ')';
-                        ctx.fill();
+                        // Horizontal spike
+                        ctx.moveTo(x - sLen, y);
+                        ctx.lineTo(x + sLen, y);
+                        // Vertical spike
+                        ctx.moveTo(x, y - sLen);
+                        ctx.lineTo(x, y + sLen);
+                        ctx.strokeStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${spikeAlpha})`;
+                        ctx.lineWidth = 0.65;
+                        ctx.stroke();
                     }
                 }
 
-                // 3. Render Shooting Star / Meteor
+                // 5. Render Shooting Star / Meteor
                 const now = performance.now();
                 if (!meteor && now - lastMeteorTime > nextMeteorDelay) {
                     spawnMeteor();
                     lastMeteorTime = now;
-                    nextMeteorDelay = 6000 + Math.random() * 8000;
+                    nextMeteorDelay = 7000 + Math.random() * 9000;
                 }
 
                 if (meteor) {
@@ -1535,14 +1665,14 @@
                         meteor = null;
                     } else {
                         ctx.save();
-                        const tailX = meteor.x - meteor.speedX * 3.5;
-                        const tailY = meteor.y - meteor.speedY * 3.5;
+                        const tailX = meteor.x - meteor.speedX * 3.8;
+                        const tailY = meteor.y - meteor.speedY * 3.8;
                         const grad = ctx.createLinearGradient(tailX, tailY, meteor.x, meteor.y);
                         grad.addColorStop(0, `rgba(${meteor.color}, 0)`);
-                        grad.addColorStop(1, `rgba(${meteor.color}, ${meteor.alpha * 0.85})`);
+                        grad.addColorStop(1, `rgba(${meteor.color}, ${meteor.alpha * 0.9})`);
 
                         ctx.strokeStyle = grad;
-                        ctx.lineWidth = 1.4;
+                        ctx.lineWidth = 1.2;
                         ctx.lineCap = 'round';
                         ctx.beginPath();
                         ctx.moveTo(tailX, tailY);
