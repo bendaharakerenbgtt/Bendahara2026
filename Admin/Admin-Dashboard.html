@@ -470,69 +470,56 @@
             main {
                 /* Exact top placement without excessive gap */
                 padding-top: max(env(safe-area-inset-top, 0px), 10px) !important;
+                padding-bottom: 0 !important;
                 gap: 0 !important;
                 touch-action: pan-y;
-            }
-
-            #hero-canopy {
-                padding-top: 0 !important;
-                padding-left: 16px !important;
-                padding-right: 16px !important;
-                gap: 8px !important;
-            }
-
-            /* ==========================================================================
-               FULL BALANCE & E-WALLET VIEW WHEN QUEUE SHEET IS SWIPED DOWN / COLLAPSED
-               ========================================================================== */
-            body.queue-collapsed main {
                 min-height: calc(100dvh - 84px) !important;
                 height: calc(100dvh - 84px) !important;
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: space-between !important;
                 overflow: hidden !important;
-                padding-top: max(env(safe-area-inset-top, 0px), 10px) !important;
+                position: relative !important;
             }
 
-            /* TOP BAR STAYS FIRMLY PINNED AT THE TOP LEFT */
-            body.queue-collapsed #hero-canopy {
-                flex: 1 1 auto !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: space-between !important;
+            /* TOP BAR & LOGO FIRMLY ANCHORED AT TOP-LEFT */
+            #hero-canopy {
                 padding-top: 0 !important;
-                padding-bottom: 8px !important;
-                gap: 0 !important;
-                min-height: 0 !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                padding-bottom: 6px !important;
+                gap: 6px !important;
+                flex-shrink: 0 !important;
+                position: relative !important;
+                z-index: 20 !important;
             }
 
-            /* Top logo bar stays anchored at top left */
-            body.queue-collapsed #hero-canopy > div:first-child,
-            body.queue-collapsed #mobile-top-bar {
+            #mobile-top-bar {
                 flex-shrink: 0 !important;
                 margin-top: 0 !important;
                 padding-top: 0 !important;
             }
 
-            /* Saldo HUD is centered vertically and horizontally */
-            body.queue-collapsed #balance-hero-container {
-                flex: 0 1 auto !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
-                margin: auto auto !important;
-                max-width: 440px !important;
+            /* Saldo HUD: Glides down to cosmic center with pure GPU hardware translation */
+            #balance-hero-container {
+                flex-shrink: 0 !important;
                 width: 100% !important;
-                align-self: center !important;
-                gap: 12px !important;
-                transform: translateY(-8px) !important;
+                max-width: 440px !important;
+                margin: 0 auto !important;
+                gap: 8px !important;
+                will-change: transform;
+                transform: translate3d(0, 0, 0);
+                transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+
+            body.queue-collapsed #balance-hero-container {
+                transform: translate3d(0, clamp(55px, 12vh, 95px), 0) !important;
             }
 
             /* ETHEREAL FROSTED GLASS HUD - TRANSLUCENT AERO-GLASS ("transparan tapi burem") */
-            body.queue-collapsed #main-balance-card,
-            body.queue-collapsed #balance-hero-container > div:first-child {
-                padding: 18px 18px !important;
-                border-radius: 26px !important;
+            #main-balance-card,
+            #balance-hero-container > div:first-child {
+                padding: 15px 16px !important;
+                border-radius: 22px !important;
                 background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 23, 42, 0.16) 40%, rgba(2, 6, 23, 0.22) 100%) !important;
                 border: 1px solid rgba(255, 255, 255, 0.12) !important;
                 border-top: 1.2px solid rgba(255, 255, 255, 0.35) !important;
@@ -541,7 +528,7 @@
                 box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.35), 0 0 25px -10px rgba(56, 189, 248, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
             }
 
-            body.queue-collapsed #total-saldo-text {
+            #total-saldo-text {
                 font-size: 1rem !important;
                 display: flex !important;
                 align-items: baseline !important;
@@ -550,7 +537,7 @@
                 white-space: nowrap !important;
             }
 
-            body.queue-collapsed #total-saldo-text .currency-label {
+            #total-saldo-text .currency-label {
                 font-size: clamp(1.1rem, 3.8vw, 1.45rem) !important;
                 color: #34d399 !important;
                 margin-right: 6px !important;
@@ -559,8 +546,8 @@
                 text-shadow: 0 0 14px rgba(52, 211, 153, 0.8) !important;
             }
 
-            body.queue-collapsed #total-saldo-text .amount-val {
-                font-size: clamp(2rem, 7.5vw, 2.75rem) !important;
+            #total-saldo-text .amount-val {
+                font-size: clamp(1.9rem, 7vw, 2.5rem) !important;
                 line-height: 1.12 !important;
                 letter-spacing: -0.02em !important;
                 font-weight: 900 !important;
@@ -569,14 +556,14 @@
             }
 
             /* Sub-saldo: Twin Cosmic Frosted Glass Capsules with Zero Overflow */
-            body.queue-collapsed #sub-saldo-grid {
+            #sub-saldo-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 10px !important;
                 margin-top: 2px !important;
             }
 
-            body.queue-collapsed #gopay-card,
-            body.queue-collapsed #cash-card {
+            #gopay-card,
+            #cash-card {
                 padding: 10px 12px !important;
                 border-radius: 18px !important;
                 background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 23, 42, 0.18) 100%) !important;
@@ -587,7 +574,7 @@
                 box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
             }
 
-            body.queue-collapsed .balance-subcard-amt {
+            .balance-subcard-amt {
                 display: flex !important;
                 align-items: baseline !important;
                 margin-top: 2px !important;
@@ -595,14 +582,14 @@
                 white-space: nowrap !important;
             }
 
-            body.queue-collapsed .balance-subcard-amt .currency-label {
+            .balance-subcard-amt .currency-label {
                 font-size: clamp(0.72rem, 2.6vw, 0.82rem) !important;
                 margin-right: 3px !important;
                 font-weight: 800 !important;
                 flex-shrink: 0 !important;
             }
 
-            body.queue-collapsed .balance-subcard-amt .amount-val {
+            .balance-subcard-amt .amount-val {
                 font-size: clamp(0.95rem, 3.5vw, 1.16rem) !important;
                 line-height: 1.15 !important;
                 font-weight: 900 !important;
@@ -611,49 +598,79 @@
             }
 
             /* Natural organic starlight emission without boxy artifacts */
-            #gopay-card .balance-subcard-amt .amount-val,
-            body.queue-collapsed #gopay-card .balance-subcard-amt .amount-val {
+            #gopay-card .balance-subcard-amt .amount-val {
                 color: #ffffff !important;
                 text-shadow: 0 0 6px rgba(103, 232, 249, 0.6), 0 0 16px rgba(34, 211, 238, 0.3) !important;
             }
 
-            #cash-card .balance-subcard-amt .amount-val,
-            body.queue-collapsed #cash-card .balance-subcard-amt .amount-val {
+            #cash-card .balance-subcard-amt .amount-val {
                 color: #ffffff !important;
                 text-shadow: 0 0 6px rgba(110, 231, 183, 0.6), 0 0 16px rgba(52, 211, 153, 0.3) !important;
             }
 
-            body.queue-collapsed .balance-subcard-icon {
+            .balance-subcard-icon {
                 filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.2));
             }
 
-            /* Swipeable Mobile Interactive Sheet */
+            /* Swipeable Mobile Interactive Sheet (GPU Accelerated Slide) */
             #queue-sheet {
-                touch-action: pan-y;
-                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                            padding 0.3s ease,
-                            background 0.3s ease,
-                            border-radius 0.3s ease,
-                            box-shadow 0.3s ease;
-                user-select: none;
-            }
-            #queue-sheet.sheet-collapsed {
-                padding-top: 8px !important;
-                padding-bottom: 12px !important;
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                padding: 10px 16px 14px 16px !important;
                 background: rgba(8, 14, 26, 0.96) !important;
                 border-top: 1px solid rgba(56, 189, 248, 0.35) !important;
                 border-radius: 24px 24px 0 0 !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
                 box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.75) !important;
+                touch-action: pan-y;
+                will-change: transform;
+                transform: translate3d(0, 0, 0);
+                transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                user-select: none;
+                position: relative;
+                z-index: 30;
+            }
+
+            #queue-sheet.sheet-collapsed {
+                transform: translate3d(0, calc(100% - 56px), 0) !important;
                 cursor: pointer;
             }
+
+            #queue-sheet .grid {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex !important;
+                flex-direction: column;
+            }
+
+            #queue-sheet .queue-card-col {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            #queue-sheet #queue-container {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                max-height: none !important;
+                transition: opacity 0.2s ease !important;
+                opacity: 1;
+            }
+
             #queue-sheet.sheet-collapsed #queue-container {
-                display: none !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
             }
+
             #queue-sheet.sheet-collapsed .mobile-sheet-subtext {
-                display: none !important;
+                opacity: 0 !important;
             }
+
             #queue-sheet.sheet-fullscreen {
                 position: fixed !important;
                 left: 0 !important;
@@ -669,6 +686,7 @@
                 background: rgba(8, 12, 22, 0.98) !important;
                 border-top: 1px solid rgba(56, 189, 248, 0.4) !important;
                 box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.95) !important;
+                transform: translate3d(0, 0, 0) !important;
             }
             #queue-sheet.sheet-fullscreen .queue-card-col {
                 flex: 1 1 auto !important;
@@ -680,6 +698,7 @@
                 max-height: none !important;
                 flex: 1 1 auto !important;
                 overflow-y: auto !important;
+                opacity: 1 !important;
             }
         }
     </style>
@@ -716,7 +735,7 @@
         <!-- ======================================================================
              1. TOP COSMIC SPACE HERO CANOPY (SPACIOUS & UNCLUTTERED)
              ====================================================================== -->
-        <section id="hero-canopy" class="w-full px-4 pt-1 pb-4 sm:px-0 sm:pt-1 sm:pb-2 flex flex-col gap-3 sm:gap-5 relative z-10 transition-all duration-300">
+        <section id="hero-canopy" class="w-full px-4 pt-1 pb-4 sm:px-0 sm:pt-1 sm:pb-2 flex flex-col gap-3 sm:gap-5 relative z-10">
             
             <!-- MOBILE TOP BAR (CLEAN: IMIP LOGO PINNED AT TOP LEFT) -->
             <div id="mobile-top-bar" class="sm:hidden flex items-center justify-between w-full pt-0 pb-1 shrink-0">
@@ -769,10 +788,10 @@
             </div>
 
             <!-- FINANCIAL BALANCE HERO (HOLOGRAPHIC CELESTIAL HUD - SEAMLESS WITH SPACE) -->
-            <div id="balance-hero-container" class="w-full flex flex-col gap-2.5 transition-all duration-300">
+            <div id="balance-hero-container" class="w-full flex flex-col gap-2.5">
                 
                 <!-- Main Executive Holographic Telemetry (Translucent Frosted Glass) -->
-                <div id="main-balance-card" class="relative overflow-hidden p-3.5 sm:p-4 transition-all duration-300">
+                <div id="main-balance-card" class="relative overflow-hidden p-3.5 sm:p-4">
                     
                     <!-- Header Row: Telemetry Indicator (Glowing Emerald Starlight) -->
                     <div class="relative z-10 flex items-center justify-between mb-1.5">
@@ -811,8 +830,8 @@
                 </div>
 
                 <!-- Sub-Saldo (GoPay & Tunai) - Twin Translucent Cosmic Glass Capsules -->
-                <div id="sub-saldo-grid" class="grid grid-cols-2 gap-2.5 sm:gap-3 mt-0.5 sm:mt-1 transition-all duration-300">
-                    <div id="gopay-card" class="balance-subcard bg-transparent px-3 py-2.5 flex flex-col justify-between transition-all duration-300">
+                <div id="sub-saldo-grid" class="grid grid-cols-2 gap-2.5 sm:gap-3 mt-0.5 sm:mt-1">
+                    <div id="gopay-card" class="balance-subcard bg-transparent px-3 py-2.5 flex flex-col justify-between">
                         <div class="flex items-center justify-between w-full mb-1">
                             <span class="text-[8px] sm:text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-1.5 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]">
                                 <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee] shrink-0"></span>
@@ -831,7 +850,7 @@
                         </div>
                     </div>
 
-                    <div id="cash-card" class="balance-subcard bg-transparent px-3 py-2.5 flex flex-col justify-between transition-all duration-300">
+                    <div id="cash-card" class="balance-subcard bg-transparent px-3 py-2.5 flex flex-col justify-between">
                         <div class="flex items-center justify-between w-full mb-1">
                             <span class="text-[8px] sm:text-[9px] font-mono text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)]">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] shrink-0"></span>
@@ -1922,10 +1941,6 @@
                 if (toggleIcon) toggleIcon.textContent = '✕';
                 if (toggleLabel) toggleLabel.textContent = 'Tutup (Swap ↓)';
                 if (btnFs) btnFs.classList.remove('hidden');
-            }
-
-            if (typeof window.refreshCosmicCanvasNebula === 'function') {
-                window.refreshCosmicCanvasNebula();
             }
         }
 
