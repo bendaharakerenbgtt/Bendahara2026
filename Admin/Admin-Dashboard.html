@@ -445,29 +445,39 @@
                 justify-content: space-between !important;
             }
 
+            /* TOP BAR STAYS AT THE TOP, ONLY SALDO MOVES AND CENTERS */
             body.queue-collapsed #hero-canopy {
                 flex: 1 1 auto !important;
                 display: flex !important;
                 flex-direction: column !important;
+                justify-content: flex-start !important;
+                padding-top: 4px !important;
+                padding-bottom: 16px !important;
+                gap: 12px !important;
+            }
+
+            body.queue-collapsed #balance-hero-container {
+                flex: 1 1 auto !important;
+                display: flex !important;
+                flex-direction: column !important;
                 justify-content: center !important;
-                padding-top: 10px !important;
-                padding-bottom: 24px !important;
-                gap: 20px !important;
+                margin: auto 0 !important;
+                max-width: 500px !important;
+                width: 100% !important;
+                align-self: center !important;
             }
 
             body.queue-collapsed #total-saldo-text {
-                font-size: 2.75rem !important;
-                line-height: 1.15 !important;
+                font-size: 2.85rem !important;
+                line-height: 1.12 !important;
                 letter-spacing: -0.02em !important;
-                text-shadow: 0 0 28px rgba(16, 185, 129, 0.35) !important;
-                margin-top: 6px !important;
-                margin-bottom: 6px !important;
+                text-shadow: 0 0 28px rgba(16, 185, 129, 0.4) !important;
             }
 
             body.queue-collapsed #sub-saldo-grid {
                 grid-template-columns: 1fr !important;
-                gap: 14px !important;
-                margin-top: 10px !important;
+                gap: 12px !important;
+                margin-top: 12px !important;
             }
 
             body.queue-collapsed #gopay-card {
@@ -645,28 +655,60 @@
                 </h1>
             </div>
 
-            <!-- FINANCIAL BALANCE HERO (SPACIOUS & MODERN FINTECH STYLE) -->
-            <div id="balance-hero-container" class="flex flex-col gap-2 transition-all duration-300">
-                <div class="flex items-center justify-between">
-                    <span class="text-[8.5px] sm:text-[9.5px] font-mono tracking-widest text-neutral-400 uppercase font-bold flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        TOTAL SALDO TERVERIFIKASI
-                    </span>
-                    <span class="text-[7.5px] sm:text-[8px] font-mono bg-emerald-950/80 border border-emerald-500/40 px-2 py-0.5 rounded text-emerald-400 font-bold shadow-[0_0_8px_rgba(16,185,129,0.2)]">
-                        MONITORING
-                    </span>
-                </div>
+            <!-- FINANCIAL BALANCE HERO (ULTRA-MODERN EXECUTIVE FINTECH CARD) -->
+            <div id="balance-hero-container" class="w-full flex flex-col gap-2.5 transition-all duration-300">
                 
-                <div id="total-saldo-text" class="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_2px_14px_rgba(255,255,255,0.15)] transition-all">
-                    Rp 0
+                <!-- Main Executive Glassmorphic Card -->
+                <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-5 bg-gradient-to-b from-slate-900/85 via-slate-900/65 to-slate-950/90 border border-slate-700/40 backdrop-blur-xl shadow-[0_12px_35px_-10px_rgba(0,0,0,0.7),0_0_25px_-8px_rgba(16,185,129,0.18)] transition-all duration-300">
+                    
+                    <!-- Ambient Glow Effect inside card -->
+                    <div class="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-emerald-500/15 blur-2xl pointer-events-none"></div>
+                    <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-cyan-500/15 blur-2xl pointer-events-none"></div>
+
+                    <!-- Header Row: Telemetry Badge & Live Indicator -->
+                    <div class="relative z-10 flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-1.5 sm:gap-2">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                            </span>
+                            <span class="text-[8.5px] sm:text-[9.5px] font-mono tracking-widest text-neutral-300 uppercase font-bold">TOTAL SALDO TERVERIFIKASI</span>
+                        </div>
+                        <span class="text-[7.5px] sm:text-[8px] font-mono bg-emerald-950/80 border border-emerald-500/35 px-2 py-0.5 rounded-full text-emerald-300 font-bold flex items-center gap-1 shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+                            <span class="text-[7px]">⚡</span> REALTIME
+                        </span>
+                    </div>
+
+                    <!-- Total Balance Amount -->
+                    <div class="relative z-10 my-1 flex items-baseline">
+                        <div id="total-saldo-text" class="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight drop-shadow-[0_2px_14px_rgba(255,255,255,0.2)] transition-all">
+                            Rp 0
+                        </div>
+                    </div>
+
+                    <!-- Distribution Progress Bar (Fintech Visual Breakdown) -->
+                    <div class="relative z-10 flex flex-col gap-1.5 mt-2.5 pt-2 border-t border-white/[0.07]">
+                        <div class="w-full h-1.5 rounded-full bg-slate-800/80 overflow-hidden flex shadow-inner">
+                            <div id="bar-gopay" class="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 transition-all duration-500" style="width: 82%;"></div>
+                            <div id="bar-cash" class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500" style="width: 18%;"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[8px] sm:text-[8.5px] font-mono text-neutral-400 px-0.5">
+                            <span class="flex items-center gap-1 text-cyan-300 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block"></span> GoPay <span id="gopay-percent-text" class="opacity-75">(82.5%)</span>
+                            </span>
+                            <span class="flex items-center gap-1 text-emerald-300 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span> Tunai <span id="cash-percent-text" class="opacity-75">(17.5%)</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Sub-Saldo Cards (GoPay & Tunai) - Transforms into Full prominent cards when Queue is swiped down -->
-                <div id="sub-saldo-grid" class="grid grid-cols-2 gap-2.5 mt-1 sm:mt-2 transition-all duration-300">
-                    <div id="gopay-card" class="balance-subcard bg-slate-900/60 backdrop-blur-md border border-cyan-500/25 px-3 py-2 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
+                <div id="sub-saldo-grid" class="grid grid-cols-2 gap-2.5 mt-0.5 sm:mt-1 transition-all duration-300">
+                    <div id="gopay-card" class="balance-subcard bg-gradient-to-br from-slate-900/85 via-slate-900/65 to-slate-950/85 backdrop-blur-md border border-cyan-500/25 px-3 py-2.5 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
                         <div class="flex flex-col min-w-0 flex-1">
                             <div class="flex items-center justify-between">
-                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-cyan-300 uppercase block truncate font-medium">GoPay (E-Wallet)</span>
+                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-cyan-300 uppercase block truncate font-bold">GoPay (E-Wallet)</span>
                                 <span class="card-full-badge hidden text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 font-bold">● ONLINE</span>
                             </div>
                             <div id="gopay-saldo-text" class="balance-subcard-amt text-xs sm:text-sm font-bold text-cyan-400 font-mono truncate mt-0.5 transition-all">
@@ -677,10 +719,10 @@
                         <span class="balance-subcard-icon text-sm sm:text-base shrink-0 ml-2">📱</span>
                     </div>
 
-                    <div id="cash-card" class="balance-subcard bg-slate-900/60 backdrop-blur-md border border-emerald-500/25 px-3 py-2 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
+                    <div id="cash-card" class="balance-subcard bg-gradient-to-br from-slate-900/85 via-slate-900/65 to-slate-950/85 backdrop-blur-md border border-emerald-500/25 px-3 py-2.5 rounded-xl flex items-center justify-between shadow-xs transition-all duration-300">
                         <div class="flex flex-col min-w-0 flex-1">
                             <div class="flex items-center justify-between">
-                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-emerald-300 uppercase block truncate font-medium">Tunai (Cash)</span>
+                                <span class="text-[7.5px] sm:text-[8.5px] font-mono text-emerald-300 uppercase block truncate font-bold">Tunai (Cash)</span>
                                 <span class="card-full-badge hidden text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-bold">● BRANKAS</span>
                             </div>
                             <div id="cash-saldo-text" class="balance-subcard-amt text-xs sm:text-sm font-bold text-emerald-400 font-mono truncate mt-0.5 transition-all">
@@ -1010,9 +1052,24 @@
             
             totalSaldo = gopaySaldo + cashSaldo;
             
-            document.getElementById('total-saldo-text').innerText = 'Rp ' + totalSaldo.toLocaleString('id-ID');
-            document.getElementById('gopay-saldo-text').innerText = 'Rp ' + gopaySaldo.toLocaleString('id-ID');
-            document.getElementById('cash-saldo-text').innerText = 'Rp ' + cashSaldo.toLocaleString('id-ID');
+            const totalEl = document.getElementById('total-saldo-text');
+            if (totalEl) totalEl.innerText = 'Rp ' + totalSaldo.toLocaleString('id-ID');
+            const gopayEl = document.getElementById('gopay-saldo-text');
+            if (gopayEl) gopayEl.innerText = 'Rp ' + gopaySaldo.toLocaleString('id-ID');
+            const cashEl = document.getElementById('cash-saldo-text');
+            if (cashEl) cashEl.innerText = 'Rp ' + cashSaldo.toLocaleString('id-ID');
+
+            // Sync modern distribution telemetry bar
+            const gopayPercent = totalSaldo > 0 ? Math.max(5, Math.min(95, Math.round((gopaySaldo / totalSaldo) * 100))) : 50;
+            const cashPercent = 100 - gopayPercent;
+            const barGopay = document.getElementById('bar-gopay');
+            const barCash = document.getElementById('bar-cash');
+            const gopayPctText = document.getElementById('gopay-percent-text');
+            const cashPctText = document.getElementById('cash-percent-text');
+            if (barGopay) barGopay.style.width = gopayPercent + '%';
+            if (barCash) barCash.style.width = cashPercent + '%';
+            if (gopayPctText) gopayPctText.innerText = `(${gopayPercent}%)`;
+            if (cashPctText) cashPctText.innerText = `(${cashPercent}%)`;
         }
         
         function updateChartWithData(transactions) {
@@ -1326,29 +1383,46 @@
                 height = canvas.height = window.innerHeight;
             });
 
-            const count = Math.min(Math.floor(width / 24), 45);
-            const stars = [];
+            // Center of the cosmic vortex (slightly upper-center for breathtaking backdrop)
+            function getVortexCenter() {
+                return {
+                    x: width * 0.5,
+                    y: height * 0.42
+                };
+            }
 
-            // Realistic Deep Space Palettes (White Starlight, Pulsar Cyan, Treasury Emerald, Nebula Lavender, Solar Amber)
+            // Palettes matching reference image: Emerald green nebula, pulsar cyan, solar gold, starlight white
             const cosmicColors = [
-                'rgba(255, 255, 255, ',
-                'rgba(56, 189, 248, ',
-                'rgba(52, 211, 153, ',
-                'rgba(196, 181, 253, ',
-                'rgba(254, 240, 138, '
+                'rgba(255, 255, 255, ',   // Pure diamond starlight
+                'rgba(52, 211, 153, ',   // Emerald 400 (LDK Treasury)
+                'rgba(16, 185, 129, ',   // Emerald 500
+                'rgba(34, 211, 238, ',   // Cyan 400
+                'rgba(6, 182, 212, ',    // Cyan 500
+                'rgba(254, 240, 138, ',  // Solar amber/gold core
+                'rgba(110, 231, 183, '   // Mint green glow
             ];
 
-            for (let i = 0; i < count; i++) {
+            const starCount = Math.min(Math.floor(width / 2.6), 140);
+            const stars = [];
+
+            for (let i = 0; i < starCount; i++) {
+                const maxRadius = Math.hypot(width, height) * 0.70;
+                // Distribute so density increases slightly towards center/tunnel
+                const r = Math.pow(Math.random(), 1.35) * maxRadius + 18;
                 stars.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    radius: Math.random() * 1.4 + 0.6,
-                    baseAlpha: Math.random() * 0.45 + 0.25,
+                    radius: r,
+                    maxRadius: maxRadius,
+                    angle: Math.random() * Math.PI * 2,
+                    // Differential rotation (swirling vortex!)
+                    angularSpeed: 0.0032 + (1 - r / maxRadius) * 0.0048,
+                    // Gentle inward spiral drift into the vortex
+                    radialDrift: 0.12 + Math.random() * 0.22,
+                    size: Math.random() * 1.5 + 0.6,
                     colorIndex: Math.floor(Math.random() * cosmicColors.length),
-                    twinkleSpeed: Math.random() * 0.03 + 0.012,
+                    baseAlpha: Math.random() * 0.5 + 0.3,
+                    twinkleSpeed: Math.random() * 0.04 + 0.015,
                     twinklePhase: Math.random() * Math.PI * 2,
-                    vx: (Math.random() - 0.5) * 0.16,
-                    vy: (Math.random() - 0.5) * 0.16
+                    trail: Math.random() * 0.06 + 0.02
                 });
             }
 
@@ -1371,7 +1445,7 @@
                     speedY: Math.sin(angle) * speed,
                     alpha: 1,
                     decay: 0.018,
-                    color: Math.random() > 0.4 ? '255, 255, 255' : '56, 189, 248'
+                    color: Math.random() > 0.4 ? '255, 255, 255' : '52, 211, 153'
                 };
             }
 
@@ -1380,32 +1454,71 @@
                 ctx.clearRect(0, 0, width, height);
                 time += 1;
 
-                // Render Twinkling Stars
+                const center = getVortexCenter();
+                const cx = center.x;
+                const cy = center.y;
+
+                // 1. Render glowing vortex nebula core (golden emerald aura at tunnel end)
+                const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(width, height) * 0.45);
+                coreGrad.addColorStop(0, 'rgba(254, 240, 138, 0.14)');
+                coreGrad.addColorStop(0.25, 'rgba(52, 211, 153, 0.10)');
+                coreGrad.addColorStop(0.55, 'rgba(6, 182, 212, 0.06)');
+                coreGrad.addColorStop(1, 'rgba(4, 7, 13, 0)');
+                ctx.fillStyle = coreGrad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, Math.min(width, height) * 0.45, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 2. Render Swirling Stars in Vortex Motion (Gerak Muter!)
                 for (let s of stars) {
-                    s.x += s.vx;
-                    s.y += s.vy;
-                    if (s.x < 0) s.x = width;
-                    if (s.x > width) s.x = 0;
-                    if (s.y < 0) s.y = height;
-                    if (s.y > height) s.y = 0;
+                    s.angle += s.angularSpeed;
+                    s.radius -= s.radialDrift;
+
+                    if (s.radius < 16) {
+                        s.radius = s.maxRadius * (0.85 + Math.random() * 0.25);
+                        s.angle = Math.random() * Math.PI * 2;
+                    }
+
+                    // Logarithmic spiral twist creates the tunnel vortex arms
+                    const spiralAngle = s.angle + s.radius * 0.0028;
+                    const x = cx + Math.cos(spiralAngle) * s.radius;
+                    const y = cy + Math.sin(spiralAngle) * (s.radius * 0.82);
 
                     const twinkle = Math.sin(time * s.twinkleSpeed + s.twinklePhase);
-                    const currentAlpha = Math.max(0.12, Math.min(1, s.baseAlpha + twinkle * 0.35));
+                    const currentAlpha = Math.max(0.15, Math.min(1, s.baseAlpha + twinkle * 0.35));
 
+                    const depthScale = Math.min(1.6, Math.max(0.6, s.radius / (width * 0.35)));
+                    const starRadius = s.size * depthScale;
+
+                    // Draw swirling star particle with motion trail arc
                     ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    const prevAngle = spiralAngle - s.trail;
+                    const prevX = cx + Math.cos(prevAngle) * (s.radius + 0.5);
+                    const prevY = cy + Math.sin(prevAngle) * ((s.radius + 0.5) * 0.82);
+
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(x, y);
+                    ctx.strokeStyle = cosmicColors[s.colorIndex] + (currentAlpha * 0.45) + ')';
+                    ctx.lineWidth = starRadius * 0.9;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+
+                    // Star head (glowing core point)
+                    ctx.beginPath();
+                    ctx.arc(x, y, starRadius, 0, Math.PI * 2);
                     ctx.fillStyle = cosmicColors[s.colorIndex] + currentAlpha + ')';
                     ctx.fill();
 
-                    if (s.radius > 1.3) {
+                    // Soft aura glow for prominent stars
+                    if (starRadius > 1.2) {
                         ctx.beginPath();
-                        ctx.arc(s.x, s.y, s.radius * 2.2, 0, Math.PI * 2);
-                        ctx.fillStyle = cosmicColors[s.colorIndex] + (currentAlpha * 0.22) + ')';
+                        ctx.arc(x, y, starRadius * 2.2, 0, Math.PI * 2);
+                        ctx.fillStyle = cosmicColors[s.colorIndex] + (currentAlpha * 0.2) + ')';
                         ctx.fill();
                     }
                 }
 
-                // Render Shooting Star / Meteor
+                // 3. Render Shooting Star / Meteor
                 const now = performance.now();
                 if (!meteor && now - lastMeteorTime > nextMeteorDelay) {
                     spawnMeteor();
