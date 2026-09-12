@@ -2260,26 +2260,36 @@
                 }
             }
 
-            // Periodic Shooting Star / Meteor
-            let meteor = null;
-            let lastMeteorTime = performance.now();
-            let nextMeteorDelay = 7000 + Math.random() * 8000;
+            // ----------------------------------------------------------------------
+            // COSMIC METEOR SHOWER STREAM (LIGHTWEIGHT & HIGH-PERFORMANCE FOR MOBILE)
+            // ----------------------------------------------------------------------
+            let meteors = [];
+            const maxMeteors = isMobile ? 5 : 8; // Optimal limit: zero GPU lag, beautiful shower density
+            let lastShowerSpawn = performance.now();
+            let nextShowerSpawnDelay = 350;
 
-            function spawnMeteor() {
-                const startX = Math.random() * (width * 0.75) + (width * 0.1);
-                const startY = Math.random() * (height * 0.3);
-                const length = Math.random() * 90 + 70;
-                const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.22;
-                const speed = Math.random() * 7 + 6;
-                meteor = {
+            function spawnShowerMeteor() {
+                // Diagonal trajectory radiating from top & top-left border
+                const fromTop = Math.random() < 0.72;
+                const startX = fromTop ? Math.random() * (width * 1.05) - (width * 0.05) : -30;
+                const startY = fromTop ? -20 : Math.random() * (height * 0.35);
+
+                const angle = (Math.PI / 4) + (Math.random() - 0.5) * 0.20; // ~45 deg diagonal glide
+                const isForeground = Math.random() < 0.30;
+                const speed = isForeground ? (Math.random() * 3.5 + 6.5) : (Math.random() * 2.5 + 4.5);
+                const colorRand = Math.random();
+                const color = colorRand < 0.60 ? '255, 255, 255' : (colorRand < 0.85 ? '165, 243, 252' : '110, 231, 183');
+
+                return {
                     x: startX,
                     y: startY,
-                    length: length,
                     speedX: Math.cos(angle) * speed,
                     speedY: Math.sin(angle) * speed,
-                    alpha: 1,
-                    decay: 0.018,
-                    color: Math.random() > 0.4 ? '255, 255, 255' : '165, 243, 252'
+                    tailMult: isForeground ? 5.2 : 3.8,
+                    alpha: isForeground ? (0.85 + Math.random() * 0.15) : (0.40 + Math.random() * 0.25),
+                    decay: isForeground ? (0.011 + Math.random() * 0.007) : (0.008 + Math.random() * 0.005),
+                    width: isForeground ? 1.4 : 0.85,
+                    color: color
                 };
             }
 
@@ -2494,37 +2504,48 @@
                     }
                 }
 
-                // 5. Render Shooting Star / Meteor
+                // 5. Render Cosmic Meteor Shower Stream
                 const now = performance.now();
-                if (!meteor && now - lastMeteorTime > nextMeteorDelay) {
-                    spawnMeteor();
-                    lastMeteorTime = now;
-                    nextMeteorDelay = 4500 + Math.random() * 4500;
+                if (meteors.length < maxMeteors && (now - lastShowerSpawn > nextShowerSpawnDelay)) {
+                    meteors.push(spawnShowerMeteor());
+                    lastShowerSpawn = now;
+                    nextShowerSpawnDelay = 300 + Math.random() * 550;
                 }
 
-                if (meteor) {
-                    meteor.x += meteor.speedX;
-                    meteor.y += meteor.speedY;
-                    meteor.alpha -= meteor.decay;
+                if (meteors.length > 0) {
+                    ctx.lineCap = 'round';
+                    for (let i = meteors.length - 1; i >= 0; i--) {
+                        const m = meteors[i];
+                        m.x += m.speedX;
+                        m.y += m.speedY;
+                        m.alpha -= m.decay;
 
-                    if (meteor.alpha <= 0 || meteor.x > width + 100 || meteor.y > height + 100) {
-                        meteor = null;
-                    } else {
-                        ctx.save();
-                        const tailX = meteor.x - meteor.speedX * 3.8;
-                        const tailY = meteor.y - meteor.speedY * 3.8;
-                        const grad = ctx.createLinearGradient(tailX, tailY, meteor.x, meteor.y);
-                        grad.addColorStop(0, `rgba(${meteor.color}, 0)`);
-                        grad.addColorStop(1, `rgba(${meteor.color}, ${meteor.alpha * 0.9})`);
+                        if (m.alpha <= 0 || m.x > width + 120 || m.y > height + 120) {
+                            meteors.splice(i, 1);
+                            continue;
+                        }
+
+                        const tailX = m.x - m.speedX * m.tailMult;
+                        const tailY = m.y - m.speedY * m.tailMult;
+                        const grad = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
+                        grad.addColorStop(0, `rgba(${m.color}, 0)`);
+                        grad.addColorStop(0.7, `rgba(${m.color}, ${m.alpha * 0.45})`);
+                        grad.addColorStop(1, `rgba(${m.color}, ${m.alpha * 0.95})`);
 
                         ctx.strokeStyle = grad;
-                        ctx.lineWidth = 1.2;
-                        ctx.lineCap = 'round';
+                        ctx.lineWidth = m.width;
                         ctx.beginPath();
                         ctx.moveTo(tailX, tailY);
-                        ctx.lineTo(meteor.x, meteor.y);
+                        ctx.lineTo(m.x, m.y);
                         ctx.stroke();
-                        ctx.restore();
+
+                        // Tiny radiant starlight head on crisp foreground shooting stars
+                        if (m.width > 1.1 && m.alpha > 0.4) {
+                            ctx.fillStyle = `rgba(255, 255, 255, ${m.alpha})`;
+                            ctx.beginPath();
+                            ctx.arc(m.x, m.y, 1.1, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 }
             }
