@@ -1044,78 +1044,65 @@
                     </div>
                 </div>
 
-                <!-- 3. COSMIC TELEMETRY DECK (ORBITAL BUDGET RADAR & CONSTELLATION CHART) -->
+                <!-- 3. COSMIC FINANCIAL COCKPIT (MULTI-DIMENSIONAL DIAGRAM & TELEMETRY STREAM) -->
                 <div id="mobile-constellation-wrap" class="sm:hidden w-full transition-all duration-300">
                     <div class="constellation-glass-card relative overflow-hidden px-3.5 py-2.5 rounded-2xl flex flex-col gap-2">
-                        <!-- Deck Header with Interactive Mode Switcher -->
+                        <!-- Deck Header with Interactive Multi-View Switcher -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1.5">
                                 <span class="text-cyan-400 text-xs animate-pulse">✦</span>
-                                <span id="deck-title-text" class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">PANTAUAN BUDGET • PROKER</span>
+                                <span id="chart-mode-title" class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">ARUS KAS • MASUK VS KELUAR</span>
                             </div>
-                            <!-- Switcher Pills -->
+                            <!-- Switcher Pills: Arus Kas vs Dompet -->
                             <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                <button type="button" id="tab-btn-radar" onclick="switchCosmicDeck('radar')" class="px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all">
-                                    🛰️ Radar
+                                <button type="button" id="btn-mode-cashflow" onclick="switchMobileChartMode('cashflow')" class="px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all">
+                                    📊 Arus Kas
                                 </button>
-                                <button type="button" id="tab-btn-constellation" onclick="switchCosmicDeck('constellation')" class="px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all">
-                                    ✦ Rasi
+                                <button type="button" id="btn-mode-wallets" onclick="switchMobileChartMode('wallets')" class="px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all">
+                                    💳 Dompet
                                 </button>
                             </div>
                         </div>
 
-                        <!-- 1. ORBITAL BUDGET RADAR VIEW (DEFAULT) -->
-                        <div id="radar-deck-view" class="flex flex-col gap-2">
-                            <div class="flex items-center gap-3 w-full">
-                                <!-- Circular Radar Canvas with 360° Sweep & Pulsar Blips (Hardware Isolated) -->
-                                <div class="relative shrink-0 w-[122px] h-[122px] rounded-full bg-slate-950/90 border border-cyan-500/30 p-1 flex items-center justify-center shadow-[0_0_12px_rgba(34,211,238,0.12)]" style="contain: paint; will-change: transform;">
-                                    <canvas id="prokerRadarCanvas" width="114" height="114" class="w-[114px] h-[114px] rounded-full" style="contain: paint;"></canvas>
-                                </div>
-                                <!-- Proker Progress Feed -->
-                                <div id="radar-proker-list" class="flex-1 flex flex-col justify-center gap-2 min-w-0 pr-1">
-                                    <!-- Populated dynamically -->
-                                </div>
-                            </div>
+                        <!-- 1. MULTI-DIMENSIONAL HYBRID CHART CANVAS -->
+                        <div class="w-full h-32 relative">
+                            <canvas id="mobileConstellationChart"></canvas>
+                        </div>
 
-                            <!-- Radar Summary Strip -->
-                            <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-white/10">
+                        <!-- 2. MULTI-DIMENSIONAL FINANCIAL TELEMETRY & RATIO BAROMETER -->
+                        <div class="flex flex-col gap-1.5 pt-2 border-t border-white/10">
+                            <!-- Stream Metrics 3 Columns -->
+                            <div class="grid grid-cols-3 gap-2">
                                 <div class="flex flex-col">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Proker Aktif</span>
-                                    <span id="radar-proker-count" class="text-[9.5px] font-mono font-bold text-cyan-300 truncate">4 Proker</span>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Total Terpakai</span>
-                                    <span id="radar-proker-spent" class="text-[9.5px] font-mono font-bold text-emerald-400 truncate">Rp 0</span>
-                                </div>
-                                <div class="flex flex-col items-end justify-center">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Kondisi Kas</span>
-                                    <span id="radar-proker-status-pill" class="inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-1.5 py-0.5 rounded-md">
-                                        <span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> AMAN
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Kas Masuk
                                     </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 2. CONSTELLATION LINE CHART VIEW (ACCESSIBLE VIA TAB) -->
-                        <div id="constellation-deck-view" class="hidden flex flex-col gap-1.5">
-                            <div class="w-full h-32 relative">
-                                <canvas id="mobileConstellationChart"></canvas>
-                            </div>
-                            <!-- Telemetry Stream Strip -->
-                            <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-white/10 mt-0.5">
-                                <div class="flex flex-col">
-                                    <span class="text-[7.5px] font-mono text-slate-400 uppercase tracking-wider">Kas Masuk</span>
                                     <span id="telemetry-inflow" class="text-[10px] font-mono font-bold text-emerald-400 truncate">+ Rp 0</span>
                                 </div>
                                 <div class="flex flex-col">
-                                    <span class="text-[7.5px] font-mono text-slate-400 uppercase tracking-wider">Kas Keluar</span>
-                                    <span id="telemetry-outflow" class="text-[10px] font-mono font-bold text-slate-300 truncate">Rp 0</span>
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Kas Keluar
+                                    </span>
+                                    <span id="telemetry-outflow" class="text-[10px] font-mono font-bold text-rose-300 truncate">Rp 0</span>
                                 </div>
                                 <div class="flex flex-col items-end justify-center">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Status Neraca</span>
-                                    <span id="telemetry-status-pill" class="inline-flex items-center gap-1 text-[8px] font-mono font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 px-1.5 py-0.5 rounded-md">
-                                        <span class="w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_#22d3ee]"></span> SURPLUS
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Kondisi Neraca</span>
+                                    <span id="telemetry-status-pill" class="inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-md">
+                                        <span class="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]"></span> SURPLUS SEHAT
                                     </span>
+                                </div>
+                            </div>
+
+                            <!-- Visual Inflow vs Outflow Proportion Barometer -->
+                            <div class="flex flex-col gap-0.5 mt-0.5">
+                                <div class="flex items-center justify-between text-[6.8px] font-mono text-slate-400">
+                                    <span id="ratio-inflow-text" class="text-emerald-400 font-semibold">100% Masuk</span>
+                                    <span id="ratio-retention-text" class="text-slate-300 font-bold">Simpanan Kas 100%</span>
+                                    <span id="ratio-outflow-text" class="text-rose-400 font-semibold">0% Keluar</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full bg-slate-900/80 border border-white/10 flex overflow-hidden">
+                                    <div id="barometer-inflow" class="h-full bg-emerald-400 transition-all duration-500" style="width: 100%;"></div>
+                                    <div id="barometer-outflow" class="h-full bg-rose-500 transition-all duration-500" style="width: 0%;"></div>
                                 </div>
                             </div>
                         </div>
@@ -1322,34 +1309,31 @@
             }
         });
 
-        // Plugin: Celestial Starlight Diffraction Spikes (+) on Star Nodes
+        // Plugin: Celestial Starlight Diffraction Spikes (+) on Line Star Nodes (GPU-accelerated, zero shadowBlur)
         const starConstellationPlugin = {
             id: 'starConstellation',
             afterDatasetsDraw(chart) {
                 const c = chart.ctx;
                 chart.data.datasets.forEach((dataset, datasetIndex) => {
                     const meta = chart.getDatasetMeta(datasetIndex);
-                    if (meta.hidden) return;
-                    const glowColor = datasetIndex === 0 ? 'rgba(34, 211, 238, 0.9)' : 'rgba(52, 211, 153, 0.9)';
+                    if (meta.hidden || meta.type !== 'line') return;
+                    const glowColor = dataset.borderColor || 'rgba(34, 211, 238, 0.9)';
                     meta.data.forEach(element => {
                         const { x, y } = element.tooltipPosition();
                         c.save();
-                        c.shadowColor = glowColor;
-                        c.shadowBlur = 8;
-                        // Draw 4-point constellation diffraction spikes (+)
                         c.strokeStyle = glowColor;
                         c.lineWidth = 1;
                         c.beginPath();
-                        c.moveTo(x - 5, y);
-                        c.lineTo(x + 5, y);
-                        c.moveTo(x, y - 5);
-                        c.lineTo(x, y + 5);
+                        c.moveTo(x - 4.5, y);
+                        c.lineTo(x + 4.5, y);
+                        c.moveTo(x, y - 4.5);
+                        c.lineTo(x, y + 4.5);
                         c.stroke();
 
-                        // Center glowing white star core
+                        // Center white star core
                         c.fillStyle = '#ffffff';
                         c.beginPath();
-                        c.arc(x, y, 2, 0, Math.PI * 2);
+                        c.arc(x, y, 1.8, 0, Math.PI * 2);
                         c.fill();
                         c.restore();
                     });
@@ -1357,57 +1341,85 @@
             }
         };
 
+        let currentMobileChartMode = 'cashflow'; // 'cashflow' (Bar Inflow/Outflow + Net Line) or 'wallets' (GoPay vs Tunai)
+
+        function switchMobileChartMode(mode) {
+            currentMobileChartMode = mode;
+            const btnCashflow = document.getElementById('btn-mode-cashflow');
+            const btnWallets = document.getElementById('btn-mode-wallets');
+            const modeTitle = document.getElementById('chart-mode-title');
+
+            if (mode === 'cashflow') {
+                if (btnCashflow) btnCashflow.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all";
+                if (btnWallets) btnWallets.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
+                if (modeTitle) modeTitle.textContent = "ARUS KAS • MASUK VS KELUAR";
+            } else {
+                if (btnWallets) btnWallets.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all";
+                if (btnCashflow) btnCashflow.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
+                if (modeTitle) modeTitle.textContent = "TREN DOMPET • GOPAY & TUNAI";
+            }
+
+            if (rawTransactions && rawTransactions.length > 0) {
+                updateChartWithData(rawTransactions);
+            }
+        }
+
         const mobileChartCanvas = document.getElementById('mobileConstellationChart');
         if (mobileChartCanvas) {
             const mCtx = mobileChartCanvas.getContext('2d');
-            const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 90);
-            gopayGrad.addColorStop(0, 'rgba(34, 211, 238, 0.22)');
-            gopayGrad.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
-
-            const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 90);
-            tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
-            tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
 
             window.mobileConstellationChart = new Chart(mCtx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
                     datasets: [
                         {
-                            label: 'GoPay',
-                            data: [400000, 650000, 800000, 950000, 1100000, 1250000],
-                            borderColor: 'rgba(34, 211, 238, 0.85)',
-                            backgroundColor: gopayGrad,
+                            type: 'bar',
+                            label: 'Kas Masuk',
+                            data: [450000, 680000, 820000, 950000, 1150000, 1300000],
+                            backgroundColor: 'rgba(52, 211, 153, 0.65)',
+                            borderColor: 'rgba(52, 211, 153, 0.9)',
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            maxBarThickness: 10,
+                            order: 2
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Kas Keluar',
+                            data: [120000, 150000, 210000, 180000, 260000, 310000],
+                            backgroundColor: 'rgba(244, 63, 94, 0.55)',
+                            borderColor: 'rgba(244, 63, 94, 0.85)',
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            maxBarThickness: 10,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Saldo Kas',
+                            data: [330000, 860000, 1470000, 2240000, 3130000, 4120000],
+                            borderColor: '#22d3ee',
+                            backgroundColor: 'rgba(34, 211, 238, 0.08)',
                             borderWidth: 1.8,
                             tension: 0.25,
                             pointBackgroundColor: '#ffffff',
                             pointBorderColor: '#22d3ee',
                             pointBorderWidth: 1.5,
                             pointRadius: 2.8,
-                            fill: true
-                        },
-                        {
-                            label: 'Tunai',
-                            data: [1200000, 1500000, 1900000, 2100000, 2300000, 2500000],
-                            borderColor: 'rgba(52, 211, 153, 0.85)',
-                            backgroundColor: tunaiGrad,
-                            borderWidth: 1.8,
-                            tension: 0.25,
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderColor: '#34d399',
-                            pointBorderWidth: 1.5,
-                            pointRadius: 2.8,
-                            fill: true
+                            fill: false,
+                            order: 1
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: { duration: 300 },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(8, 14, 26, 0.92)',
+                            backgroundColor: 'rgba(8, 14, 26, 0.94)',
                             titleColor: '#22d3ee',
                             bodyColor: '#f1f5f9',
                             borderColor: 'rgba(255, 255, 255, 0.12)',
@@ -1455,308 +1467,6 @@
             });
         }
 
-        // ==========================================================================
-        // 360° ORBITAL BUDGET RADAR ENGINE (RADAR ALOKASI PROGRAM KERJA)
-        // ==========================================================================
-        // 360° ORBITAL BUDGET RADAR ENGINE (LIGHTWEIGHT & GPU-ACCELERATED)
-        // ==========================================================================
-        let radarSweepAngle = 0;
-        let radarAnimFrame = null;
-        let lastRadarTimestamp = 0;
-        window.currentRadarProkers = [];
-
-        function startProkerRadar() {
-            if (radarAnimFrame) return;
-            const radarView = document.getElementById('radar-deck-view');
-            if (isQueueCollapsed && radarView && !radarView.classList.contains('hidden') && !document.hidden) {
-                radarAnimFrame = requestAnimationFrame(renderProkerRadar);
-            }
-        }
-
-        function stopProkerRadar() {
-            if (radarAnimFrame) {
-                cancelAnimationFrame(radarAnimFrame);
-                radarAnimFrame = null;
-            }
-        }
-
-        function renderProkerRadar(timestamp) {
-            const radarView = document.getElementById('radar-deck-view');
-            // Strict lifecycle check: stop immediately if collapsed state or deck is not active
-            if (!isQueueCollapsed || !radarView || radarView.classList.contains('hidden') || document.hidden) {
-                stopProkerRadar();
-                return;
-            }
-
-            radarAnimFrame = requestAnimationFrame(renderProkerRadar);
-
-            // FPS Throttling for mobile: ~30 FPS saves 70% GPU and eliminates all micro-stutter
-            const now = timestamp || performance.now();
-            if (now - lastRadarTimestamp < 32) {
-                return;
-            }
-            lastRadarTimestamp = now;
-
-            const canvas = document.getElementById('prokerRadarCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width;
-            const h = canvas.height;
-            const cx = w / 2;
-            const cy = h / 2;
-            const maxR = Math.min(cx, cy) - 6;
-
-            ctx.clearRect(0, 0, w, h);
-
-            // 1. Concentric orbital range rings
-            const rings = [0.33, 0.66, 1.0];
-            rings.forEach((ratio, idx) => {
-                ctx.beginPath();
-                ctx.arc(cx, cy, maxR * ratio, 0, Math.PI * 2);
-                ctx.strokeStyle = idx === 2 ? 'rgba(34, 211, 238, 0.4)' : 'rgba(255, 255, 255, 0.08)';
-                ctx.lineWidth = idx === 2 ? 1.2 : 0.8;
-                if (idx === 1) ctx.setLineDash([2, 3]);
-                else ctx.setLineDash([]);
-                ctx.stroke();
-            });
-            ctx.setLineDash([]);
-
-            // 2. Crosshair grid lines
-            ctx.beginPath();
-            ctx.moveTo(cx - maxR, cy);
-            ctx.lineTo(cx + maxR, cy);
-            ctx.moveTo(cx, cy - maxR);
-            ctx.lineTo(cx, cy + maxR);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-
-            // 3. 360° Rotating Radar Sweep Cone
-            radarSweepAngle = (radarSweepAngle + 0.045) % (Math.PI * 2);
-            const sweepGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-            sweepGradient.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
-            sweepGradient.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
-
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, maxR, radarSweepAngle - 0.44, radarSweepAngle);
-            ctx.closePath();
-            ctx.fillStyle = sweepGradient;
-            ctx.fill();
-
-            // Leading bright sweep line (Double stroke gives neon laser glow with 0ms CPU penalty)
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.lineTo(cx + Math.cos(radarSweepAngle) * maxR, cy + Math.sin(radarSweepAngle) * maxR);
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-            ctx.lineWidth = 3.2;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.lineTo(cx + Math.cos(radarSweepAngle) * maxR, cy + Math.sin(radarSweepAngle) * maxR);
-            ctx.strokeStyle = 'rgba(224, 242, 254, 0.95)';
-            ctx.lineWidth = 1.2;
-            ctx.stroke();
-            ctx.restore();
-
-            // 4. Center Satellite Hub (Dual geometric circles, zero shadowBlur)
-            ctx.beginPath();
-            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(34, 211, 238, 0.28)';
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(cx, cy, 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-
-            // 5. Draw Proker Coordinate Blips
-            if (window.currentRadarProkers && window.currentRadarProkers.length > 0) {
-                window.currentRadarProkers.forEach((p, i) => {
-                    const angle = p.angle !== undefined ? p.angle : (i * (Math.PI * 2 / window.currentRadarProkers.length) - Math.PI / 4);
-                    const dist = Math.max(0.18, Math.min(0.92, p.ratio || 0.5)) * maxR;
-                    const px = cx + Math.cos(angle) * dist;
-                    const py = cy + Math.sin(angle) * dist;
-
-                    let angleDiff = radarSweepAngle - angle;
-                    while (angleDiff < 0) angleDiff += Math.PI * 2;
-                    while (angleDiff > Math.PI * 2) angleDiff -= Math.PI * 2;
-                    const isJustSwept = angleDiff < 0.6;
-                    const alpha = isJustSwept ? 1 : Math.max(0.35, 1 - (angleDiff / (Math.PI * 2)));
-
-                    ctx.save();
-                    const blipColor = p.color || (i % 2 === 0 ? '#22d3ee' : '#34d399');
-                    ctx.globalAlpha = alpha;
-
-                    // Sonar ripple on scan pass
-                    if (isJustSwept) {
-                        ctx.beginPath();
-                        ctx.arc(px, py, 6.5, 0, Math.PI * 2);
-                        ctx.strokeStyle = blipColor;
-                        ctx.lineWidth = 1.2;
-                        ctx.stroke();
-
-                        ctx.beginPath();
-                        ctx.arc(px, py, 4.5, 0, Math.PI * 2);
-                        ctx.fillStyle = blipColor;
-                        ctx.globalAlpha = 0.25;
-                        ctx.fill();
-                        ctx.globalAlpha = 1;
-                    }
-
-                    // Blip star core
-                    ctx.beginPath();
-                    ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-                    ctx.fillStyle = blipColor;
-                    ctx.fill();
-
-                    // Micro label
-                    ctx.fillStyle = '#f8fafc';
-                    ctx.font = 'bold 7px "JetBrains Mono", monospace';
-                    ctx.fillText(p.shortName, px + 4, py - 2.5);
-                    ctx.restore();
-                });
-            }
-        }
-
-        function updateRadarWithData(prokers, transactions) {
-            let prokerList = (prokers && prokers.length > 0) ? prokers.filter(p => p.status !== "Selesai") : [];
-            if (prokerList.length === 0) {
-                prokerList = (prokers && prokers.length > 0) ? prokers : [
-                    { id: "PRK-1", nama_proker: "Kajian Akbar", estimasi_dana: 2500000, status: "Running" },
-                    { id: "PRK-2", nama_proker: "Dauroh Pemuda", estimasi_dana: 1500000, status: "Running" },
-                    { id: "PRK-3", nama_proker: "Rihlah & Outbound", estimasi_dana: 1000000, status: "Running" },
-                    { id: "PRK-4", nama_proker: "Bakti Sosial", estimasi_dana: 800000, status: "Running" }
-                ];
-            }
-
-            const approved = (transactions || []).filter(t => t.status_reimburse === "Tidak Perlu");
-            let totalAllProkerSpent = 0;
-
-            const angles = [Math.PI * 0.25, Math.PI * 0.75, Math.PI * 1.3, Math.PI * 1.8];
-            const colors = ['#22d3ee', '#34d399', '#f59e0b', '#38bdf8'];
-
-            const radarData = prokerList.slice(0, 4).map((p, idx) => {
-                const pTx = approved.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString());
-                let spent = 0;
-                pTx.forEach(t => {
-                    if (t.jenis === "Keluar") spent += Number(t.nominal) || 0;
-                    else if (t.jenis === "Masuk" && pTx.length === 1) spent += Number(t.nominal) || 0;
-                });
-                
-                const targetBudget = Number(p.estimasi_dana) || (spent > 0 ? Math.round(spent * 1.35) : 1500000);
-                if (spent === 0) {
-                    spent = Math.round(targetBudget * (0.35 + (idx * 0.15)));
-                }
-                totalAllProkerSpent += spent;
-                const ratio = Math.min(1.0, spent / targetBudget);
-                const percent = Math.round(ratio * 100);
-
-                return {
-                    id: p.id,
-                    name: p.nama_proker,
-                    shortName: p.nama_proker.length > 9 ? p.nama_proker.substring(0, 8) + '..' : p.nama_proker,
-                    spent,
-                    budget: targetBudget,
-                    ratio,
-                    percent,
-                    angle: angles[idx % angles.length],
-                    color: colors[idx % colors.length]
-                };
-            });
-
-            window.currentRadarProkers = radarData;
-
-            // Render clear, human-friendly HTML list on the right side of the radar
-            const listContainer = document.getElementById('radar-proker-list');
-            if (listContainer) {
-                listContainer.innerHTML = radarData.map(p => `
-                    <div class="flex flex-col gap-0.5">
-                        <div class="flex items-center justify-between text-[7.8px] font-mono">
-                            <span class="text-slate-200 font-bold truncate max-w-[95px] flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: ${p.color};"></span>
-                                <span class="truncate">${p.name}</span>
-                            </span>
-                            <span class="font-bold tabular-nums" style="color: ${p.color};">${p.percent}% terpakai</span>
-                        </div>
-                        <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-300" style="width: ${p.percent}%; background: ${p.color};"></div>
-                        </div>
-                        <div class="flex items-center justify-between text-[6.8px] font-mono">
-                            <span class="tabular-nums text-slate-300">Terpakai: Rp ${(p.spent / 1000).toFixed(0)}k</span>
-                            <span class="tabular-nums text-slate-400">Budget: Rp ${(p.budget / 1000).toFixed(0)}k</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Update bottom summary with intuitive labels
-            const countEl = document.getElementById('radar-proker-count');
-            const spentEl = document.getElementById('radar-proker-spent');
-            const statusPill = document.getElementById('radar-proker-status-pill');
-            if (countEl) countEl.textContent = `${prokerList.length} Proker`;
-            if (spentEl) spentEl.textContent = `Rp ${totalAllProkerSpent.toLocaleString('id-ID')}`;
-            if (statusPill) {
-                const isOver = radarData.some(p => p.spent > p.budget);
-                if (isOver) {
-                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-amber-300 bg-amber-950/50 border border-amber-500/30 px-1.5 py-0.5 rounded-md";
-                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></span> OVER BUDGET';
-                } else {
-                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-1.5 py-0.5 rounded-md";
-                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> AMAN';
-                }
-            }
-        }
-
-        function switchCosmicDeck(mode) {
-            const radarView = document.getElementById('radar-deck-view');
-            const constView = document.getElementById('constellation-deck-view');
-            const btnRadar = document.getElementById('tab-btn-radar');
-            const btnConst = document.getElementById('tab-btn-constellation');
-            const titleText = document.getElementById('deck-title-text');
-
-            if (mode === 'radar') {
-                if (radarView) radarView.classList.remove('hidden');
-                if (constView) constView.classList.add('hidden');
-                if (btnRadar) {
-                    btnRadar.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all";
-                }
-                if (btnConst) {
-                    btnConst.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
-                }
-                if (titleText) titleText.textContent = "PANTAUAN BUDGET • PROKER";
-                startProkerRadar();
-            } else {
-                stopProkerRadar();
-                if (radarView) radarView.classList.add('hidden');
-                if (constView) constView.classList.remove('hidden');
-                if (btnConst) {
-                    btnConst.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all";
-                }
-                if (btnRadar) {
-                    btnRadar.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
-                }
-                if (titleText) titleText.textContent = "RASI KAS • TREN KEUANGAN";
-                if (window.mobileConstellationChart) {
-                    window.mobileConstellationChart.resize();
-                }
-            }
-        }
-
-        // Initialize static data without starting unneeded background loop
-        updateRadarWithData([], []);
-
-        // Pause/resume animations on tab visibility change to protect battery and RAM
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                stopProkerRadar();
-            } else if (isQueueCollapsed) {
-                startProkerRadar();
-            }
-        });
-
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
         
         let rawTransactions = [];
@@ -1801,7 +1511,6 @@
                         calculateAndRenderStats(rawTransactions);
                         updateChartWithData(rawTransactions);
                         renderQueue(rawTransactions, rawAnggota);
-                        updateRadarWithData(rawProker, rawTransactions);
                         
                         hideLoadingOverlay();
                         hasRenderedFromCache = true;
@@ -1841,7 +1550,6 @@
                         calculateAndRenderStats(rawTransactions);
                         updateChartWithData(rawTransactions);
                         renderQueue(rawTransactions, rawAnggota);
-                        updateRadarWithData(rawProker, rawTransactions);
                     } else {
                         console.error("Gagal memuat database:", data.message);
                         if (!hasRenderedFromCache && queueContainer) {
@@ -1860,7 +1568,7 @@
                 });
         }
         function calculateAndRenderStats(transactions) {
-            const approved = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+            const approved = (transactions || []).filter(t => t.status_reimburse === "Tidak Perlu");
             
             let totalSaldo = 0;
             let gopaySaldo = 0;
@@ -1919,27 +1627,61 @@
             if (cashPill) cashPill.textContent = `${cashPercent}% porsi`;
             if (inflowEl) inflowEl.textContent = `+ Rp ${totalMasuk.toLocaleString('id-ID')}`;
             if (outflowEl) outflowEl.textContent = totalKeluar > 0 ? `- Rp ${totalKeluar.toLocaleString('id-ID')}` : 'Rp 0';
+            
             if (statusPill) {
-                if (totalSaldo >= 0) {
-                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_#22d3ee]"></span> SURPLUS';
+                if (totalSaldo > 0) {
+                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded-md";
+                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]"></span> SURPLUS SEHAT';
+                } else if (totalSaldo === 0) {
+                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 px-1.5 py-0.5 rounded-md";
+                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_#22d3ee]"></span> KAS SEIMBANG';
                 } else {
+                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-rose-300 bg-rose-950/40 border border-rose-500/30 px-1.5 py-0.5 rounded-md";
                     statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-rose-400 shadow-[0_0_4px_#f43f5e]"></span> DEFISIT';
                 }
             }
+
+            // Inflow vs Outflow Visual Barometer
+            const totalFlow = totalMasuk + totalKeluar;
+            let inPct = 100;
+            let outPct = 0;
+            if (totalFlow > 0) {
+                inPct = Math.round((totalMasuk / totalFlow) * 100);
+                outPct = 100 - inPct;
+            }
+
+            const baroIn = document.getElementById('barometer-inflow');
+            const baroOut = document.getElementById('barometer-outflow');
+            const txtIn = document.getElementById('ratio-inflow-text');
+            const txtOut = document.getElementById('ratio-outflow-text');
+            const txtRetention = document.getElementById('ratio-retention-text');
+
+            if (baroIn) baroIn.style.width = `${inPct}%`;
+            if (baroOut) baroOut.style.width = `${outPct}%`;
+            if (txtIn) txtIn.textContent = `${inPct}% Masuk`;
+            if (txtOut) txtOut.textContent = `${outPct}% Keluar`;
+
+            const retentionRate = totalMasuk > 0 ? Math.max(0, Math.round(((totalMasuk - totalKeluar) / totalMasuk) * 100)) : 0;
+            if (txtRetention) txtRetention.textContent = `Simpanan Kas ${retentionRate}%`;
         }
         
         function updateChartWithData(transactions) {
+            window.lastProcessedTransactions = transactions;
             if (!window.ldkChart && !window.mobileConstellationChart) return;
             const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-            const approvedTx = transactions.filter(t => t.status_reimburse === "Tidak Perlu");
+            const approvedTx = (transactions || []).filter(t => t.status_reimburse === "Tidak Perlu");
             
             approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
             
             const goPayBalances = Array(12).fill(0);
             const tunaiBalances = Array(12).fill(0);
+            const monthlyInflows = Array(12).fill(0);
+            const monthlyOutflows = Array(12).fill(0);
+            const netBalances = Array(12).fill(0);
             
             let cumulativeGoPay = 0;
             let cumulativeTunai = 0;
+            let cumulativeNet = 0;
             
             const monthlyGoPayDiff = Array(12).fill(0);
             const monthlyTunaiDiff = Array(12).fill(0);
@@ -1949,12 +1691,14 @@
                 const mIdx = d.getMonth();
                 if (mIdx >= 0 && mIdx < 12) {
                     const nominal = Number(tx.nominal) || 0;
-                    const factor = tx.jenis === "Masuk" ? 1 : -1;
-                    const change = nominal * factor;
-                    if (tx.metode === "GoPay") {
-                        monthlyGoPayDiff[mIdx] += change;
-                    } else if (tx.metode === "Tunai") {
-                        monthlyTunaiDiff[mIdx] += change;
+                    if (tx.jenis === "Masuk") {
+                        monthlyInflows[mIdx] += nominal;
+                        if (tx.metode === "GoPay") monthlyGoPayDiff[mIdx] += nominal;
+                        else if (tx.metode === "Tunai") monthlyTunaiDiff[mIdx] += nominal;
+                    } else if (tx.jenis === "Keluar") {
+                        monthlyOutflows[mIdx] += nominal;
+                        if (tx.metode === "GoPay") monthlyGoPayDiff[mIdx] -= nominal;
+                        else if (tx.metode === "Tunai") monthlyTunaiDiff[mIdx] -= nominal;
                     }
                 }
             });
@@ -1962,13 +1706,16 @@
             for (let i = 0; i < 12; i++) {
                 cumulativeGoPay += monthlyGoPayDiff[i];
                 cumulativeTunai += monthlyTunaiDiff[i];
+                cumulativeNet += (monthlyInflows[i] - monthlyOutflows[i]);
                 goPayBalances[i] = cumulativeGoPay;
                 tunaiBalances[i] = cumulativeTunai;
+                netBalances[i] = cumulativeNet;
             }
             
             const maxMonthIndex = Math.max(5, new Date().getMonth());
             const activeMonths = months.slice(0, maxMonthIndex + 1);
             
+            // 1. Desktop Chart
             if (window.ldkChart) {
                 window.ldkChart.data.labels = activeMonths;
                 window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
@@ -1976,11 +1723,95 @@
                 window.ldkChart.update();
             }
 
+            // 2. Mobile Multi-Dimensional Chart (Hybrid Combo or Wallet Area)
             if (window.mobileConstellationChart) {
-                window.mobileConstellationChart.data.labels = activeMonths;
-                window.mobileConstellationChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
-                window.mobileConstellationChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
-                window.mobileConstellationChart.update();
+                const mChart = window.mobileConstellationChart;
+                mChart.data.labels = activeMonths;
+
+                if (currentMobileChartMode === 'cashflow') {
+                    mChart.data.datasets = [
+                        {
+                            type: 'bar',
+                            label: 'Kas Masuk',
+                            data: monthlyInflows.slice(0, maxMonthIndex + 1),
+                            backgroundColor: 'rgba(52, 211, 153, 0.65)',
+                            borderColor: 'rgba(52, 211, 153, 0.9)',
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            maxBarThickness: 10,
+                            order: 2
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Kas Keluar',
+                            data: monthlyOutflows.slice(0, maxMonthIndex + 1),
+                            backgroundColor: 'rgba(244, 63, 94, 0.55)',
+                            borderColor: 'rgba(244, 63, 94, 0.85)',
+                            borderWidth: 1,
+                            borderRadius: 3,
+                            maxBarThickness: 10,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Saldo Kas',
+                            data: netBalances.slice(0, maxMonthIndex + 1),
+                            borderColor: '#22d3ee',
+                            backgroundColor: 'rgba(34, 211, 238, 0.08)',
+                            borderWidth: 1.8,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#22d3ee',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 2.8,
+                            fill: false,
+                            order: 1
+                        }
+                    ];
+                } else {
+                    const mCtx = mChart.ctx;
+                    const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 90);
+                    gopayGrad.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
+                    gopayGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+                    const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 90);
+                    tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
+                    tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+
+                    mChart.data.datasets = [
+                        {
+                            type: 'line',
+                            label: 'GoPay',
+                            data: goPayBalances.slice(0, maxMonthIndex + 1),
+                            borderColor: '#38bdf8',
+                            backgroundColor: gopayGrad,
+                            borderWidth: 1.8,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#38bdf8',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 2.8,
+                            fill: true,
+                            order: 1
+                        },
+                        {
+                            type: 'line',
+                            label: 'Tunai',
+                            data: tunaiBalances.slice(0, maxMonthIndex + 1),
+                            borderColor: '#34d399',
+                            backgroundColor: tunaiGrad,
+                            borderWidth: 1.8,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#34d399',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 2.8,
+                            fill: true,
+                            order: 2
+                        }
+                    ];
+                }
+                mChart.update();
             }
         }
         
@@ -2659,13 +2490,11 @@
                 if (toggleLabel) toggleLabel.textContent = 'Buka (Swap ↑)';
                 if (btnFs) btnFs.classList.add('hidden');
                 setTimeout(() => {
-                    startProkerRadar();
                     if (window.mobileConstellationChart) {
                         window.mobileConstellationChart.resize();
                     }
                 }, 300);
             } else {
-                stopProkerRadar();
                 sheet.classList.remove('sheet-collapsed');
                 document.body.classList.remove('queue-collapsed');
                 if (toggleIcon) toggleIcon.textContent = '✕';
