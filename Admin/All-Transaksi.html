@@ -501,9 +501,10 @@
                 </span>
             </div>
             <div class="flex items-center gap-2 sm:gap-3">
-                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
-                    <span>Logout</span> <span>↗</span>
-                </a>
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-[9px] font-mono font-bold text-neutral-300 tracking-wide">SYNCED</span>
+                </div>
             </div>
         </div>
     </header>
@@ -516,9 +517,9 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">MASTER LEDGER</span>
             </div>
-            <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[9px] font-mono text-neutral-400 hover:text-rose-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold flex items-center gap-1 active:scale-95 transition-all">
-                <span>Logout</span> ↗
-            </a>
+            <span class="text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold flex items-center gap-1">
+                2026
+            </span>
         </div>
 
         <div class="w-full max-w-[280px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-0.5 sm:p-1 bg-neutral-950 border border-neutral-900 rounded-full shadow-xs ledger-tab-container">
@@ -571,13 +572,13 @@
                     <form id="pemasukanLainnyaForm" onsubmit="tambahPemasukanLokal(event)" class="flex flex-col gap-4">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Tanggal Pemasukan</label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Tanggal Pemasukan</label>
                                 <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Divisi</label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Divisi</label>
                                 <select id="in_divisi_select" onchange="checkCustomDivisi('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
-                                    <option value="NULL" selected>NULL (Tanpa Divisi)</option>
+                                    <option value="NULL" selected>- Tanpa Divisi (Umum) -</option>
                                     <option value="Acara">Acara</option>
                                     <option value="Sekretaris">Sekretaris</option>
                                     <option value="Bendahara">Bendahara</option>
@@ -592,7 +593,7 @@
                                 <input type="text" id="in_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Kategori</label>
                                 <select id="in_kategori_select" onchange="checkCustomCategory('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
                                     <option value="">Pilih Kategori...</option>
                                     <option value="Dana Operasional">Dana Operasional</option>
@@ -605,50 +606,47 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Uraian Pemasukan <span class="text-rose-400">*</span></label>
-                                    <input type="text" id="in_keterangan" placeholder="Contoh: Totebag, Dana Turunan Mukamil..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
-                                </div>
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan (Opsional)</label>
-                                    <input type="text" id="in_catatan_opsional" placeholder="Keterangan tambahan (misal: pembelinya Fadli)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
-                                </div>
+                        <div class="flex flex-col gap-3.5 bg-neutral-900/30 p-3.5 sm:p-4 border border-neutral-900 rounded-xl">
+                            <!-- Uraian Pemasukan (Full Width) -->
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Uraian Pemasukan <span class="text-rose-400">*</span></label>
+                                <input type="text" id="in_keterangan" placeholder="Contoh: Totebag, Dana Turunan Mukamil, Donasi Alumni..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
                             </div>
 
+                            <!-- Pihak, Metode & Alokasi -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode Pembayaran</label>
-                                    <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
-                                        <option value="Tunai">💵 Tunai</option>
-                                        <option value="GoPay">📱 GoPay</option>
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Metode Pembayaran</label>
+                                    <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                        <option value="Tunai">💵 Tunai (Cash)</option>
+                                        <option value="GoPay">📱 E-Wallet GoPay</option>
                                     </select>
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penyetor <span class="text-rose-400">*</span></label>
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Anggota Penyetor <span class="text-rose-400">*</span></label>
                                     <input type="text" id="in_user_search" list="in_members_list" required placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
                                     <datalist id="in_members_list"></datalist>
                                     <input type="hidden" id="in_user_id">
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Proker</label>
-                                    <select id="in_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
-                                        <option value="NULL" selected>NULL (Tidak Ada Proker)</option>
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Hubungkan Ke Proker</label>
+                                    <select id="in_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                        <option value="NULL" selected>- Tanpa Proker (Umum) -</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="flex flex-col gap-1.5">
-                                        <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Jumlah (Qty)</label>
-                                        <input type="number" id="in_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                            <!-- Qty, Satuan, Harga Satuan (Spacious, Anti-Cramped) -->
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                                <div class="grid grid-cols-5 gap-2 sm:contents">
+                                    <div class="col-span-2 sm:col-span-3 flex flex-col gap-1.5">
+                                        <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Jumlah (Qty)</label>
+                                        <input type="number" id="in_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono text-center font-bold">
                                     </div>
-                                    <div class="flex flex-col gap-1.5">
-                                        <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Satuan</label>
+                                    <div class="col-span-3 sm:col-span-4 flex flex-col gap-1.5">
+                                        <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Satuan</label>
                                         <select id="in_satuan_select" onchange="checkCustomSatuan('in')" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
-                                            <option value="NULL">NULL (Tanpa Satuan)</option>
+                                            <option value="NULL">- Tanpa Satuan -</option>
                                             <option value="pcs">pcs</option>
                                             <option value="set">set</option>
                                             <option value="pack">pack</option>
@@ -658,33 +656,58 @@
                                         <input type="text" id="in_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
-                                    <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="Harga" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                                <div class="sm:col-span-5 flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Harga Satuan (Rp)</label>
+                                    <div class="relative flex items-center">
+                                        <span class="absolute left-3 text-xs font-mono font-bold text-neutral-500 select-none">Rp</span>
+                                        <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono font-bold">
+                                    </div>
                                 </div>
                             </div>
                             <input type="hidden" id="pemasukanNominal" value="0">
 
+                            <!-- Catatan Tambahan (Opsional) -->
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Transaksi (Opsional)</label>
-                                <input type="file" id="in_bukti_file" onchange="handlePemasukanImage(this)" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-cyan-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-cyan-400 file:cursor-pointer hover:file:bg-cyan-950/40">
-                                <div id="in_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
-                                    <div class="flex items-center gap-2 overflow-hidden">
-                                        <img id="in_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
-                                        <span id="in_image_reduction_info" class="text-[9px] font-mono text-neutral-500"></span>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Catatan Tambahan (Opsional)</label>
+                                <input type="text" id="in_catatan_opsional" placeholder="Keterangan opsional (misal: pembeli Fadli, nota menyusul)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            </div>
+
+                            <!-- Bukti File Upload -->
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Bukti Transaksi (Opsional)</label>
+                                <label for="in_bukti_file" class="flex items-center justify-between px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl cursor-pointer transition-all active:scale-[0.99] group">
+                                    <div class="flex items-center gap-2.5 overflow-hidden">
+                                        <span class="text-sm text-neutral-400 group-hover:text-cyan-400 transition-colors">📎</span>
+                                        <span id="in_file_name_display" class="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate">Pilih foto nota / kwitansi...</span>
                                     </div>
-                                    <button type="button" onclick="resetPemasukanImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
+                                    <span class="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-800/40 px-2.5 py-1 rounded-lg shrink-0">Upload</span>
+                                </label>
+                                <input type="file" id="in_bukti_file" onchange="handlePemasukanImage(this)" accept="image/*" class="hidden">
+                                <div id="in_preview_container" class="hidden mt-2 p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center gap-2.5 overflow-hidden">
+                                        <img id="in_image_preview" src="" class="w-12 h-12 rounded-lg object-cover border border-neutral-700 shrink-0">
+                                        <div class="flex flex-col min-w-0">
+                                            <span class="text-[11px] font-bold text-neutral-200 truncate">Foto Terlampir</span>
+                                            <span id="in_image_reduction_info" class="text-[9px] font-mono text-neutral-400"></span>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="resetPemasukanImage()" class="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-neutral-950 border border-neutral-800 hover:border-rose-500/40 px-3 py-1.5 rounded-lg cursor-pointer transition-all font-bold">Hapus</button>
                                 </div>
                             </div>
 
-                            <div class="bg-emerald-950/20 p-3 rounded-xl text-center flex flex-col gap-0.5 border border-emerald-900/30 mt-1">
-                                <span class="text-[9px] font-mono text-emerald-400 uppercase font-bold tracking-wider">TOTAL HARGA</span>
-                                <div id="in_total_display" class="text-base font-black text-white font-mono tracking-tight">Rp0</div>
+                            <!-- Total Display Card -->
+                            <div class="bg-gradient-to-r from-emerald-950/40 via-emerald-900/20 to-neutral-900/60 p-3.5 rounded-xl flex items-center justify-between border border-emerald-500/30 mt-1">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-mono text-emerald-400 uppercase font-bold tracking-wider">TOTAL PEMASUKAN</span>
+                                    <span class="text-[10px] text-neutral-400">Jumlah (Qty) × Harga Satuan</span>
+                                </div>
+                                <div id="in_total_display" class="text-base sm:text-lg font-black text-emerald-300 font-mono tracking-tight">Rp0</div>
                             </div>
                         </div>
 
-                        <button type="submit" id="btnSubmitPemasukan" class="w-full bg-emerald-600 hover:bg-emerald-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
-                            💾 Simpan Pemasukan ✓
+                        <button type="submit" id="btnSubmitPemasukan" class="w-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs sm:text-sm font-bold py-3 rounded-xl active:scale-[0.99] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2">
+                            <span>💾</span>
+                            <span>Simpan Pemasukan</span>
                         </button>
                     </form>
                 </div>
@@ -699,13 +722,13 @@
                 <form id="pengeluaranForm" onsubmit="tambahPengeluaranLokal(event)" class="flex flex-col gap-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Tanggal</label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Tanggal Pengeluaran</label>
                             <input type="date" id="out_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Divisi</label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Divisi</label>
                             <select id="out_divisi_select" onchange="checkCustomDivisi('out')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
-                                <option value="NULL" selected>NULL (Tanpa Divisi)</option>
+                                <option value="NULL" selected>- Tanpa Divisi (Umum) -</option>
                                 <option value="Acara">Acara</option>
                                 <option value="Sekretaris">Sekretaris</option>
                                 <option value="Bendahara">Bendahara</option>
@@ -720,7 +743,7 @@
                             <input type="text" id="out_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Kategori</label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Kategori</label>
                             <select id="out_kategori_select" onchange="checkCustomCategory('out')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                 <option value="">Pilih Kategori...</option>
                                 <option value="Dana Operasional">Dana Operasional</option>
@@ -733,50 +756,47 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-3 bg-neutral-900/10 p-3.5 border border-neutral-900 rounded-xl">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Nama Barang / Uraian <span class="text-rose-400">*</span></label>
-                                <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
-                            </div>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Keterangan (Opsional)</label>
-                                <input type="text" id="out_catatan_opsional" placeholder="Keterangan tambahan (misal: untuk konsumsi rapat)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500">
-                            </div>
+                    <div class="flex flex-col gap-3.5 bg-neutral-900/30 p-3.5 sm:p-4 border border-neutral-900 rounded-xl">
+                        <!-- Nama Barang / Uraian (Full Width) -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Nama Barang / Uraian Pengeluaran <span class="text-rose-400">*</span></label>
+                            <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan, Banner...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                         </div>
 
+                        <!-- Pihak, Metode & Alokasi -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Metode Pembayaran</label>
-                                <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Metode Pembayaran</label>
+                                <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                     <option value="Tunai">💵 Uang Tunai (Cash)</option>
                                     <option value="GoPay">📱 E-Wallet GoPay</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Anggota Penanggung Jawab</label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Penanggung Jawab (PJ) <span class="text-rose-400">*</span></label>
                                 <input type="text" id="out_user_search" list="out_members_list" required placeholder="Cari & pilih penanggung jawab..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                                 <datalist id="out_members_list"></datalist>
                                 <input type="hidden" id="out_user_id">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Hubungkan Ke Proker</label>
-                                <select id="out_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer">
-                                    <option value="NULL" selected>NULL (Tidak Ada Proker)</option>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Hubungkan Ke Proker</label>
+                                <select id="out_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
+                                    <option value="NULL" selected>- Tanpa Proker (Umum) -</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Jumlah (Qty)</label>
-                                    <input type="number" id="exp_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
+                        <!-- Qty, Satuan, Harga Satuan (Spacious, Anti-Cramped) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                            <div class="grid grid-cols-5 gap-2 sm:contents">
+                                <div class="col-span-2 sm:col-span-3 flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Jumlah (Qty)</label>
+                                    <input type="number" id="exp_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono text-center font-bold">
                                 </div>
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Satuan</label>
+                                <div class="col-span-3 sm:col-span-4 flex flex-col gap-1.5">
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Satuan</label>
                                     <select id="out_satuan_select" onchange="checkCustomSatuan('out')" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
-                                        <option value="NULL">NULL (Tanpa Satuan)</option>
+                                        <option value="NULL">- Tanpa Satuan -</option>
                                         <option value="pcs">pcs</option>
                                         <option value="set">set</option>
                                         <option value="pack">pack</option>
@@ -786,32 +806,57 @@
                                     <input type="text" id="out_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                                 </div>
                             </div>
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Harga Satuan (Rp)</label>
-                                <input type="text" id="exp_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="Harga" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Bukti Pembelian / Kwitansi (Opsional)</label>
-                            <input type="file" id="out_bukti_file" onchange="handlePengeluaranImage(this)" accept="image/*" class="w-full text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 focus:outline-none focus:border-rose-500 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-[10px] file:font-mono file:bg-neutral-800 file:text-rose-400 file:cursor-pointer hover:file:bg-rose-950/40">
-                            <div id="out_preview_container" class="hidden mt-2 relative p-2 bg-neutral-900 border border-neutral-850 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center gap-2 overflow-hidden">
-                                    <img id="out_image_preview" src="" class="w-12 h-12 rounded object-cover border border-neutral-800">
-                                    <span id="out_image_reduction_info" class="text-[9px] font-mono text-neutral-500"></span>
+                            <div class="sm:col-span-5 flex flex-col gap-1.5">
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Harga Satuan (Rp)</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3 text-xs font-mono font-bold text-neutral-500 select-none">Rp</span>
+                                    <input type="text" id="exp_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono font-bold">
                                 </div>
-                                <button type="button" onclick="resetPengeluaranImage()" class="text-[9px] font-mono text-red-400 hover:text-red-300 bg-neutral-950 border border-neutral-800 px-2 py-1 rounded cursor-pointer transition-all">Hapus</button>
                             </div>
                         </div>
 
-                        <div class="bg-rose-950/20 p-3 rounded-xl text-center flex flex-col gap-0.5 border border-rose-900/30 mt-1">
-                            <span class="text-[9px] font-mono text-rose-400 uppercase font-bold tracking-wider">TOTAL HARGA</span>
-                            <div id="exp_total_display" class="text-base font-black text-white font-mono tracking-tight">Rp0</div>
+                        <!-- Catatan Tambahan (Opsional) -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Catatan Tambahan (Opsional)</label>
+                            <input type="text" id="out_catatan_opsional" placeholder="Keterangan tambahan (misal: konsumsi rapat, belanja logistik)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
+                        </div>
+
+                        <!-- Bukti File Upload -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Bukti Pembelian / Kwitansi (Opsional)</label>
+                            <label for="out_bukti_file" class="flex items-center justify-between px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-rose-500/50 rounded-xl cursor-pointer transition-all active:scale-[0.99] group">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <span class="text-sm text-neutral-400 group-hover:text-rose-400 transition-colors">📎</span>
+                                    <span id="out_file_name_display" class="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate">Pilih foto nota / kwitansi...</span>
+                                </div>
+                                <span class="text-[9px] font-mono font-bold text-rose-400 bg-rose-950/80 border border-rose-800/40 px-2.5 py-1 rounded-lg shrink-0">Upload</span>
+                            </label>
+                            <input type="file" id="out_bukti_file" onchange="handlePengeluaranImage(this)" accept="image/*" class="hidden">
+                            <div id="out_preview_container" class="hidden mt-2 p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-between">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <img id="out_image_preview" src="" class="w-12 h-12 rounded-lg object-cover border border-neutral-700 shrink-0">
+                                    <div class="flex flex-col min-w-0">
+                                        <span class="text-[11px] font-bold text-neutral-200 truncate">Foto Terlampir</span>
+                                        <span id="out_image_reduction_info" class="text-[9px] font-mono text-neutral-400"></span>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="resetPengeluaranImage()" class="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-neutral-950 border border-neutral-800 hover:border-rose-500/40 px-3 py-1.5 rounded-lg cursor-pointer transition-all font-bold">Hapus</button>
+                            </div>
+                        </div>
+
+                        <!-- Total Display Card -->
+                        <div class="bg-gradient-to-r from-rose-950/40 via-rose-900/20 to-neutral-900/60 p-3.5 rounded-xl flex items-center justify-between border border-rose-500/30 mt-1">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-mono text-rose-400 uppercase font-bold tracking-wider">TOTAL PENGELUARAN</span>
+                                <span class="text-[10px] text-neutral-400">Jumlah (Qty) × Harga Satuan</span>
+                            </div>
+                            <div id="exp_total_display" class="text-base sm:text-lg font-black text-rose-300 font-mono tracking-tight">Rp0</div>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-neutral-950 text-xs font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer shadow-md">
-                        💾 Simpan Pengeluaran ✓
+                    <button type="submit" class="w-full bg-rose-500 hover:bg-rose-400 text-neutral-950 text-xs sm:text-sm font-bold py-3 rounded-xl active:scale-[0.99] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2">
+                        <span>💾</span>
+                        <span>Simpan Pengeluaran</span>
                     </button>
                 </form>
             </div>
@@ -907,17 +952,6 @@
                             📥 Unduh CSV
                         </button>
                     </div>
-                </div>
-            </div>
-
-            <!-- DIAGRAM ARUS KEUANGAN LDK IMIP (DIPINDAHKAN DARI DASHBOARD) -->
-            <div class="bg-neutral-950 border border-neutral-900 p-3 sm:p-4 rounded-xl flex flex-col gap-2.5 shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">DIAGRAM ARUS KEUANGAN LDK IMIP</span>
-                    <span class="text-[8px] font-mono text-neutral-500">KAS TAHUN 2026</span>
-                </div>
-                <div class="w-full h-44 sm:h-56 flex justify-center items-center">
-                    <canvas id="ldkLineChart"></canvas>
                 </div>
             </div>
 
@@ -1209,8 +1243,8 @@
             const inVal = inSelect.value;
             const outVal = outSelect.value;
 
-            inSelect.innerHTML = '<option value="NULL">NULL (Tidak Ada Proker)</option>';
-            outSelect.innerHTML = '<option value="NULL">NULL (Tidak Ada Proker)</option>';
+            inSelect.innerHTML = '<option value="NULL">- Tanpa Proker (Umum) -</option>';
+            outSelect.innerHTML = '<option value="NULL">- Tanpa Proker (Umum) -</option>';
 
             prokers.forEach(p => {
                 const optHtml = `<option value="${p.id}">${p.nama_proker}</option>`;
@@ -1410,6 +1444,8 @@
             const container = document.getElementById('in_preview_container');
             const preview = document.getElementById('in_image_preview');
             const info = document.getElementById('in_image_reduction_info');
+            const nameDisplay = document.getElementById('in_file_name_display');
+            if (nameDisplay) nameDisplay.innerText = file.name;
             if (container) container.classList.remove('hidden');
             if (info) info.innerText = 'Mengompres foto...';
 
@@ -1426,6 +1462,8 @@
             const container = document.getElementById('out_preview_container');
             const preview = document.getElementById('out_image_preview');
             const info = document.getElementById('out_image_reduction_info');
+            const nameDisplay = document.getElementById('out_file_name_display');
+            if (nameDisplay) nameDisplay.innerText = file.name;
             if (container) container.classList.remove('hidden');
             if (info) info.innerText = 'Mengompres foto...';
 
@@ -1458,6 +1496,8 @@
             pemasukanImageBase64 = '';
             const fileInput = document.getElementById('in_bukti_file');
             if (fileInput) fileInput.value = '';
+            const nameDisplay = document.getElementById('in_file_name_display');
+            if (nameDisplay) nameDisplay.innerText = 'Pilih foto nota / kwitansi...';
             const container = document.getElementById('in_preview_container');
             if (container) container.classList.add('hidden');
             const preview = document.getElementById('in_image_preview');
@@ -1470,6 +1510,8 @@
             pengeluaranImageBase64 = '';
             const fileInput = document.getElementById('out_bukti_file');
             if (fileInput) fileInput.value = '';
+            const nameDisplay = document.getElementById('out_file_name_display');
+            if (nameDisplay) nameDisplay.innerText = 'Pilih foto nota / kwitansi...';
             const container = document.getElementById('out_preview_container');
             if (container) container.classList.add('hidden');
             const preview = document.getElementById('out_image_preview');
