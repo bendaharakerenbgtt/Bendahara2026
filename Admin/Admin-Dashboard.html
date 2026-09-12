@@ -860,7 +860,7 @@
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400">
 
     <!-- DYNAMIC OUTER SPACE COSMIC CANVAS (STARFIELD & METEORS) -->
-    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none" style="z-index: -1;"></canvas>
+    <canvas id="bg-canvas" class="fixed inset-0 pointer-events-none" style="z-index: 0;"></canvas>
 
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
@@ -2376,11 +2376,12 @@
             const targetFrameDelta = isMobileDevice ? (1000 / 30) : (1000 / 60);
 
             let currentCy = getVortexCenter().y;
+            let lastFrameTime = 0;
 
             function renderOuterSpace(timestamp) {
                 requestAnimationFrame(renderOuterSpace);
 
-                if (document.hidden || isQueueFullscreen) {
+                if (document.hidden) {
                     return;
                 }
 
