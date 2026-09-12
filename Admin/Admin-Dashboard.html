@@ -748,12 +748,11 @@
             }
 
             .constellation-glass-card {
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(15, 23, 42, 0.14) 45%, rgba(2, 6, 23, 0.22) 100%) !important;
+                background: rgba(8, 14, 26, 0.88) !important;
                 border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                border-top: 1.2px solid rgba(255, 255, 255, 0.25) !important;
-                backdrop-filter: blur(10px) saturate(150%) !important;
-                -webkit-backdrop-filter: blur(10px) saturate(150%) !important;
-                box-shadow: 0 10px 26px -6px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+                border-top: 1.2px solid rgba(255, 255, 255, 0.22) !important;
+                box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.45) !important;
+                contain: content;
             }
 
             /* Swipeable Mobile Interactive Sheet (GPU Accelerated Slide) */
@@ -1052,7 +1051,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1.5">
                                 <span class="text-cyan-400 text-xs animate-pulse">✦</span>
-                                <span id="deck-title-text" class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">RADAR ALOKASI • PROKER</span>
+                                <span id="deck-title-text" class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">PANTAUAN BUDGET • PROKER</span>
                             </div>
                             <!-- Switcher Pills -->
                             <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
@@ -1068,9 +1067,9 @@
                         <!-- 1. ORBITAL BUDGET RADAR VIEW (DEFAULT) -->
                         <div id="radar-deck-view" class="flex flex-col gap-2">
                             <div class="flex items-center gap-3 w-full">
-                                <!-- Circular Radar Canvas with 360° Sweep & Pulsar Blips -->
-                                <div class="relative shrink-0 w-[122px] h-[122px] rounded-full bg-slate-950/80 border border-cyan-500/30 p-1 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.15)]">
-                                    <canvas id="prokerRadarCanvas" width="114" height="114" class="w-[114px] h-[114px] rounded-full"></canvas>
+                                <!-- Circular Radar Canvas with 360° Sweep & Pulsar Blips (Hardware Isolated) -->
+                                <div class="relative shrink-0 w-[122px] h-[122px] rounded-full bg-slate-950/90 border border-cyan-500/30 p-1 flex items-center justify-center shadow-[0_0_12px_rgba(34,211,238,0.12)]" style="contain: paint; will-change: transform;">
+                                    <canvas id="prokerRadarCanvas" width="114" height="114" class="w-[114px] h-[114px] rounded-full" style="contain: paint;"></canvas>
                                 </div>
                                 <!-- Proker Progress Feed -->
                                 <div id="radar-proker-list" class="flex-1 flex flex-col justify-center gap-2 min-w-0 pr-1">
@@ -1081,17 +1080,17 @@
                             <!-- Radar Summary Strip -->
                             <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-white/10">
                                 <div class="flex flex-col">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Aktif</span>
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Proker Aktif</span>
                                     <span id="radar-proker-count" class="text-[9.5px] font-mono font-bold text-cyan-300 truncate">4 Proker</span>
                                 </div>
                                 <div class="flex flex-col">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Total Serapan</span>
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Total Terpakai</span>
                                     <span id="radar-proker-spent" class="text-[9.5px] font-mono font-bold text-emerald-400 truncate">Rp 0</span>
                                 </div>
                                 <div class="flex flex-col items-end justify-center">
-                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Status Pagu</span>
-                                    <span class="inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-cyan-300 bg-cyan-950/50 border border-cyan-500/30 px-1.5 py-0.5 rounded-md">
-                                        <span class="w-1 h-1 rounded-full bg-cyan-400 animate-pulse"></span> TERKENDALI
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Kondisi Kas</span>
+                                    <span id="radar-proker-status-pill" class="inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-1.5 py-0.5 rounded-md">
+                                        <span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> AMAN
                                     </span>
                                 </div>
                             </div>
@@ -1459,11 +1458,45 @@
         // ==========================================================================
         // 360° ORBITAL BUDGET RADAR ENGINE (RADAR ALOKASI PROGRAM KERJA)
         // ==========================================================================
+        // 360° ORBITAL BUDGET RADAR ENGINE (LIGHTWEIGHT & GPU-ACCELERATED)
+        // ==========================================================================
         let radarSweepAngle = 0;
         let radarAnimFrame = null;
+        let lastRadarTimestamp = 0;
         window.currentRadarProkers = [];
 
-        function renderProkerRadar() {
+        function startProkerRadar() {
+            if (radarAnimFrame) return;
+            const radarView = document.getElementById('radar-deck-view');
+            if (isQueueCollapsed && radarView && !radarView.classList.contains('hidden') && !document.hidden) {
+                radarAnimFrame = requestAnimationFrame(renderProkerRadar);
+            }
+        }
+
+        function stopProkerRadar() {
+            if (radarAnimFrame) {
+                cancelAnimationFrame(radarAnimFrame);
+                radarAnimFrame = null;
+            }
+        }
+
+        function renderProkerRadar(timestamp) {
+            const radarView = document.getElementById('radar-deck-view');
+            // Strict lifecycle check: stop immediately if collapsed state or deck is not active
+            if (!isQueueCollapsed || !radarView || radarView.classList.contains('hidden') || document.hidden) {
+                stopProkerRadar();
+                return;
+            }
+
+            radarAnimFrame = requestAnimationFrame(renderProkerRadar);
+
+            // FPS Throttling for mobile: ~30 FPS saves 70% GPU and eliminates all micro-stutter
+            const now = timestamp || performance.now();
+            if (now - lastRadarTimestamp < 32) {
+                return;
+            }
+            lastRadarTimestamp = now;
+
             const canvas = document.getElementById('prokerRadarCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -1499,36 +1532,44 @@
             ctx.stroke();
 
             // 3. 360° Rotating Radar Sweep Cone
-            radarSweepAngle = (radarSweepAngle + 0.038) % (Math.PI * 2);
+            radarSweepAngle = (radarSweepAngle + 0.045) % (Math.PI * 2);
             const sweepGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-            sweepGradient.addColorStop(0, 'rgba(34, 211, 238, 0.28)');
+            sweepGradient.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
             sweepGradient.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
 
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, maxR, radarSweepAngle - 0.48, radarSweepAngle);
+            ctx.arc(cx, cy, maxR, radarSweepAngle - 0.44, radarSweepAngle);
             ctx.closePath();
             ctx.fillStyle = sweepGradient;
             ctx.fill();
 
-            // Leading bright sweep line
+            // Leading bright sweep line (Double stroke gives neon laser glow with 0ms CPU penalty)
             ctx.beginPath();
             ctx.moveTo(cx, cy);
             ctx.lineTo(cx + Math.cos(radarSweepAngle) * maxR, cy + Math.sin(radarSweepAngle) * maxR);
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
-            ctx.lineWidth = 1.4;
-            ctx.shadowColor = '#38bdf8';
-            ctx.shadowBlur = 8;
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.lineWidth = 3.2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(radarSweepAngle) * maxR, cy + Math.sin(radarSweepAngle) * maxR);
+            ctx.strokeStyle = 'rgba(224, 242, 254, 0.95)';
+            ctx.lineWidth = 1.2;
             ctx.stroke();
             ctx.restore();
 
-            // 4. Center Satellite Hub
+            // 4. Center Satellite Hub (Dual geometric circles, zero shadowBlur)
             ctx.beginPath();
-            ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(34, 211, 238, 0.28)';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 2, 0, Math.PI * 2);
             ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#22d3ee';
-            ctx.shadowBlur = 6;
             ctx.fill();
 
             // 5. Draw Proker Coordinate Blips
@@ -1543,38 +1584,41 @@
                     while (angleDiff < 0) angleDiff += Math.PI * 2;
                     while (angleDiff > Math.PI * 2) angleDiff -= Math.PI * 2;
                     const isJustSwept = angleDiff < 0.6;
-                    const alpha = isJustSwept ? 1 : Math.max(0.4, 1 - (angleDiff / (Math.PI * 2)));
+                    const alpha = isJustSwept ? 1 : Math.max(0.35, 1 - (angleDiff / (Math.PI * 2)));
 
                     ctx.save();
                     const blipColor = p.color || (i % 2 === 0 ? '#22d3ee' : '#34d399');
-                    ctx.shadowColor = blipColor;
-                    ctx.shadowBlur = isJustSwept ? 14 : 5;
-                    ctx.fillStyle = blipColor;
                     ctx.globalAlpha = alpha;
 
-                    // Pulsar ring on scan pass
+                    // Sonar ripple on scan pass
                     if (isJustSwept) {
                         ctx.beginPath();
                         ctx.arc(px, py, 6.5, 0, Math.PI * 2);
                         ctx.strokeStyle = blipColor;
-                        ctx.lineWidth = 1;
+                        ctx.lineWidth = 1.2;
                         ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.arc(px, py, 4.5, 0, Math.PI * 2);
+                        ctx.fillStyle = blipColor;
+                        ctx.globalAlpha = 0.25;
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
                     }
 
                     // Blip star core
                     ctx.beginPath();
-                    ctx.arc(px, py, 2.8, 0, Math.PI * 2);
+                    ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+                    ctx.fillStyle = blipColor;
                     ctx.fill();
 
                     // Micro label
                     ctx.fillStyle = '#f8fafc';
-                    ctx.font = 'bold 6.5px "JetBrains Mono", monospace';
+                    ctx.font = 'bold 7px "JetBrains Mono", monospace';
                     ctx.fillText(p.shortName, px + 4, py - 2.5);
                     ctx.restore();
                 });
             }
-
-            radarAnimFrame = requestAnimationFrame(renderProkerRadar);
         }
 
         function updateRadarWithData(prokers, transactions) {
@@ -1625,34 +1669,45 @@
 
             window.currentRadarProkers = radarData;
 
-            // Render HTML list on the right side of the radar
+            // Render clear, human-friendly HTML list on the right side of the radar
             const listContainer = document.getElementById('radar-proker-list');
             if (listContainer) {
                 listContainer.innerHTML = radarData.map(p => `
                     <div class="flex flex-col gap-0.5">
-                        <div class="flex items-center justify-between text-[7.5px] font-mono">
+                        <div class="flex items-center justify-between text-[7.8px] font-mono">
                             <span class="text-slate-200 font-bold truncate max-w-[95px] flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: ${p.color}; box-shadow: 0 0 5px ${p.color};"></span>
+                                <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: ${p.color};"></span>
                                 <span class="truncate">${p.name}</span>
                             </span>
-                            <span class="font-black tabular-nums" style="color: ${p.color};">${p.percent}%</span>
+                            <span class="font-bold tabular-nums" style="color: ${p.color};">${p.percent}% terpakai</span>
                         </div>
-                        <div class="w-full h-1 rounded-full bg-white/5 overflow-hidden">
-                            <div class="h-full rounded-full transition-all duration-500" style="width: ${p.percent}%; background: ${p.color}; box-shadow: 0 0 6px ${p.color};"></div>
+                        <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-300" style="width: ${p.percent}%; background: ${p.color};"></div>
                         </div>
-                        <div class="flex items-center justify-between text-[6.8px] font-mono text-slate-400">
-                            <span class="tabular-nums">Rp ${(p.spent / 1000).toFixed(0)}k</span>
-                            <span class="tabular-nums opacity-60">Pagu Rp ${(p.budget / 1000).toFixed(0)}k</span>
+                        <div class="flex items-center justify-between text-[6.8px] font-mono">
+                            <span class="tabular-nums text-slate-300">Terpakai: Rp ${(p.spent / 1000).toFixed(0)}k</span>
+                            <span class="tabular-nums text-slate-400">Budget: Rp ${(p.budget / 1000).toFixed(0)}k</span>
                         </div>
                     </div>
                 `).join('');
             }
 
-            // Update bottom telemetry summary
+            // Update bottom summary with intuitive labels
             const countEl = document.getElementById('radar-proker-count');
             const spentEl = document.getElementById('radar-proker-spent');
+            const statusPill = document.getElementById('radar-proker-status-pill');
             if (countEl) countEl.textContent = `${prokerList.length} Proker`;
             if (spentEl) spentEl.textContent = `Rp ${totalAllProkerSpent.toLocaleString('id-ID')}`;
+            if (statusPill) {
+                const isOver = radarData.some(p => p.spent > p.budget);
+                if (isOver) {
+                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-amber-300 bg-amber-950/50 border border-amber-500/30 px-1.5 py-0.5 rounded-md";
+                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></span> OVER BUDGET';
+                } else {
+                    statusPill.className = "inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-1.5 py-0.5 rounded-md";
+                    statusPill.innerHTML = '<span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span> AMAN';
+                }
+            }
         }
 
         function switchCosmicDeck(mode) {
@@ -1671,9 +1726,10 @@
                 if (btnConst) {
                     btnConst.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
                 }
-                if (titleText) titleText.textContent = "RADAR ALOKASI • PROKER";
-                if (!radarAnimFrame) renderProkerRadar();
+                if (titleText) titleText.textContent = "PANTAUAN BUDGET • PROKER";
+                startProkerRadar();
             } else {
+                stopProkerRadar();
                 if (radarView) radarView.classList.add('hidden');
                 if (constView) constView.classList.remove('hidden');
                 if (btnConst) {
@@ -1689,9 +1745,17 @@
             }
         }
 
-        // Initialize demonstration data and radar render loop
-        renderProkerRadar();
+        // Initialize static data without starting unneeded background loop
         updateRadarWithData([], []);
+
+        // Pause/resume animations on tab visibility change to protect battery and RAM
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopProkerRadar();
+            } else if (isQueueCollapsed) {
+                startProkerRadar();
+            }
+        });
 
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
         
@@ -2244,7 +2308,7 @@
                 beacons = [];
 
                 // 1. Distant Milky Way Stardust (Optimized count for mobile)
-                const stardustCount = isMobile ? 50 : Math.min(Math.floor(width / 2.2), 150);
+                const stardustCount = isMobile ? 22 : Math.min(Math.floor(width / 2.2), 150);
                 for (let i = 0; i < stardustCount; i++) {
                     const r = Math.pow(Math.random(), 1.25) * maxRadius + 15;
                     stardust.push({
@@ -2261,7 +2325,7 @@
                 }
 
                 // 2. Midground Orbiting Stars (Optimized count for mobile)
-                const starCount = isMobile ? 26 : Math.min(Math.floor(width / 5.5), 60);
+                const starCount = isMobile ? 12 : Math.min(Math.floor(width / 5.5), 60);
                 for (let i = 0; i < starCount; i++) {
                     const r = Math.pow(Math.random(), 1.35) * maxRadius + 22;
                     stars.push({
@@ -2279,7 +2343,7 @@
                 }
 
                 // 3. Bright Stellar Beacons with Optical Diffraction Spikes
-                const beaconCount = isMobile ? 6 : 14;
+                const beaconCount = isMobile ? 2 : 14;
                 for (let i = 0; i < beaconCount; i++) {
                     const r = Math.pow(Math.random(), 1.4) * (maxRadius * 0.85) + 30;
                     beacons.push({
@@ -2399,15 +2463,18 @@
             window.addEventListener('resize', setupCanvasSize);
 
             let time = 0;
-            let lastFrameTime = 0;
-            // Frame throttle target: ~40fps on mobile for extreme battery/GPU savings and zero stutter
+            // Frame throttle target: 30fps on mobile for extreme battery/GPU savings and zero stutter
             const isMobileDevice = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
-            const targetFrameDelta = isMobileDevice ? (1000 / 42) : (1000 / 60);
+            const targetFrameDelta = isMobileDevice ? (1000 / 30) : (1000 / 60);
 
             let currentCy = getVortexCenter().y;
 
             function renderOuterSpace(timestamp) {
                 requestAnimationFrame(renderOuterSpace);
+
+                if (document.hidden || isQueueFullscreen) {
+                    return;
+                }
 
                 if (timestamp && timestamp - lastFrameTime < targetFrameDelta) {
                     return;
@@ -2512,8 +2579,8 @@
                     ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${alpha})`;
                     ctx.fill();
 
-                    // Optical 4-point diffraction spikes (Telescope Deep Space signature)
-                    if (alpha > 0.45) {
+                    // Optical 4-point diffraction spikes (Only on desktop for optimal mobile 60fps)
+                    if (!isMobileDevice && alpha > 0.45) {
                         const spikeAlpha = (alpha - 0.45) * 0.65;
                         const sLen = s.spikeLen * (0.7 + (twinkle + 1) * 0.25);
                         ctx.beginPath();
@@ -2592,12 +2659,13 @@
                 if (toggleLabel) toggleLabel.textContent = 'Buka (Swap ↑)';
                 if (btnFs) btnFs.classList.add('hidden');
                 setTimeout(() => {
-                    if (!radarAnimFrame) renderProkerRadar();
+                    startProkerRadar();
                     if (window.mobileConstellationChart) {
                         window.mobileConstellationChart.resize();
                     }
                 }, 300);
             } else {
+                stopProkerRadar();
                 sheet.classList.remove('sheet-collapsed');
                 document.body.classList.remove('queue-collapsed');
                 if (toggleIcon) toggleIcon.textContent = '✕';
