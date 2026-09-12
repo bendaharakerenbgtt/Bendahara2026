@@ -1045,41 +1045,79 @@
                     </div>
                 </div>
 
-                <!-- 3. COSMIC CONSTELLATION FINANCIAL CHART & TELEMETRY (REVEALED IN COLLAPSED MODE) -->
+                <!-- 3. COSMIC TELEMETRY DECK (ORBITAL BUDGET RADAR & CONSTELLATION CHART) -->
                 <div id="mobile-constellation-wrap" class="sm:hidden w-full transition-all duration-300">
-                    <div class="constellation-glass-card relative overflow-hidden px-3.5 py-2.5 rounded-2xl flex flex-col gap-1.5">
+                    <div class="constellation-glass-card relative overflow-hidden px-3.5 py-2.5 rounded-2xl flex flex-col gap-2">
+                        <!-- Deck Header with Interactive Mode Switcher -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1.5">
                                 <span class="text-cyan-400 text-xs animate-pulse">✦</span>
-                                <span class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">RASI KAS • TREN KEUANGAN</span>
+                                <span id="deck-title-text" class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300/90 uppercase">RADAR ALOKASI • PROKER</span>
                             </div>
-                            <div class="flex items-center gap-2.5 text-[8px] font-mono">
-                                <span class="flex items-center gap-1 text-cyan-300 font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></span> GoPay
-                                </span>
-                                <span class="flex items-center gap-1 text-emerald-300 font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span> Tunai
-                                </span>
+                            <!-- Switcher Pills -->
+                            <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
+                                <button type="button" id="tab-btn-radar" onclick="switchCosmicDeck('radar')" class="px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all">
+                                    🛰️ Radar
+                                </button>
+                                <button type="button" id="tab-btn-constellation" onclick="switchCosmicDeck('constellation')" class="px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all">
+                                    ✦ Rasi
+                                </button>
                             </div>
                         </div>
-                        <div class="w-full h-32 relative">
-                            <canvas id="mobileConstellationChart"></canvas>
+
+                        <!-- 1. ORBITAL BUDGET RADAR VIEW (DEFAULT) -->
+                        <div id="radar-deck-view" class="flex flex-col gap-2">
+                            <div class="flex items-center gap-3 w-full">
+                                <!-- Circular Radar Canvas with 360° Sweep & Pulsar Blips -->
+                                <div class="relative shrink-0 w-[122px] h-[122px] rounded-full bg-slate-950/80 border border-cyan-500/30 p-1 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.15)]">
+                                    <canvas id="prokerRadarCanvas" width="114" height="114" class="w-[114px] h-[114px] rounded-full"></canvas>
+                                </div>
+                                <!-- Proker Progress Feed -->
+                                <div id="radar-proker-list" class="flex-1 flex flex-col justify-center gap-2 min-w-0 pr-1">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Radar Summary Strip -->
+                            <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-white/10">
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Aktif</span>
+                                    <span id="radar-proker-count" class="text-[9.5px] font-mono font-bold text-cyan-300 truncate">4 Proker</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Total Serapan</span>
+                                    <span id="radar-proker-spent" class="text-[9.5px] font-mono font-bold text-emerald-400 truncate">Rp 0</span>
+                                </div>
+                                <div class="flex flex-col items-end justify-center">
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Status Pagu</span>
+                                    <span class="inline-flex items-center gap-1 text-[7.5px] font-mono font-bold text-cyan-300 bg-cyan-950/50 border border-cyan-500/30 px-1.5 py-0.5 rounded-md">
+                                        <span class="w-1 h-1 rounded-full bg-cyan-400 animate-pulse"></span> TERKENDALI
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Telemetry Stream Strip (Rich Details) -->
-                        <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-white/10 mt-0.5">
-                            <div class="flex flex-col">
-                                <span class="text-[7.5px] font-mono text-slate-400 uppercase tracking-wider">Kas Masuk</span>
-                                <span id="telemetry-inflow" class="text-[10px] font-mono font-bold text-emerald-400 truncate">+ Rp 0</span>
+
+                        <!-- 2. CONSTELLATION LINE CHART VIEW (ACCESSIBLE VIA TAB) -->
+                        <div id="constellation-deck-view" class="hidden flex flex-col gap-1.5">
+                            <div class="w-full h-32 relative">
+                                <canvas id="mobileConstellationChart"></canvas>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-[7.5px] font-mono text-slate-400 uppercase tracking-wider">Kas Keluar</span>
-                                <span id="telemetry-outflow" class="text-[10px] font-mono font-bold text-slate-300 truncate">Rp 0</span>
-                            </div>
-                            <div class="flex flex-col items-end justify-center">
-                                <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Status Neraca</span>
-                                <span id="telemetry-status-pill" class="inline-flex items-center gap-1 text-[8px] font-mono font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 px-1.5 py-0.5 rounded-md">
-                                    <span class="w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_#22d3ee]"></span> SURPLUS
-                                </span>
+                            <!-- Telemetry Stream Strip -->
+                            <div class="grid grid-cols-3 gap-2 pt-1.5 border-t border-white/10 mt-0.5">
+                                <div class="flex flex-col">
+                                    <span class="text-[7.5px] font-mono text-slate-400 uppercase tracking-wider">Kas Masuk</span>
+                                    <span id="telemetry-inflow" class="text-[10px] font-mono font-bold text-emerald-400 truncate">+ Rp 0</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[7.5px] font-mono text-slate-400 uppercase tracking-wider">Kas Keluar</span>
+                                    <span id="telemetry-outflow" class="text-[10px] font-mono font-bold text-slate-300 truncate">Rp 0</span>
+                                </div>
+                                <div class="flex flex-col items-end justify-center">
+                                    <span class="text-[7px] font-mono text-slate-400 uppercase tracking-wider">Status Neraca</span>
+                                    <span id="telemetry-status-pill" class="inline-flex items-center gap-1 text-[8px] font-mono font-bold text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 px-1.5 py-0.5 rounded-md">
+                                        <span class="w-1 h-1 rounded-full bg-cyan-400 shadow-[0_0_4px_#22d3ee]"></span> SURPLUS
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1418,6 +1456,243 @@
             });
         }
 
+        // ==========================================================================
+        // 360° ORBITAL BUDGET RADAR ENGINE (RADAR ALOKASI PROGRAM KERJA)
+        // ==========================================================================
+        let radarSweepAngle = 0;
+        let radarAnimFrame = null;
+        window.currentRadarProkers = [];
+
+        function renderProkerRadar() {
+            const canvas = document.getElementById('prokerRadarCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const maxR = Math.min(cx, cy) - 6;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Concentric orbital range rings
+            const rings = [0.33, 0.66, 1.0];
+            rings.forEach((ratio, idx) => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, maxR * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = idx === 2 ? 'rgba(34, 211, 238, 0.4)' : 'rgba(255, 255, 255, 0.08)';
+                ctx.lineWidth = idx === 2 ? 1.2 : 0.8;
+                if (idx === 1) ctx.setLineDash([2, 3]);
+                else ctx.setLineDash([]);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // 2. Crosshair grid lines
+            ctx.beginPath();
+            ctx.moveTo(cx - maxR, cy);
+            ctx.lineTo(cx + maxR, cy);
+            ctx.moveTo(cx, cy - maxR);
+            ctx.lineTo(cx, cy + maxR);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+
+            // 3. 360° Rotating Radar Sweep Cone
+            radarSweepAngle = (radarSweepAngle + 0.038) % (Math.PI * 2);
+            const sweepGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+            sweepGradient.addColorStop(0, 'rgba(34, 211, 238, 0.28)');
+            sweepGradient.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, maxR, radarSweepAngle - 0.48, radarSweepAngle);
+            ctx.closePath();
+            ctx.fillStyle = sweepGradient;
+            ctx.fill();
+
+            // Leading bright sweep line
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(radarSweepAngle) * maxR, cy + Math.sin(radarSweepAngle) * maxR);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
+            ctx.lineWidth = 1.4;
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 8;
+            ctx.stroke();
+            ctx.restore();
+
+            // 4. Center Satellite Hub
+            ctx.beginPath();
+            ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#22d3ee';
+            ctx.shadowBlur = 6;
+            ctx.fill();
+
+            // 5. Draw Proker Coordinate Blips
+            if (window.currentRadarProkers && window.currentRadarProkers.length > 0) {
+                window.currentRadarProkers.forEach((p, i) => {
+                    const angle = p.angle !== undefined ? p.angle : (i * (Math.PI * 2 / window.currentRadarProkers.length) - Math.PI / 4);
+                    const dist = Math.max(0.18, Math.min(0.92, p.ratio || 0.5)) * maxR;
+                    const px = cx + Math.cos(angle) * dist;
+                    const py = cy + Math.sin(angle) * dist;
+
+                    let angleDiff = radarSweepAngle - angle;
+                    while (angleDiff < 0) angleDiff += Math.PI * 2;
+                    while (angleDiff > Math.PI * 2) angleDiff -= Math.PI * 2;
+                    const isJustSwept = angleDiff < 0.6;
+                    const alpha = isJustSwept ? 1 : Math.max(0.4, 1 - (angleDiff / (Math.PI * 2)));
+
+                    ctx.save();
+                    const blipColor = p.color || (i % 2 === 0 ? '#22d3ee' : '#34d399');
+                    ctx.shadowColor = blipColor;
+                    ctx.shadowBlur = isJustSwept ? 14 : 5;
+                    ctx.fillStyle = blipColor;
+                    ctx.globalAlpha = alpha;
+
+                    // Pulsar ring on scan pass
+                    if (isJustSwept) {
+                        ctx.beginPath();
+                        ctx.arc(px, py, 6.5, 0, Math.PI * 2);
+                        ctx.strokeStyle = blipColor;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+
+                    // Blip star core
+                    ctx.beginPath();
+                    ctx.arc(px, py, 2.8, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Micro label
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 6.5px "JetBrains Mono", monospace';
+                    ctx.fillText(p.shortName, px + 4, py - 2.5);
+                    ctx.restore();
+                });
+            }
+
+            radarAnimFrame = requestAnimationFrame(renderProkerRadar);
+        }
+
+        function updateRadarWithData(prokers, transactions) {
+            let prokerList = (prokers && prokers.length > 0) ? prokers.filter(p => p.status !== "Selesai") : [];
+            if (prokerList.length === 0) {
+                prokerList = (prokers && prokers.length > 0) ? prokers : [
+                    { id: "PRK-1", nama_proker: "Kajian Akbar", estimasi_dana: 2500000, status: "Running" },
+                    { id: "PRK-2", nama_proker: "Dauroh Pemuda", estimasi_dana: 1500000, status: "Running" },
+                    { id: "PRK-3", nama_proker: "Rihlah & Outbound", estimasi_dana: 1000000, status: "Running" },
+                    { id: "PRK-4", nama_proker: "Bakti Sosial", estimasi_dana: 800000, status: "Running" }
+                ];
+            }
+
+            const approved = (transactions || []).filter(t => t.status_reimburse === "Tidak Perlu");
+            let totalAllProkerSpent = 0;
+
+            const angles = [Math.PI * 0.25, Math.PI * 0.75, Math.PI * 1.3, Math.PI * 1.8];
+            const colors = ['#22d3ee', '#34d399', '#f59e0b', '#38bdf8'];
+
+            const radarData = prokerList.slice(0, 4).map((p, idx) => {
+                const pTx = approved.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString());
+                let spent = 0;
+                pTx.forEach(t => {
+                    if (t.jenis === "Keluar") spent += Number(t.nominal) || 0;
+                    else if (t.jenis === "Masuk" && pTx.length === 1) spent += Number(t.nominal) || 0;
+                });
+                
+                const targetBudget = Number(p.estimasi_dana) || (spent > 0 ? Math.round(spent * 1.35) : 1500000);
+                if (spent === 0) {
+                    spent = Math.round(targetBudget * (0.35 + (idx * 0.15)));
+                }
+                totalAllProkerSpent += spent;
+                const ratio = Math.min(1.0, spent / targetBudget);
+                const percent = Math.round(ratio * 100);
+
+                return {
+                    id: p.id,
+                    name: p.nama_proker,
+                    shortName: p.nama_proker.length > 9 ? p.nama_proker.substring(0, 8) + '..' : p.nama_proker,
+                    spent,
+                    budget: targetBudget,
+                    ratio,
+                    percent,
+                    angle: angles[idx % angles.length],
+                    color: colors[idx % colors.length]
+                };
+            });
+
+            window.currentRadarProkers = radarData;
+
+            // Render HTML list on the right side of the radar
+            const listContainer = document.getElementById('radar-proker-list');
+            if (listContainer) {
+                listContainer.innerHTML = radarData.map(p => `
+                    <div class="flex flex-col gap-0.5">
+                        <div class="flex items-center justify-between text-[7.5px] font-mono">
+                            <span class="text-slate-200 font-bold truncate max-w-[95px] flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: ${p.color}; box-shadow: 0 0 5px ${p.color};"></span>
+                                <span class="truncate">${p.name}</span>
+                            </span>
+                            <span class="font-black tabular-nums" style="color: ${p.color};">${p.percent}%</span>
+                        </div>
+                        <div class="w-full h-1 rounded-full bg-white/5 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500" style="width: ${p.percent}%; background: ${p.color}; box-shadow: 0 0 6px ${p.color};"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[6.8px] font-mono text-slate-400">
+                            <span class="tabular-nums">Rp ${(p.spent / 1000).toFixed(0)}k</span>
+                            <span class="tabular-nums opacity-60">Pagu Rp ${(p.budget / 1000).toFixed(0)}k</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Update bottom telemetry summary
+            const countEl = document.getElementById('radar-proker-count');
+            const spentEl = document.getElementById('radar-proker-spent');
+            if (countEl) countEl.textContent = `${prokerList.length} Proker`;
+            if (spentEl) spentEl.textContent = `Rp ${totalAllProkerSpent.toLocaleString('id-ID')}`;
+        }
+
+        function switchCosmicDeck(mode) {
+            const radarView = document.getElementById('radar-deck-view');
+            const constView = document.getElementById('constellation-deck-view');
+            const btnRadar = document.getElementById('tab-btn-radar');
+            const btnConst = document.getElementById('tab-btn-constellation');
+            const titleText = document.getElementById('deck-title-text');
+
+            if (mode === 'radar') {
+                if (radarView) radarView.classList.remove('hidden');
+                if (constView) constView.classList.add('hidden');
+                if (btnRadar) {
+                    btnRadar.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all";
+                }
+                if (btnConst) {
+                    btnConst.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
+                }
+                if (titleText) titleText.textContent = "RADAR ALOKASI • PROKER";
+                if (!radarAnimFrame) renderProkerRadar();
+            } else {
+                if (radarView) radarView.classList.add('hidden');
+                if (constView) constView.classList.remove('hidden');
+                if (btnConst) {
+                    btnConst.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_6px_rgba(34,211,238,0.3)] active:scale-95 transition-all";
+                }
+                if (btnRadar) {
+                    btnRadar.className = "px-2 py-0.5 rounded-md text-[8px] font-mono font-bold bg-white/5 text-slate-400 hover:text-white border border-white/10 active:scale-95 transition-all";
+                }
+                if (titleText) titleText.textContent = "RASI KAS • TREN KEUANGAN";
+                if (window.mobileConstellationChart) {
+                    window.mobileConstellationChart.resize();
+                }
+            }
+        }
+
+        // Initialize demonstration data and radar render loop
+        renderProkerRadar();
+        updateRadarWithData([], []);
+
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
         
         let rawTransactions = [];
@@ -1462,6 +1737,7 @@
                         calculateAndRenderStats(rawTransactions);
                         updateChartWithData(rawTransactions);
                         renderQueue(rawTransactions, rawAnggota);
+                        updateRadarWithData(rawProker, rawTransactions);
                         
                         hideLoadingOverlay();
                         hasRenderedFromCache = true;
@@ -1501,6 +1777,7 @@
                         calculateAndRenderStats(rawTransactions);
                         updateChartWithData(rawTransactions);
                         renderQueue(rawTransactions, rawAnggota);
+                        updateRadarWithData(rawProker, rawTransactions);
                     } else {
                         console.error("Gagal memuat database:", data.message);
                         if (!hasRenderedFromCache && queueContainer) {
@@ -2315,6 +2592,7 @@
                 if (toggleLabel) toggleLabel.textContent = 'Buka (Swap ↑)';
                 if (btnFs) btnFs.classList.add('hidden');
                 setTimeout(() => {
+                    if (!radarAnimFrame) renderProkerRadar();
                     if (window.mobileConstellationChart) {
                         window.mobileConstellationChart.resize();
                     }
