@@ -740,7 +740,7 @@
             }
 
             body.queue-collapsed #mobile-constellation-wrap {
-                max-height: 240px !important;
+                max-height: 255px !important;
                 opacity: 1 !important;
                 pointer-events: auto !important;
                 transform: scale(1) translate3d(0, 0, 0) !important;
@@ -1047,26 +1047,41 @@
                     </div>
                 </div>
 
-                <!-- 3. RASI SALDO KAS (MINIMALIST CONSTELLATION • MEMBAUR ALAMI DENGAN BACKGROUND) -->
+                <!-- 3. RASI KEUANGAN MOBILE: ARUS MASUK-KELUAR & SALDO KAS (AERO-GLASS KOSMIK) -->
                 <div id="mobile-constellation-wrap" class="sm:hidden w-full transition-all duration-300">
                     <div class="constellation-glass-card relative overflow-hidden px-3.5 py-2.5 rounded-2xl flex flex-col gap-1.5">
-                        <!-- Header: Simple Clean Title & Wallet Legends -->
+                        <!-- Header: Title & Segmented Mode Switcher -->
                         <div class="flex items-center justify-between px-0.5">
                             <div class="flex items-center gap-1.5">
-                                <span class="text-cyan-400 text-xs">✦</span>
-                                <span class="text-[8.5px] font-mono font-bold tracking-wider text-cyan-300 uppercase">RASI SALDO KAS</span>
+                                <span id="mobile-chart-icon" class="text-emerald-400 text-xs">✦</span>
+                                <span id="mobile-chart-title" class="text-[8.5px] font-mono font-bold tracking-wider text-emerald-300 uppercase">ARUS MASUK & KELUAR</span>
                             </div>
-                            <div class="flex items-center gap-3 text-[8px] font-mono">
-                                <span class="flex items-center gap-1 text-cyan-300 font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_5px_#22d3ee]"></span> GoPay
-                                </span>
-                                <span class="flex items-center gap-1 text-emerald-300 font-semibold">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></span> Tunai
-                                </span>
+
+                            <!-- Mode Toggle Pill Switcher -->
+                            <div class="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-white/10 text-[8px] font-mono">
+                                <button type="button" id="btn-mode-flow" onclick="switchMobileChartMode('flow')" class="px-2 py-0.5 rounded-md font-bold transition-all bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 shadow-[0_0_6px_rgba(16,185,129,0.2)]">
+                                    Masuk-Keluar
+                                </button>
+                                <button type="button" id="btn-mode-balance" onclick="switchMobileChartMode('balance')" class="px-2 py-0.5 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-all border border-transparent">
+                                    Saldo Kas
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Pure Constellation Line Chart -->
+                        <!-- Dynamic Badges / Legend -->
+                        <div id="mobile-chart-legend" class="flex items-center justify-between px-0.5 text-[8px] font-mono">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center gap-1 text-emerald-300 font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></span> Kas Masuk
+                                </span>
+                                <span class="flex items-center gap-1 text-rose-300 font-semibold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_5px_#f43f5e]"></span> Kas Keluar
+                                </span>
+                            </div>
+                            <span class="text-[7.5px] text-slate-400 tracking-wider">TIAP BULAN</span>
+                        </div>
+
+                        <!-- Chart Canvas -->
                         <div class="w-full h-36 relative">
                             <canvas id="mobileConstellationChart"></canvas>
                         </div>
@@ -1273,58 +1288,145 @@
             }
         });
 
-        // Plugin: Celestial Starlight Diffraction Spikes (+) on Star Nodes
+        // Plugin: Celestial Starlight Diffraction Spikes (+) on Star Nodes & Glowing Bar Tops
         const starConstellationPlugin = {
             id: 'starConstellation',
             afterDatasetsDraw(chart) {
                 const c = chart.ctx;
                 chart.data.datasets.forEach((dataset, datasetIndex) => {
                     const meta = chart.getDatasetMeta(datasetIndex);
-                    if (meta.hidden || meta.type !== 'line') return;
-                    const glowColor = dataset.borderColor || '#38bdf8';
+                    if (meta.hidden) return;
+                    
+                    if (meta.type === 'line') {
+                        const glowColor = dataset.borderColor || '#38bdf8';
+                        meta.data.forEach(element => {
+                            if (!element) return;
+                            const pos = element.tooltipPosition ? element.tooltipPosition() : { x: element.x, y: element.y };
+                            const { x, y } = pos;
+                            if (isNaN(x) || isNaN(y)) return;
+                            c.save();
+                            // 4-point cross diffraction spikes (+)
+                            c.strokeStyle = glowColor;
+                            c.lineWidth = 1.2;
+                            c.beginPath();
+                            c.moveTo(x - 5, y);
+                            c.lineTo(x + 5, y);
+                            c.moveTo(x, y - 5);
+                            c.lineTo(x, y + 5);
+                            c.stroke();
 
-                    meta.data.forEach(element => {
-                        const { x, y } = element.tooltipPosition();
-                        c.save();
-                        // 4-point cross diffraction spikes (+)
-                        c.strokeStyle = glowColor;
-                        c.lineWidth = 1.2;
-                        c.beginPath();
-                        c.moveTo(x - 5, y);
-                        c.lineTo(x + 5, y);
-                        c.moveTo(x, y - 5);
-                        c.lineTo(x, y + 5);
-                        c.stroke();
+                            // Center white star core
+                            c.fillStyle = '#ffffff';
+                            c.beginPath();
+                            c.arc(x, y, 2, 0, Math.PI * 2);
+                            c.fill();
+                            c.restore();
+                        });
+                    } else if (meta.type === 'bar') {
+                        meta.data.forEach((element, idx) => {
+                            if (!element) return;
+                            const val = dataset.data[idx];
+                            if (!val || val <= 0) return;
+                            const pos = element.tooltipPosition ? element.tooltipPosition() : { x: element.x, y: element.y };
+                            const { x, y } = pos;
+                            if (isNaN(x) || isNaN(y)) return;
+                            const starColor = dataset.label === 'Kas Masuk' ? '#6ee7b7' : '#fda4af';
+                            c.save();
+                            // Celestial crown spark on top of bar
+                            c.fillStyle = starColor;
+                            c.beginPath();
+                            c.arc(x, y, 2.5, 0, Math.PI * 2);
+                            c.fill();
 
-                        // Center white star core
-                        c.fillStyle = '#ffffff';
-                        c.beginPath();
-                        c.arc(x, y, 2, 0, Math.PI * 2);
-                        c.fill();
-                        c.restore();
-                    });
+                            c.fillStyle = '#ffffff';
+                            c.beginPath();
+                            c.arc(x, y, 1.2, 0, Math.PI * 2);
+                            c.fill();
+                            c.restore();
+                        });
+                    }
                 });
             }
         };
 
-        const mobileChartCanvas = document.getElementById('mobileConstellationChart');
-        if (mobileChartCanvas) {
-            const mCtx = mobileChartCanvas.getContext('2d');
+        window.currentMobileChartMode = 'flow';
 
-            const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 130);
-            gopayGrad.addColorStop(0, 'rgba(56, 189, 248, 0.20)');
-            gopayGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+        function switchMobileChartMode(mode) {
+            window.currentMobileChartMode = mode;
+            
+            const btnFlow = document.getElementById('btn-mode-flow');
+            const btnBalance = document.getElementById('btn-mode-balance');
+            const titleEl = document.getElementById('mobile-chart-title');
+            const iconEl = document.getElementById('mobile-chart-icon');
+            const legendEl = document.getElementById('mobile-chart-legend');
 
-            const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 130);
-            tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
-            tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+            if (mode === 'flow') {
+                if (btnFlow) {
+                    btnFlow.className = "px-2 py-0.5 rounded-md font-bold transition-all bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 shadow-[0_0_6px_rgba(16,185,129,0.2)]";
+                }
+                if (btnBalance) {
+                    btnBalance.className = "px-2 py-0.5 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-all border border-transparent";
+                }
+                if (titleEl) titleEl.textContent = "ARUS MASUK & KELUAR";
+                if (iconEl) {
+                    iconEl.textContent = "✦";
+                    iconEl.className = "text-emerald-400 text-xs";
+                }
+                if (legendEl) {
+                    legendEl.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1 text-emerald-300 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></span> Kas Masuk
+                            </span>
+                            <span class="flex items-center gap-1 text-rose-300 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-[0_0_5px_#f43f5e]"></span> Kas Keluar
+                            </span>
+                        </div>
+                        <span class="text-[7.5px] text-slate-400 tracking-wider">TIAP BULAN</span>
+                    `;
+                }
+            } else {
+                if (btnBalance) {
+                    btnBalance.className = "px-2 py-0.5 rounded-md font-bold transition-all bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 shadow-[0_0_6px_rgba(6,182,212,0.2)]";
+                }
+                if (btnFlow) {
+                    btnFlow.className = "px-2 py-0.5 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-all border border-transparent";
+                }
+                if (titleEl) titleEl.textContent = "RASI SALDO KAS";
+                if (iconEl) {
+                    iconEl.textContent = "✦";
+                    iconEl.className = "text-cyan-400 text-xs";
+                }
+                if (legendEl) {
+                    legendEl.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1 text-cyan-300 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_5px_#22d3ee]"></span> GoPay
+                            </span>
+                            <span class="flex items-center gap-1 text-emerald-300 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></span> Tunai
+                            </span>
+                        </div>
+                        <span class="text-[7.5px] text-slate-400 tracking-wider">AKUMULASI</span>
+                    `;
+                }
+            }
 
-            window.mobileConstellationChart = new Chart(mCtx, {
-                type: 'line',
-                data: {
-                    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
-                    datasets: [
+            if (window.lastProcessedTransactions) {
+                updateChartWithData(window.lastProcessedTransactions);
+            } else if (window.mobileConstellationChart) {
+                const mChart = window.mobileConstellationChart;
+                const mCtx = mChart.ctx;
+                if (mode === 'balance') {
+                    const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    gopayGrad.addColorStop(0, 'rgba(56, 189, 248, 0.20)');
+                    gopayGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+                    const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
+                    tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+                    mChart.data.datasets = [
                         {
+                            type: 'line',
                             label: 'Saldo GoPay',
                             data: [400000, 650000, 800000, 950000, 1100000, 1250000],
                             borderColor: '#38bdf8',
@@ -1338,6 +1440,7 @@
                             fill: true
                         },
                         {
+                            type: 'line',
                             label: 'Saldo Tunai',
                             data: [1200000, 1500000, 1900000, 2100000, 2300000, 2500000],
                             borderColor: '#34d399',
@@ -1350,12 +1453,92 @@
                             pointRadius: 3.5,
                             fill: true
                         }
+                    ];
+                } else {
+                    const masukGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    masukGrad.addColorStop(0, 'rgba(52, 211, 153, 0.85)');
+                    masukGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.40)');
+                    masukGrad.addColorStop(1, 'rgba(5, 150, 105, 0.05)');
+                    const keluarGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    keluarGrad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');
+                    keluarGrad.addColorStop(0.5, 'rgba(225, 29, 72, 0.40)');
+                    keluarGrad.addColorStop(1, 'rgba(159, 18, 57, 0.05)');
+                    mChart.data.datasets = [
+                        {
+                            type: 'bar',
+                            label: 'Kas Masuk',
+                            data: [1200000, 1600000, 2100000, 1800000, 2400000, 2600000],
+                            backgroundColor: masukGrad,
+                            borderColor: 'rgba(110, 231, 183, 0.95)',
+                            borderWidth: 1.2,
+                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 2, bottomRight: 2 },
+                            maxBarThickness: 9,
+                            order: 1
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Kas Keluar',
+                            data: [250000, 450000, 300000, 650000, 400000, 520000],
+                            backgroundColor: keluarGrad,
+                            borderColor: 'rgba(251, 113, 133, 0.95)',
+                            borderWidth: 1.2,
+                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 2, bottomRight: 2 },
+                            maxBarThickness: 9,
+                            order: 1
+                        }
+                    ];
+                }
+                mChart.update();
+            }
+        }
+
+        const mobileChartCanvas = document.getElementById('mobileConstellationChart');
+        if (mobileChartCanvas) {
+            const mCtx = mobileChartCanvas.getContext('2d');
+
+            const masukGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+            masukGrad.addColorStop(0, 'rgba(52, 211, 153, 0.85)');
+            masukGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.40)');
+            masukGrad.addColorStop(1, 'rgba(5, 150, 105, 0.05)');
+
+            const keluarGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+            keluarGrad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');
+            keluarGrad.addColorStop(0.5, 'rgba(225, 29, 72, 0.40)');
+            keluarGrad.addColorStop(1, 'rgba(159, 18, 57, 0.05)');
+
+            window.mobileConstellationChart = new Chart(mCtx, {
+                type: 'bar',
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Kas Masuk',
+                            data: [1200000, 1600000, 2100000, 1800000, 2400000, 2600000],
+                            backgroundColor: masukGrad,
+                            borderColor: 'rgba(110, 231, 183, 0.95)',
+                            borderWidth: 1.2,
+                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 2, bottomRight: 2 },
+                            maxBarThickness: 9,
+                            order: 1
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Kas Keluar',
+                            data: [250000, 450000, 300000, 650000, 400000, 520000],
+                            backgroundColor: keluarGrad,
+                            borderColor: 'rgba(251, 113, 133, 0.95)',
+                            borderWidth: 1.2,
+                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 2, bottomRight: 2 },
+                            maxBarThickness: 9,
+                            order: 1
+                        }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: { duration: 300 },
+                    animation: { duration: 250 },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -1622,50 +1805,89 @@
                 window.ldkChart.update();
             }
 
-            // 2. Mobile Constellation Chart (Pure Constellation: GoPay & Tunai)
+            // 2. Mobile Constellation Chart (Dynamic Mode: Arus Masuk-Keluar vs Saldo Kas)
             if (window.mobileConstellationChart) {
                 const mChart = window.mobileConstellationChart;
                 const mCtx = mChart.ctx;
                 
-                const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 130);
-                gopayGrad.addColorStop(0, 'rgba(56, 189, 248, 0.20)');
-                gopayGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
-
-                const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 130);
-                tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
-                tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
-
                 mChart.data.labels = activeMonths;
-                mChart.data.datasets = [
-                    {
-                        type: 'line',
-                        label: 'Saldo GoPay',
-                        data: goPayBalances.slice(0, maxMonthIndex + 1),
-                        borderColor: '#38bdf8',
-                        backgroundColor: gopayGrad,
-                        borderWidth: 2,
-                        tension: 0.25,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#38bdf8',
-                        pointBorderWidth: 1.5,
-                        pointRadius: 3.5,
-                        fill: true
-                    },
-                    {
-                        type: 'line',
-                        label: 'Saldo Tunai',
-                        data: tunaiBalances.slice(0, maxMonthIndex + 1),
-                        borderColor: '#34d399',
-                        backgroundColor: tunaiGrad,
-                        borderWidth: 2,
-                        tension: 0.25,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#34d399',
-                        pointBorderWidth: 1.5,
-                        pointRadius: 3.5,
-                        fill: true
-                    }
-                ];
+
+                if (window.currentMobileChartMode === 'balance') {
+                    const gopayGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    gopayGrad.addColorStop(0, 'rgba(56, 189, 248, 0.20)');
+                    gopayGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+
+                    const tunaiGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    tunaiGrad.addColorStop(0, 'rgba(52, 211, 153, 0.18)');
+                    tunaiGrad.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+
+                    mChart.data.datasets = [
+                        {
+                            type: 'line',
+                            label: 'Saldo GoPay',
+                            data: goPayBalances.slice(0, maxMonthIndex + 1),
+                            borderColor: '#38bdf8',
+                            backgroundColor: gopayGrad,
+                            borderWidth: 2,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#38bdf8',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 3.5,
+                            fill: true
+                        },
+                        {
+                            type: 'line',
+                            label: 'Saldo Tunai',
+                            data: tunaiBalances.slice(0, maxMonthIndex + 1),
+                            borderColor: '#34d399',
+                            backgroundColor: tunaiGrad,
+                            borderWidth: 2,
+                            tension: 0.25,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#34d399',
+                            pointBorderWidth: 1.5,
+                            pointRadius: 3.5,
+                            fill: true
+                        }
+                    ];
+                } else {
+                    // Mode 'flow': Pemasukan & Pengeluaran Tiap Bulan
+                    const masukGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    masukGrad.addColorStop(0, 'rgba(52, 211, 153, 0.85)');
+                    masukGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.40)');
+                    masukGrad.addColorStop(1, 'rgba(5, 150, 105, 0.05)');
+
+                    const keluarGrad = mCtx.createLinearGradient(0, 0, 0, 130);
+                    keluarGrad.addColorStop(0, 'rgba(244, 63, 94, 0.85)');
+                    keluarGrad.addColorStop(0.5, 'rgba(225, 29, 72, 0.40)');
+                    keluarGrad.addColorStop(1, 'rgba(159, 18, 57, 0.05)');
+
+                    mChart.data.datasets = [
+                        {
+                            type: 'bar',
+                            label: 'Kas Masuk',
+                            data: monthlyInflows.slice(0, maxMonthIndex + 1),
+                            backgroundColor: masukGrad,
+                            borderColor: 'rgba(110, 231, 183, 0.95)',
+                            borderWidth: 1.2,
+                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 2, bottomRight: 2 },
+                            maxBarThickness: 9,
+                            order: 1
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Kas Keluar',
+                            data: monthlyOutflows.slice(0, maxMonthIndex + 1),
+                            backgroundColor: keluarGrad,
+                            borderColor: 'rgba(251, 113, 133, 0.95)',
+                            borderWidth: 1.2,
+                            borderRadius: { topLeft: 5, topRight: 5, bottomLeft: 2, bottomRight: 2 },
+                            maxBarThickness: 9,
+                            order: 1
+                        }
+                    ];
+                }
                 mChart.update();
             }
         }
