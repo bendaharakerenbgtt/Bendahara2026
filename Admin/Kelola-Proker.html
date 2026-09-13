@@ -1161,14 +1161,73 @@
             return "-";
         }
 
-        function formatKategoriLPJ(catName) {
-            if (!catName || String(catName).trim() === "" || String(catName).trim().toUpperCase() === "NULL" || String(catName).trim().toLowerCase() === "kas") {
-                return "Belanja Bahan";
+        function getIncomeCategoryLabel(t) {
+            const rawCat = (t.kategori || '').trim();
+            const rawDesc = (t.uraian || t.keterangan || t.catatan || '').trim();
+            const combined = `${rawCat} ${rawDesc}`.toLowerCase();
+
+            if (combined.includes('iuran')) {
+                return 'Iuran Kepanitian';
             }
-            let clean = String(catName).trim();
-            if (/^belanja\s+/i.test(clean)) return clean;
-            if (/^dana\s+/i.test(clean)) clean = clean.replace(/^dana\s+/i, "");
-            return `Belanja ${clean}`;
+            if (combined.includes('donasi')) {
+                return 'Donasi';
+            }
+            if (combined.includes('danus') || combined.includes('usaha') || combined.includes('penjualan')) {
+                return 'Danusan';
+            }
+            if (combined.includes('sponsor')) {
+                return 'Sponsorship';
+            }
+            if (combined.includes('kas') || combined.includes('operasional')) {
+                return 'Kas LDK IMIP';
+            }
+            if (rawCat && rawCat.toUpperCase() !== 'NULL') {
+                if (/^kas/i.test(rawCat)) return 'Kas LDK IMIP';
+                return cleanTitle(rawCat);
+            }
+            return 'Kas LDK IMIP';
+        }
+
+        function isBelanjaSewa(t) {
+            const rawCat = (t.kategori || '').toLowerCase();
+            const rawUraian = (t.uraian || '').toLowerCase();
+            const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
+            const combined = `${rawCat} ${rawUraian} ${rawKet}`;
+
+            const bahanKeywords = [
+                'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata', 
+                'souvenir', 'snack', 'makan', 'konsumsi', 'kue', 'print', 'cetak', 
+                'kertas', 'atk', 'banner', 'spanduk', 'baliho', 'kaos', 'baju', 'merchandise'
+            ];
+            for (const kw of bahanKeywords) {
+                if (combined.includes(kw)) {
+                    return false;
+                }
+            }
+
+            const sewaKeywords = [
+                'sewa', 'rental', 'kontrak', 'booking tempat', 'gedung', 'villa', 'aula', 'lapangan'
+            ];
+            for (const kw of sewaKeywords) {
+                if (combined.includes(kw)) {
+                    return true;
+                }
+            }
+
+            const honorKeywords = [
+                'honor', 'honorarium', 'fee', 'jasa', 'bisyarah', 'narasumber', 'pemateri', 'pembicara', 'juri', 'trainer', 'moderator'
+            ];
+            for (const kw of honorKeywords) {
+                if (combined.includes(kw)) {
+                    return true;
+                }
+            }
+
+            if (rawCat.includes('sewa')) {
+                return true;
+            }
+
+            return false;
         }
 
         function sanitizeFilename(name) {
@@ -1184,42 +1243,91 @@
 
             const prokerTx = localTransactions.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString() && t.status_reimburse === "Tidak Perlu");
 
-            let totalIn = 0;
-            let totalOut = 0;
             const inTxs = [];
             const outTxs = [];
 
             prokerTx.forEach(t => {
-                const nominal = Number(t.nominal) || 0;
                 const j = (t.jenis || "").trim().toLowerCase();
                 if (j === "masuk") {
-                    totalIn += nominal;
                     inTxs.push(t);
                 } else {
-                    totalOut += nominal;
                     outTxs.push(t);
                 }
             });
 
-            const effAnggaran = Number(p.anggaran !== undefined && p.anggaran !== "" && p.anggaran !== null ? p.anggaran : (p.estimasi_dana || 0));
-            const effPemasukan = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn);
-            const effPengeluaran = Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut);
-            const effSaldo = effPemasukan - effPengeluaran;
             const ketuaNama = getMemberName(p.id_anggota);
 
-            // Grouping Pengeluaran by Kategori and then by Divisi
-            const catMap = {};
-            if (outTxs.length === 0) {
-                catMap["Belanja Bahan"] = {};
-            } else {
-                outTxs.forEach(t => {
-                    const cat = formatKategoriLPJ(t.kategori);
-                    if (!catMap[cat]) catMap[cat] = {};
-                    const div = formatDivisiName(t.divisi);
-                    if (!catMap[cat][div]) catMap[cat][div] = [];
-                    catMap[cat][div].push(t);
-                });
+            // 1. Grouping Income by Category
+            const inCatMap = {};
+            inTxs.forEach(t => {
+                const label = getIncomeCategoryLabel(t);
+                inCatMap[label] = (inCatMap[label] || 0) + (Number(t.nominal) || 0);
+            });
+
+            let inCategories = Object.keys(inCatMap).map(label => ({
+                label: label,
+                nominal: inCatMap[label]
+            }));
+
+            // Sort so "Kas LDK IMIP" is first, "Iuran Kepanitian" second if present, then others
+            inCategories.sort((a, b) => {
+                const priority = (name) => {
+                    if (/kas/i.test(name)) return 1;
+                    if (/iuran/i.test(name)) return 2;
+                    if (/donasi/i.test(name)) return 3;
+                    if (/danus/i.test(name)) return 4;
+                    if (/sponsor/i.test(name)) return 5;
+                    return 6;
+                };
+                const pa = priority(a.label);
+                const pb = priority(b.label);
+                if (pa !== pb) return pa - pb;
+                return a.label.localeCompare(b.label);
+            });
+
+            let effPemasukan = inCategories.reduce((sum, item) => sum + item.nominal, 0);
+            if (inCategories.length === 0) {
+                const fallbackIn = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : (p.anggaran || p.estimasi_dana || 0));
+                effPemasukan = fallbackIn;
+                inCategories = [{
+                    label: 'Kas LDK IMIP',
+                    nominal: fallbackIn
+                }];
             }
+
+            // 2. Grouping Expense strictly into 2.1 Belanja Bahan & 2.2 Belanja Sewa
+            const bahanDivMap = {};
+            const sewaDivMap = {};
+            let totalBahan = 0;
+            let totalSewa = 0;
+
+            outTxs.forEach(t => {
+                const nom = Number(t.nominal) || 0;
+                const div = formatDivisiName(t.divisi);
+                if (isBelanjaSewa(t)) {
+                    if (!sewaDivMap[div]) sewaDivMap[div] = [];
+                    sewaDivMap[div].push(t);
+                    totalSewa += nom;
+                } else {
+                    if (!bahanDivMap[div]) bahanDivMap[div] = [];
+                    bahanDivMap[div].push(t);
+                    totalBahan += nom;
+                }
+            });
+
+            // If no expense txs exist but p.pengeluaran is set
+            if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
+                totalBahan = Number(p.pengeluaran);
+                bahanDivMap["Divisi Umum / Operasional"] = [{
+                    uraian: p.nama_proker || "Pengeluaran Kegiatan",
+                    unit: "1 Kegiatan",
+                    harga_satuan: totalBahan,
+                    nominal: totalBahan
+                }];
+            }
+
+            const effPengeluaran = totalBahan + totalSewa;
+            const effSaldo = effPemasukan - effPengeluaran;
 
             return {
                 proker: p,
@@ -1228,42 +1336,79 @@
                 ketua: ketuaNama,
                 tanggal: formatReadableDate(p.estimasi_tanggal),
                 tahun: p.tahun || new Date().getFullYear(),
-                anggaran: effAnggaran,
-                inTxs: inTxs,
-                outTxs: outTxs,
+                inCategories: inCategories,
+                bahanDivMap: bahanDivMap,
+                sewaDivMap: sewaDivMap,
+                totalBahan: totalBahan,
+                totalSewa: totalSewa,
                 effPemasukan: effPemasukan,
                 effPengeluaran: effPengeluaran,
-                effSaldo: effSaldo,
-                catMap: catMap
+                effSaldo: effSaldo
             };
+        }
+
+        function renderExpenseRowsHtml(divMap) {
+            const divKeys = Object.keys(divMap || {});
+            if (divKeys.length === 0) {
+                return `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">-</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic;">Nihil</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">-</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">-</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp0,00</td>
+                    </tr>
+                `;
+            }
+
+            let rowsHtml = '';
+            divKeys.forEach((divName, divIdx) => {
+                const items = divMap[divName] || [];
+                const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                const letter = getGroupLetter(divIdx);
+
+                rowsHtml += `
+                    <tr style="font-weight: bold;">
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${letter}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 44%;">${escapeHtmlLPJ(divName)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; width: 14%;"></td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; width: 18%;"></td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 18%;">${formatRupiahLPJ(divSubtotal)}</td>
+                    </tr>
+                `;
+
+                items.forEach(item => {
+                    const itemNominal = Number(item.nominal) || 0;
+                    const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                        ? item.uraian 
+                        : (item.keterangan || item.catatan || 'Pengeluaran');
+                    const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                    const unitDisplay = formatUnitDisplay(item.unit);
+                    const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
+
+                    rowsHtml += `
+                        <tr>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;"></td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic;">${escapeHtmlLPJ(cleanUraian)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">${escapeHtmlLPJ(unitDisplay)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${escapeHtmlLPJ(hargaSatuanDisplay)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(itemNominal)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            return rowsHtml;
         }
 
         function generateWordReportHtml(data) {
             // 1. Pemasukan Table
-            let inRowsHtml = '';
-            if (data.inTxs.length > 0) {
-                data.inTxs.forEach((t, idx) => {
-                    const rawUraian = t.uraian && t.uraian.trim() !== '' && t.uraian.toUpperCase() !== 'NULL' 
-                        ? t.uraian 
-                        : (t.keterangan || t.catatan || t.kategori || 'Pemasukan');
-                    const cleanUraian = cleanTitle(rawUraian) || 'Pemasukan';
-                    inRowsHtml += `
-                        <tr>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${idx + 1}.</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${escapeHtmlLPJ(cleanUraian)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">${formatRupiahLPJ(t.nominal)}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                inRowsHtml += `
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">1.</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">Kas LDK IMIP</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">${formatRupiahLPJ(data.effPemasukan)}</td>
-                    </tr>
-                `;
-            }
+            const inRowsHtml = data.inCategories.map((cat, idx) => `
+                <tr>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${idx + 1}.</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${escapeHtmlLPJ(cat.label)}</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">${formatRupiahLPJ(cat.nominal)}</td>
+                </tr>
+            `).join('');
 
             const inTableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
@@ -1284,89 +1429,54 @@
                 </table>
             `;
 
-            // 2. Pengeluaran Sections
-            let outSectionsHtml = '';
-            const catKeys = Object.keys(data.catMap);
-
-            catKeys.forEach((catName, catIdx) => {
-                const divObj = data.catMap[catName];
-                const divKeys = Object.keys(divObj);
-                let catTotal = 0;
-                let catRowsHtml = '';
-
-                divKeys.forEach((divName, divIdx) => {
-                    const items = divObj[divName];
-                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
-                    catTotal += divSubtotal;
-                    const letter = getGroupLetter(divIdx);
-
-                    catRowsHtml += `
+            // 2. Pengeluaran Sections: 2.1 Belanja Bahan & 2.2 Belanja Sewa
+            const bahanTableHtml = `
+                <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
+                    2.1 Belanja Bahan
+                </p>
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderExpenseRowsHtml(data.bahanDivMap)}
                         <tr style="font-weight: bold;">
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${letter}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 44%;">${escapeHtmlLPJ(divName)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; width: 14%;"></td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; width: 18%;"></td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 18%;">${formatRupiahLPJ(divSubtotal)}</td>
+                            <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalBahan)}</td>
                         </tr>
-                    `;
+                    </tbody>
+                </table>
+            `;
 
-                    items.forEach(item => {
-                        const itemNominal = Number(item.nominal) || 0;
-                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
-                            ? item.uraian 
-                            : (item.keterangan || item.catatan || 'Pengeluaran');
-                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                        const unitDisplay = formatUnitDisplay(item.unit);
-                        const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
-
-                        catRowsHtml += `
-                            <tr>
-                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;"></td>
-                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic;">${escapeHtmlLPJ(cleanUraian)}</td>
-                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">${escapeHtmlLPJ(unitDisplay)}</td>
-                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${escapeHtmlLPJ(hargaSatuanDisplay)}</td>
-                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(itemNominal)}</td>
-                            </tr>
-                        `;
-                    });
-                });
-
-                if (catRowsHtml === '') {
-                    catRowsHtml = `
-                        <tr>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">-</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic;">Belum ada pengeluaran tercatat</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">-</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">-</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp0,00</td>
+            const sewaTableHtml = `
+                <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
+                    2.2 Belanja Sewa
+                </p>
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
                         </tr>
-                    `;
-                }
-
-                outSectionsHtml += `
-                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                        2.${catIdx + 1} ${escapeHtmlLPJ(catName)}
-                    </p>
-                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
-                        <thead>
-                            <tr style="font-weight: bold; background-color: #FFFFFF;">
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${catRowsHtml}
-                            <tr style="font-weight: bold;">
-                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
-                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(catTotal)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                `;
-            });
+                    </thead>
+                    <tbody>
+                        ${renderExpenseRowsHtml(data.sewaDivMap)}
+                        <tr style="font-weight: bold;">
+                            <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalSewa)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
 
             // 3. Rekapitulasi Keuangan Table
             const rekapTableHtml = `
@@ -1451,7 +1561,8 @@
         <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 4pt;">
             2. Pengeluaran
         </p>
-        ${outSectionsHtml}
+        ${bahanTableHtml}
+        ${sewaTableHtml}
 
         <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 5pt;">
             3. Rekapitulasi Keuangan
@@ -1465,46 +1576,34 @@
         function generateCsvReport(data) {
             let csv = '\ufeff'; // UTF-8 BOM
             csv += `"LAPORAN KEUANGAN"\n`;
-            csv += `"Program Kerja:","${data.nama_proker.replace(/"/g, '""')}"\n`;
-            csv += `"Divisi:","${data.divisi.replace(/"/g, '""')}"\n`;
-            csv += `"Ketua Pelaksana:","${data.ketua.replace(/"/g, '""')}"\n`;
+            csv += `"Program Kerja:","${(data.nama_proker || '').replace(/"/g, '""')}"\n`;
+            csv += `"Divisi:","${(data.divisi || '').replace(/"/g, '""')}"\n`;
+            csv += `"Ketua Pelaksana:","${(data.ketua || '').replace(/"/g, '""')}"\n`;
             csv += `"Tanggal:","${data.tanggal}"\n\n`;
 
             // 1. Pemasukan
             csv += `"1. Pemasukan"\n`;
             csv += `"No","Pemasukan","Jumlah"\n`;
-            if (data.inTxs.length > 0) {
-                data.inTxs.forEach((t, idx) => {
-                    const rawUraian = t.uraian && t.uraian.trim() !== '' && t.uraian.toUpperCase() !== 'NULL' 
-                        ? t.uraian 
-                        : (t.keterangan || t.catatan || t.kategori || 'Pemasukan');
-                    const cleanUraian = cleanTitle(rawUraian) || 'Pemasukan';
-                    csv += `"${idx + 1}","${cleanUraian.replace(/"/g, '""')}","${formatRupiahLPJ(t.nominal)}"\n`;
-                });
-            } else {
-                csv += `"1","Kas LDK IMIP","${formatRupiahLPJ(data.effPemasukan)}"\n`;
-            }
+            data.inCategories.forEach((cat, idx) => {
+                csv += `"${idx + 1}.","${cat.label.replace(/"/g, '""')}","${formatRupiahLPJ(cat.nominal)}"\n`;
+            });
             csv += `"TOTAL","","${formatRupiahLPJ(data.effPemasukan)}"\n\n`;
 
             // 2. Pengeluaran
             csv += `"2. Pengeluaran"\n`;
-            const catKeys = Object.keys(data.catMap);
-            catKeys.forEach((catName, catIdx) => {
-                csv += `"2.${catIdx + 1} ${catName.replace(/"/g, '""')}"\n`;
-                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
 
-                const divObj = data.catMap[catName];
-                const divKeys = Object.keys(divObj);
-                let catTotal = 0;
-
-                divKeys.forEach((divName, divIdx) => {
-                    const items = divObj[divName];
+            // 2.1 Belanja Bahan
+            csv += `"2.1 Belanja Bahan"\n`;
+            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+            const bahanDivKeys = Object.keys(data.bahanDivMap || {});
+            if (bahanDivKeys.length === 0) {
+                csv += `"-","Nihil","-","-","Rp0,00"\n`;
+            } else {
+                bahanDivKeys.forEach((divName, divIdx) => {
+                    const items = data.bahanDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
-                    catTotal += divSubtotal;
                     const letter = getGroupLetter(divIdx);
-
                     csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
-
                     items.forEach(item => {
                         const itemNominal = Number(item.nominal) || 0;
                         const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
@@ -1513,19 +1612,43 @@
                         const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
                         const unitDisplay = formatUnitDisplay(item.unit);
                         const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
-
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
+            }
+            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalBahan)}"\n\n`;
 
-                csv += `"TOTAL","","","","${formatRupiahLPJ(catTotal)}"\n\n`;
-            });
+            // 2.2 Belanja Sewa
+            csv += `"2.2 Belanja Sewa"\n`;
+            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+            const sewaDivKeys = Object.keys(data.sewaDivMap || {});
+            if (sewaDivKeys.length === 0) {
+                csv += `"-","Nihil","-","-","Rp0,00"\n`;
+            } else {
+                sewaDivKeys.forEach((divName, divIdx) => {
+                    const items = data.sewaDivMap[divName] || [];
+                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                    const letter = getGroupLetter(divIdx);
+                    csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
+                    items.forEach(item => {
+                        const itemNominal = Number(item.nominal) || 0;
+                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                            ? item.uraian 
+                            : (item.keterangan || item.catatan || 'Pengeluaran');
+                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
+                        csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
+                    });
+                });
+            }
+            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
 
             // 3. Rekapitulasi Keuangan
             csv += `"3. Rekapitulasi Keuangan"\n`;
             csv += `"No","Keterangan","Jumlah"\n`;
-            csv += `"1","Pemasukan","${formatRupiahLPJ(data.effPemasukan)}"\n`;
-            csv += `"2","Pengeluaran","${formatRupiahLPJ(data.effPengeluaran)}"\n`;
+            csv += `"1.","Pemasukan","${formatRupiahLPJ(data.effPemasukan)}"\n`;
+            csv += `"2.","Pengeluaran","${formatRupiahLPJ(data.effPengeluaran)}"\n`;
             csv += `"TOTAL","","${formatRupiahLPJ(data.effSaldo)}"\n`;
 
             return csv;
