@@ -481,22 +481,30 @@
             }
             .mobile-bottom-nav {
                 display: flex !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: #080C14 !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             }
             body {
                 padding-bottom: 88px !important;
+                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #080C14 !important;
             }
             main {
                 padding-top: 0 !important;
                 gap: 8px !important;
             }
-            /* MOBILE PERFORMANCE OPTIMIZATIONS (FIX LAG WHEN KEYBOARD OPENS) */
+            /* MOBILE PERFORMANCE OPTIMIZATIONS (ELIMINATE LAG & GPU FILLRATE BOTTLENECK) */
             body::before {
-                animation: none !important;
-                filter: blur(20px) !important;
-                transform: translateZ(0);
+                display: none !important; /* Eliminates GPU Gaussian blur & 18s continuous keyframe repaints */
             }
             body::after {
+                opacity: 0.3 !important;
                 transform: translateZ(0);
+            }
+            /* Eliminate transition overhead on cards during scroll */
+            .bg-neutral-950, .border-neutral-900, .border-neutral-800, .border-neutral-850 {
+                transition: none !important;
             }
             input, select, textarea {
                 font-size: 16px !important; /* Prevents viewport auto-zoom lag on mobile keyboard focus */
@@ -1168,14 +1176,16 @@
                     </div>
                 `;
             } else {
-                let rowsHtml = '';
+                let desktopRowsHtml = '';
+                let mobileDivisionsHtml = '';
+
                 divisiKeys.forEach((divName, divIdx) => {
                     const items = outByDivisi[divName];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
                     const letter = getGroupLetter(divIdx);
 
-                    // Division Header Row (A. Divisi Sekretaris, B. Divisi Acara, etc.)
-                    rowsHtml += `
+                    // --- DESKTOP DIVISION HEADER ---
+                    desktopRowsHtml += `
                         <tr class="bg-neutral-900/80 border-t-2 border-neutral-800 border-b border-neutral-800">
                             <td colspan="4" class="py-2.5 px-3 font-mono font-bold text-[10px] sm:text-xs text-cyan-400">
                                 <div class="flex items-center justify-between">
@@ -1195,6 +1205,8 @@
                             </td>
                         </tr>
                     `;
+
+                    let mobileItemsHtml = '';
 
                     // Item Rows
                     items.forEach((item, itemIdx) => {
@@ -1218,7 +1230,7 @@
                         const receiptPath = getReceiptPath(item);
                         const attachmentBtn = receiptPath ? `
                             <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 border border-neutral-900 hover:border-cyan-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
-                                📂 Lihat Bukti
+                                📂 Bukti
                             </button>
                         ` : '';
 
@@ -1232,7 +1244,8 @@
                         const unitDisplay = formatUnitDisplay(item.unit);
                         const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
 
-                        rowsHtml += `
+                        // --- DESKTOP TABLE ROW ---
+                        desktopRowsHtml += `
                             <tr class="hover:bg-neutral-900/20 border-b border-neutral-900/60 last:border-0 transition-colors" id="tx-row-${item.id}">
                                 <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-400 align-top whitespace-nowrap">
                                     ${itemIdx + 1}
@@ -1265,11 +1278,76 @@
                                 </td>
                             </tr>
                         `;
+
+                        // --- MOBILE CARD ITEM (100% WIDTH, ZERO HORIZONTAL SCROLL) ---
+                        mobileItemsHtml += `
+                            <div class="p-2.5 bg-neutral-950 border border-neutral-850 rounded-xl flex flex-col gap-1.5 shadow-xs" id="mobile-tx-row-${item.id}">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-grow min-w-0">
+                                        <span class="font-bold text-neutral-200 text-xs leading-snug break-words block">${cleanUraian}</span>
+                                        ${detailsCardHtml}
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <span class="font-mono font-bold text-xs text-rose-400 whitespace-nowrap">-Rp${itemNominal.toLocaleString('id-ID')}</span>
+                                        <button type="button" onclick="lepasTransaksi('${item.id}')" class="w-6 h-6 inline-flex items-center justify-center text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/30 border border-neutral-800 rounded-lg active:scale-95 transition-all cursor-pointer shrink-0" title="Lepas Transaksi">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap items-center justify-between gap-1 text-[8.5px] font-mono text-neutral-400 pt-1.5 border-t border-neutral-900/80">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="text-neutral-300 font-semibold">${unitDisplay}</span>
+                                        <span class="text-neutral-700">•</span>
+                                        <span class="text-neutral-300">@${hargaSatuanDisplay}</span>
+                                        <span class="text-neutral-700">•</span>
+                                        <span>${dateFormatted}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 flex-wrap">
+                                        <span class="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-[8px] uppercase">${item.metode || "Tunai"}</span>
+                                        ${picBadge}
+                                        ${attachmentBtn}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     });
+
+                    // --- MOBILE DIVISION GROUP ---
+                    mobileDivisionsHtml += `
+                        <div class="flex flex-col gap-1.5 mb-2.5">
+                            <div class="flex items-center justify-between p-2 bg-neutral-900/90 border border-neutral-800 rounded-xl">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <span class="font-mono font-bold text-xs text-cyan-400 truncate">${letter}. ${divName}</span>
+                                    <span class="text-[8px] font-mono text-neutral-400 bg-neutral-950 border border-neutral-800 px-1.5 py-0.5 rounded shrink-0">${items.length} item</span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="font-mono font-bold text-xs text-neutral-200">Rp${divSubtotal.toLocaleString('id-ID')}</span>
+                                    <button type="button" onclick="lepasDivisi('${p.id}', '${divName}'); event.stopPropagation();" class="text-[8px] font-mono text-neutral-400 hover:text-red-400 bg-neutral-950 border border-neutral-800 hover:border-red-900/40 px-1.5 py-0.5 rounded transition-colors cursor-pointer" title="Lepas Divisi">
+                                        Lepas
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                ${mobileItemsHtml}
+                            </div>
+                        </div>
+                    `;
                 });
 
                 pengeluaranSectionHtml = `
-                    <div class="overflow-x-auto w-full border border-neutral-850 rounded-xl bg-neutral-950/80 shadow-xs">
+                    <!-- MOBILE VIEW (CARD LIST, ZERO HORIZONTAL SCROLL) -->
+                    <div class="block sm:hidden">
+                        ${mobileDivisionsHtml}
+                        <div class="flex items-center justify-between p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl font-mono text-xs font-bold mt-2">
+                            <span class="text-neutral-300 uppercase">SUBTOTAL PENGELUARAN :</span>
+                            <span class="text-rose-400 whitespace-nowrap font-black">-Rp${totalOut.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+
+                    <!-- DESKTOP VIEW (CLASSIC FULL SPREADSHEET TABLE) -->
+                    <div class="hidden sm:block overflow-x-auto w-full border border-neutral-850 rounded-xl bg-neutral-950/80 shadow-xs">
                         <table class="w-full text-left border-collapse font-mono text-[10px]">
                             <thead>
                                 <tr class="bg-neutral-900/60 text-neutral-400 text-[8px] sm:text-[9px] uppercase tracking-wider border-b border-neutral-800">
@@ -1281,7 +1359,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-neutral-900/40 text-neutral-300">
-                                ${rowsHtml}
+                                ${desktopRowsHtml}
                             </tbody>
                             <tfoot>
                                 <tr class="bg-neutral-900/90 border-t-2 border-neutral-750 text-neutral-200 font-bold">
@@ -1301,7 +1379,9 @@
             // Pemasukan Section
             let pemasukanSectionHtml = '';
             if (inTxs.length > 0) {
-                let inRowsHtml = '';
+                let inDesktopRowsHtml = '';
+                let inMobileItemsHtml = '';
+
                 inTxs.forEach((item, itemIdx) => {
                     const itemNominal = Number(item.nominal) || 0;
                     const dateFormatted = item.tanggal ? item.tanggal.split('-').reverse().join('/') : '-';
@@ -1323,7 +1403,7 @@
                     const receiptPath = getReceiptPath(item);
                     const attachmentBtn = receiptPath ? `
                         <button type="button" onclick="openReceiptModal('${receiptPath}')" class="text-[8px] font-mono bg-neutral-950 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 border border-neutral-900 hover:border-cyan-500/25 px-1.5 py-0.5 rounded transition-all cursor-pointer">
-                            📂 Lihat Bukti
+                            📂 Bukti
                         </button>
                     ` : '';
 
@@ -1337,7 +1417,8 @@
                     const unitDisplay = formatUnitDisplay(item.unit);
                     const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
 
-                    inRowsHtml += `
+                    // --- DESKTOP ROW ---
+                    inDesktopRowsHtml += `
                         <tr class="hover:bg-neutral-900/20 border-b border-neutral-900/60 last:border-0 transition-colors" id="tx-row-${item.id}">
                             <td class="py-2.5 px-2 text-center font-mono text-[9px] sm:text-[10px] text-neutral-400 align-top whitespace-nowrap">
                                 ${itemIdx + 1}
@@ -1370,19 +1451,64 @@
                             </td>
                         </tr>
                     `;
+
+                    // --- MOBILE CARD ITEM (100% WIDTH, ZERO HORIZONTAL SCROLL) ---
+                    inMobileItemsHtml += `
+                        <div class="p-2.5 bg-neutral-950 border border-neutral-850 rounded-xl flex flex-col gap-1.5 shadow-xs" id="mobile-tx-row-${item.id}">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-grow min-w-0">
+                                    <span class="font-bold text-neutral-200 text-xs leading-snug break-words block">${cleanUraian}</span>
+                                    ${detailsCardHtml}
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="font-mono font-bold text-xs text-emerald-400 whitespace-nowrap">+Rp${itemNominal.toLocaleString('id-ID')}</span>
+                                    <button type="button" onclick="lepasTransaksi('${item.id}')" class="w-6 h-6 inline-flex items-center justify-center text-neutral-500 hover:text-red-400 bg-neutral-900 hover:bg-red-950/30 border border-neutral-800 rounded-lg active:scale-95 transition-all cursor-pointer shrink-0" title="Lepas Transaksi">
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between gap-1 text-[8.5px] font-mono text-neutral-400 pt-1.5 border-t border-neutral-900/80">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-neutral-300 font-semibold">${unitDisplay}</span>
+                                    <span class="text-neutral-700">•</span>
+                                    <span class="text-neutral-300">@${hargaSatuanDisplay}</span>
+                                    <span class="text-neutral-700">•</span>
+                                    <span>${dateFormatted}</span>
+                                </div>
+                                <div class="flex items-center gap-1 flex-wrap">
+                                    <span class="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-[8px] uppercase">${item.metode || "Tunai"}</span>
+                                    ${payerBadge}
+                                    ${attachmentBtn}
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
 
                 pemasukanSectionHtml = `
                     <div class="mt-4">
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-neutral-900/60 mb-2">
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-                                <h4 class="font-mono text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">RINCIAN PEMASUKAN KEGIATAN</h4>
-                                <span class="text-[8px] sm:text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded">${inTxs.length} item</span>
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0"></span>
+                                <h4 class="font-mono text-xs font-bold text-emerald-400 uppercase tracking-wider">RINCIAN PEMASUKAN</h4>
+                                <span class="text-[8px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded shrink-0">${inTxs.length} item</span>
                             </div>
-                            <span class="font-mono text-[11px] sm:text-xs font-bold text-emerald-400">+Rp${totalIn.toLocaleString('id-ID')}</span>
+                            <span class="font-mono text-xs sm:text-sm font-bold text-emerald-400 self-end sm:self-auto">+Rp${totalIn.toLocaleString('id-ID')}</span>
                         </div>
-                        <div class="overflow-x-auto w-full border border-neutral-850 rounded-xl bg-neutral-950/80 shadow-xs">
+
+                        <!-- MOBILE VIEW (CARD LIST, ZERO HORIZONTAL SCROLL) -->
+                        <div class="block sm:hidden flex flex-col gap-1.5">
+                            ${inMobileItemsHtml}
+                            <div class="flex items-center justify-between p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl font-mono text-xs font-bold mt-1">
+                                <span class="text-neutral-300 uppercase">SUBTOTAL PEMASUKAN :</span>
+                                <span class="text-emerald-400 whitespace-nowrap font-black">+Rp${totalIn.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+
+                        <!-- DESKTOP VIEW (SPREADSHEET TABLE) -->
+                        <div class="hidden sm:block overflow-x-auto w-full border border-neutral-850 rounded-xl bg-neutral-950/80 shadow-xs">
                             <table class="w-full text-left border-collapse font-mono text-[10px]">
                                 <thead>
                                     <tr class="bg-neutral-900/60 text-neutral-400 text-[8px] sm:text-[9px] uppercase tracking-wider border-b border-neutral-800">
@@ -1394,7 +1520,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-900/40 text-neutral-300">
-                                    ${inRowsHtml}
+                                    ${inDesktopRowsHtml}
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-neutral-900/90 border-t-2 border-neutral-750 text-neutral-200 font-bold">
@@ -1520,13 +1646,13 @@
 
                     <!-- RINCIAN SETELAH DIPENCET (DETAIL TABULAR FORMAT LAPORAN KEUANGAN) -->
                     <div id="p-content-${p.id}" class="hidden p-3.5 sm:p-4 bg-neutral-900/20 flex flex-col gap-3.5">
-                        <div class="flex items-center justify-between">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-neutral-900/60 mb-2">
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
-                                <h4 class="font-mono text-[11px] sm:text-xs font-bold text-cyan-400 uppercase tracking-wider">RINCIAN PENGELUARAN KEGIATAN</h4>
-                                <span class="text-[8px] sm:text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded">${outTxs.length} item</span>
+                                <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block shrink-0"></span>
+                                <h4 class="font-mono text-xs font-bold text-cyan-400 uppercase tracking-wider">RINCIAN PENGELUARAN</h4>
+                                <span class="text-[8px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded shrink-0">${outTxs.length} item</span>
                             </div>
-                            <span class="font-mono text-[11px] sm:text-xs font-bold text-rose-400">-Rp${totalOut.toLocaleString('id-ID')}</span>
+                            <span class="font-mono text-xs sm:text-sm font-bold text-rose-400 self-end sm:self-auto">-Rp${totalOut.toLocaleString('id-ID')}</span>
                         </div>
 
                         ${pengeluaranSectionHtml}
