@@ -1057,11 +1057,22 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
 
         let localTransactions = [];
+        let localProkers = [];
         let prokersMap = {};
         let membersMap = {};
         let localAnggota = [];
         let pemasukanImageBase64 = '';
         let pengeluaranImageBase64 = '';
+
+        function escapeHtmlAttr(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
 
         let currentType = 'all';
         let currentMonth = 'all';
@@ -1195,6 +1206,7 @@
                     if (data && data.status === "success") {
                         localTransactions = sanitizeTransactions(data.transaksi);
                         localAnggota = data.anggota || [];
+                        localProkers = data.proker || [];
                         
                         prokersMap = {};
                         (data.proker || []).forEach(p => {
@@ -1234,6 +1246,7 @@
 
                         localTransactions = sanitizeTransactions(data.transaksi);
                         localAnggota = data.anggota || [];
+                        localProkers = data.proker || [];
                         
                         prokersMap = {};
                         (data.proker || []).forEach(p => {
@@ -1262,6 +1275,7 @@
         }
 
         function populateProkerDropdowns(prokers) {
+            localProkers = prokers || [];
             const inSelect = document.getElementById('in_proker_id');
             const outSelect = document.getElementById('out_proker_id');
             
@@ -2269,55 +2283,248 @@
 
             const existingUraian = cleanTitle(item.uraian || item.keterangan || '');
             const existingKet = cleanTitle(item.keterangan && cleanTitle(item.keterangan) !== cleanTitle(item.uraian) ? item.keterangan : '');
+            const existingNominal = Number(item.nominal || item.jumlah || 0);
+            const isMasuk = (item.jenis || '').trim().toLowerCase() === 'masuk';
+
+            // Current Proker
+            const currentProkerId = (item.proker_id !== undefined && item.proker_id !== null && item.proker_id.toString().trim() !== '' && item.proker_id.toString().trim().toUpperCase() !== 'NULL') 
+                ? item.proker_id.toString().trim() 
+                : 'NULL';
+
+            // Current Divisi
+            const currentDivisi = (item.divisi !== undefined && item.divisi !== null && item.divisi.toString().trim() !== '' && item.divisi.toString().trim().toUpperCase() !== 'NULL')
+                ? item.divisi.toString().trim()
+                : 'NULL';
+
+            // Current Kategori
+            const currentKategori = (item.kategori !== undefined && item.kategori !== null && item.kategori.toString().trim() !== '' && item.kategori.toString().trim().toUpperCase() !== 'NULL')
+                ? item.kategori.toString().trim()
+                : (isMasuk ? 'Kas' : 'Belanja Bahan');
+
+            // Build Proker options
+            let prokerOptionsHtml = `<option value="NULL" ${currentProkerId === 'NULL' ? 'selected' : ''}>- Tanpa Proker (Umum) -</option>`;
+            
+            const prokerList = [];
+            const seenProkerIds = new Set();
+            if (Array.isArray(localProkers)) {
+                localProkers.forEach(p => {
+                    if (p && p.id) {
+                        seenProkerIds.add(p.id.toString());
+                        prokerList.push({ id: p.id.toString(), nama: p.nama_proker || p.nama_kegiatan || `Proker ${p.id}` });
+                    }
+                });
+            }
+            for (const pid in prokersMap) {
+                if (!seenProkerIds.has(pid.toString())) {
+                    seenProkerIds.add(pid.toString());
+                    prokerList.push({ id: pid.toString(), nama: prokersMap[pid] });
+                }
+            }
+            prokerList.forEach(p => {
+                const isSel = (currentProkerId === p.id);
+                prokerOptionsHtml += `<option value="${escapeHtmlAttr(p.id)}" ${isSel ? 'selected' : ''}>💼 ${escapeHtmlAttr(p.nama)}</option>`;
+            });
+
+            // Build Divisi options
+            const standardDivisi = ["Acara", "Sekretaris", "Bendahara", "Konsumsi", "Logistik", "Artistik", "Korlap", "Sponsor", "HPD"];
+            let divisiMatched = (currentDivisi === 'NULL');
+            let divisiOptionsHtml = `<option value="NULL" ${currentDivisi === 'NULL' ? 'selected' : ''}>- Tanpa Divisi (Umum) -</option>`;
+            standardDivisi.forEach(div => {
+                const isSel = (currentDivisi.toLowerCase() === div.toLowerCase());
+                if (isSel) divisiMatched = true;
+                divisiOptionsHtml += `<option value="${div}" ${isSel ? 'selected' : ''}>${div}</option>`;
+            });
+            if (!divisiMatched && currentDivisi !== 'NULL') {
+                divisiOptionsHtml += `<option value="${escapeHtmlAttr(currentDivisi)}" selected>${escapeHtmlAttr(currentDivisi)}</option>`;
+            }
+            divisiOptionsHtml += `<option value="custom">✏️ Tulis Sendiri...</option>`;
+
+            // Build Kategori options
+            const standardCatsIn = ["Kas", "Dana Operasional", "Donasi", "Danusan", "Iuran Kepanitian"];
+            const standardCatsOut = ["Belanja Bahan", "Belanja Sewa", "Konsumsi", "Logistik", "Perlengkapan", "Dana Operasional", "Transportasi", "Sewa", "Honorarium", "Publikasi & Dokumentasi"];
+            const standardCats = isMasuk ? standardCatsIn : standardCatsOut;
+            
+            let kategoriMatched = false;
+            let kategoriOptionsHtml = '';
+            standardCats.forEach(cat => {
+                const isSel = (currentKategori.toLowerCase() === cat.toLowerCase());
+                if (isSel) kategoriMatched = true;
+                kategoriOptionsHtml += `<option value="${cat}" ${isSel ? 'selected' : ''}>🏷️ ${cat}</option>`;
+            });
+            if (!kategoriMatched && currentKategori) {
+                kategoriOptionsHtml += `<option value="${escapeHtmlAttr(currentKategori)}" selected>🏷️ ${escapeHtmlAttr(currentKategori)}</option>`;
+            }
+            kategoriOptionsHtml += `<option value="custom">✏️ Tulis Sendiri...</option>`;
 
             Swal.fire({
-                title: 'Edit Transaksi',
+                title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>✏️</span> Edit Transaksi</div>',
                 html: `
-                    <div class="flex flex-col gap-3 text-left text-xs font-sans text-neutral-300">
-                        <div>
-                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Uraian Transaksi</label>
-                            <input type="text" id="swal-edit-uraian" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs" value="${existingUraian}">
+                    <div class="flex flex-col gap-3 text-left text-xs font-sans text-neutral-300 max-h-[75vh] overflow-y-auto pr-1 custom-scroll">
+                        <div class="flex items-center justify-between p-2.5 bg-neutral-900 border border-neutral-850 rounded-xl">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${isMasuk ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50' : 'bg-rose-950/60 text-rose-400 border border-rose-800/50'}">${item.jenis}</span>
+                                <span class="text-[10px] font-mono text-neutral-400 select-all font-bold">ID: ${item.id}</span>
+                            </div>
+                            <span class="text-[10px] font-mono text-neutral-500">${item.tanggal || '-'}</span>
                         </div>
+
                         <div>
-                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Keterangan (Opsional)</label>
-                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs" value="${existingKet}" placeholder="Keterangan tambahan...">
+                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Uraian Transaksi <span class="text-rose-400">*</span></label>
+                            <input type="text" id="swal-edit-uraian" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingUraian)}" placeholder="Nama barang / uraian transaksi...">
                         </div>
+
                         <div>
-                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Nominal (Rp)</label>
-                            <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white font-mono font-bold text-xs" value="${Number(item.nominal).toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
+                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Keterangan / Catatan (Opsional)</label>
+                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingKet)}" placeholder="Catatan tambahan...">
                         </div>
-                        <div>
-                            <label class="block text-[9px] font-mono text-neutral-500 uppercase font-bold mb-1">Metode Pembayaran</label>
-                            <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-2.5 text-white text-xs cursor-pointer">
-                                <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai</option>
-                                <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>📱 GoPay</option>
-                            </select>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Tanggal Transaksi</label>
+                                <input type="date" id="swal-edit-tanggal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-mono" value="${item.tanggal || ''}">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Nominal (Rp) <span class="text-rose-400">*</span></label>
+                                <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-cyan-500" value="${existingNominal.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Metode Pembayaran</label>
+                                <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai (Cash)</option>
+                                    <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>📱 GoPay</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">💼 Program Kerja / Kegiatan</label>
+                                <select id="swal-edit-proker" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    ${prokerOptionsHtml}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏢 Divisi</label>
+                                <select id="swal-edit-divisi-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    ${divisiOptionsHtml}
+                                </select>
+                                <input type="text" id="swal-edit-divisi-custom" placeholder="Ketik divisi kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏷️ Kategori</label>
+                                <select id="swal-edit-kategori-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    ${kategoriOptionsHtml}
+                                </select>
+                                <input type="text" id="swal-edit-kategori-custom" placeholder="Ketik kategori kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                            </div>
                         </div>
                     </div>
                 `,
                 showCancelButton: true,
                 confirmButtonText: 'Simpan Perubahan',
+                cancelButtonText: 'Batal',
                 confirmButtonColor: '#06b6d4',
-                cancelButtonColor: '#374151'
+                cancelButtonColor: '#262626',
+                background: '#0F1623',
+                customClass: {
+                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-lg w-full'
+                },
+                didOpen: () => {
+                    const divSelect = document.getElementById('swal-edit-divisi-select');
+                    const divCustom = document.getElementById('swal-edit-divisi-custom');
+                    divSelect.addEventListener('change', () => {
+                        if (divSelect.value === 'custom') {
+                            divCustom.classList.remove('hidden');
+                            divCustom.focus();
+                        } else {
+                            divCustom.classList.add('hidden');
+                            divCustom.value = '';
+                        }
+                    });
+
+                    const katSelect = document.getElementById('swal-edit-kategori-select');
+                    const katCustom = document.getElementById('swal-edit-kategori-custom');
+                    katSelect.addEventListener('change', () => {
+                        if (katSelect.value === 'custom') {
+                            katCustom.classList.remove('hidden');
+                            katCustom.focus();
+                        } else {
+                            katCustom.classList.add('hidden');
+                            katCustom.value = '';
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    const uraian = document.getElementById('swal-edit-uraian').value.trim();
+                    if (!uraian) {
+                        Swal.showValidationMessage('Uraian transaksi tidak boleh kosong!');
+                        return false;
+                    }
+                    const nominalRaw = document.getElementById('swal-edit-nominal').value.replace(/[^0-9]/g, '');
+                    const nominal = parseInt(nominalRaw, 10) || 0;
+                    if (nominal <= 0) {
+                        Swal.showValidationMessage('Nominal transaksi harus lebih dari 0!');
+                        return false;
+                    }
+
+                    const tanggal = document.getElementById('swal-edit-tanggal').value;
+                    const keterangan = document.getElementById('swal-edit-keterangan').value.trim();
+                    const metode = document.getElementById('swal-edit-metode').value;
+                    const prokerId = document.getElementById('swal-edit-proker').value;
+
+                    const divSelect = document.getElementById('swal-edit-divisi-select');
+                    const divCustom = document.getElementById('swal-edit-divisi-custom');
+                    let divisi = divSelect.value;
+                    if (divisi === 'custom') {
+                        divisi = divCustom.value.trim() || 'NULL';
+                    }
+
+                    const katSelect = document.getElementById('swal-edit-kategori-select');
+                    const katCustom = document.getElementById('swal-edit-kategori-custom');
+                    let kategori = katSelect.value;
+                    if (kategori === 'custom') {
+                        kategori = katCustom.value.trim() || (isMasuk ? 'Kas' : 'Belanja Bahan');
+                    }
+
+                    return {
+                        uraian,
+                        keterangan,
+                        nominal,
+                        metode,
+                        tanggal,
+                        proker_id: prokerId,
+                        divisi,
+                        kategori
+                    };
+                }
             }).then((result) => {
-                if (result.isConfirmed) {
-                    const newUraian = document.getElementById('swal-edit-uraian').value;
-                    const newKeterangan = document.getElementById('swal-edit-keterangan').value;
-                    const newNominal = parseInt(document.getElementById('swal-edit-nominal').value.replace(/[^0-9]/g, '')) || 0;
-                    const newMetode = document.getElementById('swal-edit-metode').value;
+                if (result.isConfirmed && result.value) {
+                    const val = result.value;
+
+                    // Update local object immediately
+                    item.uraian = val.uraian;
+                    item.keterangan = val.keterangan;
+                    item.nominal = val.nominal;
+                    item.jumlah = val.nominal;
+                    item.metode = val.metode;
+                    item.tanggal = val.tanggal || item.tanggal;
+                    item.proker_id = val.proker_id;
+                    item.divisi = val.divisi;
+                    item.kategori = val.kategori;
+
+                    applyMutationFilters(false);
 
                     if (!GOOGLE_SCRIPT_URL) {
-                        item.uraian = newUraian;
-                        item.keterangan = newKeterangan;
-                        item.nominal = newNominal;
-                        item.metode = newMetode;
-                        Swal.fire({ icon: 'success', title: 'Diperbarui!', showConfirmButton: false, timer: 1000 });
-                        applyMutationFilters();
+                        Swal.fire({ icon: 'success', title: 'Transaksi Diperbarui (Lokal)!', showConfirmButton: false, timer: 1000 });
                         return;
                     }
 
                     Swal.fire({
                         title: 'Memperbarui Transaksi...',
+                        text: 'Menyimpan perubahan ke Google Sheets...',
                         allowOutsideClick: false,
                         didOpen: () => { Swal.showLoading(); }
                     });
@@ -2329,16 +2536,22 @@
                         body: JSON.stringify({
                             action: "edit_transaction",
                             id: id,
-                            uraian: newUraian,
-                            keterangan: newKeterangan,
-                            nominal: newNominal,
-                            metode: newMetode
+                            uraian: val.uraian,
+                            keterangan: val.keterangan,
+                            nominal: val.nominal,
+                            metode: val.metode,
+                            tanggal: val.tanggal,
+                            proker_id: val.proker_id,
+                            divisi: val.divisi,
+                            kategori: val.kategori
                         })
                     })
                     .then(() => {
                         setTimeout(() => {
                             Swal.close();
-                            Swal.fire({ icon: 'success', title: 'Transaksi Diperbarui!', showConfirmButton: false, timer: 1000 });
+                            Swal.fire({ icon: 'success', title: 'Transaksi Berhasil Diperbarui!', showConfirmButton: false, timer: 1200 });
+                            sessionStorage.removeItem(CACHE_KEY);
+                            sessionStorage.removeItem(CACHE_TIME_KEY);
                             fetchInitialData(true);
                         }, 1500);
                     })
@@ -2459,8 +2672,15 @@
                         ${proofHtml}
                     </div>
                 `,
+                showCancelButton: true,
+                cancelButtonText: '✏️ Edit Transaksi',
+                cancelButtonColor: '#0891b2',
                 confirmButtonText: 'Tutup',
-                confirmButtonColor: '#06b6d4'
+                confirmButtonColor: '#262626'
+            }).then((res) => {
+                if (res.dismiss === Swal.DismissReason.cancel) {
+                    editTransaksi(id);
+                }
             });
         }
 

@@ -1216,8 +1216,28 @@ function editTransaction(p) {
   
   if (p.uraian     !== undefined) updateColumnById(sheet, p.id, "uraian", p.uraian);
   if (p.keterangan !== undefined) updateColumnById(sheet, p.id, "keterangan", p.keterangan);
-  if (p.nominal    !== undefined) updateColumnById(sheet, p.id, "nominal", parseFormattedNumber(p.nominal));
+  if (p.nominal    !== undefined) {
+    const num = parseFormattedNumber(p.nominal);
+    updateColumnById(sheet, p.id, "nominal", num);
+    updateColumnById(sheet, p.id, "jumlah", num);
+  }
   if (p.metode     !== undefined) updateColumnById(sheet, p.id, "metode", p.metode);
+  if (p.kategori   !== undefined) updateColumnById(sheet, p.id, "kategori", p.kategori);
+  if (p.proker_id  !== undefined) {
+    const cleanProkerId = (p.proker_id && p.proker_id.toString().trim() !== "" && p.proker_id.toString().trim().toUpperCase() !== "NULL")
+      ? p.proker_id.toString().trim()
+      : "NULL";
+    updateColumnById(sheet, p.id, "proker_id", cleanProkerId);
+  }
+  if (p.divisi     !== undefined) {
+    const cleanDivisi = (p.divisi && p.divisi.toString().trim() !== "" && p.divisi.toString().trim().toUpperCase() !== "NULL")
+      ? p.divisi.toString().trim()
+      : "NULL";
+    updateColumnById(sheet, p.id, "divisi", cleanDivisi);
+  }
+  if (p.tanggal    !== undefined && p.tanggal.toString().trim() !== "") {
+    updateColumnById(sheet, p.id, "tanggal", p.tanggal.toString().trim());
+  }
   
   return jsonResponse({ status: "success" });
 }
