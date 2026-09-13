@@ -283,13 +283,36 @@
             }
             .mobile-bottom-nav {
                 display: flex !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: #080C14 !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             }
             body {
                 padding-bottom: 88px !important;
+                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #080C14 !important;
             }
             main {
-                padding-top: max(env(safe-area-inset-top, 0px), 6px) !important;
+                padding-top: 0 !important;
                 gap: 8px !important;
+            }
+            body::before {
+                display: none !important;
+            }
+            body::after {
+                opacity: 0.3 !important;
+                transform: translateZ(0);
+            }
+            .bg-neutral-950, .border-neutral-900, .border-neutral-800, .border-neutral-850 {
+                transition: none !important;
+            }
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            body:has(input:focus) .mobile-bottom-nav,
+            body:has(select:focus) .mobile-bottom-nav,
+            body:has(textarea:focus) .mobile-bottom-nav {
+                display: none !important;
             }
         }
     </style>
@@ -315,32 +338,36 @@
     </div>
 
     <!-- DESKTOP HEADER -->
-    <header class="border-b border-neutral-900 bg-neutral-950/70 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
+    <header class="hidden sm:flex border-b border-neutral-900 bg-neutral-950/70 backdrop-blur-md sticky top-0 z-50 h-14 items-center justify-center">
         <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
             <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-xs">
                 <span>←</span> <span>Dashboard</span>
             </a>
             <div class="flex items-center gap-3">
                 <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>KELOLA ANGGOTA</span>
                 </div>
-                <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[10px] font-mono bg-neutral-950 hover:bg-neutral-900 transition-all border border-neutral-800 hover:border-rose-500/30 px-3 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-9 gap-1.5" title="Logout Sesi Admin">
-                    <span>Logout</span> <span class="text-rose-500">↗</span>
-                </a>
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-[9px] font-mono font-bold text-neutral-300 tracking-wide">SYNCED</span>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- MAIN CONTAINER -->
-    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-1 pb-4 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-0 pb-4 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
         
         <!-- MICRO MOBILE TOP BAR (App Header on Mobile) -->
-        <div class="flex sm:hidden items-center justify-between py-1 border-b border-neutral-900/80 shrink-0">
+        <div class="flex sm:hidden items-center justify-between pt-2 pb-1.5 border-b border-neutral-900/80 shrink-0">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">DATABASE ANGGOTA</span>
             </div>
+            <span class="text-[8.5px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold">
+                2026
+            </span>
         </div>
 
         <!-- PANEL FORM ANGGOTA BARU -->
@@ -393,16 +420,16 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-neutral-950 font-mono text-[11px] sm:text-xs py-2 sm:py-3 rounded-xl font-black tracking-wider transition-all active:scale-95 cursor-pointer mt-0.5">
+                <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-xs font-bold py-2.5 sm:py-3 rounded-xl tracking-wider transition-all active:scale-[0.98] cursor-pointer shadow-xs mt-0.5">
                     TAMBAH ANGGOTA BARU ✓
                 </button>
             </form>
         </div>
 
         <!-- SEARCH BAR -->
-        <div class="bg-neutral-950 border border-neutral-900 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2.5 sm:gap-3">
-            <span class="text-xs text-neutral-500">🔍</span>
-            <input type="text" id="searchInput" onkeyup="filterAnggota()" placeholder="Cari nama atau NIM anggota..." class="w-full bg-transparent text-[11px] sm:text-xs text-neutral-200 focus:outline-none placeholder:text-neutral-600 font-sans">
+        <div class="bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl flex items-center gap-2.5 shadow-xs">
+            <span class="text-xs text-neutral-500 pl-1">🔍</span>
+            <input type="text" id="searchInput" onkeyup="filterAnggota()" placeholder="Cari nama atau NIM anggota..." class="w-full bg-transparent text-xs text-neutral-200 placeholder:text-neutral-500 focus:outline-none font-sans">
         </div>
 
         <!-- LIST CONTAINER -->

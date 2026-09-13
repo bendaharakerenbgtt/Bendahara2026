@@ -455,13 +455,36 @@
             }
             .mobile-bottom-nav {
                 display: flex !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: #080C14 !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             }
             body {
                 padding-bottom: 88px !important;
+                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #080C14 !important;
             }
             main {
                 padding-top: 0 !important;
                 gap: 8px !important;
+            }
+            body::before {
+                display: none !important;
+            }
+            body::after {
+                opacity: 0.3 !important;
+                transform: translateZ(0);
+            }
+            .bg-neutral-950, .border-neutral-900, .border-neutral-800, .border-neutral-850 {
+                transition: none !important;
+            }
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            body:has(input:focus) .mobile-bottom-nav,
+            body:has(select:focus) .mobile-bottom-nav,
+            body:has(textarea:focus) .mobile-bottom-nav {
+                display: none !important;
             }
         }
     </style>
@@ -490,17 +513,17 @@
         </div>
     </div>
 
-    <header class="hidden sm:flex border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 h-14 items-center justify-center">
+    <!-- DESKTOP HEADER -->
+    <header class="hidden sm:flex border-b border-neutral-900 bg-neutral-950/70 backdrop-blur-md sticky top-0 z-50 h-14 items-center justify-center">
         <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner">
-                    <span>←</span> <span>Dashboard</span>
-                </a>
-                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 tracking-wider">
-                    TRANSAKSI
-                </span>
-            </div>
-            <div class="flex items-center gap-2 sm:gap-3">
+            <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-xs">
+                <span>←</span> <span>Dashboard</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>TRANSAKSI</span>
+                </div>
                 <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-[9px] font-mono font-bold text-neutral-300 tracking-wide">SYNCED</span>
@@ -509,15 +532,15 @@
         </div>
     </header>
 
-    <main class="w-full max-w-4xl mx-auto px-3 sm:px-6 pt-0 pb-4 sm:py-6 flex-grow flex flex-col gap-2.5 sm:gap-5">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-0 pb-4 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
         
         <!-- MICRO MOBILE TOP BAR (App Header on Mobile) -->
         <div class="flex sm:hidden items-center justify-between pt-2 pb-1.5 border-b border-neutral-900/80 shrink-0">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-[11px] font-mono font-bold text-emerald-400 tracking-wider uppercase">TRANSAKSI</span>
+                <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">TRANSAKSI</span>
             </div>
-            <span class="text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold flex items-center gap-1">
+            <span class="text-[8.5px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold">
                 2026
             </span>
         </div>
@@ -955,18 +978,24 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-1.5 sm:gap-3">
-                <div class="bg-neutral-950 border border-neutral-900 p-2 sm:p-3 rounded-lg sm:rounded-xl flex flex-col gap-0.5 sm:gap-1 shadow-xs">
-                    <span class="text-[7.5px] sm:text-[8px] font-mono text-emerald-500 uppercase font-bold tracking-wider truncate">Pemasukan</span>
-                    <span id="sum-pemasukan" class="text-[11px] sm:text-xs md:text-sm font-black text-emerald-400 font-mono truncate">Rp0</span>
+            <div class="grid grid-cols-3 gap-1.5 sm:gap-2 font-mono">
+                <div class="p-2 sm:p-2.5 bg-neutral-950 border border-neutral-850 rounded-xl flex flex-col">
+                    <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 inline-block"></span> MASUK
+                    </span>
+                    <span id="sum-pemasukan" class="text-[10.5px] sm:text-xs font-bold text-emerald-400 mt-0.5 truncate">+Rp0</span>
                 </div>
-                <div class="bg-neutral-950 border border-neutral-900 p-2 sm:p-3 rounded-lg sm:rounded-xl flex flex-col gap-0.5 sm:gap-1 shadow-xs">
-                    <span class="text-[7.5px] sm:text-[8px] font-mono text-rose-500 uppercase font-bold tracking-wider truncate">Pengeluaran</span>
-                    <span id="sum-pengeluaran" class="text-[11px] sm:text-xs md:text-sm font-black text-rose-400 font-mono truncate">Rp0</span>
+                <div class="p-2 sm:p-2.5 bg-neutral-950 border border-neutral-850 rounded-xl flex flex-col">
+                    <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0 inline-block"></span> KELUAR
+                    </span>
+                    <span id="sum-pengeluaran" class="text-[10.5px] sm:text-xs font-bold text-rose-400 mt-0.5 truncate">-Rp0</span>
                 </div>
-                <div class="bg-neutral-950 border border-neutral-900 p-2 sm:p-3 rounded-lg sm:rounded-xl flex flex-col gap-0.5 sm:gap-1 shadow-xs">
-                    <span class="text-[7.5px] sm:text-[8px] font-mono text-cyan-400 uppercase font-bold tracking-wider truncate">Net Selisih</span>
-                    <span id="sum-selisih" class="text-[11px] sm:text-xs md:text-sm font-black text-neutral-300 font-mono truncate">Rp0</span>
+                <div class="p-2 sm:p-2.5 bg-neutral-950 border border-neutral-850 rounded-xl flex flex-col">
+                    <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 inline-block"></span> SELISIH
+                    </span>
+                    <span id="sum-selisih" class="text-[10.5px] sm:text-xs font-black text-cyan-400 mt-0.5 truncate">Rp0</span>
                 </div>
             </div>
 
@@ -2173,8 +2202,8 @@
 
             // Update Header Counter & Summary Cards
             document.getElementById('total-trx-badge').innerText = `Total: ${filtered.length} transaksi`;
-            document.getElementById('sum-pemasukan').innerText = 'Rp' + totalMasuk.toLocaleString('id-ID');
-            document.getElementById('sum-pengeluaran').innerText = 'Rp' + totalKeluar.toLocaleString('id-ID');
+            document.getElementById('sum-pemasukan').innerText = '+Rp' + totalMasuk.toLocaleString('id-ID');
+            document.getElementById('sum-pengeluaran').innerText = '-Rp' + totalKeluar.toLocaleString('id-ID');
             
             const netSaldo = totalMasuk - totalKeluar;
             const netPrefix = netSaldo > 0 ? '+' : (netSaldo < 0 ? '-' : '');

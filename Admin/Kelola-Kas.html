@@ -439,13 +439,36 @@
             }
             .mobile-bottom-nav {
                 display: flex !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: #080C14 !important;
+                border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
             }
             body {
                 padding-bottom: 88px !important;
+                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #080C14 !important;
             }
             main {
-                padding-top: max(env(safe-area-inset-top, 0px), 6px) !important;
+                padding-top: 0 !important;
                 gap: 8px !important;
+            }
+            body::before {
+                display: none !important;
+            }
+            body::after {
+                opacity: 0.3 !important;
+                transform: translateZ(0);
+            }
+            .bg-neutral-950, .border-neutral-900, .border-neutral-800, .border-neutral-850 {
+                transition: none !important;
+            }
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            body:has(input:focus) .mobile-bottom-nav,
+            body:has(select:focus) .mobile-bottom-nav,
+            body:has(textarea:focus) .mobile-bottom-nav {
+                display: none !important;
             }
         }
     </style>
@@ -475,42 +498,47 @@
     </div>
 
     <!-- DESKTOP HEADER -->
-    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-50 h-14 flex items-center justify-center">
+    <header class="hidden sm:flex border-b border-neutral-900 bg-neutral-950/70 backdrop-blur-md sticky top-0 z-50 h-14 items-center justify-center">
         <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner">
-                    <span>←</span> <span>Dashboard</span>
-                </a>
-                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 tracking-wider">
-                    KELOLA KAS
-                </span>
+            <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-xs">
+                <span>←</span> <span>Dashboard</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>KELOLA KAS</span>
+                </div>
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-[9px] font-mono font-bold text-neutral-300 tracking-wide">SYNCED</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-1 pb-4 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
+    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-0 pb-4 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
         
         <!-- MICRO MOBILE TOP BAR (App Header on Mobile) -->
-        <div class="flex sm:hidden items-center justify-between py-1 border-b border-neutral-900/80 shrink-0">
+        <div class="flex sm:hidden items-center justify-between pt-2 pb-1.5 border-b border-neutral-900/80 shrink-0">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">KELOLA KAS PENGURUS</span>
             </div>
+            <span class="text-[8.5px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold">
+                2026
+            </span>
         </div>
 
-        <div class="bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl flex flex-col gap-2">
-            <span class="text-[8.5px] sm:text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-bold block">CARI NAMA</span>
-            <div class="relative">
-                <input type="text" id="searchInput" onkeyup="filterPengurus()" placeholder="Ketik nama pengurus untuk input atau hapus iuran bulan..." class="w-full bg-neutral-900 border border-neutral-800 rounded-lg pl-8 pr-3 py-1.5 sm:py-2 text-[11px] sm:text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
-                <div class="absolute left-2.5 top-2 sm:top-2.5 text-neutral-600 text-xs">🔍</div>
-            </div>
+        <div class="bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl flex items-center gap-2.5 shadow-xs">
+            <span class="text-xs text-neutral-500 pl-1">🔍</span>
+            <input type="text" id="searchInput" onkeyup="filterPengurus()" placeholder="Cari nama pengurus untuk bayar / kelola iuran..." class="w-full bg-transparent text-xs text-neutral-200 placeholder:text-neutral-500 focus:outline-none font-sans">
         </div>
 
-        <div class="flex flex-col gap-2.5 sm:gap-3">
-            <div class="flex justify-between items-center bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl">
-                <span class="text-[9.5px] sm:text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black block">INPUT & MONITORING KAS</span>
-                <span class="text-[8.5px] sm:text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-400 font-mono px-2 py-0.5 sm:py-1 rounded">
-                    Periode: <span class="text-cyan-400 font-bold">2026</span>
+        <div class="flex flex-col gap-2.5">
+            <div class="flex items-center justify-between px-1">
+                <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black">INPUT & MONITORING KAS</span>
+                <span class="text-[8.5px] font-mono bg-neutral-900 border border-neutral-800 text-cyan-400 px-2 py-0.5 rounded-md font-bold">
+                    Periode: 2026
                 </span>
             </div>
 
