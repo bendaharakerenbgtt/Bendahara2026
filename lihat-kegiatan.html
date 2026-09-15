@@ -2734,8 +2734,8 @@
         }
 
         function prepareMasterLpjData(options = {}) {
-            const filterStatus = options.filterStatus || 'all';
-            const initialSaldoOperasional = Number(options.initialSaldoOperasional) || 0;
+            // Sesuai arahan: LPJ keseluruhan hanya mengekspor program kerja dan agenda yang sudah selesai
+            const filterStatus = options.filterStatus || 'selesai';
             const includeGuideRow = options.includeGuideRow !== false;
 
             const prokerSource = (typeof allProkers !== 'undefined' && allProkers.length > 0) 
@@ -2745,10 +2745,45 @@
                 ? allTransactions 
                 : (typeof localTransactions !== 'undefined' ? localTransactions : []);
 
-            let prokers = [...prokerSource];
-            if (filterStatus === 'selesai') {
-                prokers = prokers.filter(p => p.status === 'Selesai');
+            // Deteksi transaksi masuk berlabel Dana Operasional 2026 atau Dana Operasional
+            let autoDanaOperasional2026 = 0;
+            txSource.forEach(t => {
+                if ((t.jenis || '').trim().toLowerCase() === 'masuk') {
+                    const cat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
+                    if (cat.includes('dana operasional 2026') || cat.includes('operasional 2026') || cat.includes('dana operasional')) {
+                        autoDanaOperasional2026 += Number(t.nominal) || 0;
+                    }
+                }
+            });
+
+            let initialSaldoOperasional = Number(options.initialSaldoOperasional) || 0;
+            if (initialSaldoOperasional <= 0) {
+                if (autoDanaOperasional2026 > 0) {
+                    initialSaldoOperasional = autoDanaOperasional2026;
+                } else {
+                    initialSaldoOperasional = 7000000; // Standar default sesuai buku pedoman & gambar
+                }
             }
+
+            let prokers = [...prokerSource];
+
+            // Filter kegiatan: secara default hanya kegiatan yang sudah selesai
+            if (filterStatus === 'selesai') {
+                prokers = prokers.filter(p => {
+                    const s = (p.status || '').toLowerCase().trim();
+                    return s === 'selesai' || s === 'completed';
+                });
+            }
+
+            // Abaikan item operasional rutin jika tidak ada rincian kegiatan
+            prokers = prokers.filter(p => {
+                const name = (p.nama_kegiatan || p.nama_proker || '').trim();
+                if (!name) return false;
+                if ((name.toLowerCase().includes('operasional / rutin') || p.id == 1) && Number(p.anggaran || p.estimasi_dana || 0) === 0 && Number(p.pengeluaran || 0) === 0) {
+                    return false;
+                }
+                return true;
+            });
 
             let grandTotalAnggaran = 0;
             let grandTotalRealisasi = 0;
@@ -2836,16 +2871,31 @@
                     return 'Defisit anggaran';
                 }
 
-                let kasIn = 0;
+                // Tabel IV.III: Rekapitulasi Penggunaan Dana Operasional
+                // Arahan: Dana operasional adalah sumber utama pendanaan kegiatan ("jadi kayak pakai dana operasional itu doang sumber dananya")
+                let danaOpIn = 0;
                 inTxs.forEach(t => {
-                    const rawCat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || '')).toLowerCase();
-                    if (rawCat.includes('kas') || rawCat.includes('operasional')) {
-                        kasIn += Number(t.nominal) || 0;
+                    const rawCat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
+                    if (rawCat.includes('dana operasional 2026') || rawCat.includes('dana operasional') || rawCat.includes('kas operasional')) {
+                        danaOpIn += Number(t.nominal) || 0;
                     }
                 });
 
-                let danaOperasionalUsed = kasIn;
-                if (danaOperasionalUsed === 0) {
+                let danaOpOut = 0;
+                outTxs.forEach(t => {
+                    const rawCat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
+                    if (rawCat.includes('dana operasional 2026') || rawCat.includes('dana operasional')) {
+                        danaOpOut += Number(t.nominal) || 0;
+                    }
+                });
+
+                let danaOperasionalUsed = 0;
+                if (danaOpIn > 0) {
+                    danaOperasionalUsed = danaOpIn;
+                } else if (danaOpOut > 0) {
+                    danaOperasionalUsed = danaOpOut;
+                } else {
+                    // Karena sumber dananya dari dana operasional, gunakan total realisasi pengeluaran kegiatan
                     danaOperasionalUsed = totalRealisasi;
                 }
 
@@ -3112,6 +3162,17 @@
                 `;
             });
 
+            // Baris Dst... sebelum TOTAL sesuai format resmi buku pedoman
+            iv3RowsHtml += `
+                <tr>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">...</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">Dst...</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                </tr>
+            `;
+
             const iv3TableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
                     <thead>
@@ -3125,10 +3186,8 @@
                     </thead>
                     <tbody>
                         ${iv3RowsHtml}
-                        <tr style="font-weight: bold; background-color: #FDFDFD;">
-                            <td colspan="2" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
-                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.initialSaldoOperasional)}</td>
-                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalDanaOperasionalOut)}</td>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <td colspan="4" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
                             <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.finalSaldoOperasional)}</td>
                         </tr>
                     </tbody>
@@ -3174,6 +3233,7 @@
             border: 1px solid black;
             font-family: 'Times New Roman', Times, serif;
             font-size: 10pt;
+            margin-bottom: 14pt;
         }
         th, td {
             border: 1px solid black;
@@ -3225,7 +3285,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Laporan_Pertanggungjawaban_Keuangan_Keseluruhan.doc';
+            a.download = `Laporan_Pertanggungjawaban_Keuangan_Keseluruhan_${new Date().toISOString().slice(0, 10)}.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3259,7 +3319,7 @@
 
         function handleMasterExportAction(actionType) {
             const filterEl = document.getElementById('master_filter_status');
-            const filterStatus = filterEl ? filterEl.value : 'all';
+            const filterStatus = filterEl ? filterEl.value : 'selesai';
             const saldoInput = document.getElementById('master_initial_saldo');
             const saldoStr = saldoInput ? (saldoInput.value || '').replace(/\D/g, '') : '';
             const initialSaldo = Number(saldoStr) || 0;
@@ -3282,17 +3342,19 @@
         }
 
         function bukaModalExportMasterLPJ() {
-            let totalKas = 0;
+            let autoDanaOperasional2026 = 0;
             const txSource = (typeof allTransactions !== 'undefined' && allTransactions.length > 0) 
                 ? allTransactions 
                 : (typeof localTransactions !== 'undefined' ? localTransactions : []);
             txSource.forEach(t => {
-                const nom = Number(t.nominal) || 0;
-                const j = (t.jenis || '').trim().toLowerCase();
-                if (j === 'masuk') totalKas += nom;
-                else if (j === 'keluar') totalKas -= nom;
+                if ((t.jenis || '').trim().toLowerCase() === 'masuk') {
+                    const cat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
+                    if (cat.includes('dana operasional 2026') || cat.includes('operasional 2026') || cat.includes('dana operasional')) {
+                        autoDanaOperasional2026 += Number(t.nominal) || 0;
+                    }
+                }
             });
-            const defaultSaldo = totalKas > 0 ? totalKas : 7000000;
+            const defaultSaldo = autoDanaOperasional2026 > 0 ? autoDanaOperasional2026 : 7000000;
 
             Swal.fire({
                 title: '<div class="text-base sm:text-lg font-bold text-neutral-900 dark:text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Export Seluruh LPJ Keuangan</span></div>',
@@ -3310,18 +3372,21 @@
                         <div>
                             <label class="block text-[10px] font-mono uppercase text-neutral-500 dark:text-neutral-400 font-bold mb-1">Pilihan Kegiatan</label>
                             <select id="master_filter_status" class="w-full bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 rounded-lg px-2.5 py-2 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-[#FF7300] font-sans cursor-pointer">
-                                <option value="all">Semua Kegiatan (Berjalan & Selesai)</option>
-                                <option value="selesai">Hanya Kegiatan Selesai</option>
+                                <option value="selesai" selected>Hanya Kegiatan Selesai (Standar Resmi LPJ)</option>
+                                <option value="all">Semua Kegiatan (Termasuk Berjalan)</option>
                             </select>
+                            <span class="text-[9px] text-neutral-500 mt-0.5 block">Sesuai aturan LPJ, hanya program kerja dan agenda yang sudah selesai dilaporkan.</span>
                         </div>
 
                         <div>
-                            <label class="block text-[10px] font-mono uppercase text-neutral-500 dark:text-neutral-400 font-bold mb-1">Saldo Awal Dana Operasional (Tabel IV.III)</label>
+                            <label class="block text-[10px] font-mono uppercase text-neutral-500 dark:text-neutral-400 font-bold mb-1">Saldo Awal Dana Operasional 2026 (Tabel IV.III)</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2 text-neutral-500 font-mono text-xs">Rp</span>
                                 <input type="text" id="master_initial_saldo" value="${defaultSaldo.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)" class="w-full bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 rounded-lg pl-9 pr-3 py-2 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none focus:border-[#FF7300] font-mono font-bold">
                             </div>
-                            <span class="text-[9px] text-neutral-500 mt-0.5 block">Saldo kas operasional awal yang menjadi modal kegiatan pertama.</span>
+                            <span class="text-[9px] text-neutral-500 mt-0.5 block">
+                                ${autoDanaOperasional2026 > 0 ? '✓ Terdeteksi otomatis dari transaksi Masuk kategori Dana Operasional 2026.' : 'Otomatis diisi Rp7.000.000 (standar template). Sumber dana utama operasional.'}
+                            </span>
                         </div>
 
                         <div class="flex items-center gap-2 pt-0.5">
