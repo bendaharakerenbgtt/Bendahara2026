@@ -544,7 +544,10 @@
             <a href="Admin-Dashboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-xs">
                 <span>←</span> <span>Dashboard</span>
             </a>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <button type="button" onclick="bukaModalExportMasterLPJ()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-400 hover:text-cyan-300 text-[10px] font-mono font-bold transition-all duration-300 active:scale-95 shadow-xs cursor-pointer" title="Export Seluruh Laporan Pertanggungjawaban (Master LPJ)">
+                    <span>📑</span> <span>Export Seluruh LPJ</span>
+                </button>
                 <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold tracking-wider uppercase">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                     <span>KELOLA KEGIATAN</span>
@@ -578,6 +581,14 @@
             <button type="button" onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="py-2 sm:py-2.5 px-3 text-center text-xs font-bold font-sans rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
                 <span class="text-xs">✅</span>
                 <span>Kegiatan Selesai</span>
+            </button>
+        </div>
+
+        <!-- SUB-ACTION BAR: MASTER LPJ EXPORT -->
+        <div class="flex items-center justify-between gap-2 px-1 py-0.5">
+            <span class="text-[9px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Rekapitulasi LPJ Organisasi</span>
+            <button type="button" onclick="bukaModalExportMasterLPJ()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-cyan-500/40 text-cyan-400 text-[10px] font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-xs" title="Export Seluruh Laporan Pertanggungjawaban (Master LPJ)">
+                <span>📑</span> <span>Export Seluruh LPJ</span>
             </button>
         </div>
 
@@ -1787,6 +1798,670 @@
         window.exportProkerToWord = exportProkerToWord;
         window.exportProkerToCsv = exportProkerToCsv;
         window.printProkerLPJ = printProkerLPJ;
+
+        // ============================================================
+        // MASTER LPJ (SELURUH LAPORAN PERTANGGUNGJAWABAN KEUANGAN)
+        // Format: IV.I Realisasi Keuangan, IV.II Rekapitulasi Keuangan,
+        //         IV.III Rekapitulasi Penggunaan Dana Operasional
+        // ============================================================
+        function categorizeExpenseItem(t) {
+            const rawCat = (t.kategori || '').toLowerCase();
+            const rawUraian = (t.uraian || '').toLowerCase();
+            const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
+            const combined = `${rawCat} ${rawUraian} ${rawKet}`;
+
+            const sewaKeywords = ['sewa', 'rental', 'kontrak', 'booking', 'gedung', 'villa', 'aula', 'lapangan', 'belanja sewa', 'tempat'];
+            for (const kw of sewaKeywords) {
+                if (combined.includes(kw)) return 'sewa';
+            }
+
+            const jasaKeywords = ['honor', 'honorarium', 'fee', 'jasa', 'bisyarah', 'narasumber', 'pemateri', 'pembicara', 'juri', 'trainer', 'moderator', 'belanja jasa'];
+            for (const kw of jasaKeywords) {
+                if (combined.includes(kw)) return 'jasa';
+            }
+
+            const bahanKeywords = [
+                'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata', 
+                'souvenir', 'snack', 'makan', 'konsumsi', 'kue', 'print', 'cetak', 
+                'kertas', 'atk', 'banner', 'spanduk', 'baliho', 'kaos', 'baju', 'merchandise',
+                'belanja bahan', 'bahan', 'logistik', 'perlengkapan'
+            ];
+            for (const kw of bahanKeywords) {
+                if (combined.includes(kw)) return 'bahan';
+            }
+
+            return 'lainnya';
+        }
+
+        function prepareMasterLpjData(options = {}) {
+            const filterStatus = options.filterStatus || 'all';
+            const initialSaldoOperasional = Number(options.initialSaldoOperasional) || 0;
+            const includeGuideRow = options.includeGuideRow !== false;
+
+            let prokers = [...localProkers];
+            if (filterStatus === 'selesai') {
+                prokers = prokers.filter(p => p.status === 'Selesai');
+            }
+
+            let grandTotalAnggaran = 0;
+            let grandTotalRealisasi = 0;
+            let runningSaldo = initialSaldoOperasional;
+            let totalDanaOperasionalOut = 0;
+
+            const activities = prokers.map((p, idx) => {
+                const txs = localTransactions.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString());
+                const inTxs = txs.filter(t => t.jenis === 'Masuk');
+                const outTxs = txs.filter(t => t.jenis === 'Keluar');
+
+                let realisasiBahan = 0;
+                let realisasiSewa = 0;
+                let realisasiJasa = 0;
+                let realisasiLainnya = 0;
+                const subItemsLainnya = [];
+
+                outTxs.forEach(t => {
+                    const nom = Number(t.nominal) || 0;
+                    const catType = categorizeExpenseItem(t);
+                    if (catType === 'bahan') {
+                        realisasiBahan += nom;
+                    } else if (catType === 'sewa') {
+                        realisasiSewa += nom;
+                    } else if (catType === 'jasa') {
+                        realisasiJasa += nom;
+                    } else {
+                        realisasiLainnya += nom;
+                        const rawUraian = t.uraian && t.uraian.trim() !== '' && t.uraian.toUpperCase() !== 'NULL' 
+                            ? t.uraian : (t.keterangan || t.catatan || 'Biaya');
+                        subItemsLainnya.push({
+                            name: cleanTitle(rawUraian),
+                            nominal: nom,
+                            ket: t.keterangan || t.catatan || ''
+                        });
+                    }
+                });
+
+                let totalRealisasi = realisasiBahan + realisasiSewa + realisasiJasa + realisasiLainnya;
+                if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
+                    realisasiBahan = Number(p.pengeluaran);
+                    totalRealisasi = realisasiBahan;
+                }
+
+                const totalAnggaran = Number(p.anggaran !== undefined && Number(p.anggaran) > 0 
+                    ? p.anggaran 
+                    : (p.estimasi_dana || totalRealisasi));
+
+                let anggaranBahan = 0;
+                let anggaranSewa = 0;
+                let anggaranJasa = 0;
+                let anggaranLainnya = 0;
+
+                if (totalRealisasi > 0 && totalAnggaran > 0) {
+                    if (totalAnggaran === totalRealisasi) {
+                        anggaranBahan = realisasiBahan;
+                        anggaranSewa = realisasiSewa;
+                        anggaranJasa = realisasiJasa;
+                        anggaranLainnya = realisasiLainnya;
+                    } else {
+                        anggaranBahan = Math.round((realisasiBahan / totalRealisasi) * totalAnggaran);
+                        anggaranSewa = Math.round((realisasiSewa / totalRealisasi) * totalAnggaran);
+                        anggaranJasa = Math.round((realisasiJasa / totalRealisasi) * totalAnggaran);
+                        anggaranLainnya = totalAnggaran - (anggaranBahan + anggaranSewa + anggaranJasa);
+                        if (anggaranLainnya < 0) {
+                            anggaranBahan += anggaranLainnya;
+                            anggaranLainnya = 0;
+                        }
+                    }
+                } else if (totalAnggaran > 0) {
+                    anggaranBahan = totalAnggaran;
+                }
+
+                grandTotalAnggaran += totalAnggaran;
+                grandTotalRealisasi += totalRealisasi;
+
+                function getCategoryKet(anggaran, realisasi) {
+                    if (realisasi === 0 && anggaran === 0) return '-';
+                    if (realisasi === 0 && anggaran > 0) return 'Tidak terealisasi';
+                    if (anggaran === 0 && realisasi > 0) return 'Pengeluaran tambahan di luar RAB';
+                    if (realisasi === anggaran) return 'Penggunaan anggaran sesuai';
+                    if (realisasi < anggaran) {
+                        return 'Surplus anggaran (Efisiensi biaya)';
+                    }
+                    return 'Defisit anggaran';
+                }
+
+                let kasIn = 0;
+                inTxs.forEach(t => {
+                    const rawCat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || '')).toLowerCase();
+                    if (rawCat.includes('kas') || rawCat.includes('operasional')) {
+                        kasIn += Number(t.nominal) || 0;
+                    }
+                });
+
+                let danaOperasionalUsed = kasIn;
+                if (danaOperasionalUsed === 0) {
+                    danaOperasionalUsed = totalRealisasi;
+                }
+
+                const saldoAwalProker = runningSaldo;
+                const saldoAkhirProker = saldoAwalProker - danaOperasionalUsed;
+                runningSaldo = saldoAkhirProker;
+                totalDanaOperasionalOut += danaOperasionalUsed;
+
+                return {
+                    proker: p,
+                    index: idx + 1,
+                    nama_kegiatan: p.nama_kegiatan || p.nama_proker || 'Kegiatan',
+                    totalAnggaran: totalAnggaran,
+                    totalRealisasi: totalRealisasi,
+                    categories: [
+                        {
+                            code: '1.1',
+                            name: 'Belanja Bahan',
+                            anggaran: anggaranBahan,
+                            realisasi: realisasiBahan,
+                            keterangan: getCategoryKet(anggaranBahan, realisasiBahan)
+                        },
+                        {
+                            code: '1.2',
+                            name: 'Belanja Sewa',
+                            anggaran: anggaranSewa,
+                            realisasi: realisasiSewa,
+                            keterangan: getCategoryKet(anggaranSewa, realisasiSewa)
+                        },
+                        {
+                            code: '1.3',
+                            name: 'Belanja Jasa',
+                            anggaran: anggaranJasa,
+                            realisasi: realisasiJasa,
+                            keterangan: getCategoryKet(anggaranJasa, realisasiJasa)
+                        },
+                        {
+                            code: '1.4',
+                            name: 'Biaya Lainnya',
+                            anggaran: anggaranLainnya,
+                            realisasi: realisasiLainnya,
+                            keterangan: getCategoryKet(anggaranLainnya, realisasiLainnya),
+                            subItems: subItemsLainnya
+                        }
+                    ],
+                    danaOperasional: {
+                        pemasukan: saldoAwalProker,
+                        pengeluaran: danaOperasionalUsed,
+                        saldo: saldoAkhirProker
+                    }
+                };
+            });
+
+            return {
+                activities: activities,
+                grandTotalAnggaran: grandTotalAnggaran,
+                grandTotalRealisasi: grandTotalRealisasi,
+                initialSaldoOperasional: initialSaldoOperasional,
+                totalDanaOperasionalOut: totalDanaOperasionalOut,
+                finalSaldoOperasional: runningSaldo,
+                includeGuideRow: includeGuideRow,
+                filterStatus: filterStatus
+            };
+        }
+
+        function generateMasterLpjHtml(data) {
+            const includeGuide = data.includeGuideRow !== false;
+            let actNum = includeGuide ? 2 : 1;
+
+            // 1. TABEL IV.I Realisasi Keuangan
+            let iv1RowsHtml = '';
+            if (includeGuide) {
+                iv1RowsHtml += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">1</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; vertical-align: top;">
+                            <span style="font-style: italic;">(Diisi Nama kegiatan)</span>
+                        </td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-weight: bold; vertical-align: top;">Total Anggaran</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-weight: bold; vertical-align: top;">Total Realisasi</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.1 Belanja Bahan</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.2 Belanja Sewa</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.3 Belanja Jasa</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.4 Biaya Lainnya</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
+                    </tr>
+                `;
+            }
+
+            data.activities.forEach((keg, kIdx) => {
+                const curNum = actNum + kIdx;
+                iv1RowsHtml += `
+                    <tr style="font-weight: bold;">
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">${curNum}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: top;">${escapeHtmlLPJ(keg.nama_kegiatan.toUpperCase())}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                    </tr>
+                `;
+
+                keg.categories.forEach(cat => {
+                    iv1RowsHtml += `
+                        <tr>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; text-align: left; font-style: italic;">${cat.code} ${escapeHtmlLPJ(cat.name)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(cat.anggaran)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(cat.realisasi)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-size: 8.5pt;">${escapeHtmlLPJ(cat.keterangan)}</td>
+                        </tr>
+                    `;
+
+                    if (cat.subItems && cat.subItems.length > 1) {
+                        cat.subItems.forEach((sub, sIdx) => {
+                            const letter = String.fromCharCode(97 + sIdx);
+                            iv1RowsHtml += `
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                                    <td style="border: 1px solid black; padding: 3pt 6pt 3pt 30pt; text-align: left; font-style: italic; font-size: 9pt;">${letter}. ${escapeHtmlLPJ(sub.name)}</td>
+                                    <td style="border: 1px solid black; padding: 3pt 6pt; text-align: right; font-size: 9pt;">${formatRupiahLPJ(sub.nominal)}</td>
+                                    <td style="border: 1px solid black; padding: 3pt 6pt; text-align: right; font-size: 9pt;">${formatRupiahLPJ(sub.nominal)}</td>
+                                    <td style="border: 1px solid black; padding: 3pt 6pt; text-align: left; font-style: italic; font-size: 8pt;">${escapeHtmlLPJ(sub.ket || 'Realisasi')}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+                });
+
+                if (kIdx === data.activities.length - 1) {
+                    iv1RowsHtml += `
+                        <tr>
+                            <td style="border: 1px solid black; padding: 3pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">Dst.</td>
+                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
+                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
+                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
+                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
+                        </tr>
+                    `;
+                }
+            });
+
+            const iv1TableHtml = `
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 36%;">NAMA KEGIATAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 19%;">ANGGARAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 19%;">REALISASI</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 20%;">KETERANGAN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${iv1RowsHtml}
+                        <tr style="font-weight: bold; background-color: #FDFDFD;">
+                            <td colspan="2" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.grandTotalAnggaran)}</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.grandTotalRealisasi)}</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // 2. TABEL IV.II Rekapitulasi Keuangan
+            let iv2RowsHtml = '';
+            if (includeGuide) {
+                iv2RowsHtml += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1.</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">(Diisi Nama Kegiatan)</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">(Total anggaran kegiatan)</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">(Total realisasi kegiatan)</td>
+                    </tr>
+                `;
+            }
+
+            data.activities.forEach((keg, kIdx) => {
+                const curNum = actNum + kIdx;
+                iv2RowsHtml += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">${curNum}.</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; ${kIdx === 0 ? 'font-weight: bold;' : 'font-style: italic;'}">${escapeHtmlLPJ(keg.nama_kegiatan)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
+                    </tr>
+                `;
+            });
+
+            const iv2TableHtml = `
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 50%;">NAMA KEGIATAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 22%;">ANGGARAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 22%;">REALISASI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${iv2RowsHtml}
+                        <tr style="font-weight: bold; background-color: #FDFDFD;">
+                            <td colspan="2" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.grandTotalAnggaran)}</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.grandTotalRealisasi)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // 3. TABEL IV.III Rekapitulasi Penggunaan Dana Operasional
+            let iv3RowsHtml = '';
+            if (includeGuide) {
+                iv3RowsHtml += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1.</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">(Diisi Nama Kegiatan)</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Total Dana Operasional yang awal)</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Total Dana Operasional yang digunakan dalam kegiatan)</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Pemasukan – Pengeluaran)</td>
+                    </tr>
+                `;
+            }
+
+            data.activities.forEach((keg, kIdx) => {
+                const curNum = actNum + kIdx;
+                const d = keg.danaOperasional;
+                const isSecondOrLater = (kIdx > 0);
+                iv3RowsHtml += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">${curNum}.</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: top; ${kIdx === 0 ? 'font-weight: bold;' : 'font-style: italic;'}">${escapeHtmlLPJ(keg.nama_kegiatan)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">
+                            ${formatRupiahLPJ(d.pemasukan)}
+                            ${isSecondOrLater ? `<br><span style="font-size: 8pt; font-style: italic; color: #444;">(Saldo terakhir dana operasional)</span>` : ''}
+                        </td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">${formatRupiahLPJ(d.pengeluaran)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">${formatRupiahLPJ(d.saldo)}</td>
+                    </tr>
+                `;
+            });
+
+            const iv3TableHtml = `
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 38%;">NAMA KEGIATAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 20%;">PEMASUKAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 18%;">PENGELUARAN</th>
+                            <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 18%;">SALDO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${iv3RowsHtml}
+                        <tr style="font-weight: bold; background-color: #FDFDFD;">
+                            <td colspan="2" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.initialSaldoOperasional)}</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalDanaOperasionalOut)}</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.finalSaldoOperasional)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            return `<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset='utf-8'>
+    <title>Laporan Pertanggungjawaban Keuangan Keseluruhan</title>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 2cm 2cm 2cm 2.5cm;
+            mso-header-margin: 1cm;
+            mso-footer-margin: 1cm;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 10.5pt;
+            line-height: 1.35;
+            color: #000000;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
+        p {
+            margin: 0 0 6pt 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid black;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 10pt;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 4.5pt 6pt;
+        }
+        @media print {
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 1.5cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin-bottom: 18pt;">
+        <p style="font-family: 'Times New Roman', serif; font-size: 14pt; font-weight: bold; text-decoration: underline; margin-bottom: 2pt;">
+            KEUANGAN
+        </p>
+    </div>
+
+    <p style="font-family: 'Times New Roman', serif; font-size: 11.5pt; font-weight: bold; margin-bottom: 5pt;">
+        IV.I Realisasi Keuangan
+    </p>
+    ${iv1TableHtml}
+
+    <p style="font-family: 'Times New Roman', serif; font-size: 11.5pt; font-weight: bold; margin-top: 18pt; margin-bottom: 5pt;">
+        IV.II Rekapitulasi Keuangan
+    </p>
+    ${iv2TableHtml}
+
+    <p style="font-family: 'Times New Roman', serif; font-size: 11.5pt; font-weight: bold; margin-top: 18pt; margin-bottom: 5pt;">
+        IV.III Rekapitulasi Penggunaan Dana Operasional
+    </p>
+    ${iv3TableHtml}
+</body>
+</html>`;
+        }
+
+        function exportMasterLpjToWord(options = {}) {
+            const data = prepareMasterLpjData(options);
+            const htmlContent = generateMasterLpjHtml(data);
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword;charset=utf-8'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Laporan_Pertanggungjawaban_Keuangan_Keseluruhan.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Master LPJ Berhasil Diunduh!',
+                text: 'File Word (.doc) berisi seluruh laporan pertanggungjawaban siap dibuka di Microsoft Word / Google Docs / WPS.',
+                timer: 2500,
+                showConfirmButton: false
+            });
+        }
+
+        function printMasterLpj(options = {}) {
+            const data = prepareMasterLpjData(options);
+            const htmlContent = generateMasterLpjHtml(data);
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                Swal.fire({ icon: 'warning', title: 'Pop-up Terblokir', text: 'Izinkan pop-up browser untuk mencetak / menyimpan PDF.' });
+                return;
+            }
+
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+
+        function handleMasterExportAction(actionType) {
+            const filterEl = document.getElementById('master_filter_status');
+            const filterStatus = filterEl ? filterEl.value : 'all';
+            const saldoInput = document.getElementById('master_initial_saldo');
+            const saldoStr = saldoInput ? (saldoInput.value || '').replace(/\D/g, '') : '';
+            const initialSaldo = Number(saldoStr) || 0;
+            const guideCb = document.getElementById('master_include_guide');
+            const includeGuide = guideCb ? guideCb.checked : true;
+
+            Swal.close();
+
+            const options = {
+                filterStatus: filterStatus,
+                initialSaldoOperasional: initialSaldo,
+                includeGuideRow: includeGuide
+            };
+
+            if (actionType === 'word') {
+                exportMasterLpjToWord(options);
+            } else if (actionType === 'print') {
+                printMasterLpj(options);
+            }
+        }
+
+        function bukaModalExportMasterLPJ() {
+            let totalKas = 0;
+            if (typeof localTransactions !== 'undefined' && Array.isArray(localTransactions)) {
+                localTransactions.forEach(t => {
+                    const nom = Number(t.nominal) || 0;
+                    if (t.jenis === 'Masuk') totalKas += nom;
+                    else if (t.jenis === 'Keluar') totalKas -= nom;
+                });
+            }
+            const defaultSaldo = totalKas > 0 ? totalKas : 7000000;
+
+            Swal.fire({
+                title: '<div class="text-base sm:text-lg font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Export Seluruh LPJ Keuangan</span></div>',
+                html: `
+                    <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 pt-1">
+                        <div class="p-2.5 bg-neutral-900/90 border border-neutral-800 rounded-xl leading-relaxed text-neutral-400 text-[11px]">
+                            Laporan ini menyatukan seluruh kegiatan ke dalam 3 tabel resmi LPJ:
+                            <div class="text-[10px] font-mono text-neutral-300 mt-1 space-y-0.5">
+                                <div>• <b>IV.I Realisasi Keuangan</b> (RAB & Belanja Bahan, Sewa, Jasa, Lainnya)</div>
+                                <div>• <b>IV.II Rekapitulasi Keuangan</b> (Anggaran & realisasi per proker)</div>
+                                <div>• <b>IV.III Rekap Penggunaan Dana Operasional</b> (Aliran kas & saldo akhir)</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase text-neutral-400 font-bold mb-1">Pilihan Kegiatan</label>
+                            <select id="master_filter_status" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2.5 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans cursor-pointer">
+                                <option value="all">Semua Kegiatan (Berjalan & Selesai)</option>
+                                <option value="selesai">Hanya Kegiatan Selesai</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase text-neutral-400 font-bold mb-1">Saldo Awal Dana Operasional (Tabel IV.III)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-neutral-500 font-mono text-xs">Rp</span>
+                                <input type="text" id="master_initial_saldo" value="${defaultSaldo.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg pl-9 pr-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono font-bold">
+                            </div>
+                            <span class="text-[9px] text-neutral-500 mt-0.5 block">Saldo kas operasional awal yang menjadi modal kegiatan pertama.</span>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-0.5">
+                            <input type="checkbox" id="master_include_guide" checked class="rounded border-neutral-800 text-cyan-500 focus:ring-0 cursor-pointer">
+                            <label for="master_include_guide" class="text-[10.5px] text-neutral-300 cursor-pointer select-none">
+                                Sertakan baris panduan format: <i>"(Diisi Nama Kegiatan)"</i> seperti buku pedoman LPJ
+                            </label>
+                        </div>
+
+                        <p class="text-[11px] text-neutral-400 pt-1 font-bold">Pilih format ekspor master laporan:</p>
+                        
+                        <div class="flex flex-col gap-2">
+                            <button type="button" onclick="handleMasterExportAction('word')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl transition-all cursor-pointer group text-left">
+                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                    <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Format resmi LPJ lengkap, Times New Roman, tabel bergaris hitam</div>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
+                            </button>
+
+                            <button type="button" onclick="handleMasterExportAction('print')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group text-left">
+                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                    <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-neutral-200 group-hover:text-amber-400 text-xs truncate">Cetak / Simpan PDF</div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Pratinjau cetak browser & siap simpan PDF (A4 standar)</div>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 border border-amber-800/40 px-2 py-1 rounded shrink-0">Cetak PDF</span>
+                            </button>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                background: '#0F1623',
+                customClass: {
+                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-md'
+                }
+            });
+        }
+
+        window.bukaModalExportMasterLPJ = bukaModalExportMasterLPJ;
+        window.handleMasterExportAction = handleMasterExportAction;
+        window.exportMasterLpjToWord = exportMasterLpjToWord;
+        window.printMasterLpj = printMasterLpj;
 
         function buildProkerCardAdminHtml(p, isSelesai) {
             const prokerTx = localTransactions.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString() && t.status_reimburse === "Tidak Perlu");
