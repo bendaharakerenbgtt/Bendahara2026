@@ -48,9 +48,10 @@ const defaultTransactionHeaders = [
 ];
 
 const defaultProkerHeaders = [
-  "id_kegiatan", "jenis", "nama_kegiatan", "anggaran", "pemasukan", 
-  "pengeluaran", "realisasi", "keterangan", "divisi", "id_anggota", 
-  "estimasi_tanggal", "tahun", "status", "created_at", "updated_at"
+  "id_kegiatan", "jenis", "nama_kegiatan", "anggaran",
+  "belanja_bahan", "belanja_sewa", "belanja_jasa", "belanja_lainnya",
+  "divisi", "id_anggota", "estimasi_tanggal", "tahun", "status",
+  "created_at", "updated_at"
 ];
 
 const defaultAnggotaHeaders = [
@@ -268,10 +269,17 @@ function getAllData(callback) {
       ? getVal(k, "nama_kegiatan") 
       : (getVal(k, "nama_proker") || "");
       
+    const belanjaBahanVal = parseFormattedNumber(getVal(k, "belanja_bahan"));
+    const belanjaSewaVal = parseFormattedNumber(getVal(k, "belanja_sewa"));
+    const belanjaJasaVal = parseFormattedNumber(getVal(k, "belanja_jasa"));
+    const belanjaLainnyaVal = parseFormattedNumber(getVal(k, "belanja_lainnya"));
+    const breakdownAnggaran = belanjaBahanVal + belanjaSewaVal + belanjaJasaVal + belanjaLainnyaVal;
+
     const rawAnggaran = (getVal(k, "anggaran") !== undefined && getVal(k, "anggaran") !== "") 
       ? getVal(k, "anggaran") 
       : getVal(k, "estimasi_dana");
     const anggaranVal = parseFormattedNumber(rawAnggaran);
+    const anggaranFinal = breakdownAnggaran > 0 ? breakdownAnggaran : anggaranVal;
 
     const cleanMemberId = cleanAnggotaId(getVal(k, "id_anggota"));
 
@@ -281,8 +289,12 @@ function getAllData(callback) {
       jenis: getVal(k, "jenis") || "Program Kerja",
       nama_kegiatan: namaKegiatan,
       nama_proker: namaKegiatan, // Compatibility alias for frontend
-      anggaran: anggaranVal,
-      estimasi_dana: anggaranVal, // Compatibility alias for frontend
+      anggaran: anggaranFinal,
+      estimasi_dana: anggaranFinal, // Compatibility alias for frontend
+      belanja_bahan: belanjaBahanVal,
+      belanja_sewa: belanjaSewaVal,
+      belanja_jasa: belanjaJasaVal,
+      belanja_lainnya: belanjaLainnyaVal,
       pemasukan: pemasukanVal,
       pengeluaran: pengeluaranVal,
       realisasi: realisasiVal,
@@ -732,18 +744,24 @@ function insertProker(p) {
   const today = new Date().toISOString().substring(0, 10);
 
   const namaKegiatan = p.nama_kegiatan || p.nama_proker || "";
-  const anggaranVal = parseFormattedNumber(p.anggaran !== undefined ? p.anggaran : p.estimasi_dana);
+  const belanjaBahanVal = parseFormattedNumber(p.belanja_bahan || 0);
+  const belanjaSewaVal = parseFormattedNumber(p.belanja_sewa || 0);
+  const belanjaJasaVal = parseFormattedNumber(p.belanja_jasa || 0);
+  const belanjaLainnyaVal = parseFormattedNumber(p.belanja_lainnya || 0);
+  const breakdownAnggaran = belanjaBahanVal + belanjaSewaVal + belanjaJasaVal + belanjaLainnyaVal;
+  const anggaranVal = breakdownAnggaran > 0
+    ? breakdownAnggaran
+    : parseFormattedNumber(p.anggaran !== undefined ? p.anggaran : p.estimasi_dana);
 
   const prokerObj = {
     id_kegiatan: newId,
     jenis: p.jenis || "Program Kerja",
     nama_kegiatan: namaKegiatan,
     anggaran: anggaranVal,
-    estimasi_dana: anggaranVal,
-    pemasukan: parseFormattedNumber(p.pemasukan || 0),
-    pengeluaran: parseFormattedNumber(p.pengeluaran || 0),
-    realisasi: parseFormattedNumber(p.realisasi || 0),
-    keterangan: p.keterangan || "",
+    belanja_bahan: belanjaBahanVal,
+    belanja_sewa: belanjaSewaVal,
+    belanja_jasa: belanjaJasaVal,
+    belanja_lainnya: belanjaLainnyaVal,
     divisi: p.divisi || "",
     id_anggota: cleanAnggotaId(p.id_anggota || ""),
     estimasi_tanggal: p.estimasi_tanggal || "",
@@ -772,14 +790,30 @@ function editProker(p) {
     updateColumnById(sheet, p.id, "nama_kegiatan", namaVal);
     updateColumnById(sheet, p.id, "nama_proker", namaVal);
   }
-  const anggaranVal = p.anggaran !== undefined ? p.anggaran : p.estimasi_dana;
-  if (anggaranVal !== undefined) {
-    updateColumnById(sheet, p.id, "anggaran", parseFormattedNumber(anggaranVal));
-    updateColumnById(sheet, p.id, "estimasi_dana", parseFormattedNumber(anggaranVal));
+  if (p.belanja_bahan !== undefined) updateColumnById(sheet, p.id, "belanja_bahan", parseFormattedNumber(p.belanja_bahan));
+  if (p.belanja_sewa !== undefined) updateColumnById(sheet, p.id, "belanja_sewa", parseFormattedNumber(p.belanja_sewa));
+  if (p.belanja_jasa !== undefined) updateColumnById(sheet, p.id, "belanja_jasa", parseFormattedNumber(p.belanja_jasa));
+  if (p.belanja_lainnya !== undefined) updateColumnById(sheet, p.id, "belanja_lainnya", parseFormattedNumber(p.belanja_lainnya));
+
+  const hasBreakdown = p.belanja_bahan !== undefined || p.belanja_sewa !== undefined || p.belanja_jasa !== undefined || p.belanja_lainnya !== undefined;
+  if (hasBreakdown) {
+    const breakdownAnggaran =
+      parseFormattedNumber(p.belanja_bahan || 0) +
+      parseFormattedNumber(p.belanja_sewa || 0) +
+      parseFormattedNumber(p.belanja_jasa || 0) +
+      parseFormattedNumber(p.belanja_lainnya || 0);
+    const anggaranVal = p.anggaran !== undefined ? p.anggaran : p.estimasi_dana;
+    const anggaranFinal = breakdownAnggaran > 0
+      ? breakdownAnggaran
+      : parseFormattedNumber(anggaranVal);
+    updateColumnById(sheet, p.id, "anggaran", anggaranFinal);
+  } else {
+    const anggaranVal = p.anggaran !== undefined ? p.anggaran : p.estimasi_dana;
+    if (anggaranVal !== undefined) {
+      updateColumnById(sheet, p.id, "anggaran", parseFormattedNumber(anggaranVal));
+      updateColumnById(sheet, p.id, "estimasi_dana", parseFormattedNumber(anggaranVal));
+    }
   }
-  if (p.pemasukan        !== undefined) updateColumnById(sheet, p.id, "pemasukan", parseFormattedNumber(p.pemasukan));
-  if (p.pengeluaran      !== undefined) updateColumnById(sheet, p.id, "pengeluaran", parseFormattedNumber(p.pengeluaran));
-  if (p.realisasi        !== undefined) updateColumnById(sheet, p.id, "realisasi", parseFormattedNumber(p.realisasi));
   if (p.keterangan       !== undefined) updateColumnById(sheet, p.id, "keterangan", p.keterangan);
   if (p.jenis            !== undefined) updateColumnById(sheet, p.id, "jenis", p.jenis);
   if (p.divisi           !== undefined) updateColumnById(sheet, p.id, "divisi", p.divisi);
@@ -1328,6 +1362,10 @@ function normalizeProkerSheet(sheet, transaksiData) {
   if (rawValues.length === 0) return;
 
   const currentHeaders = rawValues[0].map(h => h.toString().trim().toLowerCase());
+  const expectedHeaders = defaultProkerHeaders.map(h => h.toLowerCase());
+  const headersAlreadyMatch = expectedHeaders.length === currentHeaders.length &&
+    expectedHeaders.every((h, i) => currentHeaders[i] === h);
+  if (headersAlreadyMatch) return;
 
   // Build row objects mapping old/new header names
   const rowObjects = [];
@@ -1343,6 +1381,10 @@ function normalizeProkerSheet(sheet, transaksiData) {
         if (h === "nama_proker" || h === "nama proker") key = "nama_kegiatan";
         if (h === "estimasi_dana" || h === "estimasi dana" || h === "rab") key = "anggaran";
         if (h === "user_id") key = "id_anggota";
+        if (h === "belanja bahan") key = "belanja_bahan";
+        if (h === "belanja sewa") key = "belanja_sewa";
+        if (h === "belanja jasa") key = "belanja_jasa";
+        if (h === "belanja lainnya" || h === "biaya lainnya") key = "belanja_lainnya";
         
         if (obj[key] === undefined || obj[key] === "" || obj[key] === null) {
           obj[key] = row[colIdx];
@@ -1359,58 +1401,27 @@ function normalizeProkerSheet(sheet, transaksiData) {
   rowObjects.forEach(obj => {
     const idKegiatan = (getVal(obj, "id_kegiatan") !== undefined && getVal(obj, "id_kegiatan") !== "" ? getVal(obj, "id_kegiatan") : (getVal(obj, "id") || "")).toString();
 
-    // Hitung pemasukan & pengeluaran dinamis dari transaksiData untuk proker ini
-    let dynamicIn = 0;
-    let dynamicOut = 0;
-    if (Array.isArray(transaksiData)) {
-      transaksiData.forEach(tx => {
-        if (tx.proker_id && tx.proker_id.toString().trim() === idKegiatan.trim()) {
-          const val = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
-          if (tx.jenis === "Masuk") {
-            dynamicIn += val;
-          } else if (tx.jenis === "Keluar") {
-            dynamicOut += val;
-          }
-        }
-      });
-    }
-
-    const rawPemasukan = getVal(obj, "pemasukan");
-    const rawPengeluaran = getVal(obj, "pengeluaran");
-    const rawRealisasi = getVal(obj, "realisasi");
-
-    const pemasukanVal = (rawPemasukan !== undefined && rawPemasukan !== null && rawPemasukan !== "" && Number(rawPemasukan) > 0)
-      ? parseFormattedNumber(rawPemasukan)
-      : dynamicIn;
-
-    const pengeluaranVal = (rawPengeluaran !== undefined && rawPengeluaran !== null && rawPengeluaran !== "" && Number(rawPengeluaran) > 0)
-      ? parseFormattedNumber(rawPengeluaran)
-      : dynamicOut;
-
-    let realisasiVal = 0;
-    if (rawRealisasi !== undefined && rawRealisasi !== null && rawRealisasi !== "" && Number(rawRealisasi) > 0) {
-      realisasiVal = parseFormattedNumber(rawRealisasi);
-    } else {
-      realisasiVal = pengeluaranVal;
-    }
+    const belanjaBahanVal = parseFormattedNumber(getVal(obj, "belanja_bahan"));
+    const belanjaSewaVal = parseFormattedNumber(getVal(obj, "belanja_sewa"));
+    const belanjaJasaVal = parseFormattedNumber(getVal(obj, "belanja_jasa"));
+    const belanjaLainnyaVal = parseFormattedNumber(getVal(obj, "belanja_lainnya"));
+    const breakdownAnggaran = belanjaBahanVal + belanjaSewaVal + belanjaJasaVal + belanjaLainnyaVal;
 
     const rawAnggaran = (getVal(obj, "anggaran") !== undefined && getVal(obj, "anggaran") !== "") 
       ? getVal(obj, "anggaran") 
       : getVal(obj, "estimasi_dana");
-    const anggaranVal = parseFormattedNumber(rawAnggaran);
+    const anggaranVal = breakdownAnggaran > 0 ? breakdownAnggaran : parseFormattedNumber(rawAnggaran);
 
-    const formattedAnggaran = anggaranVal > 0 ? "Rp" + anggaranVal.toLocaleString('id-ID') : (rawAnggaran || "");
-    const formattedPemasukan = pemasukanVal > 0 ? "Rp" + pemasukanVal.toLocaleString('id-ID') : "";
-    const formattedPengeluaran = pengeluaranVal > 0 ? "Rp" + pengeluaranVal.toLocaleString('id-ID') : "";
-    const formattedRealisasi = realisasiVal > 0 ? "Rp" + realisasiVal.toLocaleString('id-ID') : "";
+    const formatRp = (n) => (n > 0 ? "Rp" + n.toLocaleString('id-ID') : "Rp0");
 
     const newRow = defaultProkerHeaders.map(h => {
       if (h === "id_kegiatan") return idKegiatan;
       if (h === "nama_kegiatan") return getVal(obj, "nama_kegiatan") || getVal(obj, "nama_proker") || "";
-      if (h === "anggaran") return formattedAnggaran;
-      if (h === "pemasukan") return formattedPemasukan;
-      if (h === "pengeluaran") return formattedPengeluaran;
-      if (h === "realisasi") return formattedRealisasi;
+      if (h === "anggaran") return formatRp(anggaranVal);
+      if (h === "belanja_bahan") return formatRp(belanjaBahanVal);
+      if (h === "belanja_sewa") return formatRp(belanjaSewaVal);
+      if (h === "belanja_jasa") return formatRp(belanjaJasaVal);
+      if (h === "belanja_lainnya") return formatRp(belanjaLainnyaVal);
       if (h === "id_anggota") return cleanAnggotaId(getVal(obj, "id_anggota"));
 
       let val = getVal(obj, h);

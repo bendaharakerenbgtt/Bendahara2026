@@ -2065,6 +2065,29 @@
             return `Rp${intStr},${decStr}`;
         }
 
+        function parseLpjMoney(val) {
+            if (val === undefined || val === null || val === '') return 0;
+            if (typeof val === 'number') return isNaN(val) ? 0 : val;
+            const cleaned = String(val).replace(/[Rr][Pp]\.?/g, '').replace(/[^0-9]/g, '');
+            return Number(cleaned) || 0;
+        }
+
+        function getLpjAnggaranBreakdown(p) {
+            const anggaranBahan = parseLpjMoney(p.belanja_bahan);
+            const anggaranSewa = parseLpjMoney(p.belanja_sewa);
+            const anggaranJasa = parseLpjMoney(p.belanja_jasa);
+            const anggaranLainnya = parseLpjMoney(p.belanja_lainnya);
+            const breakdownSum = anggaranBahan + anggaranSewa + anggaranJasa + anggaranLainnya;
+            const sheetTotal = parseLpjMoney(p.anggaran !== undefined && p.anggaran !== '' ? p.anggaran : p.estimasi_dana);
+            return {
+                anggaranBahan,
+                anggaranSewa,
+                anggaranJasa,
+                anggaranLainnya,
+                totalAnggaran: breakdownSum > 0 ? breakdownSum : sheetTotal
+            };
+        }
+
         function formatHargaSatuanLPJ(priceVal, nominalVal) {
             const numPrice = Number(priceVal) || 0;
             if (numPrice > 0) return formatRupiahLPJ(numPrice);
@@ -2749,9 +2772,6 @@
         }
 
         function prepareMasterLpjData(options = {}) {
-            // LPJ keseluruhan: hanya program kerja/agenda selesai + baris panduan placeholder tetap ada
-            const includeGuideRow = true;
-
             const prokerSource = (typeof allProkers !== 'undefined' && allProkers.length > 0) 
                 ? allProkers 
                 : (typeof localProkers !== 'undefined' ? localProkers : []);
@@ -2829,34 +2849,12 @@
                     totalRealisasi = realisasiBahan;
                 }
 
-                const totalAnggaran = Number(p.anggaran !== undefined && Number(p.anggaran) > 0 
-                    ? p.anggaran 
-                    : (p.estimasi_dana || totalRealisasi));
-
-                let anggaranBahan = 0;
-                let anggaranSewa = 0;
-                let anggaranJasa = 0;
-                let anggaranLainnya = 0;
-
-                if (totalRealisasi > 0 && totalAnggaran > 0) {
-                    if (totalAnggaran === totalRealisasi) {
-                        anggaranBahan = realisasiBahan;
-                        anggaranSewa = realisasiSewa;
-                        anggaranJasa = realisasiJasa;
-                        anggaranLainnya = realisasiLainnya;
-                    } else {
-                        anggaranBahan = Math.round((realisasiBahan / totalRealisasi) * totalAnggaran);
-                        anggaranSewa = Math.round((realisasiSewa / totalRealisasi) * totalAnggaran);
-                        anggaranJasa = Math.round((realisasiJasa / totalRealisasi) * totalAnggaran);
-                        anggaranLainnya = totalAnggaran - (anggaranBahan + anggaranSewa + anggaranJasa);
-                        if (anggaranLainnya < 0) {
-                            anggaranBahan += anggaranLainnya;
-                            anggaranLainnya = 0;
-                        }
-                    }
-                } else if (totalAnggaran > 0) {
-                    anggaranBahan = totalAnggaran;
-                }
+                const anggaran = getLpjAnggaranBreakdown(p);
+                const anggaranBahan = anggaran.anggaranBahan;
+                const anggaranSewa = anggaran.anggaranSewa;
+                const anggaranJasa = anggaran.anggaranJasa;
+                const anggaranLainnya = anggaran.anggaranLainnya;
+                const totalAnggaran = anggaran.totalAnggaran;
 
                 grandTotalAnggaran += totalAnggaran;
                 grandTotalRealisasi += totalRealisasi;
@@ -2942,58 +2940,16 @@
                 initialSaldoOperasional: initialSaldoOperasional,
                 totalDanaOperasionalOut: totalDanaOperasionalOut,
                 finalSaldoOperasional: runningSaldo,
-                includeGuideRow: includeGuideRow,
+                includeGuideRow: false,
                 filterStatus: 'selesai'
             };
         }
 
         function generateMasterLpjHtml(data) {
-            const includeGuide = true;
-            let actNum = 2;
+            const actNum = 1;
 
             // 1. TABEL IV.I Realisasi Keuangan
             let iv1RowsHtml = '';
-            if (includeGuide) {
-                iv1RowsHtml += `
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">1</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; vertical-align: top;">
-                            <span style="font-style: italic;">(Diisi Nama kegiatan)</span>
-                        </td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-weight: bold; vertical-align: top;">Total Anggaran</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-weight: bold; vertical-align: top;">Total Realisasi</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                    </tr>
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.1 Belanja Bahan</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
-                    </tr>
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.2 Belanja Sewa</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
-                    </tr>
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.3 Belanja Jasa</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
-                    </tr>
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; font-style: italic;">1.4 Biaya Lainnya</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
-                    </tr>
-                `;
-            }
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
@@ -3060,16 +3016,6 @@
 
             // 2. TABEL IV.II Rekapitulasi Keuangan
             let iv2RowsHtml = '';
-            if (includeGuide) {
-                iv2RowsHtml += `
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1.</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">(Diisi Nama Kegiatan)</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">(Total anggaran kegiatan)</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">(Total realisasi kegiatan)</td>
-                    </tr>
-                `;
-            }
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
@@ -3106,17 +3052,6 @@
 
             // 3. TABEL IV.III Rekapitulasi Penggunaan Dana Operasional
             let iv3RowsHtml = '';
-            if (includeGuide) {
-                iv3RowsHtml += `
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1.</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">(Diisi Nama Kegiatan)</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Total Dana Operasional yang awal)</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Total Dana Operasional yang digunakan dalam kegiatan)</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Pemasukan – Pengeluaran)</td>
-                    </tr>
-                `;
-            }
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
@@ -3289,8 +3224,7 @@
 
             const options = {
                 filterStatus: 'selesai',
-                initialSaldoOperasional: initialSaldo,
-                includeGuideRow: true
+                initialSaldoOperasional: initialSaldo
             };
 
             if (actionType === 'word') {
