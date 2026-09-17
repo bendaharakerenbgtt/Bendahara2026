@@ -1833,42 +1833,41 @@
             return 'lainnya';
         }
 
-        function prepareMasterLpjData(options = {}) {
-            // Sesuai arahan: LPJ keseluruhan hanya mengekspor program kerja dan agenda yang sudah selesai
-            const filterStatus = options.filterStatus || 'selesai';
-            const includeGuideRow = options.includeGuideRow !== false;
+        function isDanaOperasional2026Tx(t) {
+            const cat = (t.kategori || '').toLowerCase().trim();
+            return cat === 'dana operasional 2026' || cat.includes('dana operasional 2026');
+        }
 
-            const allTxs = (typeof localTransactions !== 'undefined' ? localTransactions : (typeof allTransactions !== 'undefined' ? allTransactions : []));
-
-            // Deteksi transaksi masuk berlabel Dana Operasional 2026 atau Dana Operasional
-            let autoDanaOperasional2026 = 0;
-            allTxs.forEach(t => {
-                if ((t.jenis || '').trim().toLowerCase() === 'masuk') {
-                    const cat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
-                    if (cat.includes('dana operasional 2026') || cat.includes('operasional 2026') || cat.includes('dana operasional')) {
-                        autoDanaOperasional2026 += Number(t.nominal) || 0;
-                    }
+        function sumDanaOperasional2026Masuk(txList) {
+            let total = 0;
+            (txList || []).forEach(t => {
+                if ((t.jenis || '').trim().toLowerCase() === 'masuk' && isDanaOperasional2026Tx(t)) {
+                    total += Number(t.nominal) || 0;
                 }
             });
+            return total;
+        }
 
-            let initialSaldoOperasional = Number(options.initialSaldoOperasional) || 0;
-            if (initialSaldoOperasional <= 0) {
-                if (autoDanaOperasional2026 > 0) {
-                    initialSaldoOperasional = autoDanaOperasional2026;
-                } else {
-                    initialSaldoOperasional = 7000000; // Standar default sesuai buku pedoman & gambar
-                }
+        function prepareMasterLpjData(options = {}) {
+            const includeGuideRow = true;
+            const allTxs = (typeof localTransactions !== 'undefined' ? localTransactions : (typeof allTransactions !== 'undefined' ? allTransactions : []));
+
+            const autoDanaOperasional2026 = sumDanaOperasional2026Masuk(allTxs);
+
+            let initialSaldoOperasional = Number(options.initialSaldoOperasional);
+            if (isNaN(initialSaldoOperasional) || initialSaldoOperasional < 0) {
+                initialSaldoOperasional = autoDanaOperasional2026;
+            } else if (initialSaldoOperasional === 0 && autoDanaOperasional2026 > 0) {
+                initialSaldoOperasional = autoDanaOperasional2026;
             }
 
             let prokers = [...(typeof localProkers !== 'undefined' ? localProkers : (typeof allProkers !== 'undefined' ? allProkers : []))];
 
-            // Filter kegiatan: secara default hanya kegiatan yang sudah selesai
-            if (filterStatus === 'selesai') {
-                prokers = prokers.filter(p => {
-                    const s = (p.status || '').toLowerCase().trim();
-                    return s === 'selesai' || s === 'completed';
-                });
-            }
+            // Filter kegiatan: hanya kegiatan yang sudah selesai
+            prokers = prokers.filter(p => {
+                const s = (p.status || '').toLowerCase().trim();
+                return s === 'selesai' || s === 'completed';
+            });
 
             // Abaikan item operasional rutin jika tidak ada rincian kegiatan
             prokers = prokers.filter(p => {
@@ -1966,33 +1965,18 @@
                     return 'Defisit anggaran';
                 }
 
-                // Tabel IV.III: Rekapitulasi Penggunaan Dana Operasional
-                // Arahan: Dana operasional adalah sumber utama pendanaan kegiatan ("jadi kayak pakai dana operasional itu doang sumber dananya")
+                // Tabel IV.III: hanya pemakaian kategori khusus Dana Operasional 2026
                 let danaOpIn = 0;
                 inTxs.forEach(t => {
-                    const rawCat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
-                    if (rawCat.includes('dana operasional 2026') || rawCat.includes('dana operasional') || rawCat.includes('kas operasional')) {
-                        danaOpIn += Number(t.nominal) || 0;
-                    }
+                    if (isDanaOperasional2026Tx(t)) danaOpIn += Number(t.nominal) || 0;
                 });
 
                 let danaOpOut = 0;
                 outTxs.forEach(t => {
-                    const rawCat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
-                    if (rawCat.includes('dana operasional 2026') || rawCat.includes('dana operasional')) {
-                        danaOpOut += Number(t.nominal) || 0;
-                    }
+                    if (isDanaOperasional2026Tx(t)) danaOpOut += Number(t.nominal) || 0;
                 });
 
-                let danaOperasionalUsed = 0;
-                if (danaOpIn > 0) {
-                    danaOperasionalUsed = danaOpIn;
-                } else if (danaOpOut > 0) {
-                    danaOperasionalUsed = danaOpOut;
-                } else {
-                    // Karena sumber dananya dari dana operasional, gunakan total realisasi pengeluaran kegiatan
-                    danaOperasionalUsed = totalRealisasi;
-                }
+                const danaOperasionalUsed = danaOpOut > 0 ? danaOpOut : danaOpIn;
 
                 const saldoAwalProker = runningSaldo;
                 const saldoAkhirProker = saldoAwalProker - danaOperasionalUsed;
@@ -2051,19 +2035,15 @@
                 initialSaldoOperasional: initialSaldoOperasional,
                 totalDanaOperasionalOut: totalDanaOperasionalOut,
                 finalSaldoOperasional: runningSaldo,
-                includeGuideRow: includeGuideRow,
-                filterStatus: filterStatus
+                includeGuideRow: includeGuideRow
             };
         }
 
         function generateMasterLpjHtml(data) {
-            const includeGuide = data.includeGuideRow !== false;
-            let actNum = includeGuide ? 2 : 1;
+            const actNum = 2;
 
             // 1. TABEL IV.I Realisasi Keuangan
-            let iv1RowsHtml = '';
-            if (includeGuide) {
-                iv1RowsHtml += `
+            let iv1RowsHtml = `
                     <tr>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">1</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; vertical-align: top;">
@@ -2101,8 +2081,7 @@
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp....,00</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic; font-size: 8.5pt;">(Deskripsi singkat alasan defisit atau surplus)</td>
                     </tr>
-                `;
-            }
+            `;
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
@@ -2142,18 +2121,6 @@
                         });
                     }
                 });
-
-                if (kIdx === data.activities.length - 1) {
-                    iv1RowsHtml += `
-                        <tr>
-                            <td style="border: 1px solid black; padding: 3pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">Dst.</td>
-                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
-                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
-                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
-                            <td style="border: 1px solid black; padding: 3pt 6pt;"></td>
-                        </tr>
-                    `;
-                }
             });
 
             const iv1TableHtml = `
@@ -2180,17 +2147,14 @@
             `;
 
             // 2. TABEL IV.II Rekapitulasi Keuangan
-            let iv2RowsHtml = '';
-            if (includeGuide) {
-                iv2RowsHtml += `
+            let iv2RowsHtml = `
                     <tr>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1.</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">(Diisi Nama Kegiatan)</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">(Total anggaran kegiatan)</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 9pt;">(Total realisasi kegiatan)</td>
                     </tr>
-                `;
-            }
+            `;
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
@@ -2226,9 +2190,7 @@
             `;
 
             // 3. TABEL IV.III Rekapitulasi Penggunaan Dana Operasional
-            let iv3RowsHtml = '';
-            if (includeGuide) {
-                iv3RowsHtml += `
+            let iv3RowsHtml = `
                     <tr>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1.</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">(Diisi Nama Kegiatan)</td>
@@ -2236,8 +2198,7 @@
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Total Dana Operasional yang digunakan dalam kegiatan)</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic; font-size: 8.5pt;">(Pemasukan – Pengeluaran)</td>
                     </tr>
-                `;
-            }
+            `;
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
@@ -2256,17 +2217,6 @@
                     </tr>
                 `;
             });
-
-            // Baris Dst... sebelum TOTAL sesuai format resmi buku pedoman
-            iv3RowsHtml += `
-                <tr>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">...</td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt; font-style: italic;">Dst...</td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                </tr>
-            `;
 
             const iv3TableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
@@ -2409,21 +2359,16 @@
         }
 
         function handleMasterExportAction(type) {
-            const filterStatusEl = document.getElementById('master_filter_status');
             const initialSaldoEl = document.getElementById('master_initial_saldo');
-            const includeGuideEl = document.getElementById('master_include_guide');
-
-            const filterStatus = filterStatusEl ? filterStatusEl.value : 'selesai';
             let initialSaldo = 0;
             if (initialSaldoEl) {
                 initialSaldo = Number(initialSaldoEl.value.replace(/[^0-9]/g, '')) || 0;
             }
-            const includeGuideRow = includeGuideEl ? includeGuideEl.checked : true;
 
             const options = {
-                filterStatus: filterStatus,
+                filterStatus: 'selesai',
                 initialSaldoOperasional: initialSaldo,
-                includeGuideRow: includeGuideRow
+                includeGuideRow: true
             };
 
             Swal.close();
@@ -2436,57 +2381,39 @@
         }
 
         function bukaModalExportMasterLPJ() {
-            let autoDanaOperasional2026 = 0;
-            if (typeof localTransactions !== 'undefined' && Array.isArray(localTransactions)) {
-                localTransactions.forEach(t => {
-                    if ((t.jenis || '').trim().toLowerCase() === 'masuk') {
-                        const cat = ((t.kategori || '') + ' ' + (t.uraian || '') + ' ' + (t.keterangan || t.catatan || '')).toLowerCase();
-                        if (cat.includes('dana operasional 2026') || cat.includes('operasional 2026') || cat.includes('dana operasional')) {
-                            autoDanaOperasional2026 += Number(t.nominal) || 0;
-                        }
-                    }
-                });
-            }
-            const defaultSaldo = autoDanaOperasional2026 > 0 ? autoDanaOperasional2026 : 7000000;
+            const txList = (typeof localTransactions !== 'undefined' && Array.isArray(localTransactions)) 
+                ? localTransactions 
+                : ((typeof allTransactions !== 'undefined' && Array.isArray(allTransactions)) ? allTransactions : []);
+            const autoDanaOperasional2026 = sumDanaOperasional2026Masuk(txList);
+            const defaultSaldo = autoDanaOperasional2026;
 
             Swal.fire({
                 title: '<div class="text-base sm:text-lg font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Export Seluruh LPJ Keuangan</span></div>',
                 html: `
                     <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 pt-1">
                         <div class="p-2.5 bg-neutral-900/90 border border-neutral-800 rounded-xl leading-relaxed text-neutral-400 text-[11px]">
-                            Laporan ini menyatukan seluruh kegiatan ke dalam 3 tabel resmi LPJ:
+                            Laporan resmi menyatukan seluruh program kerja & agenda yang sudah selesai ke dalam 3 tabel resmi LPJ:
                             <div class="text-[10px] font-mono text-neutral-300 mt-1 space-y-0.5">
                                 <div>• <b>IV.I Realisasi Keuangan</b> (RAB & Belanja Bahan, Sewa, Jasa, Lainnya)</div>
-                                <div>• <b>IV.II Rekapitulasi Keuangan</b> (Anggaran & realisasi per proker)</div>
-                                <div>• <b>IV.III Rekap Penggunaan Dana Operasional</b> (Aliran kas & saldo akhir)</div>
+                                <div>• <b>IV.II Rekapitulasi Keuangan</b> (Anggaran & realisasi per kegiatan)</div>
+                                <div>• <b>IV.III Rekap Penggunaan Dana Operasional</b> (Aliran kas & saldo akhir — kategori Dana Operasional 2026)</div>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-[10px] font-mono uppercase text-neutral-400 font-bold mb-1">Pilihan Kegiatan</label>
-                            <select id="master_filter_status" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-2.5 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans cursor-pointer">
-                                <option value="selesai" selected>Hanya Kegiatan Selesai (Standar Resmi LPJ)</option>
-                                <option value="all">Semua Kegiatan (Termasuk Berjalan)</option>
-                            </select>
-                            <span class="text-[9px] text-neutral-500 mt-0.5 block">Sesuai aturan LPJ, hanya program kerja dan agenda yang sudah selesai dilaporkan.</span>
+                        <div class="p-2 bg-neutral-900/60 border border-neutral-800/80 rounded-lg flex items-center justify-between">
+                            <span class="text-[10px] font-mono uppercase text-neutral-400 font-bold">Target Laporan</span>
+                            <span class="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">Kegiatan Selesai ✓</span>
                         </div>
 
                         <div>
                             <label class="block text-[10px] font-mono uppercase text-neutral-400 font-bold mb-1">Saldo Awal Dana Operasional 2026 (Tabel IV.III)</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-2 text-neutral-500 font-mono text-xs">Rp</span>
-                                <input type="text" id="master_initial_saldo" value="${defaultSaldo.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg pl-9 pr-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono font-bold">
+                                <input type="text" id="master_initial_saldo" value="${defaultSaldo > 0 ? defaultSaldo.toLocaleString('id-ID') : '0'}" onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg pl-9 pr-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono font-bold">
                             </div>
                             <span class="text-[9px] text-neutral-500 mt-0.5 block">
-                                ${autoDanaOperasional2026 > 0 ? '✓ Terdeteksi otomatis dari transaksi Masuk kategori Dana Operasional 2026.' : 'Otomatis diisi Rp7.000.000 (standar template). Sumber dana utama operasional.'}
+                                ${autoDanaOperasional2026 > 0 ? '✓ Terdeteksi otomatis dari transaksi Masuk kategori Dana Operasional 2026.' : 'Belum ada pemasukan kategori Dana Operasional 2026. Placeholder tetap ada; isi nanti setelah dana masuk.'}
                             </span>
-                        </div>
-
-                        <div class="flex items-center gap-2 pt-0.5">
-                            <input type="checkbox" id="master_include_guide" checked class="rounded border-neutral-800 text-cyan-500 focus:ring-0 cursor-pointer">
-                            <label for="master_include_guide" class="text-[10.5px] text-neutral-300 cursor-pointer select-none">
-                                Sertakan baris panduan format: <i>"(Diisi Nama Kegiatan)"</i> seperti buku pedoman LPJ
-                            </label>
                         </div>
 
                         <p class="text-[11px] text-neutral-400 pt-1 font-bold">Pilih format ekspor master laporan:</p>
