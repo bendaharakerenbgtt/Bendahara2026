@@ -14,6 +14,7 @@
     <title>Kelola Proker Center</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docshift@latest/dist/docshift.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -1992,18 +1993,55 @@
             return csv;
         }
 
-        function exportProkerToWord(prokerId) {
-            const data = getProkerReportData(prokerId);
-            if (!data) return;
+        async function downloadDocxOrDoc(htmlContent, fileNameBase) {
+            Swal.fire({
+                title: 'Menyiapkan Dokumen Word...',
+                text: 'Sedang membuat berkas .docx yang kompatibel untuk HP & Laptop...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
-            const htmlContent = generateWordReportHtml(data);
+            if (window.docshift && typeof window.docshift.toDocx === 'function') {
+                try {
+                    const docxBlob = await window.docshift.toDocx(htmlContent);
+                    const url = URL.createObjectURL(docxBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${fileNameBase}.docx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'File Word (.docx) Berhasil Diunduh!',
+                        html: `
+                            <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
+                                <div>📄 Berkas: <b>${fileNameBase}.docx</b></div>
+                                <div class="p-2.5 bg-emerald-950/40 border border-emerald-800/40 rounded-xl text-[11px] leading-relaxed text-emerald-200">
+                                    ✓ Format <b>.docx resmi</b> (OpenXML) siap dibuka langsung di <b>HP Android (Google Dokumen, WPS, Word)</b> maupun <b>Laptop/PC</b> tanpa kendala.
+                                </div>
+                            </div>
+                        `,
+                        confirmButtonText: 'Bagus, Mengerti',
+                        confirmButtonColor: '#FF7300'
+                    });
+                    return;
+                } catch (err) {
+                    console.warn('docshift toDocx failed, falling back to .doc HTML:', err);
+                }
+            }
+
             const blob = new Blob(['\ufeff', htmlContent], {
                 type: 'application/msword;charset=utf-8'
             });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}.doc`;
+            a.download = `${fileNameBase}.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2014,16 +2052,25 @@
                 title: 'File Word Berhasil Diunduh!',
                 html: `
                     <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
-                        <div>📄 Berkas: <b>Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}.doc</b></div>
+                        <div>📄 Berkas: <b>${fileNameBase}.doc</b></div>
                         <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
                             💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
-                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan opsi <b>Cetak PDF</b> agar langsung tampil sempurna di HP.
+                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau opsi <b>Cetak PDF</b>.
                         </div>
                     </div>
                 `,
                 confirmButtonText: 'Oke, Mengerti',
                 confirmButtonColor: '#FF7300'
             });
+        }
+
+        async function exportProkerToWord(prokerId) {
+            const data = getProkerReportData(prokerId);
+            if (!data) return;
+
+            const htmlContent = generateWordReportHtml(data);
+            const fileName = `Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}`;
+            await downloadDocxOrDoc(htmlContent, fileName);
         }
 
         function exportProkerToCsv(prokerId) {
@@ -2137,11 +2184,11 @@
                                 <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                                     <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
                                     <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Bagus untuk PC / Laptop (Word & WPS). Di HP gunakan WPS Office</div>
+                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.docx)</div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Format resmi .docx — bisa dibuka di HP (Google Docs/WPS) & PC Word</div>
                                     </div>
                                 </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
+                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .docx</span>
                             </button>
 
                             <button type="button" onclick="exportProkerToCsv('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-emerald-500/50 rounded-xl transition-all cursor-pointer group text-left">
@@ -2702,36 +2749,11 @@
 </html>`;
         }
 
-        function exportMasterLpjToWord(options = {}) {
+        async function exportMasterLpjToWord(options = {}) {
             const data = prepareMasterLpjData(options);
             const htmlContent = generateMasterLpjHtml(data);
-            const blob = new Blob(['\ufeff', htmlContent], {
-                type: 'application/msword'
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Laporan_Pertanggungjawaban_Keuangan_Keseluruhan_${new Date().toISOString().slice(0, 10)}.doc`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Master LPJ Berhasil Diunduh!',
-                html: `
-                    <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
-                        <div>📄 Berkas: <b>Laporan_Pertanggungjawaban_Keuangan_Keseluruhan_${new Date().toISOString().slice(0, 10)}.doc</b></div>
-                        <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
-                            💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
-                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan opsi <b>Cetak PDF</b> agar langsung tampil sempurna di HP.
-                        </div>
-                    </div>
-                `,
-                confirmButtonText: 'Oke, Mengerti',
-                confirmButtonColor: '#FF7300'
-            });
+            const fileName = `Laporan_Pertanggungjawaban_Keuangan_Keseluruhan_${new Date().toISOString().slice(0, 10)}`;
+            await downloadDocxOrDoc(htmlContent, fileName);
         }
 
         function printMasterLpj(options = {}) {
@@ -2801,11 +2823,11 @@
                                 <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                                     <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
                                     <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Bagus untuk PC / Laptop (Word & WPS). Di HP gunakan WPS Office</div>
+                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.docx)</div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Format resmi .docx — tabel bergaris, bisa dibuka di HP & Laptop</div>
                                     </div>
                                 </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
+                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .docx</span>
                             </button>
 
                             <button type="button" onclick="handleMasterExportAction('print')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group text-left">
