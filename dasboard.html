@@ -550,12 +550,12 @@
         html.light-mode body::after {
             background-image: url("assetkabinet/garis.png"), url("assetkabinet/logokabinetblur.png");
             background-repeat: no-repeat, no-repeat;
-            background-position: right top, left bottom;
-            background-size: 550px auto, 450px auto;
-            opacity: 0.18;
+            background-position: right top, right -15px top 15px;
+            background-size: 550px auto, 520px auto;
+            opacity: 0.22;
         }
 
-        /* MOBILE RESPONSIVE FIX FOR CABINET DECOR & GARIS.PNG (PREVENTS LOGO/TEXT OVERLAP) */
+        /* MOBILE RESPONSIVE FIX FOR CABINET DECOR & GARIS.PNG (PREVENTS LOGO/TEXT OVERLAP & HIGHLIGHTS KABINET) */
         @media (max-width: 768px) {
             .cabinet-decor {
                 opacity: 0.15 !important;
@@ -563,9 +563,9 @@
                 max-height: 110px !important;
             }
             html.light-mode body::after {
-                background-size: 220px auto, 180px auto !important;
-                background-position: right -40px top -40px, left -30px bottom -30px !important;
-                opacity: 0.10 !important;
+                background-size: 240px auto, 280px auto !important;
+                background-position: right -40px top -30px, right -15px top 5px !important;
+                opacity: 0.20 !important;
             }
         }
 
@@ -1080,6 +1080,18 @@
             color: #ea580c !important;
             box-shadow: 0 2px 6px rgba(255, 115, 0, 0.12) !important;
         }
+        html.light-mode .kabinet-avatar {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%) !important;
+            border-color: #FDBA74 !important;
+            box-shadow: 0 3px 10px rgba(249, 115, 22, 0.20) !important;
+        }
+        html.light-mode .kabinet-badge-desktop {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%) !important;
+            border-color: #FED7AA !important;
+        }
+        html.light-mode .kabinet-watermark-topright img {
+            opacity: 0.28 !important;
+        }
 
         /* Mobile Breakpoint Overrides */
         @media (max-width: 768px) {
@@ -1249,6 +1261,10 @@
             </div>
 
             <div class="header-actions">
+                <div class="kabinet-badge-desktop flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/25 shadow-xs" title="Kabinet Muharrik 2026">
+                    <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-6 h-6 object-contain">
+                    <span class="text-[10px] font-mono font-bold tracking-wider text-orange-400 uppercase hidden md:inline">Kabinet Muharrik</span>
+                </div>
                 <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-toggle-btn" title="Ubah Mode Warna">
                     <i class="fa-solid fa-moon text-amber-400"></i>
                     <span id="themeToggleText">Mode Gelap</span>
@@ -1257,9 +1273,14 @@
         </div>
     </header>
 
+    <!-- KABINET MUHARRIK CORNER WATERMARK (TOP-RIGHT & GEDEAN) -->
+    <div class="kabinet-watermark-topright fixed top-0 right-0 pointer-events-none z-[-1] overflow-hidden w-64 h-64 sm:w-80 sm:h-80 md:w-[460px] md:h-[460px]" aria-hidden="true">
+        <img src="assetkabinet/logokabinetblur.png" alt="" class="w-full h-full object-contain transform translate-x-12 -translate-y-8 sm:translate-x-16 sm:-translate-y-12 opacity-20 dark:opacity-15 select-none">
+    </div>
+
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full flex-grow flex flex-col gap-4 sm:gap-5">
         
-        <!-- MOBILE TOP BAR (MOCKUP STYLE: AVATAR/LOGO + GREETING + DANAIMIP + DATE BADGE) -->
+        <!-- MOBILE TOP BAR (MOCKUP STYLE: AVATAR/LOGO + GREETING + DANAIMIP + DATE BADGE + KABINET MUHARRIK) -->
         <div id="mobile-top-bar" class="sm:hidden flex items-center justify-between w-full pt-0.5 pb-1 shrink-0">
             <div class="flex items-center gap-2.5">
                 <div class="w-10 h-10 rounded-full p-0.5 bg-gradient-to-tr from-orange-500/40 via-amber-400/30 to-orange-400/50 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0">
@@ -1273,10 +1294,13 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-2">
                 <div class="px-2.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center gap-1.5 text-orange-400 shadow-xs">
                     <i class="fa-regular fa-calendar text-[11px]"></i>
                     <span class="text-[9.5px] font-mono font-bold" id="mobile-date-text">2026</span>
+                </div>
+                <div class="kabinet-avatar w-10 h-10 rounded-full p-1 bg-gradient-to-tr from-amber-500/30 via-orange-500/20 to-neutral-900 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0" title="Kabinet Muharrik 2026">
+                    <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-full h-full object-contain">
                 </div>
             </div>
         </div>
