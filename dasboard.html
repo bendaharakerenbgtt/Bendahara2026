@@ -1067,6 +1067,20 @@
             font-weight: 800 !important;
         }
 
+        /* Light Mode Mobile Top Bar (Mockup Style) */
+        html.light-mode #mobile-top-bar span.text-neutral-400 {
+            color: #64748b !important;
+        }
+        html.light-mode #mobile-top-bar span.text-neutral-100 {
+            color: #0f172a !important;
+        }
+        html.light-mode #mobile-top-bar .bg-orange-500\/10 {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%) !important;
+            border-color: #FED7AA !important;
+            color: #ea580c !important;
+            box-shadow: 0 2px 6px rgba(255, 115, 0, 0.12) !important;
+        }
+
         /* Mobile Breakpoint Overrides */
         @media (max-width: 768px) {
             #particle-canvas {
@@ -1243,10 +1257,32 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-grow flex flex-col gap-5">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full flex-grow flex flex-col gap-4 sm:gap-5">
         
-        <!-- 1. GREETING HERO CARD -->
-        <section class="greeting-card relative overflow-hidden">
+        <!-- MOBILE TOP BAR (MOCKUP STYLE: AVATAR/LOGO + GREETING + DANAIMIP + DATE BADGE) -->
+        <div id="mobile-top-bar" class="sm:hidden flex items-center justify-between w-full pt-0.5 pb-1 shrink-0">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-full p-0.5 bg-gradient-to-tr from-orange-500/40 via-amber-400/30 to-orange-400/50 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0">
+                    <img src="bendahara.png" alt="Logo DanaIMIP" class="w-full h-full rounded-full object-contain">
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span class="text-[9.5px] font-sans font-medium text-neutral-400 leading-none">Assalamu'alaikum, Pejuang Dakwah</span>
+                    <span class="text-base font-black tracking-tight font-sans text-neutral-100 flex items-center gap-1 leading-none mt-1">
+                        DANA<span class="text-[#FF7300]">IMIP</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+                <div class="px-2.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center gap-1.5 text-orange-400 shadow-xs">
+                    <i class="fa-regular fa-calendar text-[11px]"></i>
+                    <span class="text-[9.5px] font-mono font-bold" id="mobile-date-text">2026</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. GREETING HERO CARD (DESKTOP ONLY) -->
+        <section class="greeting-card relative overflow-hidden hidden sm:block">
             <!-- CABINET CORNER LINE ACCENT (LIGHT MODE) -->
             <div class="cabinet-decor absolute -top-10 -right-10 w-64 h-64 pointer-events-none opacity-30 overflow-hidden">
                 <img src="assetkabinet/garis.png" alt="Garis Kabinet" class="w-full h-full object-contain">
@@ -1278,18 +1314,13 @@
             </div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
             
-            <div class="lg:col-span-7 flex flex-col gap-5">
+            <div class="lg:col-span-7 flex flex-col gap-3.5 sm:gap-5">
                 
-                <div class="dashboard-chart-card bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
-                    <span class="text-[9px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
-                    <div class="w-full h-44 sm:h-52 flex justify-center items-center">
-                        <canvas id="ldkLineChart"></canvas>
-                    </div>
-                </div>
-
+                <!-- TOTAL SALDO & METODE TRANSAKSI -->
                 <div class="flex flex-col gap-3">
+                    <!-- 1. TOTAL SALDO SEMUA METODE -->
                     <div class="dashboard-total-saldo-card bg-neutral-950 border border-neutral-900 p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-xs">
                         <div class="flex flex-col">
                             <span class="saldo-title text-[9px] sm:text-[10px] font-mono tracking-wider text-neutral-400 uppercase block font-bold">Total Saldo Semua Metode</span>
@@ -1302,6 +1333,7 @@
                         </div>
                     </div>
 
+                    <!-- 2. METODE PEMBAYARAN (GOPAY & CASH) -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="dashboard-sub-saldo-gopay bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl border-t-2 border-t-cyan-400 flex flex-col justify-between">
                             <span class="text-[9px] font-mono tracking-wider text-neutral-400 uppercase block font-semibold">E-Wallet GoPay</span>
@@ -1318,6 +1350,7 @@
                         </div>
                     </div>
 
+                    <!-- 3. ARUS KAS MASUK & KELUAR -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="dashboard-flow-in bg-neutral-950 border border-neutral-900 p-2.5 rounded-lg flex flex-col">
                             <span class="text-[8px] font-mono tracking-wider text-neutral-500 uppercase block font-bold">Total Arus Masuk</span>
@@ -1327,6 +1360,14 @@
                             <span class="text-[8px] font-mono tracking-wider text-neutral-500 uppercase block font-bold">Total Arus Keluar</span>
                             <span id="total-keluar-text" class="text-xs font-bold text-rose-400 font-mono mt-0.5">Rp 0</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 4. DIAGRAM KEUANGAN LDK IMIP (BERADA DI BAWAH METODE) -->
+                <div class="dashboard-chart-card bg-neutral-950 border border-neutral-900 p-4 rounded-xl flex flex-col gap-3 shadow-xs">
+                    <span class="text-[9px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">DIAGRAM KEUANGAN LDK IMIP</span>
+                    <div class="w-full h-44 sm:h-52 flex justify-center items-center">
+                        <canvas id="ldkLineChart"></canvas>
                     </div>
                 </div>
 
@@ -2051,6 +2092,11 @@
         const hijriEl = document.getElementById('hijri-date-text');
         if (hijriEl) {
             hijriEl.textContent = getHijriDate(now);
+        }
+
+        const mobileDateEl = document.getElementById('mobile-date-text');
+        if (mobileDateEl) {
+            mobileDateEl.textContent = `${now.getDate()} ${monthsIndo[now.getMonth()].substring(0, 3)} ${now.getFullYear()}`;
         }
     }
 
