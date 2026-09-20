@@ -1672,34 +1672,41 @@ function escapeRegExp(string) {
 
 /** Kategorikan transaksi ke dalam jenis belanja (bahan, sewa, jasa, lainnya) */
 function categorizeTransactionType(t) {
-  if (!t) return "lainnya";
+  if (!t) return "bahan";
 
   const rawCat = (t.kategori || '').toLowerCase();
   const rawUraian = (t.uraian || '').toLowerCase();
   const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
-  const combined = `${rawCat} ${rawUraian} ${rawKet}`;
+  const combined = `${rawCat} ${rawUraian} ${rawKet}`.trim();
 
-  const sewaKeywords = ['sewa', 'rental', 'kontrak', 'booking', 'gedung', 'villa', 'aula', 'lapangan', 'belanja sewa', 'tempat'];
-  for (const kw of sewaKeywords) {
-    if (combined.includes(kw)) return 'sewa';
+  // 1. Belanja Sewa: keyword sewa (misal: sewa, rental, sewa tempat, dsb)
+  if (combined.includes('sewa') || combined.includes('rental')) {
+    return 'sewa';
   }
 
-  const jasaKeywords = ['honor', 'honorarium', 'fee', 'jasa', 'bisyarah', 'narasumber', 'pemateri', 'pembicara', 'juri', 'trainer', 'moderator', 'belanja jasa'];
-  for (const kw of jasaKeywords) {
-    if (combined.includes(kw)) return 'jasa';
+  // 2. Belanja Jasa: keyword di keterangan/uraian ada fee narasumber, fee, honor, dsb.
+  // Pengecualian: cetak sertifikat / piagam / plakat / bingkisan narasumber masuk ke bahan
+  const isBahanContext = combined.includes('sertifikat') || combined.includes('piagam') || 
+                         combined.includes('bingkisan') || combined.includes('plakat') || 
+                         combined.includes('cetak') || combined.includes('print');
+  
+  if (combined.includes('fee narasumber') || combined.includes('fee pemateri')) {
+    return 'jasa';
+  }
+  if (!isBahanContext) {
+    if (combined.includes('fee') || combined.includes('honor') || combined.includes('bisyarah') || 
+        combined.includes('narasumber') || combined.includes('pemateri') || combined.includes('belanja jasa')) {
+      return 'jasa';
+    }
   }
 
-  const bahanKeywords = [
-    'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata',
-    'souvenir', 'snack', 'makan', 'konsumsi', 'kue', 'print', 'cetak',
-    'kertas', 'atk', 'banner', 'spanduk', 'baliho', 'kaos', 'baju', 'merchandise',
-    'belanja bahan', 'bahan', 'logistik', 'perlengkapan'
-  ];
-  for (const kw of bahanKeywords) {
-    if (combined.includes(kw)) return 'bahan';
+  // 3. Biaya Lainnya (jika eksplisit dicatat belanja lainnya / biaya lainnya)
+  if (combined.includes('belanja lainnya') || combined.includes('biaya lainnya')) {
+    return 'lainnya';
   }
 
-  return 'lainnya';
+  // 4. Default: semua kategori lainnya masuk ke Belanja Bahan
+  return 'bahan';
 }
 
 /** Bersihkan baris-baris transaksi yang id-nya kosong atau baris sepenuhnya kosong */

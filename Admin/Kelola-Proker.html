@@ -1357,67 +1357,45 @@
                 }];
             }
 
-            // 2. Grouping Expense strictly into 2.1 Belanja Bahan & 2.2 Belanja Sewa
+            // 2. Grouping Expense into Belanja Bahan, Belanja Sewa, Belanja Jasa
             const bahanDivMap = {};
             const sewaDivMap = {};
+            const jasaDivMap = {};
             let totalBahan = 0;
             let totalSewa = 0;
+            let totalJasa = 0;
 
-            // Get realisasi breakdown from sheet if available
-            const anggaranBreakdown = getLpjAnggaranBreakdown(p);
-            const useSheetRealisasi = anggaranBreakdown.realisasiBahan > 0 ||
-                                    anggaranBreakdown.realisasiSewa > 0 ||
-                                    anggaranBreakdown.realisasiJasa > 0 ||
-                                    anggaranBreakdown.realisasiLainnya > 0;
-
-            if (useSheetRealisasi) {
-                // Use sheet realisasi values
-                totalBahan = anggaranBreakdown.realisasiBahan;
-                totalSewa = anggaranBreakdown.realisasiSewa;
-                const totalJasa = anggaranBreakdown.realisasiJasa;
-                const totalLainnya = anggaranBreakdown.realisasiLainnya;
-
-                // Still create div maps for detailed breakdown if txs exist
-                outTxs.forEach(t => {
-                    const nom = Number(t.nominal) || 0;
-                    const div = formatDivisiName(t.divisi);
-                    if (isBelanjaSewa(t)) {
-                        if (!sewaDivMap[div]) sewaDivMap[div] = [];
-                        sewaDivMap[div].push(t);
-                    } else {
-                        if (!bahanDivMap[div]) bahanDivMap[div] = [];
-                        bahanDivMap[div].push(t);
-                    }
-                });
-            } else {
-                // Use transaction-based calculation
-                outTxs.forEach(t => {
-                    const nom = Number(t.nominal) || 0;
-                    const div = formatDivisiName(t.divisi);
-                    if (isBelanjaSewa(t)) {
-                        if (!sewaDivMap[div]) sewaDivMap[div] = [];
-                        sewaDivMap[div].push(t);
-                        totalSewa += nom;
-                    } else {
-                        if (!bahanDivMap[div]) bahanDivMap[div] = [];
-                        bahanDivMap[div].push(t);
-                        totalBahan += nom;
-                    }
-                });
-
-                // If no expense txs exist but p.pengeluaran is set
-                if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
-                    totalBahan = Number(p.pengeluaran);
-                    bahanDivMap["Divisi Umum / Operasional"] = [{
-                        uraian: p.nama_proker || "Pengeluaran Kegiatan",
-                        unit: "1 Kegiatan",
-                        harga_satuan: totalBahan,
-                        nominal: totalBahan
-                    }];
+            outTxs.forEach(t => {
+                const nom = Number(t.nominal) || 0;
+                const div = formatDivisiName(t.divisi);
+                const catType = categorizeExpenseItem(t);
+                if (catType === 'sewa') {
+                    if (!sewaDivMap[div]) sewaDivMap[div] = [];
+                    sewaDivMap[div].push(t);
+                    totalSewa += nom;
+                } else if (catType === 'jasa') {
+                    if (!jasaDivMap[div]) jasaDivMap[div] = [];
+                    jasaDivMap[div].push(t);
+                    totalJasa += nom;
+                } else {
+                    if (!bahanDivMap[div]) bahanDivMap[div] = [];
+                    bahanDivMap[div].push(t);
+                    totalBahan += nom;
                 }
+            });
+
+            // If no expense txs exist but p.pengeluaran is set
+            if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
+                totalBahan = Number(p.pengeluaran);
+                bahanDivMap["Divisi Umum / Operasional"] = [{
+                    uraian: p.nama_proker || "Pengeluaran Kegiatan",
+                    unit: "1 Kegiatan",
+                    harga_satuan: totalBahan,
+                    nominal: totalBahan
+                }];
             }
 
-            const effPengeluaran = totalBahan + totalSewa;
+            const effPengeluaran = totalBahan + totalSewa + totalJasa;
             const effSaldo = effPemasukan - effPengeluaran;
 
             return {
@@ -1430,8 +1408,10 @@
                 inCategories: inCategories,
                 bahanDivMap: bahanDivMap,
                 sewaDivMap: sewaDivMap,
+                jasaDivMap: jasaDivMap,
                 totalBahan: totalBahan,
                 totalSewa: totalSewa,
+                totalJasa: totalJasa,
                 effPemasukan: effPemasukan,
                 effPengeluaran: effPengeluaran,
                 effSaldo: effSaldo
@@ -1520,7 +1500,7 @@
                 </table>
             `;
 
-            // 2. Pengeluaran Sections: 2.1 Belanja Bahan & 2.2 Belanja Sewa
+            // 2. Pengeluaran Sections: 2.1 Belanja Bahan & 2.2 Belanja Sewa & 2.3 Belanja Jasa (opsional)
             const bahanTableHtml = `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
                     2.1 Belanja Bahan
@@ -1568,6 +1548,30 @@
                     </tbody>
                 </table>
             `;
+
+            const jasaTableHtml = (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0)) ? `
+                <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
+                    2.3 Belanja Jasa
+                </p>
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderExpenseRowsHtml(data.jasaDivMap)}
+                        <tr style="font-weight: bold;">
+                            <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalJasa)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            ` : '';
 
             // 3. Rekapitulasi Keuangan Table
             const rekapTableHtml = `
@@ -1654,6 +1658,7 @@
         </p>
         ${bahanTableHtml}
         ${sewaTableHtml}
+        ${jasaTableHtml}
 
         <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 5pt;">
             3. Rekapitulasi Keuangan
@@ -1734,6 +1739,34 @@
                 });
             }
             csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
+
+            // 2.3 Belanja Jasa
+            if (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0)) {
+                csv += `"2.3 Belanja Jasa"\n`;
+                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+                const jasaDivKeys = Object.keys(data.jasaDivMap || {});
+                if (jasaDivKeys.length === 0) {
+                    csv += `"-","Nihil","-","-","Rp0,00"\n`;
+                } else {
+                    jasaDivKeys.forEach((divName, divIdx) => {
+                        const items = data.jasaDivMap[divName] || [];
+                        const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                        const letter = getGroupLetter(divIdx);
+                        csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
+                        items.forEach(item => {
+                            const itemNominal = Number(item.nominal) || 0;
+                            const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                                ? item.uraian 
+                                : (item.keterangan || item.catatan || 'Pengeluaran');
+                            const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                            const unitDisplay = formatUnitDisplay(item.unit);
+                            const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
+                            csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
+                        });
+                    });
+                }
+                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalJasa)}"\n\n`;
+            }
 
             // 3. Rekapitulasi Keuangan
             csv += `"3. Rekapitulasi Keuangan"\n`;
@@ -1885,32 +1918,40 @@
         //         IV.III Rekapitulasi Penggunaan Dana Operasional
         // ============================================================
         function categorizeExpenseItem(t) {
+            if (!t) return 'bahan';
             const rawCat = (t.kategori || '').toLowerCase();
             const rawUraian = (t.uraian || '').toLowerCase();
             const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
-            const combined = `${rawCat} ${rawUraian} ${rawKet}`;
+            const combined = `${rawCat} ${rawUraian} ${rawKet}`.trim();
 
-            const sewaKeywords = ['sewa', 'rental', 'kontrak', 'booking', 'gedung', 'villa', 'aula', 'lapangan', 'belanja sewa', 'tempat'];
-            for (const kw of sewaKeywords) {
-                if (combined.includes(kw)) return 'sewa';
+            // 1. Belanja Sewa: keyword sewa (misal: sewa, rental, sewa tempat, dsb)
+            if (combined.includes('sewa') || combined.includes('rental')) {
+                return 'sewa';
             }
 
-            const jasaKeywords = ['honor', 'honorarium', 'fee', 'jasa', 'bisyarah', 'narasumber', 'pemateri', 'pembicara', 'juri', 'trainer', 'moderator', 'belanja jasa'];
-            for (const kw of jasaKeywords) {
-                if (combined.includes(kw)) return 'jasa';
+            // 2. Belanja Jasa: keyword di keterangan/uraian ada fee narasumber, fee, honor, dsb.
+            // Pengecualian: cetak sertifikat / piagam / plakat / bingkisan narasumber masuk ke bahan
+            const isBahanContext = combined.includes('sertifikat') || combined.includes('piagam') || 
+                                   combined.includes('bingkisan') || combined.includes('plakat') || 
+                                   combined.includes('cetak') || combined.includes('print');
+            
+            if (combined.includes('fee narasumber') || combined.includes('fee pemateri')) {
+                return 'jasa';
+            }
+            if (!isBahanContext) {
+                if (combined.includes('fee') || combined.includes('honor') || combined.includes('bisyarah') || 
+                    combined.includes('narasumber') || combined.includes('pemateri') || combined.includes('belanja jasa')) {
+                    return 'jasa';
+                }
             }
 
-            const bahanKeywords = [
-                'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata', 
-                'souvenir', 'snack', 'makan', 'konsumsi', 'kue', 'print', 'cetak', 
-                'kertas', 'atk', 'banner', 'spanduk', 'baliho', 'kaos', 'baju', 'merchandise',
-                'belanja bahan', 'bahan', 'logistik', 'perlengkapan'
-            ];
-            for (const kw of bahanKeywords) {
-                if (combined.includes(kw)) return 'bahan';
+            // 3. Biaya Lainnya jika eksplisit dicatat belanja lainnya / biaya lainnya
+            if (combined.includes('belanja lainnya') || combined.includes('biaya lainnya')) {
+                return 'lainnya';
             }
 
-            return 'lainnya';
+            // 4. Default: semua kategori lainnya masuk ke Belanja Bahan
+            return 'bahan';
         }
 
         function isDanaOperasional2026Tx(t) {
@@ -1995,6 +2036,10 @@
                     }
                 });
 
+                if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
+                    realisasiBahan = Number(p.pengeluaran);
+                }
+
                 const anggaran = getLpjAnggaranBreakdown(p);
                 const anggaranBahan = anggaran.anggaranBahan;
                 const anggaranSewa = anggaran.anggaranSewa;
@@ -2002,11 +2047,10 @@
                 const anggaranLainnya = anggaran.anggaranLainnya;
                 const totalAnggaran = anggaran.totalAnggaran;
 
-                // Gunakan realisasi dari sheet jika ada, jika tidak gunakan perhitungan dari transaksi
-                const finalRealisasiBahan = anggaran.realisasiBahan > 0 ? anggaran.realisasiBahan : realisasiBahan;
-                const finalRealisasiSewa = anggaran.realisasiSewa > 0 ? anggaran.realisasiSewa : realisasiSewa;
-                const finalRealisasiJasa = anggaran.realisasiJasa > 0 ? anggaran.realisasiJasa : realisasiJasa;
-                const finalRealisasiLainnya = anggaran.realisasiLainnya > 0 ? anggaran.realisasiLainnya : realisasiLainnya;
+                const finalRealisasiBahan = realisasiBahan;
+                const finalRealisasiSewa = realisasiSewa;
+                const finalRealisasiJasa = realisasiJasa;
+                const finalRealisasiLainnya = realisasiLainnya;
 
                 let totalRealisasi = finalRealisasiBahan + finalRealisasiSewa + finalRealisasiJasa + finalRealisasiLainnya;
 
