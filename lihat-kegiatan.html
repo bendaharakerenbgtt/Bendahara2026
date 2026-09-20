@@ -1494,36 +1494,41 @@
             <p class="text-[11px] sm:text-xs text-neutral-400">Disini berisi rincian finansial program kerja LDK IMIP. Jika ada keliruan dalam informasi, silakan hubungi admin.</p>
         </div>
 
-        <div class="w-full max-w-[340px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full proker-tab-container shadow-xs">
-            <button onclick="switchProkerTab('running')" id="tab-btn-running" class="tab-btn tab-active">
-                <span>💼 Kegiatan Berjalan</span>
+        <!-- TAB UTAMA: PROGRAM KERJA VS AGENDA KERJA -->
+        <div class="w-full max-w-[360px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full proker-tab-container shadow-xs">
+            <button onclick="switchProkerTab('Program Kerja')" id="tab-btn-proker" class="tab-btn tab-active">
+                <span>📌 Program Kerja</span>
+                <span id="tab-badge-proker" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-neutral-900 border border-neutral-800 font-bold ml-1">0</span>
             </button>
-            <button onclick="switchProkerTab('selesai')" id="tab-btn-selesai" class="tab-btn tab-inactive">
-                <span>✅ Kegiatan Selesai</span>
+            <button onclick="switchProkerTab('Agenda Kerja')" id="tab-btn-agenda" class="tab-btn tab-inactive">
+                <span>📅 Agenda Kerja</span>
+                <span id="tab-badge-agenda" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-neutral-900 border border-neutral-800 font-bold ml-1">0</span>
             </button>
         </div>
 
-        <!-- SUB-ACTION BAR: MASTER LPJ EXPORT -->
-        <div class="flex items-center justify-between gap-2 max-w-[340px] sm:max-w-md mx-auto w-full px-1">
-            <span class="text-[9px] font-mono text-neutral-400 dark:text-neutral-500 uppercase font-bold tracking-wider">Rekapitulasi LPJ</span>
+        <!-- SUB-ACTION BAR: SUB-FILTER STATUS & MASTER LPJ EXPORT -->
+        <div class="flex items-center justify-between gap-2 max-w-[360px] sm:max-w-md mx-auto w-full px-1 flex-wrap">
+            <div class="inline-flex items-center gap-1 p-0.5 bg-neutral-950 border border-neutral-900 rounded-lg text-[10px] font-mono">
+                <button type="button" onclick="setStatusFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded font-bold transition-all bg-neutral-900 text-[#FF7300] border border-[#FF7300]/30 cursor-pointer shadow-xs">
+                    Semua (<span id="pub-count-all">0</span>)
+                </button>
+                <button type="button" onclick="setStatusFilter('running')" id="filter-btn-running" class="px-2.5 py-1 rounded font-bold transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer border border-transparent">
+                    ⏳ Berjalan (<span id="pub-count-running">0</span>)
+                </button>
+                <button type="button" onclick="setStatusFilter('selesai')" id="filter-btn-selesai" class="px-2.5 py-1 rounded font-bold transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer border border-transparent">
+                    ✅ Selesai (<span id="pub-count-selesai">0</span>)
+                </button>
+            </div>
+
             <button type="button" onclick="bukaModalExportMasterLPJ()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-850 border border-neutral-300 dark:border-neutral-800 hover:border-[#FF7300]/40 text-[#FF7300] text-[10px] font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-xs" title="Export Seluruh LPJ">
                 <span>📑</span> <span>Export Seluruh LPJ</span>
             </button>
         </div>
 
-        <div id="panel-proker-running" class="flex flex-col gap-3 sm:gap-4">
-            <span class="text-[9px] font-mono tracking-widest text-neutral-400 dark:text-neutral-500 uppercase font-black pl-1 hidden sm:block">KEGIATAN BERJALAN</span>
-            
+        <!-- LIST CONTAINER -->
+        <div id="publicProkerContainer" class="flex flex-col gap-3.5 sm:gap-4">
             <div id="running-proker-list" class="flex flex-col gap-3.5 sm:gap-4">
-                <!-- Program Kerja Berjalan dimasukkan secara dinamis -->
-            </div>
-        </div>
-
-        <div id="panel-proker-selesai" class="flex flex-col gap-3 sm:gap-4 tab-hidden">
-            <span class="text-[9px] font-mono tracking-widest text-neutral-400 dark:text-neutral-500 uppercase font-black pl-1 hidden sm:block">DAFTAR KEGIATAN SELESAI</span>
-            
-            <div id="completed-proker-list" class="flex flex-col gap-3.5 sm:gap-4">
-                 <!-- Program Kerja Selesai dimasukkan secara dinamis -->
+                <!-- Kegiatan dimasukkan secara dinamis -->
             </div>
         </div>
     </main>
@@ -1728,24 +1733,50 @@
     </nav>
 
     <script>
+        let activePublicProkerTab = sessionStorage.getItem('activePublicProkerTab') || 'Program Kerja';
+        if (activePublicProkerTab === 'running' || activePublicProkerTab === 'selesai') activePublicProkerTab = 'Program Kerja';
+        let activePublicStatusFilter = sessionStorage.getItem('activePublicStatusFilter') || 'all';
+
         function switchProkerTab(target) {
-            sessionStorage.setItem('activePublicProkerTab', target);
-            const pRunning = document.getElementById('panel-proker-running');
-            const pSelesai = document.getElementById('panel-proker-selesai');
-            const btnRunning = document.getElementById('tab-btn-running');
-            const btnSelesai = document.getElementById('tab-btn-selesai');
-            if (!pRunning || !pSelesai || !btnRunning || !btnSelesai) return;
-            if (target === 'running') {
-                pRunning.classList.remove('tab-hidden');
-                pSelesai.classList.add('tab-hidden');
-                btnRunning.className = "tab-btn tab-active";
-                btnSelesai.className = "tab-btn tab-inactive";
-            } else {
-                pRunning.classList.add('tab-hidden');
-                pSelesai.classList.remove('tab-hidden');
-                btnRunning.className = "tab-btn tab-inactive";
-                btnSelesai.className = "tab-btn tab-active";
+            if (target !== 'Program Kerja' && target !== 'Agenda Kerja') {
+                target = 'Program Kerja';
             }
+            activePublicProkerTab = target;
+            sessionStorage.setItem('activePublicProkerTab', target);
+
+            const btnProker = document.getElementById('tab-btn-proker');
+            const btnAgenda = document.getElementById('tab-btn-agenda');
+            if (btnProker && btnAgenda) {
+                if (target === 'Program Kerja') {
+                    btnProker.className = "tab-btn tab-active";
+                    btnAgenda.className = "tab-btn tab-inactive";
+                } else {
+                    btnProker.className = "tab-btn tab-inactive";
+                    btnAgenda.className = "tab-btn tab-active";
+                }
+            }
+
+            renderProkers();
+        }
+
+        function setStatusFilter(filter) {
+            activePublicStatusFilter = filter;
+            sessionStorage.setItem('activePublicStatusFilter', filter);
+            updateStatusFilterButtons();
+            renderProkers();
+        }
+
+        function updateStatusFilterButtons() {
+            const btnAll = document.getElementById('filter-btn-all');
+            const btnRunning = document.getElementById('filter-btn-running');
+            const btnSelesai = document.getElementById('filter-btn-selesai');
+
+            const activeBtn = "px-2.5 py-1 rounded font-bold transition-all bg-neutral-900 text-[#FF7300] border border-[#FF7300]/30 cursor-pointer shadow-xs";
+            const inactiveBtn = "px-2.5 py-1 rounded font-bold transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer border border-transparent";
+
+            if (btnAll) btnAll.className = activePublicStatusFilter === 'all' ? activeBtn : inactiveBtn;
+            if (btnRunning) btnRunning.className = activePublicStatusFilter === 'running' ? activeBtn : inactiveBtn;
+            if (btnSelesai) btnSelesai.className = activePublicStatusFilter === 'selesai' ? activeBtn : inactiveBtn;
         }
 
         function toggleProkerAccordion(id) {
@@ -3801,14 +3832,19 @@
                 `;
             }
 
+            const statusBadgeHtml = isCompleted 
+                ? '<span class="inline-flex items-center gap-1 text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 bg-emerald-950/90 border border-emerald-500/40 rounded text-emerald-300 font-bold uppercase shadow-[0_0_8px_rgba(16,185,129,0.2)]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>✓ Selesai</span>' 
+                : '<span class="inline-flex items-center gap-1 text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 bg-amber-950/90 border border-amber-500/40 rounded text-amber-300 font-bold uppercase shadow-[0_0_8px_rgba(245,158,11,0.2)]"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>⏳ Sedang Berjalan</span>';
+
             return `
-                <div class="proker-card-public bg-neutral-950 border border-neutral-900 rounded-2xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
+                <div class="proker-card-public bg-neutral-950 border ${isCompleted ? 'border-neutral-900 hover:border-emerald-500/40' : 'border-neutral-900 hover:border-amber-500/40'} rounded-2xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${proker.id}">
                     <!-- PRATINJAU HEADER SEBELUM DIPENCET -->
                     <div class="p-3.5 sm:p-4 proker-header-preview">
                         <div class="flex items-start justify-between gap-2.5">
                             <div onclick="toggleProkerAccordion('${proker.id}')" class="flex-grow cursor-pointer min-w-0">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider proker-badge-jenis">${proker.jenis || "Program Kerja"}</span>
+                                    ${statusBadgeHtml}
                                     <span class="proker-header-date">📅 ${formatReadableDate(proker.estimasi_tanggal)}</span>
                                 </div>
                                 <h3 class="proker-card-title text-xs sm:text-sm uppercase tracking-tight mt-1.5 truncate">${proker.nama_proker}</h3>
@@ -3906,41 +3942,145 @@
         }
 
         function renderProkers() {
-            const runningListContainer = document.getElementById('running-proker-list');
-            const completedListContainer = document.getElementById('completed-proker-list');
-            if (!runningListContainer || !completedListContainer) return;
+            const container = document.getElementById('running-proker-list') || document.getElementById('publicProkerContainer');
+            if (!container) return;
 
-            runningListContainer.innerHTML = '';
-            completedListContainer.innerHTML = '';
+            // Update badge counts for top tabs
+            const totalProker = allProkers.filter(p => (p.jenis || 'Program Kerja').trim() !== 'Agenda Kerja').length;
+            const totalAgenda = allProkers.filter(p => (p.jenis || '').trim() === 'Agenda Kerja').length;
 
-            const runningProkers = allProkers.filter(p => p.status === 'Running' || p.status === 'Berjalan');
-            const completedProkers = allProkers.filter(p => p.status === 'Selesai');
+            const badgeProker = document.getElementById('tab-badge-proker');
+            const badgeAgenda = document.getElementById('tab-badge-agenda');
+            if (badgeProker) badgeProker.textContent = totalProker;
+            if (badgeAgenda) badgeAgenda.textContent = totalAgenda;
 
-            // 1. Render Running Prokers
-            if (runningProkers.length === 0) {
-                runningListContainer.innerHTML = `
-                    <div class="col-span-full py-8 text-center text-xs text-neutral-500 font-mono italic">
-                        Belum ada program kerja berjalan.
-                    </div>
-                `;
-            } else {
-                runningProkers.forEach(proker => {
-                    runningListContainer.innerHTML += buildProkerCardPublicHtml(proker, false);
-                });
-            }
+            // Current active tab & filter
+            const targetJenis = activePublicProkerTab; // 'Program Kerja' or 'Agenda Kerja'
+            const prokersOfTab = allProkers.filter(p => {
+                const pj = (p.jenis || 'Program Kerja').trim();
+                return targetJenis === 'Agenda Kerja' ? pj === 'Agenda Kerja' : pj !== 'Agenda Kerja';
+            });
 
-            // 2. Render Completed Prokers
-            if (completedProkers.length === 0) {
-                completedListContainer.innerHTML = `
+            const runningItems = prokersOfTab.filter(p => {
+                const s = (p.status || '').toLowerCase().trim();
+                return s === 'running' || s === 'berjalan';
+            });
+            const selesaiItems = prokersOfTab.filter(p => {
+                const s = (p.status || '').toLowerCase().trim();
+                return s === 'selesai' || s === 'completed';
+            });
+
+            // Update status filter counters
+            const countAll = document.getElementById('pub-count-all');
+            const countRunning = document.getElementById('pub-count-running');
+            const countSelesai = document.getElementById('pub-count-selesai');
+            if (countAll) countAll.textContent = prokersOfTab.length;
+            if (countRunning) countRunning.textContent = runningItems.length;
+            if (countSelesai) countSelesai.textContent = selesaiItems.length;
+
+            updateStatusFilterButtons();
+
+            let html = '';
+
+            if (prokersOfTab.length === 0) {
+                container.innerHTML = `
                     <div class="py-8 text-center text-xs text-neutral-500 font-mono italic">
-                        Belum ada program kerja yang selesai.
+                        Belum ada data ${targetJenis.toLowerCase()}.
                     </div>
                 `;
-            } else {
-                completedProkers.forEach(proker => {
-                    completedListContainer.innerHTML += buildProkerCardPublicHtml(proker, true);
-                });
+                return;
             }
+
+            if (activePublicStatusFilter === 'running') {
+                html += `
+                    <div class="flex items-center justify-between pl-1 pb-1">
+                        <span class="text-[9.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-[#FF7300] animate-pulse"></span>
+                            DAFTAR ${targetJenis.toUpperCase()} BERJALAN (${runningItems.length})
+                        </span>
+                    </div>
+                `;
+                if (runningItems.length === 0) {
+                    html += `
+                        <div class="py-6 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans mb-3">
+                            Tidak ada ${targetJenis.toLowerCase()} yang sedang berjalan.
+                        </div>
+                    `;
+                } else {
+                    runningItems.forEach(p => {
+                        html += buildProkerCardPublicHtml(p, false);
+                    });
+                }
+            } else if (activePublicStatusFilter === 'selesai') {
+                html += `
+                    <div class="flex items-center justify-between pl-1 pb-1">
+                        <span class="text-[9.5px] font-mono tracking-widest text-emerald-400 uppercase font-black flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            DAFTAR ${targetJenis.toUpperCase()} SELESAI (${selesaiItems.length})
+                        </span>
+                    </div>
+                `;
+                if (selesaiItems.length === 0) {
+                    html += `
+                        <div class="py-6 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans mb-3">
+                            Belum ada ${targetJenis.toLowerCase()} yang selesai.
+                        </div>
+                    `;
+                } else {
+                    selesaiItems.forEach(p => {
+                        html += buildProkerCardPublicHtml(p, true);
+                    });
+                }
+            } else {
+                // 'all': Show both sections with clear distinct headers!
+                // 1. Seksi Berjalan
+                html += `
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between pl-1">
+                            <span class="text-[9.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-[#FF7300] animate-pulse"></span>
+                                ${targetJenis.toUpperCase()} SEDANG BERJALAN (${runningItems.length})
+                            </span>
+                        </div>
+                `;
+                if (runningItems.length === 0) {
+                    html += `
+                        <div class="py-5 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans">
+                            Tidak ada ${targetJenis.toLowerCase()} yang sedang berjalan.
+                        </div>
+                    `;
+                } else {
+                    runningItems.forEach(p => {
+                        html += buildProkerCardPublicHtml(p, false);
+                    });
+                }
+                html += `</div>`;
+
+                // 2. Seksi Selesai
+                html += `
+                    <div class="flex flex-col gap-3 mt-3">
+                        <div class="flex items-center justify-between pl-1">
+                            <span class="text-[9.5px] font-mono tracking-widest text-emerald-400 uppercase font-black flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                ${targetJenis.toUpperCase()} SELESAI (${selesaiItems.length})
+                            </span>
+                        </div>
+                `;
+                if (selesaiItems.length === 0) {
+                    html += `
+                        <div class="py-5 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans">
+                            Belum ada ${targetJenis.toLowerCase()} yang selesai.
+                        </div>
+                    `;
+                } else {
+                    selesaiItems.forEach(p => {
+                        html += buildProkerCardPublicHtml(p, true);
+                    });
+                }
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
         }
 
         window.openReceiptModal = function(src) {
@@ -4289,7 +4429,8 @@
         }
 
         function setupKegiatanPage() {
-            const savedTab = sessionStorage.getItem('activePublicProkerTab') || 'running';
+            let savedTab = sessionStorage.getItem('activePublicProkerTab') || 'Program Kerja';
+            if (savedTab === 'running' || savedTab === 'selesai') savedTab = 'Program Kerja';
             switchProkerTab(savedTab);
             fetchInitialData();
 
