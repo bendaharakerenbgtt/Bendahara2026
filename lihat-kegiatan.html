@@ -1883,6 +1883,8 @@
                     finalUnit = '3 Day';
                 } else if (/^\d+$/.test(unitStr) && (combined.includes('sewa tempat') || combined.includes('wammy') || combined.includes('villa') || combined.includes('penginapan'))) {
                     finalUnit = `${unitStr} Day`;
+                } else if (unitStr && unitStr.toUpperCase() !== 'NULL') {
+                    finalUnit = capitalizeUnit(unitStr);
                 }
 
                 return {
@@ -2062,6 +2064,13 @@
             return "-";
         }
 
+        function capitalizeUnit(unitStr) {
+            if (!unitStr) return "";
+            const s = String(unitStr).trim();
+            if (!s || s.toUpperCase() === "NULL" || s === "-") return s;
+            return s.replace(/(?:^|[\s\/\-_])([a-z])/gi, (m) => m.toUpperCase());
+        }
+
         function formatUnitDisplay(unitVal, item) {
             let s = unitVal !== undefined && unitVal !== null ? String(unitVal).trim() : "";
             if (s.toUpperCase() === "NULL" || s === "-") s = "";
@@ -2111,7 +2120,8 @@
                 }
             }
 
-            return s || "-";
+            if (!s) return "-";
+            return capitalizeUnit(s);
         }
 
         function formatHargaSatuanDisplay(priceVal, nominalVal) {

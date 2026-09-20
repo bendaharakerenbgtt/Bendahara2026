@@ -668,10 +668,13 @@
                                         <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Satuan</label>
                                         <select id="in_satuan_select" onchange="checkCustomSatuan('in')" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
                                             <option value="NULL">- Tanpa Satuan -</option>
-                                            <option value="pcs">pcs</option>
-                                            <option value="set">set</option>
-                                            <option value="pack">pack</option>
-                                            <option value="box">box</option>
+                                            <option value="Pcs">Pcs</option>
+                                            <option value="Set">Set</option>
+                                            <option value="Pack">Pack</option>
+                                            <option value="Box">Box</option>
+                                            <option value="Porsi">Porsi</option>
+                                            <option value="Kegiatan">Kegiatan</option>
+                                            <option value="Day">Day</option>
                                             <option value="custom">✏️ Tulis Sendiri...</option>
                                         </select>
                                         <input type="text" id="in_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
@@ -819,10 +822,13 @@
                                     <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Satuan</label>
                                     <select id="out_satuan_select" onchange="checkCustomSatuan('out')" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                         <option value="NULL">- Tanpa Satuan -</option>
-                                        <option value="pcs">pcs</option>
-                                        <option value="set">set</option>
-                                        <option value="pack">pack</option>
-                                        <option value="box">box</option>
+                                        <option value="Pcs">Pcs</option>
+                                        <option value="Set">Set</option>
+                                        <option value="Pack">Pack</option>
+                                        <option value="Box">Box</option>
+                                        <option value="Porsi">Porsi</option>
+                                        <option value="Kegiatan">Kegiatan</option>
+                                        <option value="Day">Day</option>
                                         <option value="custom">✏️ Tulis Sendiri...</option>
                                     </select>
                                     <input type="text" id="out_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
@@ -1076,6 +1082,13 @@
                 .replace(/>/g, '&gt;');
         }
 
+        function capitalizeUnit(unitStr) {
+            if (!unitStr) return "";
+            const s = String(unitStr).trim();
+            if (!s || s.toUpperCase() === "NULL" || s === "-") return s;
+            return s.replace(/(?:^|[\s\/\-_])([a-z])/gi, (m) => m.toUpperCase());
+        }
+
         let currentType = 'all';
         let currentMonth = 'all';
         let currentSort = 'terbaru';
@@ -1188,6 +1201,8 @@
                         finalUnitStr = '3 Day';
                     } else if (/^\d+$/.test(unitStr) && (combinedDesc.includes('sewa tempat') || combinedDesc.includes('wammy') || combinedDesc.includes('villa') || combinedDesc.includes('penginapan'))) {
                         finalUnitStr = `${unitStr} Day`;
+                    } else if (unitStr && unitStr.toUpperCase() !== 'NULL') {
+                        finalUnitStr = capitalizeUnit(unitStr);
                     }
 
                     return {
@@ -1401,7 +1416,7 @@
             if (!satuan || satuan === 'NULL') {
                 return qty > 1 ? qty.toString() : "NULL";
             }
-            return `${qty} ${satuan}`;
+            return `${qty} ${capitalizeUnit(satuan)}`;
         }
 
         // Image compression listeners
@@ -2108,11 +2123,11 @@
                     : "NULL / Tanpa Divisi";
                 
                 const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
-                const unitVal = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? unitStr : '';
+                const unitVal = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? capitalizeUnit(unitStr) : '';
                 const hargaSatuanVal = Number(tx.harga_satuan) || 0;
                 const priceText = hargaSatuanVal > 0 ? `@ Rp${hargaSatuanVal.toLocaleString('id-ID')}` : '';
                 const qtyPriceBadge = (unitVal || priceText) 
-                    ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📦 <span class="italic">${unitVal}</span> ${priceText}</span>` 
+                    ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded text-neutral-400">📦 <span class="italic font-medium">${unitVal}</span> ${priceText}</span>` 
                     : '';
 
                 let extraKet = cleanTitle(tx.keterangan);
@@ -2390,7 +2405,7 @@
                     existingSatuan = existingUnitRaw;
                 }
             }
-            const standardSatuans = ['pcs', 'set', 'pack', 'box', 'porsi', 'kegiatan'];
+            const standardSatuans = ['pcs', 'set', 'pack', 'box', 'porsi', 'kegiatan', 'day'];
             const isStandardSatuan = existingSatuan === '' || existingSatuan.toUpperCase() === 'NULL' || standardSatuans.includes(existingSatuan.toLowerCase());
             const isCustomSatuan = !isStandardSatuan && existingSatuan.length > 0;
             let existingHargaSatuan = Number(item.harga_satuan) || 0;
@@ -2426,12 +2441,13 @@
                                     <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Satuan</label>
                                     <select id="swal-edit-satuan-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
                                         <option value="NULL" ${(!existingSatuan || existingSatuan.toUpperCase() === 'NULL') ? 'selected' : ''}>- Tanpa Satuan -</option>
-                                        <option value="pcs" ${existingSatuan.toLowerCase() === 'pcs' ? 'selected' : ''}>pcs</option>
-                                        <option value="set" ${existingSatuan.toLowerCase() === 'set' ? 'selected' : ''}>set</option>
-                                        <option value="pack" ${existingSatuan.toLowerCase() === 'pack' ? 'selected' : ''}>pack</option>
-                                        <option value="box" ${existingSatuan.toLowerCase() === 'box' ? 'selected' : ''}>box</option>
-                                        <option value="porsi" ${existingSatuan.toLowerCase() === 'porsi' ? 'selected' : ''}>porsi</option>
-                                        <option value="kegiatan" ${existingSatuan.toLowerCase() === 'kegiatan' ? 'selected' : ''}>kegiatan</option>
+                                        <option value="Pcs" ${existingSatuan.toLowerCase() === 'pcs' ? 'selected' : ''}>Pcs</option>
+                                        <option value="Set" ${existingSatuan.toLowerCase() === 'set' ? 'selected' : ''}>Set</option>
+                                        <option value="Pack" ${existingSatuan.toLowerCase() === 'pack' ? 'selected' : ''}>Pack</option>
+                                        <option value="Box" ${existingSatuan.toLowerCase() === 'box' ? 'selected' : ''}>Box</option>
+                                        <option value="Porsi" ${existingSatuan.toLowerCase() === 'porsi' ? 'selected' : ''}>Porsi</option>
+                                        <option value="Kegiatan" ${existingSatuan.toLowerCase() === 'kegiatan' ? 'selected' : ''}>Kegiatan</option>
+                                        <option value="Day" ${existingSatuan.toLowerCase() === 'day' ? 'selected' : ''}>Day</option>
                                         <option value="custom" ${isCustomSatuan ? 'selected' : ''}>✏️ Tulis Sendiri...</option>
                                     </select>
                                     <input type="text" id="swal-edit-satuan-custom" placeholder="Ketik Satuan..." class="${isCustomSatuan ? '' : 'hidden'} w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5" value="${isCustomSatuan ? escapeHtmlAttr(existingSatuan) : ''}">
@@ -2607,7 +2623,7 @@
                     if (!finalSatuan || finalSatuan === 'NULL') {
                         finalUnit = qtyVal > 1 ? qtyVal.toString() : "NULL";
                     } else {
-                        finalUnit = `${qtyVal} ${finalSatuan}`;
+                        finalUnit = `${qtyVal} ${capitalizeUnit(finalSatuan)}`;
                     }
 
                     const hargaSatuanRaw = document.getElementById('swal-edit-harga-satuan').value.replace(/[^0-9]/g, '');
@@ -2738,7 +2754,7 @@
             const divisiStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
             const divisiText = divisiStr !== '' && divisiStr.toUpperCase() !== 'NULL' ? divisiStr : "NULL / Tanpa Divisi";
             const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
-            const unitText = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? unitStr : '-';
+            const unitText = (unitStr !== '' && unitStr.toUpperCase() !== 'NULL') ? capitalizeUnit(unitStr) : '-';
             const memberName = tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "-") : (tx.nama_pic_pengeluar || "-");
             const receiptPath = getReceiptPath(tx);
             let proofHtml = '';
@@ -2851,7 +2867,7 @@
                     ? (prokersMap[prokerIdStr] || prokerIdStr) 
                     : "NULL / Tidak Ada";
                 const divisiVal = (t.divisi !== undefined && t.divisi !== null && String(t.divisi).trim() !== '') ? String(t.divisi).trim() : "NULL";
-                const unitVal = (t.unit !== undefined && t.unit !== null && String(t.unit).trim() !== '') ? String(t.unit).trim() : "NULL";
+                const unitVal = (t.unit !== undefined && t.unit !== null && String(t.unit).trim() !== '') ? capitalizeUnit(String(t.unit).trim()) : "NULL";
                 const hargaSatuanVal = t.harga_satuan ? t.harga_satuan : "NULL";
                 const jumlahVal = t.jumlah !== undefined ? t.jumlah : t.nominal;
                 const memberName = t.user_id ? (membersMap[t.user_id.toString()] || t.nama_pic_pengeluar || "") : (t.nama_pic_pengeluar || "");

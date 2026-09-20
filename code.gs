@@ -206,7 +206,7 @@ function getAllData(callback) {
         } else if (/^\d+$/.test(uStr) && (uraianCombined.includes("sewa tempat") || uraianCombined.includes("wammy"))) {
           uStr = uStr + " Day";
         }
-        return uStr;
+        return capitalizeUnit(uStr);
       })(),
       harga_satuan: parseFormattedNumber(rawHargaSatuan),
       jumlah: jumlahVal,
@@ -536,7 +536,7 @@ function insertTransaction(p) {
         kategori: "Kas",
         uraian: baseKet,
         keterangan: finalKet,
-        unit: p.unit || "NULL",
+        unit: p.unit ? capitalizeUnit(p.unit) : "NULL",
         harga_satuan: 10000,
         jumlah: 10000,
         nominal: 10000,
@@ -616,7 +616,7 @@ function insertTransaction(p) {
     kategori: isKasPayment ? "Kas" : (p.kategori || "Umum"),
     uraian: cleanUraian,
     keterangan: finalKet,
-    unit: p.unit || "NULL",
+    unit: p.unit ? capitalizeUnit(p.unit) : "NULL",
     harga_satuan: parseFormattedNumber(p.harga_satuan),
     jumlah: parsedJumlah,
     nominal: parsedJumlah,
@@ -1291,7 +1291,7 @@ function editTransaction(p) {
   }
   if (p.unit       !== undefined) {
     const cleanUnit = (p.unit && p.unit.toString().trim() !== "" && p.unit.toString().trim().toUpperCase() !== "NULL")
-      ? p.unit.toString().trim()
+      ? capitalizeUnit(p.unit.toString().trim())
       : "NULL";
     updateColumnById(sheet, p.id, "unit", cleanUnit);
   }
@@ -1818,6 +1818,14 @@ function formatDateStandard(dateVal) {
     }
   }
   return str;
+}
+
+/** Mengkapitalisasi huruf pertama setiap kata pada unit/satuan (contoh: "3 pcs" -> "3 Pcs", "box" -> "Box") */
+function capitalizeUnit(unitStr) {
+  if (!unitStr) return "";
+  var s = String(unitStr).trim();
+  if (!s || s.toUpperCase() === "NULL" || s === "-") return s;
+  return s.replace(/(?:^|[\s\/\-_])([a-z])/gi, function(m) { return m.toUpperCase(); });
 }
 
 /** Mengonversi string format mata uang rupiah (contoh: "Rp10,000", "Rp1.920,00") menjadi angka desimal murni secara robust */
