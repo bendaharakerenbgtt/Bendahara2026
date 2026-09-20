@@ -2174,6 +2174,45 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function formatEnglishItalics(rawText) {
+            if (!rawText || typeof rawText !== 'string') return rawText || '';
+            let text = escapeHtmlLPJ(rawText);
+
+            const multiWordPhrases = [
+                'coffee break', 'live streaming', 'sound system', 'goodie bag', 'goody bag',
+                'door prize', 'name tag', 'id card', 'co card', 'co-card', 'sharing session',
+                'talk show', 'technical meeting', 'guest star', 'bubble wrap', 'tote bag',
+                'paper bag', 'master of ceremony', 'keynote speaker', 'screen projector',
+                'clip on', 'clip-on', 'wireless mic', 'google meet', 'google form',
+                'admin fee', 'top up', 'top-up', 'dress code', 'dresscode', 'roll banner',
+                'mini banner', 'x banner', 'x-banner', 'live stream'
+            ];
+
+            const singleWords = [
+                'booth', 'photobooth', 'layout', 'banner', 'backdrop', 'stand', 'fee',
+                'snack', 'snacks', 'break', 'catering', 'caterer', 'cocard', 'nametag',
+                'lanyard', 'lanyards', 'print', 'printing', 'hardcopy', 'softcopy',
+                'streaming', 'stream', 'zoom', 'gmeet', 'obs', 'link', 'broadcast',
+                'online', 'offline', 'hybrid', 'rundown', 'souvenir', 'merchandise',
+                'merch', 'totebag', 'sticker', 'stickers', 'tumbler', 'doorprize',
+                'prize', 'reward', 'voucher', 'gift', 'soundsystem', 'mic', 'wireless',
+                'speaker', 'audio', 'projector', 'infocus', 'screen', 'hdmi', 'converter',
+                'adapter', 'cable', 'lighting', 'spotlight', 'shuttle', 'rental',
+                'drive', 'cloud', 'gdrive', 'feed', 'reels', 'story', 'design', 'designer',
+                'pamphlet', 'poster', 'flyer', 'workshop', 'talkshow', 'webinar',
+                'coaching', 'briefing', 'venue', 'hall', 'ballroom', 'vip', 'vvip',
+                'jersey', 'tshirt', 't-shirt', 'packaging', 'pouch', 'mc', 'moderator',
+                'cash', 'cashback', 'topup', 'ewallet', 'e-wallet', 'timeline', 'deadline',
+                'feedback', 'followup', 'follow-up', 'review', 'trophy', 'plaque',
+                'stage', 'property', 'props', 'fullboard', 'halfboard'
+            ];
+
+            const allTerms = [...multiWordPhrases, ...singleWords].sort((a, b) => b.length - a.length);
+            const pattern = new RegExp('\\b(' + allTerms.map(t => t.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|') + ')\\b', 'gi');
+
+            return text.replace(pattern, '<i>$1</i>');
+        }
+
         function formatRupiahLPJ(amount) {
             const num = Math.round((Number(amount) || 0) * 100) / 100;
             const parts = num.toFixed(2).split('.');
@@ -2457,8 +2496,8 @@
                     rowsHtml += `
                         <tr>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;"></td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic;">${escapeHtmlLPJ(cleanUraian)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic;">${escapeHtmlLPJ(unitDisplay)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: normal;">${formatEnglishItalics(cleanUraian)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: normal;">${escapeHtmlLPJ(unitDisplay)}</td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${escapeHtmlLPJ(hargaSatuanDisplay)}</td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(itemNominal)}</td>
                         </tr>
@@ -2479,7 +2518,7 @@
             ` : data.inCategories.map((cat, idx) => `
                 <tr>
                     <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${idx + 1}.</td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${escapeHtmlLPJ(cat.label)}</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${formatEnglishItalics(cat.label)}</td>
                     <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">${formatRupiahLPJ(cat.nominal)}</td>
                 </tr>
             `).join('');
@@ -2503,7 +2542,7 @@
                 </table>
             `;
 
-            // 2. Pengeluaran Sections: Dynamic Numbering (Belanja Bahan, Belanja Sewa opsional, Belanja Jasa opsional)
+            // 2. Pengeluaran Sections: Belanja Bahan, Belanja Sewa, Belanja Jasa (Lengkap selalu 3 tabel tanpa pengurangan)
             let expSubIdx = 1;
             const bahanTableHtml = `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
@@ -2529,8 +2568,7 @@
                 </table>
             `;
 
-            const hasSewa = (data.totalSewa > 0 || (data.sewaDivMap && Object.keys(data.sewaDivMap).length > 0));
-            const sewaTableHtml = hasSewa ? `
+            const sewaTableHtml = `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
                     2.${expSubIdx++} Belanja Sewa
                 </p>
@@ -2552,10 +2590,9 @@
                         </tr>
                     </tbody>
                 </table>
-            ` : '';
+            `;
 
-            const hasJasa = (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0));
-            const jasaTableHtml = hasJasa ? `
+            const jasaTableHtml = `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
                     2.${expSubIdx++} Belanja Jasa
                 </p>
@@ -2577,7 +2614,7 @@
                         </tr>
                     </tbody>
                 </table>
-            ` : '';
+            `;
 
             // 3. Rekapitulasi Keuangan Table
             const rekapTableHtml = `
@@ -2725,11 +2762,13 @@
             }
             csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalBahan)}"\n\n`;
 
-            // Belanja Sewa (Hanya jika ada transaksi)
-            if (data.totalSewa > 0 || (data.sewaDivMap && Object.keys(data.sewaDivMap).length > 0)) {
-                csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
-                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
-                const sewaDivKeys = Object.keys(data.sewaDivMap || {});
+            // Belanja Sewa (Lengkap selalu ada tanpa pengurangan tabel)
+            csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
+            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+            const sewaDivKeys = Object.keys(data.sewaDivMap || {});
+            if (sewaDivKeys.length === 0) {
+                csv += `"-","Nihil","-","-","Rp0,00"\n`;
+            } else {
                 sewaDivKeys.forEach((divName, divIdx) => {
                     const items = data.sewaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2746,14 +2785,16 @@
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
-                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
             }
+            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
 
-            // Belanja Jasa (Hanya jika ada transaksi)
-            if (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0)) {
-                csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
-                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
-                const jasaDivKeys = Object.keys(data.jasaDivMap || {});
+            // Belanja Jasa (Lengkap selalu ada tanpa pengurangan tabel)
+            csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
+            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+            const jasaDivKeys = Object.keys(data.jasaDivMap || {});
+            if (jasaDivKeys.length === 0) {
+                csv += `"-","Nihil","-","-","Rp0,00"\n`;
+            } else {
                 jasaDivKeys.forEach((divName, divIdx) => {
                     const items = data.jasaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2770,8 +2811,8 @@
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
-                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalJasa)}"\n\n`;
             }
+            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalJasa)}"\n\n`;
 
             // 3. Rekapitulasi Keuangan
             csv += `"3. Rekapitulasi Keuangan"\n`;
@@ -3177,7 +3218,7 @@
                 iv1RowsHtml += `
                     <tr style="font-weight: bold;">
                         <td rowspan="${totalRows}" valign="middle" align="center" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: middle; font-weight: normal;">${curNum}</td>
-                        <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-weight: bold;">${escapeHtmlLPJ(keg.nama_kegiatan)}</td>
+                        <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-weight: bold;">${formatEnglishItalics(keg.nama_kegiatan)}</td>
                         <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: bold;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
                         <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: bold;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
                         <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; vertical-align: middle;"></td>
@@ -3187,10 +3228,10 @@
                 (keg.categories || []).forEach(cat => {
                     iv1RowsHtml += `
                         <tr style="font-weight: normal;">
-                            <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 10pt; text-align: left; vertical-align: middle; font-style: normal; font-weight: normal;">${cat.code} ${escapeHtmlLPJ(cat.name)}</td>
+                            <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 10pt; text-align: left; vertical-align: middle; font-style: normal; font-weight: normal;">${cat.code} ${formatEnglishItalics(cat.name)}</td>
                             <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: normal;">${formatRupiahLPJ(cat.anggaran)}</td>
                             <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: normal;">${formatRupiahLPJ(cat.realisasi)}</td>
-                            <td valign="middle" align="left" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-size: 9pt; font-style: normal; font-weight: normal; line-height: 1.25;">${escapeHtmlLPJ(cat.keterangan)}</td>
+                            <td valign="middle" align="left" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-size: 9pt; font-style: normal; font-weight: normal; line-height: 1.25;">${formatEnglishItalics(cat.keterangan)}</td>
                         </tr>
                     `;
                 });
@@ -3234,7 +3275,7 @@
                 iv2RowsHtml += `
                     <tr>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">${curNum}.</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left;">${escapeHtmlLPJ(keg.nama_kegiatan)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left;">${formatEnglishItalics(keg.nama_kegiatan)}</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
                     </tr>
@@ -3272,7 +3313,7 @@
                 iv3RowsHtml += `
                     <tr>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">${curNum}.</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: top;">${escapeHtmlLPJ(keg.nama_kegiatan)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: top;">${formatEnglishItalics(keg.nama_kegiatan)}</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">
                             ${formatRupiahLPJ(d.pemasukan)}
                             ${isSecondOrLater ? `<br><span style="font-size: 8pt; font-style: italic; color: #444;">(Saldo terakhir dana operasional)</span>` : ''}
