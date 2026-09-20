@@ -15,7 +15,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DanaIMIP — Buat Surat Resmi LDK IMIP</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/docshift@latest/dist/docshift.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
         @custom-variant dark (&:where(.dark, .dark *));
@@ -461,7 +460,7 @@
                         <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
                     </button>
                     <button type="button" onclick="exportSuratWord()" class="flex-1 py-3 px-4 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <i class="fa-solid fa-file-word"></i> Unduh Word (.docx)
+                        <i class="fa-solid fa-file-word"></i> Unduh Word (.doc)
                     </button>
                     <button type="button" onclick="copySuratText()" class="p-3 rounded-xl text-neutral-300 bg-neutral-900 border border-neutral-800 hover:text-white transition-colors" title="Salin Teks Surat">
                         <i class="fa-solid fa-copy text-sm"></i>
@@ -1039,79 +1038,8 @@
             }
         }
 
-        // EXPORT TO MICROSOFT WORD (.DOCX / .DOC)
-        async function downloadDocxOrDoc(htmlContent, fileNameBase) {
-            Swal.fire({
-                title: 'Menyiapkan Surat...',
-                text: 'Sedang membuat berkas Word (.docx) yang kompatibel untuk HP & Laptop...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            if (window.docshift && typeof window.docshift.toDocx === 'function') {
-                try {
-                    const docxBlob = await window.docshift.toDocx(htmlContent);
-                    const url = URL.createObjectURL(docxBlob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${fileNameBase}.docx`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Surat Word (.docx) Berhasil Diunduh!',
-                        html: `
-                            <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
-                                <div>📄 Berkas: <b>${fileNameBase}.docx</b></div>
-                                <div class="p-2.5 bg-emerald-950/40 border border-emerald-800/40 rounded-xl text-[11px] leading-relaxed text-emerald-200">
-                                    ✓ Format <b>.docx resmi</b> (OpenXML) siap dibuka langsung di <b>HP Android (Google Dokumen, WPS, Word)</b> maupun <b>Laptop/PC</b> tanpa kendala.
-                                </div>
-                            </div>
-                        `,
-                        confirmButtonText: 'Bagus, Mengerti',
-                        confirmButtonColor: '#FF7300'
-                    });
-                    return;
-                } catch (err) {
-                    console.warn('docshift toDocx failed, falling back to .doc HTML:', err);
-                }
-            }
-
-            const blob = new Blob(['\ufeff', htmlContent], {
-                type: 'application/msword;charset=utf-8'
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${fileNameBase}.doc`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Surat Berhasil Diunduh!',
-                html: `
-                    <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
-                        <div>📄 Berkas: <b>${fileNameBase}.doc</b></div>
-                        <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
-                            💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
-                            📱 <b>Buka di HP:</b> Gunakan aplikasi <b>WPS Office</b> atau tombol <b>Cetak / Simpan PDF</b>.
-                        </div>
-                    </div>
-                `,
-                confirmButtonText: 'Oke, Mengerti',
-                confirmButtonColor: '#FF7300'
-            });
-        }
-
-        async function exportSuratWord() {
+        // EXPORT TO MICROSOFT WORD (.DOC)
+        function exportSuratWord() {
             const rawBody = renderSuratFullHtml();
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || 'LDK_IMIP';
             const cleanTitle = `Surat_${currentSuratType}_${noSurat.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
@@ -1170,7 +1098,33 @@
 </body>
 </html>`;
 
-            await downloadDocxOrDoc(wordDocumentHtml, cleanTitle);
+            const blob = new Blob(['\ufeff', wordDocumentHtml], {
+                type: 'application/msword;charset=utf-8'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${cleanTitle}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Surat Berhasil Diunduh!',
+                html: `
+                    <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
+                        <div>📄 Berkas: <b>${cleanTitle}.doc</b></div>
+                        <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
+                            💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
+                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan tombol <b>Cetak / Simpan PDF</b> agar langsung tampil rapi di HP.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Oke, Mengerti',
+                confirmButtonColor: '#FF7300'
+            });
         }
 
         // COPY RAW TEXT
