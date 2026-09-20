@@ -2682,9 +2682,19 @@
             margin: 0;
             padding: 0;
         }
+        thead {
+            display: table-row-group;
+        }
         p { margin: 0; padding: 0; }
         table { border-collapse: collapse; width: 100%; }
         @media print {
+            thead {
+                display: table-row-group;
+            }
+            tr, tbody {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
@@ -3252,12 +3262,13 @@
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
-                const totalRows = 1 + (keg.categories ? keg.categories.length : 0);
+                const catCount = (keg.categories || []).length;
+                const rowSpan = catCount + 1; // 1 baris header kegiatan + n baris kategori
 
-                iv1RowsHtml += `
-                    <tr style="font-weight: bold;">
-                        <td rowspan="${totalRows}" valign="middle" align="center" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: middle; font-weight: normal;">${curNum}</td>
-                        <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-weight: bold;">${formatEnglishItalics(keg.nama_kegiatan)}</td>
+                let actRows = `
+                    <tr style="font-weight: bold; background-color: #FFFFFF;">
+                        <td rowspan="${rowSpan}" valign="middle" align="center" style="border: 1px solid black; padding: 5pt 4pt; text-align: center; vertical-align: middle; font-weight: bold; width: 6%;">${curNum}</td>
+                        <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle;">${formatEnglishItalics(keg.nama_kegiatan)}</td>
                         <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: bold;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
                         <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: bold;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
                         <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; vertical-align: middle;"></td>
@@ -3265,7 +3276,7 @@
                 `;
 
                 (keg.categories || []).forEach(cat => {
-                    iv1RowsHtml += `
+                    actRows += `
                         <tr style="font-weight: normal;">
                             <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 10pt; text-align: left; vertical-align: middle; font-style: normal; font-weight: normal;">${cat.code} ${formatEnglishItalics(cat.name)}</td>
                             <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: normal;">${formatRupiahLPJ(cat.anggaran)}</td>
@@ -3276,16 +3287,22 @@
                 });
 
                 // Baris jarak (separator) kosong antar kegiatan
-                iv1RowsHtml += `
+                actRows += `
                     <tr style="height: 12pt;">
                         <td colspan="5" style="border: 1px solid black; height: 12pt; padding: 0; background-color: #FFFFFF;"></td>
                     </tr>
+                `;
+
+                iv1RowsHtml += `
+                    <tbody style="page-break-inside: avoid; break-inside: avoid;">
+                        ${actRows}
+                    </tbody>
                 `;
             });
 
             const iv1TableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
-                    <thead>
+                    <thead style="display: table-row-group;">
                         <tr style="font-weight: bold; background-color: #FFFFFF;">
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 6%;">NO</th>
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 36%;">NAMA KEGIATAN</th>
@@ -3294,8 +3311,8 @@
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 20%;">KETERANGAN</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${iv1RowsHtml}
+                    ${iv1RowsHtml}
+                    <tbody style="page-break-inside: avoid; break-inside: avoid;">
                         <tr style="font-weight: bold; background-color: #FDFDFD;">
                             <td colspan="2" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
                             <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.grandTotalAnggaran)}</td>
@@ -3323,7 +3340,7 @@
 
             const iv2TableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
-                    <thead>
+                    <thead style="display: table-row-group;">
                         <tr style="font-weight: bold; background-color: #FFFFFF;">
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 6%;">NO</th>
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 50%;">NAMA KEGIATAN</th>
@@ -3365,7 +3382,7 @@
 
             const iv3TableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 10pt;">
-                    <thead>
+                    <thead style="display: table-row-group;">
                         <tr style="font-weight: bold; background-color: #FFFFFF;">
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 6%;">NO</th>
                             <th style="border: 1px solid black; padding: 5pt 6pt; text-align: center; width: 38%;">NAMA KEGIATAN</th>
@@ -3383,6 +3400,7 @@
                     </tbody>
                 </table>
             `;
+
 
             return `<!DOCTYPE html>
 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -3436,7 +3454,17 @@
             border: 1px solid black;
             padding: 4.5pt 6pt;
         }
+        thead {
+            display: table-row-group;
+        }
         @media print {
+            thead {
+                display: table-row-group;
+            }
+            tr, tbody {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
             body {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
