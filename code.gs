@@ -107,7 +107,7 @@ function doGet(e) {
       }
       result = jsonResponse({
         status: "success",
-        script_version: "2026-09-08_v7_fix_kas_payment_logic",
+        script_version: "2026-09-20_v8_edit_jenis_transaksi",
         drive_status: driveStatus,
         folder_id: folderId
       }, callback);
