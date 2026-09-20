@@ -2133,12 +2133,26 @@
                         </div>
                         <p class="text-[11px] text-neutral-400 mb-2">Pilih format ekspor laporan keuangan:</p>
                         <div class="flex flex-col gap-2">
+                            <button type="button" onclick="printProkerLPJ('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-amber-950/20 hover:bg-amber-950/40 border-2 border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                    <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-bold text-neutral-100 text-xs">Cetak / Simpan PDF</span>
+                                            <span class="text-[8.5px] font-bold text-amber-300 bg-amber-900/60 px-1.5 py-0.5 rounded">⭐ Terbaik di HP</span>
+                                        </div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Tampilan 100% rapi, bergaris resmi, tidak akan berantakan di HP</div>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2 py-1 rounded shrink-0">Buka PDF</span>
+                            </button>
+
                             <button type="button" onclick="exportProkerToWord('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl transition-all cursor-pointer group text-left">
                                 <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                                     <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Bagus untuk PC / Laptop (Word & WPS). Di HP gunakan WPS Office</div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Khusus PC / Laptop (Word & WPS) untuk diedit</div>
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
@@ -2153,17 +2167,6 @@
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-1 rounded shrink-0">Unduh .csv</span>
-                            </button>
-
-                            <button type="button" onclick="printProkerLPJ('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group text-left">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-amber-400 text-xs truncate">Cetak / Simpan PDF</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Paling disarankan untuk HP — langsung tampil rapi & siap dibagikan</div>
-                                    </div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 border border-amber-800/40 px-2 py-1 rounded shrink-0">Cetak PDF</span>
                             </button>
                         </div>
                     </div>
@@ -2797,26 +2800,29 @@
                         <p class="text-[11px] text-neutral-400 pt-1 font-bold">Pilih format ekspor master laporan:</p>
                         
                         <div class="flex flex-col gap-2">
+                            <button type="button" onclick="handleMasterExportAction('print')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-amber-950/20 hover:bg-amber-950/40 border-2 border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                                    <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-bold text-neutral-100 text-xs">Cetak / Simpan PDF</span>
+                                            <span class="text-[8.5px] font-bold text-amber-300 bg-amber-900/60 px-1.5 py-0.5 rounded">⭐ Terbaik di HP</span>
+                                        </div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Tabel 3 bab lengkap, bergaris resmi, langsung rapi & siap cetak/kirim</div>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2 py-1 rounded shrink-0">Buka PDF</span>
+                            </button>
+
                             <button type="button" onclick="handleMasterExportAction('word')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl transition-all cursor-pointer group text-left">
                                 <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                                     <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Bagus untuk PC / Laptop (Word & WPS). Di HP gunakan WPS Office</div>
+                                        <div class="text-[9.5px] text-neutral-400 truncate">Khusus PC / Laptop (Word & WPS) untuk diedit</div>
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
-                            </button>
-
-                            <button type="button" onclick="handleMasterExportAction('print')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-amber-500/50 rounded-xl transition-all cursor-pointer group text-left">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-amber-400 text-xs truncate">Cetak / Simpan PDF</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Paling disarankan untuk HP — langsung tampil rapi & siap dibagikan</div>
-                                    </div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/60 border border-amber-800/40 px-2 py-1 rounded shrink-0">Cetak PDF</span>
                             </button>
                         </div>
                     </div>
