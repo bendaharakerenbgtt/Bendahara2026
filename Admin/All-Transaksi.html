@@ -2369,6 +2369,27 @@
                 });
             }
 
+            // Existing Unit / Qty / Satuan & Harga Satuan
+            let existingUnitRaw = (item.unit !== undefined && item.unit !== null && item.unit.toString().trim() !== '' && item.unit.toString().trim().toUpperCase() !== 'NULL') ? item.unit.toString().trim() : '';
+            let existingQty = 1;
+            let existingSatuan = '';
+            if (existingUnitRaw) {
+                const match = existingUnitRaw.match(/^([0-9]+(?:\.[0-9]+)?)\s*(.*)$/);
+                if (match) {
+                    existingQty = parseFloat(match[1]) || 1;
+                    existingSatuan = match[2] ? match[2].trim() : '';
+                } else {
+                    existingSatuan = existingUnitRaw;
+                }
+            }
+            const standardSatuans = ['pcs', 'set', 'pack', 'box', 'porsi', 'kegiatan'];
+            const isStandardSatuan = existingSatuan === '' || existingSatuan.toUpperCase() === 'NULL' || standardSatuans.includes(existingSatuan.toLowerCase());
+            const isCustomSatuan = !isStandardSatuan && existingSatuan.length > 0;
+            let existingHargaSatuan = Number(item.harga_satuan) || 0;
+            if (existingHargaSatuan === 0 && existingQty > 0 && existingNominal > 0) {
+                existingHargaSatuan = Math.round(existingNominal / existingQty);
+            }
+
             Swal.fire({
                 title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>✏️</span> Edit Transaksi</div>',
                 html: `
@@ -2386,9 +2407,35 @@
                             <input type="text" id="swal-edit-uraian" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingUraian)}" placeholder="Nama barang / uraian transaksi...">
                         </div>
 
-                        <div>
-                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Keterangan / Catatan (Opsional)</label>
-                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingKet)}" placeholder="Catatan tambahan...">
+                        <!-- Qty, Satuan, Harga Satuan -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                            <div class="grid grid-cols-5 gap-2 sm:contents">
+                                <div class="col-span-2 sm:col-span-3 flex flex-col">
+                                    <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Qty</label>
+                                    <input type="number" id="swal-edit-qty" min="0.01" step="any" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-200 text-xs text-center font-mono font-bold focus:outline-none focus:border-cyan-500" value="${existingQty}">
+                                </div>
+                                <div class="col-span-3 sm:col-span-4 flex flex-col">
+                                    <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Satuan</label>
+                                    <select id="swal-edit-satuan-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                        <option value="NULL" ${(!existingSatuan || existingSatuan.toUpperCase() === 'NULL') ? 'selected' : ''}>- Tanpa Satuan -</option>
+                                        <option value="pcs" ${existingSatuan.toLowerCase() === 'pcs' ? 'selected' : ''}>pcs</option>
+                                        <option value="set" ${existingSatuan.toLowerCase() === 'set' ? 'selected' : ''}>set</option>
+                                        <option value="pack" ${existingSatuan.toLowerCase() === 'pack' ? 'selected' : ''}>pack</option>
+                                        <option value="box" ${existingSatuan.toLowerCase() === 'box' ? 'selected' : ''}>box</option>
+                                        <option value="porsi" ${existingSatuan.toLowerCase() === 'porsi' ? 'selected' : ''}>porsi</option>
+                                        <option value="kegiatan" ${existingSatuan.toLowerCase() === 'kegiatan' ? 'selected' : ''}>kegiatan</option>
+                                        <option value="custom" ${isCustomSatuan ? 'selected' : ''}>✏️ Tulis Sendiri...</option>
+                                    </select>
+                                    <input type="text" id="swal-edit-satuan-custom" placeholder="Ketik Satuan..." class="${isCustomSatuan ? '' : 'hidden'} w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5" value="${isCustomSatuan ? escapeHtmlAttr(existingSatuan) : ''}">
+                                </div>
+                            </div>
+                            <div class="sm:col-span-5 flex flex-col">
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Harga Satuan (Rp)</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-2.5 text-xs font-mono font-bold text-neutral-500 select-none">Rp</span>
+                                    <input type="text" id="swal-edit-harga-satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-8 pr-2.5 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-cyan-500" value="${existingHargaSatuan ? existingHargaSatuan.toLocaleString('id-ID') : ''}">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -2397,9 +2444,14 @@
                                 <input type="date" id="swal-edit-tanggal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-mono" value="${item.tanggal || ''}">
                             </div>
                             <div>
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Nominal (Rp) <span class="text-rose-400">*</span></label>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Total Nominal (Rp) <span class="text-rose-400">*</span></label>
                                 <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-cyan-500" value="${existingNominal.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
                             </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Keterangan / Catatan (Opsional)</label>
+                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingKet)}" placeholder="Catatan tambahan...">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -2453,6 +2505,52 @@
                     popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-lg w-full'
                 },
                 didOpen: () => {
+                    const qtyInput = document.getElementById('swal-edit-qty');
+                    const hargaSatuanInput = document.getElementById('swal-edit-harga-satuan');
+                    const nominalInput = document.getElementById('swal-edit-nominal');
+                    const satSelect = document.getElementById('swal-edit-satuan-select');
+                    const satCustom = document.getElementById('swal-edit-satuan-custom');
+
+                    if (satSelect && satCustom) {
+                        satSelect.addEventListener('change', () => {
+                            if (satSelect.value === 'custom') {
+                                satCustom.classList.remove('hidden');
+                                satCustom.focus();
+                            } else {
+                                satCustom.classList.add('hidden');
+                                satCustom.value = '';
+                            }
+                        });
+                    }
+
+                    function recalcFromQtyOrPrice() {
+                        const q = parseFloat(qtyInput.value) || 0;
+                        const p = parseFloat(hargaSatuanInput.value.replace(/[^0-9]/g, '')) || 0;
+                        if (q > 0 && p > 0) {
+                            nominalInput.value = Math.round(q * p).toLocaleString('id-ID');
+                        }
+                    }
+
+                    function recalcFromNominal() {
+                        const q = parseFloat(qtyInput.value) || 1;
+                        const n = parseFloat(nominalInput.value.replace(/[^0-9]/g, '')) || 0;
+                        if (q > 0 && n > 0) {
+                            hargaSatuanInput.value = Math.round(n / q).toLocaleString('id-ID');
+                        }
+                    }
+
+                    if (qtyInput && hargaSatuanInput && nominalInput) {
+                        qtyInput.addEventListener('input', recalcFromQtyOrPrice);
+                        hargaSatuanInput.addEventListener('input', () => {
+                            formatRibuanInstan(hargaSatuanInput);
+                            recalcFromQtyOrPrice();
+                        });
+                        nominalInput.addEventListener('input', () => {
+                            formatRibuanInstan(nominalInput);
+                            recalcFromNominal();
+                        });
+                    }
+
                     const divSelect = document.getElementById('swal-edit-divisi-select');
                     const divCustom = document.getElementById('swal-edit-divisi-custom');
                     divSelect.addEventListener('change', () => {
@@ -2490,6 +2588,26 @@
                         return false;
                     }
 
+                    const qtyVal = parseFloat(document.getElementById('swal-edit-qty').value) || 1;
+                    const satSelect = document.getElementById('swal-edit-satuan-select');
+                    const satCustom = document.getElementById('swal-edit-satuan-custom');
+                    let finalSatuan = satSelect ? satSelect.value : 'NULL';
+                    if (finalSatuan === 'custom' && satCustom) {
+                        finalSatuan = satCustom.value.trim();
+                    }
+                    let finalUnit = "NULL";
+                    if (!finalSatuan || finalSatuan === 'NULL') {
+                        finalUnit = qtyVal > 1 ? qtyVal.toString() : "NULL";
+                    } else {
+                        finalUnit = `${qtyVal} ${finalSatuan}`;
+                    }
+
+                    const hargaSatuanRaw = document.getElementById('swal-edit-harga-satuan').value.replace(/[^0-9]/g, '');
+                    let finalHargaSatuan = parseInt(hargaSatuanRaw, 10) || 0;
+                    if (finalHargaSatuan === 0 && nominal > 0 && qtyVal > 0) {
+                        finalHargaSatuan = Math.round(nominal / qtyVal);
+                    }
+
                     const tanggal = document.getElementById('swal-edit-tanggal').value;
                     const keterangan = document.getElementById('swal-edit-keterangan').value.trim();
                     const metode = document.getElementById('swal-edit-metode').value;
@@ -2521,7 +2639,9 @@
                         proker_id: prokerId,
                         user_id: userId,
                         divisi,
-                        kategori
+                        kategori,
+                        unit: finalUnit,
+                        harga_satuan: finalHargaSatuan
                     };
                 }
             }).then((result) => {
@@ -2539,6 +2659,8 @@
                     item.user_id = val.user_id;
                     item.divisi = val.divisi;
                     item.kategori = val.kategori;
+                    item.unit = val.unit;
+                    item.harga_satuan = val.harga_satuan;
 
                     applyMutationFilters(false);
 
@@ -2569,7 +2691,9 @@
                             proker_id: val.proker_id,
                             user_id: val.user_id,
                             divisi: val.divisi,
-                            kategori: val.kategori
+                            kategori: val.kategori,
+                            unit: val.unit,
+                            harga_satuan: val.harga_satuan
                         })
                     })
                     .then(() => {

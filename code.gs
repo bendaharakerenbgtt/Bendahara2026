@@ -1281,6 +1281,16 @@ function editTransaction(p) {
     updateColumnById(sheet, p.id, "nominal", num);
     updateColumnById(sheet, p.id, "jumlah", num);
   }
+  if (p.unit       !== undefined) {
+    const cleanUnit = (p.unit && p.unit.toString().trim() !== "" && p.unit.toString().trim().toUpperCase() !== "NULL")
+      ? p.unit.toString().trim()
+      : "NULL";
+    updateColumnById(sheet, p.id, "unit", cleanUnit);
+  }
+  if (p.harga_satuan !== undefined) {
+    const hs = parseFormattedNumber(p.harga_satuan);
+    updateColumnById(sheet, p.id, "harga_satuan", hs);
+  }
   if (p.metode     !== undefined) updateColumnById(sheet, p.id, "metode", p.metode);
   if (p.kategori   !== undefined) updateColumnById(sheet, p.id, "kategori", p.kategori);
   if (p.proker_id  !== undefined) {
