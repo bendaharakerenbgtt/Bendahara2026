@@ -1338,10 +1338,12 @@
 
         function formatRupiahLPJ(amount) {
             const num = Math.round((Number(amount) || 0) * 100) / 100;
-            const parts = num.toFixed(2).split('.');
+            const isNeg = num < 0;
+            const absNum = Math.abs(num);
+            const parts = absNum.toFixed(2).split('.');
             const intStr = Number(parts[0]).toLocaleString('id-ID');
             const decStr = parts[1];
-            return `Rp${intStr},${decStr}`;
+            return (isNeg ? '-' : '') + `Rp${intStr},${decStr}`;
         }
 
         function parseLpjMoney(val) {
@@ -2315,18 +2317,8 @@
                     return '-';
                 }
 
-                // Tabel IV.III: hanya pemakaian kategori khusus Dana Operasional 2026
-                let danaOpIn = 0;
-                inTxs.forEach(t => {
-                    if (isDanaOperasional2026Tx(t)) danaOpIn += Number(t.nominal) || 0;
-                });
-
-                let danaOpOut = 0;
-                outTxs.forEach(t => {
-                    if (isDanaOperasional2026Tx(t)) danaOpOut += Number(t.nominal) || 0;
-                });
-
-                const danaOperasionalUsed = danaOpOut > 0 ? danaOpOut : danaOpIn;
+                // Tabel IV.III: Pengeluaran memakai total realisasi kegiatan
+                const danaOperasionalUsed = totalRealisasi;
 
                 const saldoAwalProker = runningSaldo;
                 const saldoAkhirProker = saldoAwalProker - danaOperasionalUsed;
@@ -2528,7 +2520,8 @@
                     <tbody>
                         ${iv3RowsHtml}
                         <tr style="font-weight: bold; background-color: #FFFFFF;">
-                            <td colspan="4" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
+                            <td colspan="3" style="border: 1px solid black; padding: 5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalDanaOperasionalOut)}</td>
                             <td style="border: 1px solid black; padding: 5pt 6pt; text-align: right;">${formatRupiahLPJ(data.finalSaldoOperasional)}</td>
                         </tr>
                     </tbody>
