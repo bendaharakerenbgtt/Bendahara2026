@@ -1069,6 +1069,10 @@
 
         /* Mobile Breakpoint Overrides */
         @media (max-width: 768px) {
+            #particle-canvas {
+                display: none !important;
+            }
+
             .app-header {
                 display: none !important;
             }
@@ -1201,18 +1205,18 @@
         </div>
     </div>
 
-    <div id="splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-700 ease-in-out pointer-events-auto">
+    <div id="splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-500 ease-in-out pointer-events-auto cursor-pointer" onclick="dismissSplash()">
         <div class="absolute w-[300px] h-[300px] rounded-full blur-[100px] pointer-events-none" style="background-color: var(--splash-glow);"></div>
         
-        <div class="relative flex flex-col items-center z-10">
-            <div id="splash-logo" class="w-28 h-28 md:w-36 md:h-36 flex items-center justify-center opacity-0 scale-90 transition-all duration-1000 ease-out">
-                <img src="finance.png" alt="Finance Logo" class="max-w-full max-h-full object-contain">
+        <div class="relative flex flex-col items-center z-10 select-none">
+            <div id="splash-logo" class="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center opacity-0 scale-90 transition-all duration-500 ease-out">
+                <img src="bendahara.png" alt="DANAIMIP Logo" class="max-w-full max-h-full object-contain drop-shadow-[0_0_20px_rgba(255,115,0,0.3)]">
             </div>
             
-            <h1 id="splash-text" class="text-xl md:text-2xl font-black tracking-[0.2em] text-white uppercase mt-6 font-mono min-h-[32px] flex items-center justify-center"></h1>
+            <h1 id="splash-text" class="text-xl md:text-2xl font-black tracking-[0.2em] text-white uppercase mt-4 font-mono min-h-[30px] flex items-center justify-center"></h1>
             
-            <p id="splash-subtitle" class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase mt-2 opacity-0 transform translate-y-2 transition-all duration-700 ease-out">
-                by bendahara 2026
+            <p id="splash-subtitle" class="text-[9px] font-mono tracking-widest text-neutral-400 uppercase mt-2 opacity-0 transform translate-y-2 transition-all duration-500 ease-out">
+                Transparansi Kas & Amanah 2026
             </p>
         </div>
     </div>
@@ -1518,6 +1522,36 @@
     <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
 
+    // Resilient storage fallbacks for Flutter WebView / Sandbox environments
+    const safeStorage = {
+        _mem: {},
+        getItem(key) {
+            try { return sessionStorage.getItem(key); } catch (e) { return this._mem[key] || null; }
+        },
+        setItem(key, val) {
+            try { sessionStorage.setItem(key, val); } catch (e) { this._mem[key] = String(val); }
+        },
+        removeItem(key) {
+            try { sessionStorage.removeItem(key); } catch (e) { delete this._mem[key]; }
+        }
+    };
+
+    const safeLocalStorage = {
+        _mem: {},
+        getItem(key) {
+            try { return localStorage.getItem(key); } catch (e) { return this._mem[key] || null; }
+        },
+        setItem(key, val) {
+            try { localStorage.setItem(key, val); } catch (e) { this._mem[key] = String(val); }
+        },
+        removeItem(key) {
+            try { localStorage.removeItem(key); } catch (e) { delete this._mem[key]; }
+        }
+    };
+
+    // Safety timeout untuk loading overlay
+    setTimeout(hideLoadingOverlay, 3500);
+
     const ctx = document.getElementById('ldkLineChart').getContext('2d');
     window.ldkChart = new Chart(ctx, {
         type: 'line',
@@ -1768,48 +1802,54 @@
 
         const CACHE_KEY = "ldk_db_cache";
         const CACHE_TIME_KEY = "ldk_db_cache_time";
-        const CACHE_TTL = 15000; // 15 seconds cache
+        const CACHE_TTL = 3 * 60 * 1000; // 3 menit cache
 
         if (forceRefresh) {
-            sessionStorage.removeItem(CACHE_KEY);
-            sessionStorage.removeItem(CACHE_TIME_KEY);
+            safeLocalStorage.removeItem(CACHE_KEY);
+            safeLocalStorage.removeItem(CACHE_TIME_KEY);
+            safeStorage.removeItem(CACHE_KEY);
+            safeStorage.removeItem(CACHE_TIME_KEY);
         }
 
-        const cachedData = sessionStorage.getItem(CACHE_KEY);
-        const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+        const cachedData = safeLocalStorage.getItem(CACHE_KEY) || safeStorage.getItem(CACHE_KEY);
+        const cachedTime = safeLocalStorage.getItem(CACHE_TIME_KEY) || safeStorage.getItem(CACHE_TIME_KEY);
         const now = Date.now();
 
-        if (cachedData && cachedTime) {
+        if (cachedData) {
             try {
                 const data = JSON.parse(cachedData);
-                if (data && data.status === "success") {
+                if (data && (data.status === "success" || data.transaksi)) {
                     calculateAndRenderStats(data.transaksi || []);
                     updateChartWithData(data.transaksi || []);
                     renderRecentLogs(data.transaksi || []);
-                    
                     hideLoadingOverlay();
 
-                    if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
-                        console.log("Using fresh cache for Dashboard");
+                    // Jika cache masih segar dan bukan paksa refresh, tidak perlu fetch ulang
+                    if (cachedTime && (now - Number(cachedTime) < CACHE_TTL) && !forceRefresh) {
                         return;
                     }
-                    console.log("Using stale cache, fetching fresh data in background...");
                 }
             } catch (e) {
                 console.error("Cache load error:", e);
             }
         }
 
-        fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+        fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data", { signal: controller.signal })
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                    sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+                    const timestampStr = Date.now().toString();
+                    safeLocalStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    safeLocalStorage.setItem(CACHE_TIME_KEY, timestampStr);
+                    safeStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    safeStorage.setItem(CACHE_TIME_KEY, timestampStr);
 
-                    calculateAndRenderStats(data.transaksi);
-                    updateChartWithData(data.transaksi);
-                    renderRecentLogs(data.transaksi);
+                    calculateAndRenderStats(data.transaksi || []);
+                    updateChartWithData(data.transaksi || []);
+                    renderRecentLogs(data.transaksi || []);
                 } else {
                     console.error("Gagal mengambil data:", data.message);
                 }
@@ -1818,6 +1858,7 @@
                 console.error("Error fetching data:", err);
             })
             .finally(() => {
+                clearTimeout(timeoutId);
                 hideLoadingOverlay();
             });
     }
@@ -2045,6 +2086,7 @@
     }
 
     function initBackgroundParticles() {
+        if (window.innerWidth < 768) return; // Nonaktifkan di mobile untuk performa dan hemat memori
         const canvas = document.getElementById('particle-canvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -2199,45 +2241,70 @@
         render();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('theme') || 'light';
+    function initUserDashboard() {
+        const savedTheme = safeLocalStorage.getItem('theme') || 'light';
         applyTheme(savedTheme);
         updateHeaderDates();
         initAutoSlider();
         initBackgroundParticles();
         fetchInitialData();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initUserDashboard);
+    } else {
+        initUserDashboard();
+    }
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    (function initSplashScreen() {
         const splash = document.getElementById('splash-screen');
+        if (!splash) return;
+
+        // Cek apakah sudah pernah tampil di sesi ini
+        if (safeStorage.getItem('splash_shown') || safeLocalStorage.getItem('splash_shown')) {
+            splash.style.display = 'none';
+            splash.remove();
+            return;
+        }
+
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.style.display = 'none';
+
         const logo = document.getElementById('splash-logo');
         const textEl = document.getElementById('splash-text');
         const subtitle = document.getElementById('splash-subtitle');
         
-        if (sessionStorage.getItem('splash_shown')) {
-            splash.style.display = 'none';
-            return;
-        } else {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) overlay.style.display = 'none';
+        let isDismissed = false;
+        function dismissSplash() {
+            if (isDismissed) return;
+            isDismissed = true;
+            try {
+                safeStorage.setItem('splash_shown', 'true');
+                safeLocalStorage.setItem('splash_shown', 'true');
+            } catch(e) {}
+
+            splash.classList.add('opacity-0');
+            splash.style.pointerEvents = 'none';
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                splash.remove();
+            }, 400);
         }
-        
+        window.dismissSplash = dismissSplash;
+        splash.addEventListener('click', dismissSplash);
+
         document.body.style.overflow = 'hidden';
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]';
-        
-        function scrambleText(targetWord, duration = 800, isGlitch = true) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+
+        function scrambleText(targetWord, duration = 450) {
             return new Promise((resolve) => {
                 const start = performance.now();
                 let frame;
                 
-                if (isGlitch) {
-                    textEl.classList.add('glitch-text', 'glitch-shake');
-                    logo.classList.add('glitch-shake');
-                }
-                
                 const animate = (time) => {
+                    if (isDismissed) { resolve(); return; }
                     const elapsed = time - start;
                     const progress = Math.min(elapsed / duration, 1);
                     const resolvedCount = Math.floor(progress * targetWord.length);
@@ -2257,80 +2324,35 @@
                         frame = requestAnimationFrame(animate);
                     } else {
                         textEl.innerHTML = targetWord;
-                        textEl.classList.remove('glitch-text', 'glitch-shake');
-                        logo.classList.remove('glitch-shake');
+                        textEl.classList.add('final-glow');
                         resolve();
                     }
                 };
-                
                 frame = requestAnimationFrame(animate);
             });
         }
 
-        function fadeSplashLogoOut() {
-            return new Promise((resolve) => {
-                logo.style.transitionDuration = '350ms';
-                logo.classList.remove('opacity-100', 'scale-100');
-                logo.classList.add('scale-75', 'opacity-0');
-                setTimeout(resolve, 350);
-            });
-        }
-
-        function fadeSplashLogoIn(contentHtml) {
-            return new Promise((resolve) => {
-                logo.innerHTML = contentHtml;
-                logo.offsetWidth; // Force reflow
-                logo.style.transitionDuration = '350ms';
-                logo.classList.remove('scale-75', 'opacity-0');
-                logo.classList.add('scale-100', 'opacity-100');
-                setTimeout(() => {
-                    logo.style.transitionDuration = '';
-                    resolve();
-                }, 350);
-            });
-        }
-
-        setTimeout(() => {
+        // Animasi Cepat Langsung DANA IMIP (snappy, tanpa 3 gambar beruntun)
+        setTimeout(async () => {
+            if (isDismissed) return;
+            // 1. Munculkan logo DANA IMIP
             logo.classList.remove('opacity-0', 'scale-90');
             logo.classList.add('opacity-100', 'scale-100');
-            
-            setTimeout(async () => {
-                await scrambleText('FINANCE?', 800, false);
-                
-                await new Promise(r => setTimeout(r, 800));
-                await fadeSplashLogoOut();
-                textEl.innerHTML = ''; // Kosongkan teks sebelum fade in logo baru
-                
-                await fadeSplashLogoIn('<img src="online.png" alt="Online Logo" class="max-w-full max-h-full object-contain">');
-                await scrambleText('ONLINE!?', 800, false);
-                
-                await new Promise(r => setTimeout(r, 800));
-                await fadeSplashLogoOut();
-                textEl.innerHTML = ''; // Kosongkan teks sebelum fade in logo baru
-                
-                await fadeSplashLogoIn('<img src="bendahara.png" alt="LDK Logo" class="max-w-full max-h-full object-contain">');
-                await scrambleText('DANAIMIP', 1000, false);
-                
-                textEl.classList.add('final-glow');
-                
-                setTimeout(() => {
-                    subtitle.classList.remove('opacity-0', 'translate-y-2');
-                    subtitle.classList.add('opacity-100', 'translate-y-0');
-                    
-                    setTimeout(() => {
-                        splash.classList.add('opacity-0');
-                        splash.style.pointerEvents = 'none';
-                        document.body.style.overflow = '';
-                        
-                        setTimeout(() => {
-                            splash.style.display = 'none';
-                            sessionStorage.setItem('splash_shown', 'true');
-                        }, 700);
-                    }, 1500);
-                }, 300);
-            }, 800);
-        }, 300);
-    });
+
+            // 2. Animasi teks DANAIMIP
+            await scrambleText('DANAIMIP', 450);
+
+            if (isDismissed) return;
+            // 3. Tampilkan Subtitle
+            subtitle.classList.remove('opacity-0', 'translate-y-2');
+            subtitle.classList.add('opacity-100', 'translate-y-0');
+
+            // 4. Jeda singkat lalu langsung masuk dashboard
+            setTimeout(() => {
+                dismissSplash();
+            }, 650);
+        }, 120);
+    })();
     </script>
 </body>
 </html>
