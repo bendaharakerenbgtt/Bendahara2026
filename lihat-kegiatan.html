@@ -2217,6 +2217,25 @@
             return text.replace(pattern, '<i>$1</i>');
         }
 
+        function formatUnitLPJ(unitVal, item) {
+            const rawDisplay = formatUnitDisplay(unitVal, item);
+            if (!rawDisplay || rawDisplay === '-') return '-';
+
+            const englishUnits = [
+                'pcs', 'piece', 'pieces', 'pack', 'packs', 'package', 'packages',
+                'box', 'boxes', 'day', 'days', 'ball', 'balls', 'cup', 'cups',
+                'roll', 'rolls', 'set', 'sets', 'can', 'cans', 'bottle', 'bottles',
+                'tube', 'tubes', 'pouch', 'pouches', 'rim', 'rims', 'ream', 'reams',
+                'dozen', 'dozens', 'gross', 'carton', 'cartons', 'unit', 'units',
+                'pair', 'pairs', 'bag', 'bags', 'jar', 'jars', 'slice', 'slices',
+                'plate', 'plates', 'person', 'persons', 'pax', 'night', 'nights'
+            ];
+
+            const escaped = escapeHtmlLPJ(rawDisplay);
+            const pattern = new RegExp('\\b(' + englishUnits.join('|') + ')\\b', 'gi');
+            return escaped.replace(pattern, '<i>$1</i>');
+        }
+
         function formatRupiahLPJ(amount) {
             const num = Math.round((Number(amount) || 0) * 100) / 100;
             const isNeg = num < 0;
@@ -2475,9 +2494,7 @@
                 rowsHtml += `
                     <tr style="font-weight: bold;">
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${letter}</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 44%;">${escapeHtmlLPJ(divName)}</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; width: 14%;"></td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; width: 18%;"></td>
+                        <td colspan="3" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 76%;">${escapeHtmlLPJ(divName)}</td>
                         <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 18%;">${formatRupiahLPJ(divSubtotal)}</td>
                     </tr>
                 `;
@@ -2488,14 +2505,14 @@
                         ? item.uraian 
                         : (item.keterangan || item.catatan || 'Pengeluaran');
                     const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                    const unitDisplay = formatUnitDisplay(item.unit, item);
+                    const unitFormatted = formatUnitLPJ(item.unit, item);
                     const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
 
                     rowsHtml += `
                         <tr>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;"></td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: normal;">${formatEnglishItalics(cleanUraian)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic;"><i>${escapeHtmlLPJ(unitDisplay)}</i></td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: normal;">${unitFormatted}</td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${escapeHtmlLPJ(hargaSatuanDisplay)}</td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(itemNominal)}</td>
                         </tr>
@@ -2519,9 +2536,9 @@
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
                         <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">Pemasukan</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">Jumlah</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">PEMASUKAN</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">JUMLAH</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2547,11 +2564,11 @@
                     <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                         <thead>
                             <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">URAIAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">UNIT</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">HARGA SATUAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">JUMLAH</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2574,11 +2591,11 @@
                     <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                         <thead>
                             <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">URAIAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">UNIT</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">HARGA SATUAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">JUMLAH</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2601,11 +2618,11 @@
                     <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                         <thead>
                             <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">URAIAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">UNIT</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">HARGA SATUAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">JUMLAH</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2632,9 +2649,9 @@
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
                         <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">Keterangan</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">Jumlah</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">KETERANGAN</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">JUMLAH</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2765,7 +2782,7 @@
 
             // 1. Pemasukan
             csv += `"1. Pemasukan"\n`;
-            csv += `"No","Pemasukan","Jumlah"\n`;
+            csv += `"NO","PEMASUKAN","JUMLAH"\n`;
             if (data.inCategories.length === 0) {
                 csv += `"-","Nihil","Rp0,00"\n`;
             } else {
@@ -2783,7 +2800,7 @@
             const bahanDivKeys = Object.keys(data.bahanDivMap || {});
             if (bahanDivKeys.length > 0) {
                 csv += `"2.${csvExpIdx++} Belanja Bahan"\n`;
-                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+                csv += `"NO","URAIAN","UNIT","HARGA SATUAN","JUMLAH"\n`;
                 bahanDivKeys.forEach((divName, divIdx) => {
                     const items = data.bahanDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2807,7 +2824,7 @@
             const sewaDivKeys = Object.keys(data.sewaDivMap || {});
             if (sewaDivKeys.length > 0) {
                 csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
-                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+                csv += `"NO","URAIAN","UNIT","HARGA SATUAN","JUMLAH"\n`;
                 sewaDivKeys.forEach((divName, divIdx) => {
                     const items = data.sewaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2831,7 +2848,7 @@
             const jasaDivKeys = Object.keys(data.jasaDivMap || {});
             if (jasaDivKeys.length > 0) {
                 csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
-                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+                csv += `"NO","URAIAN","UNIT","HARGA SATUAN","JUMLAH"\n`;
                 jasaDivKeys.forEach((divName, divIdx) => {
                     const items = data.jasaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2853,7 +2870,7 @@
 
             // 3. Rekapitulasi Keuangan
             csv += `"3. Rekapitulasi Keuangan"\n`;
-            csv += `"No","Keterangan","Jumlah"\n`;
+            csv += `"NO","KETERANGAN","JUMLAH"\n`;
             csv += `"1.","Pemasukan","${formatRupiahLPJ(data.effPemasukan)}"\n`;
             csv += `"2.","Pengeluaran","${formatRupiahLPJ(data.effPengeluaran)}"\n`;
             csv += `"TOTAL","","${formatRupiahLPJ(data.effSaldo)}"\n`;
