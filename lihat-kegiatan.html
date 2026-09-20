@@ -2463,15 +2463,7 @@
         function renderExpenseRowsHtml(divMap) {
             const divKeys = Object.keys(divMap || {});
             if (divKeys.length === 0) {
-                return `
-                    <tr>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">-</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic;">Nihil</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">-</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">-</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">Rp0,00</td>
-                    </tr>
-                `;
+                return '';
             }
 
             let rowsHtml = '';
@@ -2503,7 +2495,7 @@
                         <tr>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;"></td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: normal;">${formatEnglishItalics(cleanUraian)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: normal;">${escapeHtmlLPJ(unitDisplay)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: italic;"><i>${escapeHtmlLPJ(unitDisplay)}</i></td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${escapeHtmlLPJ(hargaSatuanDisplay)}</td>
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(itemNominal)}</td>
                         </tr>
@@ -2515,13 +2507,7 @@
 
         function generateWordReportHtml(data) {
             // 1. Pemasukan Table
-            const inRowsHtml = data.inCategories.length === 0 ? `
-                <tr>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">-</td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic; width: 64%;">Nihil</td>
-                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">Rp0,00</td>
-                </tr>
-            ` : data.inCategories.map((cat, idx) => `
+            const inRowsHtml = (data.inCategories || []).map((cat, idx) => `
                 <tr>
                     <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${idx + 1}.</td>
                     <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${formatEnglishItalics(cat.label)}</td>
@@ -2532,7 +2518,7 @@
             const inTableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
-                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                        <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
                             <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
                             <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">Pemasukan</th>
                             <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">Jumlah</th>
@@ -2548,85 +2534,104 @@
                 </table>
             `;
 
-            // 2. Pengeluaran Sections: Belanja Bahan, Belanja Sewa, Belanja Jasa (Lengkap selalu 3 tabel tanpa pengurangan)
+            // 2. Pengeluaran Sections: Belanja Bahan, Belanja Sewa, Belanja Jasa (hanya tampilkan jika ada transaksi)
             let expSubIdx = 1;
-            const bahanTableHtml = `
-                <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                    2.${expSubIdx++} Belanja Bahan
-                </p>
-                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
-                    <thead>
-                        <tr style="font-weight: bold; background-color: #FFFFFF;">
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${renderExpenseRowsHtml(data.bahanDivMap)}
-                        <tr style="font-weight: bold;">
-                            <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalBahan)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
+            let expenseTablesHtml = '';
 
-            const sewaTableHtml = `
-                <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                    2.${expSubIdx++} Belanja Sewa
-                </p>
-                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
-                    <thead>
-                        <tr style="font-weight: bold; background-color: #FFFFFF;">
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${renderExpenseRowsHtml(data.sewaDivMap)}
-                        <tr style="font-weight: bold;">
-                            <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalSewa)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
+            const bahanKeys = Object.keys(data.bahanDivMap || {});
+            if (bahanKeys.length > 0) {
+                expenseTablesHtml += `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
+                        2.${expSubIdx++} Belanja Bahan
+                    </p>
+                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderExpenseRowsHtml(data.bahanDivMap)}
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalBahan)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
 
-            const jasaTableHtml = `
-                <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                    2.${expSubIdx++} Belanja Jasa
-                </p>
-                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
-                    <thead>
-                        <tr style="font-weight: bold; background-color: #FFFFFF;">
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
-                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${renderExpenseRowsHtml(data.jasaDivMap)}
-                        <tr style="font-weight: bold;">
-                            <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalJasa)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
+            const sewaKeys = Object.keys(data.sewaDivMap || {});
+            if (sewaKeys.length > 0) {
+                expenseTablesHtml += `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
+                        2.${expSubIdx++} Belanja Sewa
+                    </p>
+                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderExpenseRowsHtml(data.sewaDivMap)}
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalSewa)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            const jasaKeys = Object.keys(data.jasaDivMap || {});
+            if (jasaKeys.length > 0) {
+                expenseTablesHtml += `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
+                        2.${expSubIdx++} Belanja Jasa
+                    </p>
+                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">Uraian</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">Unit</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Harga Satuan</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderExpenseRowsHtml(data.jasaDivMap)}
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalJasa)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (!expenseTablesHtml) {
+                expenseTablesHtml = `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 10.5pt; font-style: italic; margin-left: 18pt; margin-bottom: 14pt;">
+                        Tidak ada transaksi pengeluaran.
+                    </p>
+                `;
+            }
 
             // 3. Rekapitulasi Keuangan Table
             const rekapTableHtml = `
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
-                        <tr style="font-weight: bold; background-color: #FFFFFF;">
+                        <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
                             <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">No</th>
                             <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">Keterangan</th>
                             <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">Jumlah</th>
@@ -2662,6 +2667,13 @@
             <w:View>Print</w:View>
             <w:Zoom>100</w:Zoom>
             <w:DoNotOptimizeForBrowser/>
+            <w:Compatibility>
+                <w:BreakWrappedTables/>
+                <w:SnapToGridInCell/>
+                <w:WrapTextWithPunct/>
+                <w:UseAsianBreakRules/>
+                <w:DontGrowAutofit/>
+            </w:Compatibility>
         </w:WordDocument>
     </xml>
     <![endif]-->
@@ -2687,12 +2699,22 @@
             background: #FFFFFF;
             margin: 0;
             padding: 0;
+            mso-pagination: widow-orphan;
         }
         thead {
             display: table-row-group;
         }
         p { margin: 0; padding: 0; }
-        table { border-collapse: collapse; width: 100%; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            mso-pagination: widow-orphan;
+        }
+        tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            mso-yfti-tblheader: no;
+        }
         @media print {
             thead {
                 display: table-row-group;
@@ -2722,9 +2744,7 @@
         <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 4pt;">
             2. Pengeluaran
         </p>
-        ${bahanTableHtml}
-        ${sewaTableHtml}
-        ${jasaTableHtml}
+        ${expenseTablesHtml}
 
         <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 14pt; margin-bottom: 5pt;">
             3. Rekapitulasi Keuangan
@@ -2760,12 +2780,10 @@
             let csvExpIdx = 1;
 
             // 2.1 Belanja Bahan
-            csv += `"2.${csvExpIdx++} Belanja Bahan"\n`;
-            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
             const bahanDivKeys = Object.keys(data.bahanDivMap || {});
-            if (bahanDivKeys.length === 0) {
-                csv += `"-","Nihil","-","-","Rp0,00"\n`;
-            } else {
+            if (bahanDivKeys.length > 0) {
+                csv += `"2.${csvExpIdx++} Belanja Bahan"\n`;
+                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
                 bahanDivKeys.forEach((divName, divIdx) => {
                     const items = data.bahanDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2782,16 +2800,14 @@
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
+                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalBahan)}"\n\n`;
             }
-            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalBahan)}"\n\n`;
 
-            // Belanja Sewa (Lengkap selalu ada tanpa pengurangan tabel)
-            csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
-            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+            // Belanja Sewa
             const sewaDivKeys = Object.keys(data.sewaDivMap || {});
-            if (sewaDivKeys.length === 0) {
-                csv += `"-","Nihil","-","-","Rp0,00"\n`;
-            } else {
+            if (sewaDivKeys.length > 0) {
+                csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
+                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
                 sewaDivKeys.forEach((divName, divIdx) => {
                     const items = data.sewaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2808,16 +2824,14 @@
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
+                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
             }
-            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
 
-            // Belanja Jasa (Lengkap selalu ada tanpa pengurangan tabel)
-            csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
-            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+            // Belanja Jasa
             const jasaDivKeys = Object.keys(data.jasaDivMap || {});
-            if (jasaDivKeys.length === 0) {
-                csv += `"-","Nihil","-","-","Rp0,00"\n`;
-            } else {
+            if (jasaDivKeys.length > 0) {
+                csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
+                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
                 jasaDivKeys.forEach((divName, divIdx) => {
                     const items = data.jasaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2834,8 +2848,8 @@
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
+                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalJasa)}"\n\n`;
             }
-            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalJasa)}"\n\n`;
 
             // 3. Rekapitulasi Keuangan
             csv += `"3. Rekapitulasi Keuangan"\n`;
