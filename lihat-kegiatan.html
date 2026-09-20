@@ -3062,15 +3062,34 @@
                 grandTotalAnggaran += totalAnggaran;
                 grandTotalRealisasi += totalRealisasi;
 
-                function getCategoryKet(anggaran, realisasi) {
-                    if (realisasi === 0 && anggaran === 0) return '-';
-                    if (realisasi === 0 && anggaran > 0) return 'Tidak terealisasi';
-                    if (anggaran === 0 && realisasi > 0) return 'Pengeluaran tambahan di luar RAB';
-                    if (realisasi === anggaran) return 'Penggunaan anggaran sesuai';
-                    if (realisasi < anggaran) {
-                        return 'Surplus anggaran (Efisiensi biaya)';
+                function getCategoryKet(catKey, anggaran, realisasi) {
+                    const agg = Number(anggaran) || 0;
+                    const real = Number(realisasi) || 0;
+
+                    if (real === 0 && agg === 0) {
+                        return 'Tidak ada Penggunaan dana';
                     }
-                    return 'Defisit anggaran';
+                    if (real === agg && real > 0) {
+                        return 'Penggunaan anggaran sesuai';
+                    }
+                    if (agg > 0 && real === 0) {
+                        if (catKey === 'jasa') return 'Ditanggung pribadi';
+                        if (catKey === 'lainnya') return 'Tidak ada kebutuhan lainnya';
+                        if (catKey === 'sewa') return 'Ditanggung pribadi';
+                        if (catKey === 'bahan') return 'Ditanggung pribadi';
+                        return 'Ditanggung pribadi';
+                    }
+                    if (real < agg && real > 0) {
+                        return 'Lebih rendah penyesuaian kebutuhan';
+                    }
+                    if (real > agg) {
+                        if (catKey === 'bahan') return 'Adanya kebutuhan tambahan bahan';
+                        if (catKey === 'sewa') return 'Harga sewa sedikit lebih tinggi dari perkiraan awal';
+                        if (catKey === 'jasa') return 'Adanya kebutuhan tambahan jasa';
+                        if (catKey === 'lainnya') return 'Adanya kebutuhan tambahan';
+                        return 'Adanya kebutuhan tambahan';
+                    }
+                    return '-';
                 }
 
                 // Tabel IV.III: hanya pemakaian kategori khusus Dana Operasional 2026
@@ -3103,28 +3122,28 @@
                             name: 'Belanja Bahan',
                             anggaran: anggaranBahan,
                             realisasi: realisasiBahan,
-                            keterangan: getCategoryKet(anggaranBahan, realisasiBahan)
+                            keterangan: getCategoryKet('bahan', anggaranBahan, realisasiBahan)
                         },
                         {
                             code: '1.2',
                             name: 'Belanja Sewa',
                             anggaran: anggaranSewa,
                             realisasi: realisasiSewa,
-                            keterangan: getCategoryKet(anggaranSewa, realisasiSewa)
+                            keterangan: getCategoryKet('sewa', anggaranSewa, realisasiSewa)
                         },
                         {
                             code: '1.3',
                             name: 'Belanja Jasa',
                             anggaran: anggaranJasa,
                             realisasi: realisasiJasa,
-                            keterangan: getCategoryKet(anggaranJasa, realisasiJasa)
+                            keterangan: getCategoryKet('jasa', anggaranJasa, realisasiJasa)
                         },
                         {
                             code: '1.4',
                             name: 'Biaya Lainnya',
                             anggaran: anggaranLainnya,
                             realisasi: realisasiLainnya,
-                            keterangan: getCategoryKet(anggaranLainnya, realisasiLainnya),
+                            keterangan: getCategoryKet('lainnya', anggaranLainnya, realisasiLainnya),
                             subItems: subItemsLainnya
                         }
                     ],
@@ -3176,21 +3195,6 @@
                             <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-size: 8.5pt;">${escapeHtmlLPJ(cat.keterangan)}</td>
                         </tr>
                     `;
-
-                    if (cat.subItems && cat.subItems.length > 1) {
-                        cat.subItems.forEach((sub, sIdx) => {
-                            const letter = String.fromCharCode(97 + sIdx);
-                            iv1RowsHtml += `
-                                <tr>
-                                    <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                                    <td style="border: 1px solid black; padding: 3pt 6pt 3pt 30pt; text-align: left; font-style: italic; font-size: 9pt;">${letter}. ${escapeHtmlLPJ(sub.name)}</td>
-                                    <td style="border: 1px solid black; padding: 3pt 6pt; text-align: right; font-size: 9pt;">${formatRupiahLPJ(sub.nominal)}</td>
-                                    <td style="border: 1px solid black; padding: 3pt 6pt; text-align: right; font-size: 9pt;">${formatRupiahLPJ(sub.nominal)}</td>
-                                    <td style="border: 1px solid black; padding: 3pt 6pt; text-align: left; font-style: italic; font-size: 8pt;">${escapeHtmlLPJ(sub.ket || 'Realisasi')}</td>
-                                </tr>
-                            `;
-                        });
-                    }
                 });
             });
 
