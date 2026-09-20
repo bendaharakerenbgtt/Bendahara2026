@@ -891,9 +891,16 @@
         </div>
 
         <div class="flex flex-col gap-2.5 mt-2">
-            <div class="flex items-center justify-between pl-1">
+            <div class="flex flex-wrap items-center justify-between gap-2 pl-1">
                 <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black">DAFTAR SEMUA TRANSAKSI</span>
                 <div class="flex items-center gap-2">
+                    <span id="sync_status_badge" class="hidden text-[9px] font-mono px-2.5 py-1 rounded-md border items-center gap-1.5 transition-all"></span>
+                    <button type="button" id="btn-manual-refresh" onclick="fetchInitialData(true)" title="Perbarui Data Langsung dari Server (Bypass Cache)" class="flex items-center gap-1.5 text-[9.5px] font-mono font-bold bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800 hover:border-neutral-700 px-2.5 py-1 rounded-md transition-all cursor-pointer active:scale-95">
+                        <svg id="refresh_icon" class="w-3 h-3 text-cyan-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Refresh</span>
+                    </button>
                     <span class="text-[9px] font-mono text-neutral-400 bg-neutral-950 border border-neutral-900 px-2.5 py-1.5 rounded-md" id="total-trx-badge">
                         Memuat transaksi...
                     </span>
@@ -1133,6 +1140,172 @@
             }
         }
 
+        const DB_CACHE_KEY = "ldk_db_cache";
+        const DB_CACHE_TIME_KEY = "ldk_db_cache_time";
+        const DB_CACHE_TTL = 3 * 60 * 1000; // 3 menit fresh cache
+
+        function getStoredDbCache() {
+            try {
+                let raw = localStorage.getItem(DB_CACHE_KEY);
+                let time = localStorage.getItem(DB_CACHE_TIME_KEY);
+                if (!raw) {
+                    raw = sessionStorage.getItem(DB_CACHE_KEY);
+                    time = sessionStorage.getItem(DB_CACHE_TIME_KEY);
+                }
+                if (!raw) return null;
+                return {
+                    data: JSON.parse(raw),
+                    time: Number(time) || 0
+                };
+            } catch (e) {
+                console.warn("Gagal membaca cache database:", e);
+                return null;
+            }
+        }
+
+        function setStoredDbCache(data) {
+            try {
+                const str = JSON.stringify(data);
+                const nowStr = Date.now().toString();
+                try {
+                    localStorage.setItem(DB_CACHE_KEY, str);
+                    localStorage.setItem(DB_CACHE_TIME_KEY, nowStr);
+                } catch (e) {
+                    console.warn("LocalStorage penuh/error:", e);
+                }
+                try {
+                    sessionStorage.setItem(DB_CACHE_KEY, str);
+                    sessionStorage.setItem(DB_CACHE_TIME_KEY, nowStr);
+                } catch (e) {}
+            } catch (e) {
+                console.warn("Gagal menyimpan cache database:", e);
+            }
+        }
+
+        function clearStoredDbCache() {
+            try {
+                localStorage.removeItem(DB_CACHE_KEY);
+                localStorage.removeItem(DB_CACHE_TIME_KEY);
+            } catch (e) {}
+            try {
+                sessionStorage.removeItem(DB_CACHE_KEY);
+                sessionStorage.removeItem(DB_CACHE_TIME_KEY);
+            } catch (e) {}
+        }
+
+        let syncBadgeTimer = null;
+        function updateSyncIndicator(status, message) {
+            const badge = document.getElementById('sync_status_badge');
+            const icon = document.getElementById('refresh_icon');
+            if (!badge) return;
+
+            if (syncBadgeTimer) {
+                clearTimeout(syncBadgeTimer);
+                syncBadgeTimer = null;
+            }
+
+            badge.className = "text-[9px] font-mono px-2.5 py-1 rounded-md border items-center gap-1.5 transition-all";
+
+            if (status === 'syncing') {
+                badge.classList.add('flex', 'bg-amber-950/40', 'border-amber-800/60', 'text-amber-300');
+                badge.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span><span>${message || 'Menyelaraskan...'}</span>`;
+                if (icon) icon.classList.add('animate-spin');
+            } else if (status === 'synced') {
+                badge.classList.add('flex', 'bg-emerald-950/40', 'border-emerald-800/60', 'text-emerald-300');
+                badge.innerHTML = `<span>✓ ${message || 'Terkini'}</span>`;
+                if (icon) icon.classList.remove('animate-spin');
+                syncBadgeTimer = setTimeout(() => {
+                    badge.classList.add('hidden');
+                    badge.classList.remove('flex');
+                }, 3500);
+            } else if (status === 'error') {
+                badge.classList.add('flex', 'bg-rose-950/40', 'border-rose-800/60', 'text-rose-300');
+                badge.innerHTML = `<span>⚠ ${message || 'Gagal Sinkron'}</span>`;
+                if (icon) icon.classList.remove('animate-spin');
+                syncBadgeTimer = setTimeout(() => {
+                    badge.classList.add('hidden');
+                    badge.classList.remove('flex');
+                }, 5000);
+            }
+        }
+
+        function sanitizeTransactions(list) {
+            return (list || []).map(tx => {
+                const idStr = (tx.id !== undefined && tx.id !== null) ? String(tx.id).trim() : '';
+                const tglStr = (tx.tanggal !== undefined && tx.tanggal !== null) ? String(tx.tanggal).trim() : '';
+                const divStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
+                const katStr = (tx.kategori !== undefined && tx.kategori !== null) ? String(tx.kategori).trim() : 'Kas';
+                const uraianStr = String(tx.uraian !== undefined && tx.uraian !== null ? tx.uraian : (tx.keterangan || '')).trim();
+                const ketStr = String(tx.keterangan !== undefined && tx.keterangan !== null ? tx.keterangan : '').trim();
+                const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                const catStr = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
+                const jenisStr = String(tx.jenis || 'Keluar').trim();
+                const metodeStr = String(tx.metode || 'Tunai').trim();
+                const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : null;
+                const picStr = (tx.nama_pic_pengeluar !== undefined && tx.nama_pic_pengeluar !== null) ? String(tx.nama_pic_pengeluar).trim() : null;
+                const reimbStr = (tx.status_reimburse !== undefined && tx.status_reimburse !== null) ? String(tx.status_reimburse).trim() : 'Tidak Perlu';
+                const buktiStr = (tx.bukti !== undefined && tx.bukti !== null) ? String(tx.bukti).trim() : '';
+
+                let finalUnitStr = unitStr;
+                const combinedDesc = `${uraianStr} ${ketStr}`.toLowerCase();
+                if (idStr === 'TRX397' || (combinedDesc.includes('sewa tempat') && (unitStr === '3' || unitStr === '' || unitStr.toUpperCase() === 'NULL'))) {
+                    finalUnitStr = '3 Day';
+                } else if (/^\d+$/.test(unitStr) && (combinedDesc.includes('sewa tempat') || combinedDesc.includes('wammy') || combinedDesc.includes('villa') || combinedDesc.includes('penginapan'))) {
+                    finalUnitStr = `${unitStr} Day`;
+                } else if (unitStr && unitStr.toUpperCase() !== 'NULL') {
+                    finalUnitStr = capitalizeUnit(unitStr);
+                }
+
+                let finalProkerIdStr = prokerIdStr;
+                if (idStr === 'TRX006' || idStr === 'TRX007' || combinedDesc.includes('acara takram')) {
+                    finalProkerIdStr = '7';
+                } else if (idStr === 'TRX020' || idStr === 'TRX021' || combinedDesc.includes('saat itikaf') || combinedDesc.includes('acara itikaf')) {
+                    finalProkerIdStr = '8';
+                } else if (['TRX275', 'TRX276', 'TRX277', 'TRX385', 'TRX386', 'TRX388'].includes(idStr) || (combinedDesc.includes('stuban') && (finalProkerIdStr === '12' || !finalProkerIdStr))) {
+                    finalProkerIdStr = '13';
+                }
+
+                return {
+                    ...tx,
+                    id: idStr,
+                    tanggal: tglStr,
+                    divisi: divStr,
+                    kategori: katStr,
+                    uraian: uraianStr,
+                    keterangan: ketStr,
+                    unit: finalUnitStr,
+                    catatan: catStr,
+                    jenis: jenisStr,
+                    metode: metodeStr,
+                    proker_id: finalProkerIdStr,
+                    nama_pic_pengeluar: picStr,
+                    status_reimburse: reimbStr,
+                    bukti: buktiStr
+                };
+            });
+        }
+
+        function applyDbDataToUI(data) {
+            localTransactions = sanitizeTransactions(data.transaksi);
+            localAnggota = data.anggota || [];
+            localProkers = data.proker || [];
+            
+            prokersMap = {};
+            (data.proker || []).forEach(p => {
+                prokersMap[p.id.toString()] = p.nama_proker;
+            });
+
+            membersMap = {};
+            (data.anggota || []).forEach(m => {
+                membersMap[m.id.toString()] = m.name;
+            });
+
+            populateProkerDropdowns(data.proker || []);
+            populateMemberDropdowns(localAnggota);
+            populateFilterDropdowns();
+            applyMutationFilters();
+        }
+
         function fetchInitialData(forceRefresh = false) {
             if (!GOOGLE_SCRIPT_URL) {
                 // Skenario Offline / Demo
@@ -1164,144 +1337,75 @@
                 return;
             }
 
-            const CACHE_KEY = "ldk_db_cache";
-            const CACHE_TIME_KEY = "ldk_db_cache_time";
-            const CACHE_TTL = 15000; // 15 seconds cache
-
             if (forceRefresh) {
-                sessionStorage.removeItem(CACHE_KEY);
-                sessionStorage.removeItem(CACHE_TIME_KEY);
+                clearStoredDbCache();
             }
 
-            const cachedData = sessionStorage.getItem(CACHE_KEY);
-            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const cached = getStoredDbCache();
             const now = Date.now();
             let hasRenderedFromCache = false;
 
-            function sanitizeTransactions(list) {
-                return (list || []).map(tx => {
-                    const idStr = (tx.id !== undefined && tx.id !== null) ? String(tx.id).trim() : '';
-                    const tglStr = (tx.tanggal !== undefined && tx.tanggal !== null) ? String(tx.tanggal).trim() : '';
-                    const divStr = (tx.divisi !== undefined && tx.divisi !== null) ? String(tx.divisi).trim() : '';
-                    const katStr = (tx.kategori !== undefined && tx.kategori !== null) ? String(tx.kategori).trim() : 'Kas';
-                    const uraianStr = String(tx.uraian !== undefined && tx.uraian !== null ? tx.uraian : (tx.keterangan || '')).trim();
-                    const ketStr = String(tx.keterangan !== undefined && tx.keterangan !== null ? tx.keterangan : '').trim();
-                    const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
-                    const catStr = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
-                    const jenisStr = String(tx.jenis || 'Keluar').trim();
-                    const metodeStr = String(tx.metode || 'Tunai').trim();
-                    const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : null;
-                    const picStr = (tx.nama_pic_pengeluar !== undefined && tx.nama_pic_pengeluar !== null) ? String(tx.nama_pic_pengeluar).trim() : null;
-                    const reimbStr = (tx.status_reimburse !== undefined && tx.status_reimburse !== null) ? String(tx.status_reimburse).trim() : 'Tidak Perlu';
-                    const buktiStr = (tx.bukti !== undefined && tx.bukti !== null) ? String(tx.bukti).trim() : '';
-
-                    let finalUnitStr = unitStr;
-                    const combinedDesc = `${uraianStr} ${ketStr}`.toLowerCase();
-                    if (idStr === 'TRX397' || (combinedDesc.includes('sewa tempat') && (unitStr === '3' || unitStr === '' || unitStr.toUpperCase() === 'NULL'))) {
-                        finalUnitStr = '3 Day';
-                    } else if (/^\d+$/.test(unitStr) && (combinedDesc.includes('sewa tempat') || combinedDesc.includes('wammy') || combinedDesc.includes('villa') || combinedDesc.includes('penginapan'))) {
-                        finalUnitStr = `${unitStr} Day`;
-                    } else if (unitStr && unitStr.toUpperCase() !== 'NULL') {
-                        finalUnitStr = capitalizeUnit(unitStr);
-                    }
-
-                    let finalProkerIdStr = prokerIdStr;
-                    if (idStr === 'TRX006' || idStr === 'TRX007' || combinedDesc.includes('acara takram')) {
-                        finalProkerIdStr = '7';
-                    } else if (idStr === 'TRX020' || idStr === 'TRX021' || combinedDesc.includes('saat itikaf') || combinedDesc.includes('acara itikaf')) {
-                        finalProkerIdStr = '8';
-                    } else if (['TRX275', 'TRX276', 'TRX277', 'TRX385', 'TRX386', 'TRX388'].includes(idStr) || (combinedDesc.includes('stuban') && (finalProkerIdStr === '12' || !finalProkerIdStr))) {
-                        finalProkerIdStr = '13';
-                    }
-
-                    return {
-                        ...tx,
-                        id: idStr,
-                        tanggal: tglStr,
-                        divisi: divStr,
-                        kategori: katStr,
-                        uraian: uraianStr,
-                        keterangan: ketStr,
-                        unit: finalUnitStr,
-                        catatan: catStr,
-                        jenis: jenisStr,
-                        metode: metodeStr,
-                        proker_id: finalProkerIdStr,
-                        nama_pic_pengeluar: picStr,
-                        status_reimburse: reimbStr,
-                        bukti: buktiStr
-                    };
-                });
-            }
-
-            if (cachedData && cachedTime) {
+            if (cached && cached.data && cached.data.status === "success") {
                 try {
-                    const data = JSON.parse(cachedData);
-                    if (data && data.status === "success") {
-                        localTransactions = sanitizeTransactions(data.transaksi);
-                        localAnggota = data.anggota || [];
-                        localProkers = data.proker || [];
-                        
-                        prokersMap = {};
-                        (data.proker || []).forEach(p => {
-                            prokersMap[p.id.toString()] = p.nama_proker;
-                        });
+                    applyDbDataToUI(cached.data);
+                    hideLoadingOverlay();
+                    hasRenderedFromCache = true;
 
-                        membersMap = {};
-                        (data.anggota || []).forEach(m => {
-                            membersMap[m.id.toString()] = m.name;
-                        });
-
-                        populateProkerDropdowns(data.proker || []);
-                        populateMemberDropdowns(localAnggota);
-                        populateFilterDropdowns();
-                        applyMutationFilters();
-                        
-                        hideLoadingOverlay();
-                        hasRenderedFromCache = true;
-
-                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
-                            console.log("Using fresh cache for All-Transaksi");
-                            return;
-                        }
-                        console.log("Using stale cache, fetching fresh data in background...");
+                    // Jika cache masih segar (< 3 menit) dan bukan forceRefresh, langsung pakai tanpa request
+                    if (!forceRefresh && (now - cached.time) < DB_CACHE_TTL) {
+                        updateSyncIndicator('synced', 'Terkini');
+                        console.log("Using fresh cache for All-Transaksi (< 3m)");
+                        return;
                     }
+
+                    // Stale cache: langsung ditampilkan, fetch di background untuk update
+                    updateSyncIndicator('syncing', 'Menyelaraskan...');
+                    console.log("Stale cache rendered instantly. Syncing latest data in background...");
                 } catch (e) {
                     console.error("Cache load error:", e);
                 }
             }
 
+            if (!hasRenderedFromCache) {
+                updateSyncIndicator('syncing', 'Memuat data...');
+            }
+
             fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
                 .then(res => res.json())
                 .then(data => {
-                    if (data.status === "success") {
-                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+                    if (data && data.status === "success") {
+                        setStoredDbCache(data);
 
-                        localTransactions = sanitizeTransactions(data.transaksi);
-                        localAnggota = data.anggota || [];
-                        localProkers = data.proker || [];
-                        
-                        prokersMap = {};
-                        (data.proker || []).forEach(p => {
-                            prokersMap[p.id.toString()] = p.nama_proker;
-                        });
+                        // Cek apakah data berbeda sebelum update UI agar tidak render berulang
+                        const oldSummary = (localTransactions || []).map(t => `${t.id}_${t.tanggal}_${t.nominal || t.jumlah}_${t.uraian || t.keterangan}_${t.status_reimburse}`).join('|');
+                        const newSanitized = sanitizeTransactions(data.transaksi);
+                        const newSummary = (newSanitized || []).map(t => `${t.id}_${t.tanggal}_${t.nominal || t.jumlah}_${t.uraian || t.keterangan}_${t.status_reimburse}`).join('|');
 
-                        membersMap = {};
-                        (data.anggota || []).forEach(m => {
-                            membersMap[m.id.toString()] = m.name;
-                        });
-
-                        populateProkerDropdowns(data.proker || []);
-                        populateMemberDropdowns(localAnggota);
-                        populateFilterDropdowns();
-                        applyMutationFilters();
+                        if (!hasRenderedFromCache || oldSummary !== newSummary) {
+                            applyDbDataToUI(data);
+                            if (hasRenderedFromCache) {
+                                Swal.mixin({
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    background: '#171717',
+                                    color: '#f5f5f5'
+                                }).fire({
+                                    icon: 'info',
+                                    title: 'Data transaksi diselaraskan'
+                                });
+                            }
+                        }
+                        updateSyncIndicator('synced', 'Terkini');
                     } else {
-                        console.error("Gagal memuat database:", data.message);
+                        console.error("Gagal memuat database:", data ? data.message : "Empty response");
+                        updateSyncIndicator('error', 'Gagal memuat');
                     }
                 })
                 .catch(err => {
                     console.error("Error fetching data:", err);
+                    updateSyncIndicator('error', 'Koneksi lambat / Offline');
                 })
                 .finally(() => {
                     hideLoadingOverlay();
@@ -2774,8 +2878,7 @@
                         setTimeout(() => {
                             Swal.close();
                             Swal.fire({ icon: 'success', title: 'Transaksi Berhasil Diperbarui!', showConfirmButton: false, timer: 1200 });
-                            sessionStorage.removeItem(CACHE_KEY);
-                            sessionStorage.removeItem(CACHE_TIME_KEY);
+                            clearStoredDbCache();
                             fetchInitialData(true);
                         }, 1500);
                     })

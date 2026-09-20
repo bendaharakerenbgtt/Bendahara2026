@@ -963,15 +963,15 @@
 
             const CACHE_KEY = "ldk_db_cache";
             const CACHE_TIME_KEY = "ldk_db_cache_time";
-            const CACHE_TTL = 15000; // 15 seconds cache
+            const CACHE_TTL = 3 * 60 * 1000; // 3 menit cache
 
             if (forceRefresh) {
-                sessionStorage.removeItem(CACHE_KEY);
-                sessionStorage.removeItem(CACHE_TIME_KEY);
+                try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem(CACHE_TIME_KEY); } catch(e) {}
+                try { sessionStorage.removeItem(CACHE_KEY); sessionStorage.removeItem(CACHE_TIME_KEY); } catch(e) {}
             }
 
-            const cachedData = sessionStorage.getItem(CACHE_KEY);
-            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            const cachedData = localStorage.getItem(CACHE_KEY) || sessionStorage.getItem(CACHE_KEY);
+            const cachedTime = localStorage.getItem(CACHE_TIME_KEY) || sessionStorage.getItem(CACHE_TIME_KEY);
             const now = Date.now();
             let hasRenderedFromCache = false;
 
@@ -988,7 +988,10 @@
                         hideLoadingOverlay();
                         hasRenderedFromCache = true;
 
-                        // If cache is loaded, we still fetch in background to ensure fresh data
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            console.log("Using fresh cache for Kelola-Proker");
+                            return;
+                        }
                         console.log("Rendered from cache, syncing latest data in background...");
                     }
                 } catch (e) {
@@ -1016,8 +1019,8 @@
                 .then(data => {
                     clearTimeout(timeoutId);
                     if (data.status === "success") {
-                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+                        try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); localStorage.setItem(CACHE_TIME_KEY, now.toString()); } catch(e) {}
+                        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(data)); sessionStorage.setItem(CACHE_TIME_KEY, now.toString()); } catch(e) {}
 
                         localProkers = data.proker;
                         localTransactions = normalizeTransactions(data.transaksi || []);
