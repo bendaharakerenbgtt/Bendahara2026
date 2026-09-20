@@ -2358,6 +2358,17 @@
             }
             kategoriOptionsHtml += `<option value="custom">✏️ Tulis Sendiri...</option>`;
 
+            // Build Anggota options
+            const currentUserId = (item.user_id !== undefined && item.user_id !== null && item.user_id !== '' && item.user_id !== 'NULL') ? item.user_id.toString() : '';
+            let anggotaOptionsHtml = `<option value="" ${currentUserId === '' ? 'selected' : ''}>-- Tanpa Anggota Spesifik --</option>`;
+            if (Array.isArray(localAnggota)) {
+                localAnggota.forEach(m => {
+                    const mId = m.id ? m.id.toString() : '';
+                    const isSel = (currentUserId === mId);
+                    anggotaOptionsHtml += `<option value="${escapeHtmlAttr(mId)}" ${isSel ? 'selected' : ''}>👤 ${escapeHtmlAttr(m.name)} (${escapeHtmlAttr(m.divisi || 'Anggota')})</option>`;
+                });
+            }
+
             Swal.fire({
                 title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>✏️</span> Edit Transaksi</div>',
                 html: `
@@ -2393,21 +2404,27 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">👤 Anggota / Penanggung Jawab</label>
+                                <select id="swal-edit-anggota" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    ${anggotaOptionsHtml}
+                                </select>
+                            </div>
+                            <div>
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Metode Pembayaran</label>
                                 <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
                                     <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai (Cash)</option>
                                     <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>📱 GoPay</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div>
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">💼 Program Kerja / Kegiatan</label>
                                 <select id="swal-edit-proker" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
                                     ${prokerOptionsHtml}
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div>
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏢 Divisi</label>
                                 <select id="swal-edit-divisi-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
@@ -2415,13 +2432,14 @@
                                 </select>
                                 <input type="text" id="swal-edit-divisi-custom" placeholder="Ketik divisi kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                             </div>
-                            <div>
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏷️ Kategori</label>
-                                <select id="swal-edit-kategori-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
-                                    ${kategoriOptionsHtml}
-                                </select>
-                                <input type="text" id="swal-edit-kategori-custom" placeholder="Ketik kategori kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
-                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏷️ Kategori</label>
+                            <select id="swal-edit-kategori-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                ${kategoriOptionsHtml}
+                            </select>
+                            <input type="text" id="swal-edit-kategori-custom" placeholder="Ketik kategori kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                         </div>
                     </div>
                 `,
@@ -2491,6 +2509,9 @@
                         kategori = katCustom.value.trim() || (isMasuk ? 'Kas' : 'Belanja Bahan');
                     }
 
+                    const anggotaSelect = document.getElementById('swal-edit-anggota');
+                    const userId = anggotaSelect ? anggotaSelect.value : '';
+
                     return {
                         uraian,
                         keterangan,
@@ -2498,6 +2519,7 @@
                         metode,
                         tanggal,
                         proker_id: prokerId,
+                        user_id: userId,
                         divisi,
                         kategori
                     };
@@ -2514,6 +2536,7 @@
                     item.metode = val.metode;
                     item.tanggal = val.tanggal || item.tanggal;
                     item.proker_id = val.proker_id;
+                    item.user_id = val.user_id;
                     item.divisi = val.divisi;
                     item.kategori = val.kategori;
 
@@ -2544,6 +2567,7 @@
                             metode: val.metode,
                             tanggal: val.tanggal,
                             proker_id: val.proker_id,
+                            user_id: val.user_id,
                             divisi: val.divisi,
                             kategori: val.kategori
                         })

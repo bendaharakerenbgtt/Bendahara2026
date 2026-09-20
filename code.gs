@@ -260,23 +260,45 @@ function getAllData(callback) {
       realisasiVal = pengeluaranVal;
     }
 
+    // Hitung realisasi breakdown berdasarkan transaksi per kategori
+    let realisasiBahan = 0;
+    let realisasiSewa = 0;
+    let realisasiJasa = 0;
+    let realisasiLainnya = 0;
+
+    transaksiData.forEach(tx => {
+      if (tx.proker_id && tx.proker_id.toString().trim() === idKegiatan.trim() && tx.jenis === "Keluar") {
+        const val = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
+        const catType = categorizeTransactionType(tx);
+        if (catType === "bahan") {
+          realisasiBahan += val;
+        } else if (catType === "sewa") {
+          realisasiSewa += val;
+        } else if (catType === "jasa") {
+          realisasiJasa += val;
+        } else {
+          realisasiLainnya += val;
+        }
+      }
+    });
+
     let statusVal = getVal(k, "status") || "Running";
     if (statusVal.toString().trim() === "Berjalan") {
       statusVal = "Running";
     }
 
-    const namaKegiatan = (getVal(k, "nama_kegiatan") !== undefined && getVal(k, "nama_kegiatan") !== "") 
-      ? getVal(k, "nama_kegiatan") 
+    const namaKegiatan = (getVal(k, "nama_kegiatan") !== undefined && getVal(k, "nama_kegiatan") !== "")
+      ? getVal(k, "nama_kegiatan")
       : (getVal(k, "nama_proker") || "");
-      
+
     const belanjaBahanVal = parseFormattedNumber(getVal(k, "belanja_bahan"));
     const belanjaSewaVal = parseFormattedNumber(getVal(k, "belanja_sewa"));
     const belanjaJasaVal = parseFormattedNumber(getVal(k, "belanja_jasa"));
     const belanjaLainnyaVal = parseFormattedNumber(getVal(k, "belanja_lainnya"));
     const breakdownAnggaran = belanjaBahanVal + belanjaSewaVal + belanjaJasaVal + belanjaLainnyaVal;
 
-    const rawAnggaran = (getVal(k, "anggaran") !== undefined && getVal(k, "anggaran") !== "") 
-      ? getVal(k, "anggaran") 
+    const rawAnggaran = (getVal(k, "anggaran") !== undefined && getVal(k, "anggaran") !== "")
+      ? getVal(k, "anggaran")
       : getVal(k, "estimasi_dana");
     const anggaranVal = parseFormattedNumber(rawAnggaran);
     const anggaranFinal = breakdownAnggaran > 0 ? breakdownAnggaran : anggaranVal;
@@ -295,6 +317,10 @@ function getAllData(callback) {
       belanja_sewa: belanjaSewaVal,
       belanja_jasa: belanjaJasaVal,
       belanja_lainnya: belanjaLainnyaVal,
+      realisasi_bahan: realisasiBahan, // Calculated from transactions
+      realisasi_sewa: realisasiSewa, // Calculated from transactions
+      realisasi_jasa: realisasiJasa, // Calculated from transactions
+      realisasi_lainnya: realisasiLainnya, // Calculated from transactions
       pemasukan: pemasukanVal,
       pengeluaran: pengeluaranVal,
       realisasi: realisasiVal,
@@ -1272,6 +1298,11 @@ function editTransaction(p) {
   if (p.tanggal    !== undefined && p.tanggal.toString().trim() !== "") {
     updateColumnById(sheet, p.id, "tanggal", p.tanggal.toString().trim());
   }
+  if (p.user_id !== undefined || p.id_anggota !== undefined) {
+    const cleanUserId = (p.user_id !== undefined ? p.user_id : p.id_anggota);
+    updateColumnById(sheet, p.id, "id_anggota", cleanUserId);
+    updateColumnById(sheet, p.id, "user_id", cleanUserId);
+  }
   
   return jsonResponse({ status: "success" });
 }
@@ -1556,21 +1587,32 @@ function isIuranKasTransaction(t) {
 
 /** Periksa apakah transaksi ditujukan untuk anggota tertentu secara aman */
 function isTransactionForMember(t, member) {
+  const combined = ((t.keterangan || "") + " " + (t.uraian || "") + " " + (t.catatan || "")).toLowerCase();
+  const nameLower = (member.name || "").toLowerCase().trim();
+
+  // 1. Proteksi Silang Nama Eksplisit:
+  // Jika uraian/keterangan transaksi secara spesifik menyebut nama anggota lain,
+  // jangan kaitkan ke anggota saat ini meskipun t.user_id tersimpan sama!
+  // Contoh Kasus: TRX370 memiliki user_id = 1 (Hafiz), tetapi uraian: "Pembayaran kas Almarhum Kak Indri".
+  // Transaksi ini milik Indri Apriliyani (ID 57), BUKAN Hafiz!
+  if (combined.includes("indri")) {
+    return nameLower.includes("indri");
+  }
+
+  // 2. Jika user_id cocok dan tidak ada konflik nama eksplisit
   if (t.user_id && safeCompareIds(t.user_id, member.id)) {
     return true;
   }
   
-  // Jika user_id kosong, coba lakukan pencocokan nama di kolom keterangan / uraian
+  // 3. Jika user_id kosong, coba lakukan pencocokan nama di kolom keterangan / uraian
   const tUserIdStr = t.user_id ? t.user_id.toString().trim().toUpperCase() : "";
   if (!t.user_id || tUserIdStr === "" || tUserIdStr === "NULL" || tUserIdStr === "0") {
-    const combined = ((t.keterangan || "") + " " + (t.uraian || "")).toLowerCase();
-    const nameLower = (member.name || "").toLowerCase().trim();
     if (!nameLower) return false;
 
-    // 1. Cek nama lengkap
+    // 3a. Cek nama lengkap
     if (combined.includes(nameLower)) return true;
 
-    // 2. Cek bagian nama (abaikan awalan umum seperti muhammad / ahmad jika ada nama berikutnya)
+    // 3b. Cek bagian nama (abaikan awalan umum seperti muhammad / ahmad jika ada nama berikutnya)
     const commonPrefixes = ["muhammad", "mohammad", "m.", "muh.", "ahmad", "achmad"];
     const parts = nameLower.split(/\s+/).filter(p => p.length >= 3);
     const distinctiveParts = parts.filter(p => !commonPrefixes.includes(p));
@@ -1626,6 +1668,38 @@ function extractMonthsFromText(text) {
 /** Helper untuk meng-escape karakter regex */
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Kategorikan transaksi ke dalam jenis belanja (bahan, sewa, jasa, lainnya) */
+function categorizeTransactionType(t) {
+  if (!t) return "lainnya";
+
+  const rawCat = (t.kategori || '').toLowerCase();
+  const rawUraian = (t.uraian || '').toLowerCase();
+  const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
+  const combined = `${rawCat} ${rawUraian} ${rawKet}`;
+
+  const sewaKeywords = ['sewa', 'rental', 'kontrak', 'booking', 'gedung', 'villa', 'aula', 'lapangan', 'belanja sewa', 'tempat'];
+  for (const kw of sewaKeywords) {
+    if (combined.includes(kw)) return 'sewa';
+  }
+
+  const jasaKeywords = ['honor', 'honorarium', 'fee', 'jasa', 'bisyarah', 'narasumber', 'pemateri', 'pembicara', 'juri', 'trainer', 'moderator', 'belanja jasa'];
+  for (const kw of jasaKeywords) {
+    if (combined.includes(kw)) return 'jasa';
+  }
+
+  const bahanKeywords = [
+    'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata',
+    'souvenir', 'snack', 'makan', 'konsumsi', 'kue', 'print', 'cetak',
+    'kertas', 'atk', 'banner', 'spanduk', 'baliho', 'kaos', 'baju', 'merchandise',
+    'belanja bahan', 'bahan', 'logistik', 'perlengkapan'
+  ];
+  for (const kw of bahanKeywords) {
+    if (combined.includes(kw)) return 'bahan';
+  }
+
+  return 'lainnya';
 }
 
 /** Bersihkan baris-baris transaksi yang id-nya kosong atau baris sepenuhnya kosong */

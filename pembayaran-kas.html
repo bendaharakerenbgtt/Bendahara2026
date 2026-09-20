@@ -1340,6 +1340,24 @@
                 });
         }
 
+        function getSanitizedMemberPayments(memberId, memberName, kasList) {
+            const memberNameLower = (memberName || '').toLowerCase().trim();
+            return (kasList || []).filter(k => {
+                if (!k || k.user_id.toString() !== memberId.toString()) return false;
+                if (k.transaksi_id && databaseTransactions && databaseTransactions.length > 0) {
+                    const tx = databaseTransactions.find(t => t && t.id && t.id.toString() === k.transaksi_id.toString());
+                    if (tx) {
+                        const txText = ((tx.uraian || '') + ' ' + (tx.keterangan || '') + ' ' + (tx.catatan || '')).toLowerCase();
+                        // Proteksi silang nama: Jika transaksi secara spesifik untuk orang lain (contoh "indri" / "kak indri") dan anggota ini bukan Indri, jangan kaitkan!
+                        if (txText.includes('indri') && !memberNameLower.includes('indri')) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            });
+        }
+
         function renderPengurusList(members, kas) {
             const container = document.getElementById('pengurusListContainer');
             container.innerHTML = '';
@@ -1353,7 +1371,7 @@
             }
 
             activeMembers.forEach((member, index) => {
-                const userPayments = kas.filter(k => k.user_id.toString() === member.id.toString());
+                const userPayments = getSanitizedMemberPayments(member.id, member.name, kas);
                 const monthsPaidCount = userPayments.length;
                 
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -1456,7 +1474,7 @@
             correctNim = (rawNim && rawNim !== 'undefined' && rawNim !== 'null') ? rawNim.toString().trim() : '';
 
             // Calculate tracking data dynamically
-            const userPayments = databaseKas.filter(k => k.user_id.toString() === memberId.toString());
+            const userPayments = getSanitizedMemberPayments(memberId, name, databaseKas);
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
             const tracking = { id: memberId, name: name, divisi: divisi };
             months.forEach(m => {

@@ -1196,12 +1196,22 @@
             const anggaranLainnya = parseLpjMoney(p.belanja_lainnya);
             const breakdownSum = anggaranBahan + anggaranSewa + anggaranJasa + anggaranLainnya;
             const sheetTotal = parseLpjMoney(p.anggaran !== undefined && p.anggaran !== '' ? p.anggaran : p.estimasi_dana);
+
+            const realisasiBahan = parseLpjMoney(p.realisasi_bahan);
+            const realisasiSewa = parseLpjMoney(p.realisasi_sewa);
+            const realisasiJasa = parseLpjMoney(p.realisasi_jasa);
+            const realisasiLainnya = parseLpjMoney(p.realisasi_lainnya);
+
             return {
                 anggaranBahan,
                 anggaranSewa,
                 anggaranJasa,
                 anggaranLainnya,
-                totalAnggaran: breakdownSum > 0 ? breakdownSum : sheetTotal
+                totalAnggaran: breakdownSum > 0 ? breakdownSum : sheetTotal,
+                realisasiBahan,
+                realisasiSewa,
+                realisasiJasa,
+                realisasiLainnya
             };
         }
 
@@ -1353,29 +1363,58 @@
             let totalBahan = 0;
             let totalSewa = 0;
 
-            outTxs.forEach(t => {
-                const nom = Number(t.nominal) || 0;
-                const div = formatDivisiName(t.divisi);
-                if (isBelanjaSewa(t)) {
-                    if (!sewaDivMap[div]) sewaDivMap[div] = [];
-                    sewaDivMap[div].push(t);
-                    totalSewa += nom;
-                } else {
-                    if (!bahanDivMap[div]) bahanDivMap[div] = [];
-                    bahanDivMap[div].push(t);
-                    totalBahan += nom;
-                }
-            });
+            // Get realisasi breakdown from sheet if available
+            const anggaranBreakdown = getLpjAnggaranBreakdown(p);
+            const useSheetRealisasi = anggaranBreakdown.realisasiBahan > 0 ||
+                                    anggaranBreakdown.realisasiSewa > 0 ||
+                                    anggaranBreakdown.realisasiJasa > 0 ||
+                                    anggaranBreakdown.realisasiLainnya > 0;
 
-            // If no expense txs exist but p.pengeluaran is set
-            if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
-                totalBahan = Number(p.pengeluaran);
-                bahanDivMap["Divisi Umum / Operasional"] = [{
-                    uraian: p.nama_proker || "Pengeluaran Kegiatan",
-                    unit: "1 Kegiatan",
-                    harga_satuan: totalBahan,
-                    nominal: totalBahan
-                }];
+            if (useSheetRealisasi) {
+                // Use sheet realisasi values
+                totalBahan = anggaranBreakdown.realisasiBahan;
+                totalSewa = anggaranBreakdown.realisasiSewa;
+                const totalJasa = anggaranBreakdown.realisasiJasa;
+                const totalLainnya = anggaranBreakdown.realisasiLainnya;
+
+                // Still create div maps for detailed breakdown if txs exist
+                outTxs.forEach(t => {
+                    const nom = Number(t.nominal) || 0;
+                    const div = formatDivisiName(t.divisi);
+                    if (isBelanjaSewa(t)) {
+                        if (!sewaDivMap[div]) sewaDivMap[div] = [];
+                        sewaDivMap[div].push(t);
+                    } else {
+                        if (!bahanDivMap[div]) bahanDivMap[div] = [];
+                        bahanDivMap[div].push(t);
+                    }
+                });
+            } else {
+                // Use transaction-based calculation
+                outTxs.forEach(t => {
+                    const nom = Number(t.nominal) || 0;
+                    const div = formatDivisiName(t.divisi);
+                    if (isBelanjaSewa(t)) {
+                        if (!sewaDivMap[div]) sewaDivMap[div] = [];
+                        sewaDivMap[div].push(t);
+                        totalSewa += nom;
+                    } else {
+                        if (!bahanDivMap[div]) bahanDivMap[div] = [];
+                        bahanDivMap[div].push(t);
+                        totalBahan += nom;
+                    }
+                });
+
+                // If no expense txs exist but p.pengeluaran is set
+                if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
+                    totalBahan = Number(p.pengeluaran);
+                    bahanDivMap["Divisi Umum / Operasional"] = [{
+                        uraian: p.nama_proker || "Pengeluaran Kegiatan",
+                        unit: "1 Kegiatan",
+                        harga_satuan: totalBahan,
+                        nominal: totalBahan
+                    }];
+                }
             }
 
             const effPengeluaran = totalBahan + totalSewa;
@@ -1946,7 +1985,7 @@
                         realisasiJasa += nom;
                     } else {
                         realisasiLainnya += nom;
-                        const rawUraian = t.uraian && t.uraian.trim() !== '' && t.uraian.toUpperCase() !== 'NULL' 
+                        const rawUraian = t.uraian && t.uraian.trim() !== '' && t.uraian.toUpperCase() !== 'NULL'
                             ? t.uraian : (t.keterangan || t.catatan || 'Biaya');
                         subItemsLainnya.push({
                             name: cleanTitle(rawUraian),
@@ -1956,18 +1995,20 @@
                     }
                 });
 
-                let totalRealisasi = realisasiBahan + realisasiSewa + realisasiJasa + realisasiLainnya;
-                if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
-                    realisasiBahan = Number(p.pengeluaran);
-                    totalRealisasi = realisasiBahan;
-                }
-
                 const anggaran = getLpjAnggaranBreakdown(p);
                 const anggaranBahan = anggaran.anggaranBahan;
                 const anggaranSewa = anggaran.anggaranSewa;
                 const anggaranJasa = anggaran.anggaranJasa;
                 const anggaranLainnya = anggaran.anggaranLainnya;
                 const totalAnggaran = anggaran.totalAnggaran;
+
+                // Gunakan realisasi dari sheet jika ada, jika tidak gunakan perhitungan dari transaksi
+                const finalRealisasiBahan = anggaran.realisasiBahan > 0 ? anggaran.realisasiBahan : realisasiBahan;
+                const finalRealisasiSewa = anggaran.realisasiSewa > 0 ? anggaran.realisasiSewa : realisasiSewa;
+                const finalRealisasiJasa = anggaran.realisasiJasa > 0 ? anggaran.realisasiJasa : realisasiJasa;
+                const finalRealisasiLainnya = anggaran.realisasiLainnya > 0 ? anggaran.realisasiLainnya : realisasiLainnya;
+
+                let totalRealisasi = finalRealisasiBahan + finalRealisasiSewa + finalRealisasiJasa + finalRealisasiLainnya;
 
                 grandTotalAnggaran += totalAnggaran;
                 grandTotalRealisasi += totalRealisasi;
@@ -2012,29 +2053,29 @@
                             code: '1.1',
                             name: 'Belanja Bahan',
                             anggaran: anggaranBahan,
-                            realisasi: realisasiBahan,
-                            keterangan: getCategoryKet(anggaranBahan, realisasiBahan)
+                            realisasi: finalRealisasiBahan,
+                            keterangan: getCategoryKet(anggaranBahan, finalRealisasiBahan)
                         },
                         {
                             code: '1.2',
                             name: 'Belanja Sewa',
                             anggaran: anggaranSewa,
-                            realisasi: realisasiSewa,
-                            keterangan: getCategoryKet(anggaranSewa, realisasiSewa)
+                            realisasi: finalRealisasiSewa,
+                            keterangan: getCategoryKet(anggaranSewa, finalRealisasiSewa)
                         },
                         {
                             code: '1.3',
                             name: 'Belanja Jasa',
                             anggaran: anggaranJasa,
-                            realisasi: realisasiJasa,
-                            keterangan: getCategoryKet(anggaranJasa, realisasiJasa)
+                            realisasi: finalRealisasiJasa,
+                            keterangan: getCategoryKet(anggaranJasa, finalRealisasiJasa)
                         },
                         {
                             code: '1.4',
                             name: 'Biaya Lainnya',
                             anggaran: anggaranLainnya,
-                            realisasi: realisasiLainnya,
-                            keterangan: getCategoryKet(anggaranLainnya, realisasiLainnya),
+                            realisasi: finalRealisasiLainnya,
+                            keterangan: getCategoryKet(anggaranLainnya, finalRealisasiLainnya),
                             subItems: subItemsLainnya
                         }
                     ],
@@ -3258,16 +3299,32 @@
                                 <input type="text" id="swal-input-bahan" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.belanja_bahan)}" onkeyup="formatRibuanInstan(this)">
                             </div>
                             <div>
+                                <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Realisasi Belanja Bahan</label>
+                                <input type="text" id="swal-input-realisasi-bahan" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.realisasi_bahan)}" onkeyup="formatRibuanInstan(this)">
+                            </div>
+                            <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Anggaran Belanja Sewa</label>
                                 <input type="text" id="swal-input-sewa" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.belanja_sewa)}" onkeyup="formatRibuanInstan(this)">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Realisasi Belanja Sewa</label>
+                                <input type="text" id="swal-input-realisasi-sewa" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.realisasi_sewa)}" onkeyup="formatRibuanInstan(this)">
                             </div>
                             <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Anggaran Belanja Jasa</label>
                                 <input type="text" id="swal-input-jasa" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.belanja_jasa)}" onkeyup="formatRibuanInstan(this)">
                             </div>
                             <div>
+                                <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Realisasi Belanja Jasa</label>
+                                <input type="text" id="swal-input-realisasi-jasa" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.realisasi_jasa)}" onkeyup="formatRibuanInstan(this)">
+                            </div>
+                            <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Anggaran Belanja Lainnya</label>
                                 <input type="text" id="swal-input-lainnya" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.belanja_lainnya)}" onkeyup="formatRibuanInstan(this)">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Realisasi Belanja Lainnya</label>
+                                <input type="text" id="swal-input-realisasi-lainnya" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono" value="${fmtDana(proker.realisasi_lainnya)}" onkeyup="formatRibuanInstan(this)">
                             </div>
                         </div>
                         <div>
@@ -3291,9 +3348,13 @@
                     const newRAB = parseInt(document.getElementById('swal-input-dana').value.replace(/[^0-9]/g, '')) || 0;
                     const newKeterangan = document.getElementById('swal-input-keterangan').value;
                     const newBahan = parseInt((document.getElementById('swal-input-bahan')?.value || '').replace(/[^0-9]/g, '')) || 0;
+                    const newRealisasiBahan = parseInt((document.getElementById('swal-input-realisasi-bahan')?.value || '').replace(/[^0-9]/g, '')) || 0;
                     const newSewa = parseInt((document.getElementById('swal-input-sewa')?.value || '').replace(/[^0-9]/g, '')) || 0;
+                    const newRealisasiSewa = parseInt((document.getElementById('swal-input-realisasi-sewa')?.value || '').replace(/[^0-9]/g, '')) || 0;
                     const newJasa = parseInt((document.getElementById('swal-input-jasa')?.value || '').replace(/[^0-9]/g, '')) || 0;
+                    const newRealisasiJasa = parseInt((document.getElementById('swal-input-realisasi-jasa')?.value || '').replace(/[^0-9]/g, '')) || 0;
                     const newLainnya = parseInt((document.getElementById('swal-input-lainnya')?.value || '').replace(/[^0-9]/g, '')) || 0;
+                    const newRealisasiLainnya = parseInt((document.getElementById('swal-input-realisasi-lainnya')?.value || '').replace(/[^0-9]/g, '')) || 0;
 
                     if (!newNama) {
                         Swal.showValidationMessage('Nama kegiatan tidak boleh kosong!');
@@ -3312,6 +3373,10 @@
                         belanja_sewa: newSewa,
                         belanja_jasa: newJasa,
                         belanja_lainnya: newLainnya,
+                        realisasi_bahan: newRealisasiBahan,
+                        realisasi_sewa: newRealisasiSewa,
+                        realisasi_jasa: newRealisasiJasa,
+                        realisasi_lainnya: newRealisasiLainnya,
                         keterangan: newKeterangan
                     };
                 }
