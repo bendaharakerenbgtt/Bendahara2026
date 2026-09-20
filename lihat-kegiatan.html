@@ -1993,11 +1993,8 @@
                         renderProkers();
                         hideLoadingOverlay();
 
-                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
-                            console.log("Using fresh cache for Lihat-Kegiatan");
-                            return;
-                        }
-                        console.log("Using stale cache, fetching fresh data in background...");
+                        // If cache is loaded, we still fetch in background to ensure fresh data
+                        console.log("Rendered from cache, syncing latest data in background...");
                     }
                 } catch (e) {
                     console.error("Cache load error:", e);
@@ -3537,9 +3534,9 @@
             });
 
             const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
-            const effPemasukan = Number(proker.pemasukan !== undefined && Number(proker.pemasukan) > 0 ? proker.pemasukan : totalIn);
-            const effPengeluaran = Number(proker.pengeluaran !== undefined && Number(proker.pengeluaran) > 0 ? proker.pengeluaran : totalOut);
-            const effRealisasi = Number(proker.realisasi !== undefined && Number(proker.realisasi) > 0 ? proker.realisasi : effPengeluaran);
+            const effPemasukan = (totalIn > 0) ? totalIn : Number(proker.pemasukan || 0);
+            const effPengeluaran = (totalOut > 0) ? totalOut : Number(proker.pengeluaran || 0);
+            const effRealisasi = (effPengeluaran > 0) ? effPengeluaran : Number(proker.realisasi || 0);
             const effSaldo = effPemasukan - effPengeluaran;
             const ketuaNama = getMemberName(proker.id_anggota);
 

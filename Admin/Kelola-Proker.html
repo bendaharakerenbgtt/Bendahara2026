@@ -988,11 +988,8 @@
                         hideLoadingOverlay();
                         hasRenderedFromCache = true;
 
-                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
-                            console.log("Using fresh cache for Kelola-Proker");
-                            return;
-                        }
-                        console.log("Using stale cache, fetching fresh data in background...");
+                        // If cache is loaded, we still fetch in background to ensure fresh data
+                        console.log("Rendered from cache, syncing latest data in background...");
                     }
                 } catch (e) {
                     console.error("Cache load error:", e);
@@ -2668,9 +2665,9 @@
             });
 
             const effAnggaran = Number(p.anggaran !== undefined && p.anggaran !== "" && p.anggaran !== null ? p.anggaran : (p.estimasi_dana || 0));
-            const effPemasukan = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : totalIn);
-            const effPengeluaran = Number(p.pengeluaran !== undefined && Number(p.pengeluaran) > 0 ? p.pengeluaran : totalOut);
-            const effRealisasi = Number(p.realisasi !== undefined && Number(p.realisasi) > 0 ? p.realisasi : effPengeluaran);
+            const effPemasukan = (totalIn > 0) ? totalIn : Number(p.pemasukan || 0);
+            const effPengeluaran = (totalOut > 0) ? totalOut : Number(p.pengeluaran || 0);
+            const effRealisasi = (effPengeluaran > 0) ? effPengeluaran : Number(p.realisasi || 0);
             const effSaldo = effPemasukan - effPengeluaran;
             const ketuaNama = getMemberName(p.id_anggota);
 
