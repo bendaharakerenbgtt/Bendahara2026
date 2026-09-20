@@ -3074,6 +3074,7 @@
             const isSingle = !!options.prokerId;
             const hideEmpty = options.hideEmpty !== false;
             const includeCaption = !!options.includeCaption;
+            const forWord = !!options.forWord;
             const txSource = (typeof allTransactions !== 'undefined' && Array.isArray(allTransactions))
                 ? allTransactions
                 : ((typeof localTransactions !== 'undefined' && Array.isArray(localTransactions)) ? localTransactions : []);
@@ -3137,8 +3138,38 @@
                     <p style="font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; font-style: italic; color: #666666; margin: 2pt 0 10pt 16pt;">
                         (Tidak ada lampiran nota fisik kegiatan)
                     </p>`;
+                } else if (forWord) {
+                    // Format khusus Word: Bebas dari JavaScript onerror, bebas dari line-height 180px yang menyebabkan Word force-close!
+                    out += `<table class="nota-grid-table" border="0" cellspacing="6" cellpadding="0" style="width: 100%; border-collapse: collapse; margin: 0 0 10pt 0;">`;
+                    
+                    for (let i = 0; i < item.receipts.length; i += 4) {
+                        const chunk = item.receipts.slice(i, i + 4);
+                        out += `<tr style="page-break-inside: avoid; break-inside: avoid;">`;
+                        for (let c = 0; c < 4; c++) {
+                            if (c < chunk.length) {
+                                const r = chunk[c];
+                                const did = r.driveId;
+                                const imgUrl = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : r.displayUrl;
+                                out += `
+                                <td width="25%" align="center" valign="middle" style="width: 25%; text-align: center; vertical-align: middle; border: 1px solid #c8c8c8; background-color: #fafafa; padding: 6pt 4pt;">
+                                    <div style="text-align: center; margin: 0 auto;">
+                                        <img src="${imgUrl}" alt="Nota" width="135" style="width: 135pt; max-width: 135pt; height: auto; display: block; margin: 0 auto; text-align: center;" />
+                                    </div>
+                                    <div style="font-family: 'Times New Roman', Times, serif; font-size: 8pt; color: #333333; margin-top: 4pt; line-height: 1.25; text-align: center;">
+                                        ${includeCaption ? `${escapeHtmlLPJ(r.uraian)}<br><b>${formatRupiahLPJ(r.nominal)}</b><br>` : ''}
+                                        <a href="${escapeHtmlLPJ(r.url)}" target="_blank" style="color: #0066cc; font-size: 7.5pt; text-decoration: underline;">[Buka Foto Asli]</a>
+                                    </div>
+                                </td>`;
+                            } else {
+                                out += `<td width="25%" style="width: 25%; border: none; background: transparent; padding: 4pt;"></td>`;
+                            }
+                        }
+                        out += `</tr>`;
+                    }
+                    out += `</table>`;
                 } else {
-                    out += `<table class="nota-grid-table" style="width: 100%; border-collapse: separate !important; border-spacing: 7px !important; margin: 0 0 10pt 0; border: none !important;">`;
+                    // Format khusus Cetak / PDF di Browser
+                    out += `<table class="nota-grid-table" style="width: 100%; border-collapse: separate; border-spacing: 7px; margin: 0 0 10pt 0; border: none;">`;
                     
                     for (let i = 0; i < item.receipts.length; i += 4) {
                         const chunk = item.receipts.slice(i, i + 4);
@@ -3148,9 +3179,9 @@
                                 const r = chunk[c];
                                 const did = r.driveId;
                                 out += `
-                                <td style="width: 25%; vertical-align: middle; text-align: center; border: 1px solid #c8c8c8 !important; background-color: #fafafa !important; padding: 4px !important;">
+                                <td style="width: 25%; vertical-align: middle; text-align: center; border: 1px solid #c8c8c8; background-color: #fafafa; padding: 4px;">
                                     <div style="width: 100%; height: 180px; text-align: center; line-height: 180px;">
-                                        <img src="${r.displayUrl}" alt="Nota" style="max-width: 140px; max-height: 175px; width: auto; height: auto; vertical-align: middle; display: inline-block; object-fit: contain;" onerror="if(!this.dataset.fallback){this.dataset.fallback='1'; const d='${did||''}'; if(d) this.src='https://drive.google.com/thumbnail?id='+d+'&sz=w1000';}" />
+                                        <img src="${r.displayUrl}" alt="Nota" style="max-width: 140px; max-height: 175px; width: auto; height: auto; vertical-align: middle; display: inline-block; object-fit: contain;" onerror="if(!this.getAttribute('data-fb')){this.setAttribute('data-fb','1'); const d='${did||''}'; if(d) this.src='https://drive.google.com/thumbnail?id='+d+'&sz=w1000';}" />
                                     </div>
                                     ${includeCaption ? `
                                     <div style="font-family: 'Times New Roman', Times, serif; font-size: 8pt; color: #333333; margin-top: 4px; line-height: 1.2; text-align: center; word-break: break-word;">
@@ -3159,7 +3190,7 @@
                                     </div>` : ''}
                                 </td>`;
                             } else {
-                                out += `<td class="empty-cell" style="width: 25%; border: none !important; background: transparent !important; padding: 4px !important;"></td>`;
+                                out += `<td class="empty-cell" style="width: 25%; border: none; background: transparent; padding: 4px;"></td>`;
                             }
                         }
                         out += `</tr>`;
@@ -3175,6 +3206,7 @@
 
         function generateNotaReportHtml(options = {}) {
             const isSingle = !!options.prokerId;
+            const forWord = options.forWord !== false;
             const prokerSource = (typeof allProkers !== 'undefined' && Array.isArray(allProkers))
                 ? allProkers
                 : ((typeof localProkers !== 'undefined' && Array.isArray(localProkers)) ? localProkers : []);
@@ -3187,7 +3219,7 @@
                 }
             }
 
-            const bodyHtml = generateNotaBodyHtml(options);
+            const bodyHtml = generateNotaBodyHtml({ ...options, forWord: forWord });
 
             return `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -3244,11 +3276,9 @@
         }
         table.nota-grid-table {
             width: 100%;
-            border-collapse: separate !important;
-            border-spacing: 7px !important;
+            border-collapse: collapse;
             margin-top: 4pt;
             margin-bottom: 14pt;
-            border: none !important;
             mso-pagination: widow-orphan;
         }
         table.nota-grid-table tr {
@@ -3259,15 +3289,14 @@
             width: 25%;
             vertical-align: middle;
             text-align: center;
-            border: 1px solid #c8c8c8 !important;
-            background-color: #fafafa !important;
-            padding: 4px !important;
-            mso-line-height-rule: exactly;
+            border: 1px solid #c8c8c8;
+            background-color: #fafafa;
+            padding: 6pt 4pt;
         }
         table.nota-grid-table td.empty-cell {
-            border: none !important;
-            background: transparent !important;
-            padding: 4px !important;
+            border: none;
+            background: transparent;
+            padding: 4pt;
         }
         .proker-section {
             page-break-inside: avoid;
@@ -3415,7 +3444,7 @@
             const prokerSource = (typeof allProkers !== 'undefined' && Array.isArray(allProkers)) ? allProkers : (typeof localProkers !== 'undefined' ? localProkers : []);
             const p = prokerSource.find(item => item.id.toString() === prokerId.toString());
             const name = p ? (p.nama_kegiatan || p.nama_proker) : 'Kegiatan';
-            const html = generateNotaReportHtml({ prokerId: prokerId, hideEmpty: false });
+            const html = generateNotaReportHtml({ prokerId: prokerId, hideEmpty: false, forWord: false });
             printNotaDirectly(html, `Lampiran_Nota_${sanitizeFilename(name)}`);
         }
 
@@ -3433,7 +3462,7 @@
             const prokerSource = (typeof allProkers !== 'undefined' && Array.isArray(allProkers)) ? allProkers : (typeof localProkers !== 'undefined' ? localProkers : []);
             const p = prokerSource.find(item => item.id.toString() === prokerId.toString());
             const name = p ? (p.nama_kegiatan || p.nama_proker) : 'Kegiatan';
-            const htmlContent = generateNotaReportHtml({ prokerId: prokerId, hideEmpty: false });
+            const htmlContent = generateNotaReportHtml({ prokerId: prokerId, hideEmpty: false, forWord: true });
 
             const blob = new Blob(['\ufeff', htmlContent], {
                 type: 'application/msword;charset=utf-8'
@@ -3465,12 +3494,12 @@
         }
 
         function printMasterNotaReport(options = {}) {
-            const html = generateNotaReportHtml(options);
+            const html = generateNotaReportHtml({ ...options, forWord: false });
             printNotaDirectly(html, 'Lampiran_Nota_Transaksi_Kegiatan_Seluruh_Proker');
         }
 
         function exportMasterNotaToWord(options = {}) {
-            const htmlContent = generateNotaReportHtml(options);
+            const htmlContent = generateNotaReportHtml({ ...options, forWord: true });
             const blob = new Blob(['\ufeff', htmlContent], {
                 type: 'application/msword;charset=utf-8'
             });
