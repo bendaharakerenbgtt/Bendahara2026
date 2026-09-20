@@ -2,12 +2,16 @@
 <html lang="id">
 <head>
     <script>
-        if (localStorage.getItem('theme') !== 'dark') {
+        try {
+            if (localStorage.getItem('theme') !== 'dark') {
+                document.documentElement.classList.add('light-mode');
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.documentElement.classList.add('dark');
+            }
+        } catch (e) {
             document.documentElement.classList.add('light-mode');
-            document.documentElement.classList.remove('dark');
-        } else {
-            document.documentElement.classList.remove('light-mode');
-            document.documentElement.classList.add('dark');
         }
     </script>
     <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
@@ -216,8 +220,15 @@
             opacity: 0.18;
         }
 
-        /* MOBILE RESPONSIVE FIX FOR CABINET DECOR & GARIS.PNG (PREVENTS LOGO/TEXT OVERLAP) */
+        /* MOBILE RESPONSIVE FIX & PERFORMANCE OPTIMIZATIONS */
         @media (max-width: 768px) {
+            body::before {
+                animation: none !important;
+                filter: blur(25px) !important;
+            }
+            #particle-canvas {
+                display: none !important;
+            }
             .cabinet-decor {
                 opacity: 0.15 !important;
                 max-width: 110px !important;
@@ -1333,10 +1344,11 @@
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid rgba(255, 115, 0, 0.25);
             box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(255, 115, 0, 0.1);
-            z-index: 40;
+            z-index: 1000;
             padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
             align-items: center;
             justify-content: space-around;
+            touch-action: manipulation;
         }
 
         html.light-mode .mobile-bottom-nav {
@@ -1361,6 +1373,11 @@
             background: transparent;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            touch-action: manipulation;
+        }
+
+        .bottom-nav-item * {
+            pointer-events: none;
         }
 
         .bottom-nav-item:active {
@@ -1737,16 +1754,43 @@
     </nav>
 
     <script>
-        let activePublicProkerTab = sessionStorage.getItem('activePublicProkerTab') || 'Program Kerja';
+        // Resilient storage fallbacks for Flutter WebView / Sandbox environments
+        const safeStorage = {
+            _mem: {},
+            getItem(key) {
+                try { return sessionStorage.getItem(key); } catch (e) { return this._mem[key] || null; }
+            },
+            setItem(key, val) {
+                try { sessionStorage.setItem(key, val); } catch (e) { this._mem[key] = String(val); }
+            },
+            removeItem(key) {
+                try { sessionStorage.removeItem(key); } catch (e) { delete this._mem[key]; }
+            }
+        };
+
+        const safeLocalStorage = {
+            _mem: {},
+            getItem(key) {
+                try { return localStorage.getItem(key); } catch (e) { return this._mem[key] || null; }
+            },
+            setItem(key, val) {
+                try { localStorage.setItem(key, val); } catch (e) { this._mem[key] = String(val); }
+            },
+            removeItem(key) {
+                try { localStorage.removeItem(key); } catch (e) { delete this._mem[key]; }
+            }
+        };
+
+        let activePublicProkerTab = safeStorage.getItem('activePublicProkerTab') || 'Program Kerja';
         if (activePublicProkerTab === 'running' || activePublicProkerTab === 'selesai') activePublicProkerTab = 'Program Kerja';
-        let activePublicStatusFilter = sessionStorage.getItem('activePublicStatusFilter') || 'all';
+        let activePublicStatusFilter = safeStorage.getItem('activePublicStatusFilter') || 'all';
 
         function switchProkerTab(target) {
             if (target !== 'Program Kerja' && target !== 'Agenda Kerja') {
                 target = 'Program Kerja';
             }
             activePublicProkerTab = target;
-            sessionStorage.setItem('activePublicProkerTab', target);
+            safeStorage.setItem('activePublicProkerTab', target);
 
             const btnProker = document.getElementById('tab-btn-proker');
             const btnAgenda = document.getElementById('tab-btn-agenda');
@@ -1765,7 +1809,7 @@
 
         function setStatusFilter(filter) {
             activePublicStatusFilter = filter;
-            sessionStorage.setItem('activePublicStatusFilter', filter);
+            safeStorage.setItem('activePublicStatusFilter', filter);
             updateStatusFilterButtons();
             renderProkers();
         }
@@ -1786,15 +1830,27 @@
         function toggleProkerAccordion(id) {
             const content = document.getElementById(`p-content-${id}`); 
             const arrow = document.getElementById(`p-arrow-${id}`);
+            if (!content) return;
             const isLight = document.documentElement.classList.contains('light-mode');
-            if(content.classList.contains('hidden')) { 
+            if (content.classList.contains('hidden')) { 
+                if (content.getAttribute('data-rendered') !== 'true') {
+                    const p = allProkers.find(item => item.id.toString() === id.toString());
+                    if (p) {
+                        content.innerHTML = renderProkerDetailHtml(p);
+                        content.setAttribute('data-rendered', 'true');
+                    }
+                }
                 content.classList.remove('hidden'); 
-                arrow.style.transform = 'rotate(180deg)'; 
-                arrow.style.color = isLight ? '#EA580C' : '#FF7300';
+                if (arrow) {
+                    arrow.style.transform = 'rotate(180deg)'; 
+                    arrow.style.color = isLight ? '#EA580C' : '#FF7300';
+                }
             } else { 
                 content.classList.add('hidden'); 
-                arrow.style.transform = 'rotate(0deg)'; 
-                arrow.style.color = isLight ? '#94A3B8' : '#64748B'; 
+                if (arrow) {
+                    arrow.style.transform = 'rotate(0deg)'; 
+                    arrow.style.color = isLight ? '#94A3B8' : '#64748B'; 
+                }
             }
         }
  
@@ -1976,15 +2032,18 @@
 
             const CACHE_KEY = "ldk_db_cache";
             const CACHE_TIME_KEY = "ldk_db_cache_time";
-            const CACHE_TTL = 15000; // 15 seconds cache
+            const CACHE_TTL = 90000; // 90 seconds fresh cache
 
             if (forceRefresh) {
-                sessionStorage.removeItem(CACHE_KEY);
-                sessionStorage.removeItem(CACHE_TIME_KEY);
+                safeStorage.removeItem(CACHE_KEY);
+                safeStorage.removeItem(CACHE_TIME_KEY);
             }
 
-            const cachedData = sessionStorage.getItem(CACHE_KEY);
-            const cachedTime = sessionStorage.getItem(CACHE_TIME_KEY);
+            // Safety insurance: never freeze user interface
+            setTimeout(hideLoadingOverlay, 4000);
+
+            const cachedData = safeStorage.getItem(CACHE_KEY);
+            const cachedTime = safeStorage.getItem(CACHE_TIME_KEY);
             const now = Date.now();
 
             if (cachedData && cachedTime) {
@@ -1997,8 +2056,9 @@
                         renderProkers();
                         hideLoadingOverlay();
 
-                        // If cache is loaded, we still fetch in background to ensure fresh data
-                        console.log("Rendered from cache, syncing latest data in background...");
+                        if (now - Number(cachedTime) < CACHE_TTL && !forceRefresh) {
+                            return; // Data still fresh within TTL, avoid heavy network fetch!
+                        }
                     }
                 } catch (e) {
                     console.error("Cache load error:", e);
@@ -2009,8 +2069,8 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "success") {
-                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                        sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
+                        safeStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                        safeStorage.setItem(CACHE_TIME_KEY, now.toString());
 
                         pengurusList = data.anggota || [];
                         allProkers = data.proker || [];
@@ -4401,7 +4461,7 @@
         window.exportMasterLpjToWord = exportMasterLpjToWord;
         window.printMasterLpj = printMasterLpj;
 
-        function buildProkerCardPublicHtml(proker, isCompleted) {
+        function renderProkerDetailHtml(proker) {
             const prokerTx = allTransactions.filter(t => {
                 return (t.proker_id && t.proker_id.toString() === proker.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === proker.id.toString());
             });
@@ -4788,6 +4848,69 @@
                 `;
             }
 
+            return `
+                <div class="flex items-center justify-between gap-1 sm:gap-2 pb-1.5 border-b border-rose-500/20">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
+                        <h4 class="font-mono text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider">RINCIAN PENGELUARAN</h4>
+                        <span class="text-[8.5px] sm:text-[9px] font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 px-2 py-0.5 rounded-full shrink-0">${outTxs.length} item</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="font-mono text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400 whitespace-nowrap">-Rp ${totalOut.toLocaleString('id-ID')}</span>
+                        <button type="button" onclick="bukaModalExportProker('${proker.id}'); event.stopPropagation();" class="text-[8.5px] sm:text-[9px] font-mono font-bold bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-orange-600 dark:text-orange-400 border border-neutral-200 dark:border-neutral-800 hover:border-orange-500/40 px-2 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs" title="Export Laporan Keuangan LPJ">
+                            <svg class="w-3 h-3 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>Export LPJ</span>
+                        </button>
+                    </div>
+                </div>
+
+                ${pengeluaranSectionHtml}
+                ${pemasukanSectionHtml}
+
+                <!-- REKAPITULASI SUMMARY -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-200/80 dark:border-neutral-800 pt-3">
+                    <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
+                        <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
+                        <span class="proker-item-title font-bold text-[11px]">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
+                        <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PEMASUKAN</span>
+                        <span class="text-emerald-700 dark:text-emerald-400 font-bold text-[11px]">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
+                        <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PENGELUARAN</span>
+                        <span class="text-rose-600 dark:text-rose-400 font-bold text-[11px]">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="p-2.5 ${effSaldo >= 0 ? 'rekap-box-saldo-positive' : 'rekap-box-saldo-negative'} rounded-xl flex flex-col gap-0.5">
+                        <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">SISA SALDO</span>
+                        <span class="font-black text-[11px] ${effSaldo >= 0 ? 'text-[#C2410C] dark:text-[#FF7300]' : 'text-rose-600 dark:text-rose-400'}">${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function buildProkerCardPublicHtml(proker, isCompleted) {
+            let totalIn = 0;
+            let totalOut = 0;
+            const pIdStr = proker.id ? proker.id.toString() : '';
+            for (let i = 0; i < allTransactions.length; i++) {
+                const t = allTransactions[i];
+                if ((t.proker_id && t.proker_id.toString() === pIdStr) || (t.id_kegiatan && t.id_kegiatan.toString() === pIdStr)) {
+                    const nom = Number(t.nominal) || 0;
+                    const j = (t.jenis || '').trim().toLowerCase();
+                    if (j === 'masuk') totalIn += nom;
+                    else totalOut += nom;
+                }
+            }
+
+            const effAnggaran = Number(proker.anggaran !== undefined && proker.anggaran !== "" && proker.anggaran !== null ? proker.anggaran : (proker.estimasi_dana || 0));
+            const effPemasukan = (totalIn > 0) ? totalIn : Number(proker.pemasukan || 0);
+            const effPengeluaran = (totalOut > 0) ? totalOut : Number(proker.pengeluaran || 0);
+            const effSaldo = effPemasukan - effPengeluaran;
+            const ketuaNama = getMemberName(proker.id_anggota);
+
             // Action Buttons for Public
             let actionsHtml = `
                 <button type="button" onclick="bukaModalExportProker('${proker.id}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-orange-500/40 text-orange-500 dark:text-orange-400 font-mono text-[8.5px] sm:text-[9.5px] font-bold px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs" title="Export Laporan Keuangan LPJ (Word / CSV)">
@@ -4869,46 +4992,10 @@
                         </div>
                     </div>
 
-                    <!-- RINCIAN SETELAH DIPENCET (DETAIL TABULAR FORMAT LAPORAN KEUANGAN) -->
-                    <div id="p-content-${proker.id}" class="hidden p-3.5 sm:p-4 proker-detail-panel flex flex-col gap-3.5">
-                        <div class="flex items-center justify-between gap-1 sm:gap-2 pb-1.5 border-b border-rose-500/20">
-                            <div class="flex items-center gap-1.5 min-w-0">
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span>
-                                <h4 class="font-mono text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider">RINCIAN PENGELUARAN</h4>
-                                <span class="text-[8.5px] sm:text-[9px] font-mono font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 px-2 py-0.5 rounded-full shrink-0">${outTxs.length} item</span>
-                            </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <span class="font-mono text-xs sm:text-sm font-extrabold text-rose-600 dark:text-rose-400 whitespace-nowrap">-Rp ${totalOut.toLocaleString('id-ID')}</span>
-                                <button type="button" onclick="bukaModalExportProker('${proker.id}'); event.stopPropagation();" class="text-[8.5px] sm:text-[9px] font-mono font-bold bg-white dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-orange-600 dark:text-orange-400 border border-neutral-200 dark:border-neutral-800 hover:border-orange-500/40 px-2 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs" title="Export Laporan Keuangan LPJ">
-                                    <svg class="w-3 h-3 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <span>Export LPJ</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        ${pengeluaranSectionHtml}
-                        ${pemasukanSectionHtml}
-
-                        <!-- REKAPITULASI SUMMARY -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px] text-center mt-1 border-t border-neutral-200/80 dark:border-neutral-800 pt-3">
-                            <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">ANGGARAN</span>
-                                <span class="proker-item-title font-bold text-[11px]">Rp ${effAnggaran.toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PEMASUKAN</span>
-                                <span class="text-emerald-700 dark:text-emerald-400 font-bold text-[11px]">+Rp ${effPemasukan.toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="p-2.5 rekap-box rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">TOTAL PENGELUARAN</span>
-                                <span class="text-rose-600 dark:text-rose-400 font-bold text-[11px]">-Rp ${effPengeluaran.toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="p-2.5 ${effSaldo >= 0 ? 'rekap-box-saldo-positive' : 'rekap-box-saldo-negative'} rounded-xl flex flex-col gap-0.5">
-                                <span class="text-neutral-500 dark:text-neutral-400 text-[8px] font-sans font-bold uppercase tracking-wider">SISA SALDO</span>
-                                <span class="font-black text-[11px] ${effSaldo >= 0 ? 'text-[#C2410C] dark:text-[#FF7300]' : 'text-rose-600 dark:text-rose-400'}">${effSaldo >= 0 ? '+' : '-'}Rp ${Math.abs(effSaldo).toLocaleString('id-ID')}</span>
-                            </div>
+                    <!-- RINCIAN SETELAH DIPENCET (LAZY RENDERED) -->
+                    <div id="p-content-${proker.id}" data-rendered="false" class="hidden p-3.5 sm:p-4 proker-detail-panel flex flex-col gap-3.5">
+                        <div class="py-4 text-center text-xs text-neutral-400 font-mono">
+                            <span class="inline-block w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin align-middle mr-2"></span> Memuat rincian transaksi...
                         </div>
                     </div>
                 </div>
@@ -5403,7 +5490,7 @@
         }
 
         function setupKegiatanPage() {
-            let savedTab = sessionStorage.getItem('activePublicProkerTab') || 'Program Kerja';
+            let savedTab = safeStorage.getItem('activePublicProkerTab') || 'Program Kerja';
             if (savedTab === 'running' || savedTab === 'selesai') savedTab = 'Program Kerja';
             switchProkerTab(savedTab);
             fetchInitialData();
@@ -5546,13 +5633,18 @@
 
         function toggleTheme(e) {
             const event = e || window.event;
-            const currentTheme = localStorage.getItem('theme') || 'light';
+            const currentTheme = safeLocalStorage.getItem('theme') || 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
+            safeLocalStorage.setItem('theme', newTheme);
             triggerThemeAnimation(newTheme, event);
         }
 
         function initBackgroundParticles() {
+            if (window.innerWidth < 768) {
+                const canvas = document.getElementById('particle-canvas');
+                if (canvas) canvas.style.display = 'none';
+                return; // Disable on mobile to eliminate continuous CPU/GPU load
+            }
             const canvas = document.getElementById('particle-canvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
@@ -5560,11 +5652,16 @@
             let height = canvas.height = window.innerHeight;
 
             window.addEventListener('resize', () => {
+                if (window.innerWidth < 768) {
+                    canvas.style.display = 'none';
+                    return;
+                }
+                canvas.style.display = 'block';
                 width = canvas.width = window.innerWidth;
                 height = canvas.height = window.innerHeight;
             });
 
-            const count = Math.min(Math.floor(width / 20), 55);
+            const count = Math.min(Math.floor(width / 25), 45);
             const stars = [];
 
             // Realistic Cosmic Space Palettes (White, Pulsar Cyan, Nebula Lavender, Solar Gold)
@@ -5614,6 +5711,10 @@
 
             let time = 0;
             function render() {
+                if (document.hidden || window.innerWidth < 768) {
+                    requestAnimationFrame(render);
+                    return;
+                }
                 ctx.clearRect(0, 0, width, height);
                 time += 1;
                 const isLight = document.documentElement.classList.contains('light-mode');
@@ -5708,7 +5809,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedTheme = safeLocalStorage.getItem('theme') || 'light';
             applyTheme(savedTheme);
             initBackgroundParticles();
         });
