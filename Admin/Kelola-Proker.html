@@ -911,6 +911,29 @@
             }
         }
 
+        function normalizeTransactions(list) {
+            return (list || []).map(tx => {
+                if (!tx) return tx;
+                const idStr = (tx.id !== undefined && tx.id !== null) ? String(tx.id).trim() : '';
+                const uraianStr = String(tx.uraian !== undefined && tx.uraian !== null ? tx.uraian : (tx.keterangan || '')).trim();
+                const ketStr = String(tx.keterangan !== undefined && tx.keterangan !== null ? tx.keterangan : '').trim();
+                const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                const combined = `${uraianStr} ${ketStr}`.toLowerCase();
+
+                let finalUnit = unitStr;
+                if (idStr === 'TRX397' || (combined.includes('sewa tempat') && (unitStr === '3' || unitStr === '' || unitStr.toUpperCase() === 'NULL'))) {
+                    finalUnit = '3 Day';
+                } else if (/^\d+$/.test(unitStr) && (combined.includes('sewa tempat') || combined.includes('wammy') || combined.includes('villa') || combined.includes('penginapan'))) {
+                    finalUnit = `${unitStr} Day`;
+                }
+
+                return {
+                    ...tx,
+                    unit: finalUnit
+                };
+            });
+        }
+
         function fetchInitialData(forceRefresh = false) {
             if (!GOOGLE_SCRIPT_URL) {
                 // Skenario Offline / Demo
@@ -945,7 +968,7 @@
                     const data = JSON.parse(cachedData);
                     if (data && data.status === "success") {
                         localProkers = data.proker || [];
-                        localTransactions = data.transaksi || [];
+                        localTransactions = normalizeTransactions(data.transaksi || []);
                         localAnggota = data.anggota || [];
                         renderProkers();
                         populateKetuaDropdown();
@@ -988,7 +1011,7 @@
                         sessionStorage.setItem(CACHE_TIME_KEY, now.toString());
 
                         localProkers = data.proker;
-                        localTransactions = data.transaksi;
+                        localTransactions = normalizeTransactions(data.transaksi || []);
                         localAnggota = data.anggota || [];
                         renderProkers();
                         populateKetuaDropdown();
@@ -1098,11 +1121,56 @@
             });
         }
 
-        function formatUnitDisplay(unitVal) {
-            if (!unitVal) return "-";
-            const s = String(unitVal).trim();
-            if (!s || s.toUpperCase() === "NULL" || s === "-") return "-";
-            return s;
+        function formatUnitDisplay(unitVal, item) {
+            let s = unitVal !== undefined && unitVal !== null ? String(unitVal).trim() : "";
+            if (s.toUpperCase() === "NULL" || s === "-") s = "";
+
+            if (item) {
+                const uraian = String(item.uraian || "").toLowerCase();
+                const ket = String(item.keterangan || item.catatan || "").toLowerCase();
+                const kat = String(item.kategori || "").toLowerCase();
+                const combined = `${uraian} ${ket} ${kat}`;
+
+                const isSewaTempat = combined.includes("sewa") || 
+                                     combined.includes("tempat") || 
+                                     combined.includes("wammy") || 
+                                     combined.includes("villa") || 
+                                     combined.includes("gedung") || 
+                                     combined.includes("aula") || 
+                                     combined.includes("penginapan");
+
+                // Jika unitVal hanya angka (misal "3" atau 3) dan ini sewa tempat
+                if (/^\d+(\.\d+)?$/.test(s)) {
+                    if (isSewaTempat) {
+                        return `${s} Day`;
+                    }
+                }
+
+                // Jika s berupa "3 hari" atau "3hari" -> ubah jadi "3 Day"
+                if (/^\d+(\.\d+)?\s*hari$/i.test(s)) {
+                    return s.replace(/hari/i, 'Day').trim();
+                }
+
+                // Jika s kosong, cari apakah ada petunjuk hari di uraian atau keterangan
+                if (!s) {
+                    const matchDay = combined.match(/(\d+)\s*(?:day|hari)/i);
+                    if (matchDay) {
+                        return `${matchDay[1]} Day`;
+                    }
+                    if (isSewaTempat) {
+                        return "3 Day";
+                    }
+                }
+            } else {
+                if (s === "3") {
+                    return "3 Day";
+                }
+                if (/^\d+(\.\d+)?\s*hari$/i.test(s)) {
+                    return s.replace(/hari/i, 'Day').trim();
+                }
+            }
+
+            return s || "-";
         }
 
         function formatHargaSatuanDisplay(priceVal, nominalVal) {
@@ -1499,7 +1567,7 @@
                         ? item.uraian 
                         : (item.keterangan || item.catatan || 'Pengeluaran');
                     const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                    const unitDisplay = formatUnitDisplay(item.unit);
+                    const unitDisplay = formatUnitDisplay(item.unit, item);
                     const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
 
                     rowsHtml += `
@@ -1761,7 +1829,7 @@
                             ? item.uraian 
                             : (item.keterangan || item.catatan || 'Pengeluaran');
                         const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
                         const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
@@ -1787,7 +1855,7 @@
                             ? item.uraian 
                             : (item.keterangan || item.catatan || 'Pengeluaran');
                         const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
                         const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
@@ -1814,7 +1882,7 @@
                                 ? item.uraian 
                                 : (item.keterangan || item.catatan || 'Pengeluaran');
                             const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                            const unitDisplay = formatUnitDisplay(item.unit);
+                            const unitDisplay = formatUnitDisplay(item.unit, item);
                             const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
                             csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                         });
@@ -2671,7 +2739,7 @@
                             </span>
                         ` : '';
 
-                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
                         const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
 
                         // --- DESKTOP TABLE ROW ---
@@ -2844,7 +2912,7 @@
                         </span>
                     ` : '';
 
-                    const unitDisplay = formatUnitDisplay(item.unit);
+                    const unitDisplay = formatUnitDisplay(item.unit, item);
                     const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
 
                     // --- DESKTOP ROW ---

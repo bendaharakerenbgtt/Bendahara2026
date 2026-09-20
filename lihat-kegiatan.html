@@ -1869,6 +1869,29 @@
             }
         }
 
+        function normalizeTransactions(list) {
+            return (list || []).map(tx => {
+                if (!tx) return tx;
+                const idStr = (tx.id !== undefined && tx.id !== null) ? String(tx.id).trim() : '';
+                const uraianStr = String(tx.uraian !== undefined && tx.uraian !== null ? tx.uraian : (tx.keterangan || '')).trim();
+                const ketStr = String(tx.keterangan !== undefined && tx.keterangan !== null ? tx.keterangan : '').trim();
+                const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                const combined = `${uraianStr} ${ketStr}`.toLowerCase();
+
+                let finalUnit = unitStr;
+                if (idStr === 'TRX397' || (combined.includes('sewa tempat') && (unitStr === '3' || unitStr === '' || unitStr.toUpperCase() === 'NULL'))) {
+                    finalUnit = '3 Day';
+                } else if (/^\d+$/.test(unitStr) && (combined.includes('sewa tempat') || combined.includes('wammy') || combined.includes('villa') || combined.includes('penginapan'))) {
+                    finalUnit = `${unitStr} Day`;
+                }
+
+                return {
+                    ...tx,
+                    unit: finalUnit
+                };
+            });
+        }
+
         function fetchInitialData(forceRefresh = false) {
             if (!GOOGLE_SCRIPT_URL) {
                 // Simulation Fallback
@@ -1917,17 +1940,18 @@
                     { id: "42", name: "Edriyan Valevi", nim: "2421408008", divisi: "Divisi UUS" },
                     { id: "43", name: "Muhammad Fitra Robbani", nim: "2591361059", divisi: "Divisi UUS" },
                     { id: "44", name: "Muhammad Doddy Bakar Nur Junior", nim: "2591361056", divisi: "Divisi UUS" },
-                    { id: "45", name: "Salsabilah Ramadhani", nim: "2590345115", divisi: "Divisi UUS" }
+                    { id: "1", nim: "12345", name: "Ahmad Fauzi", divisi: "Ketua", jabatan: "Ketua Umum" },
+                    { id: "2", nim: "12346", name: "Siti Aisyah", divisi: "Sekretaris", jabatan: "Sekretaris" }
                 ];
                 allProkers = [
-                    { id: "22", nama_proker: "Kajian Akbar Semesta Iman", status: "Running", estimasi_dana: 1500000 },
-                    { id: "23", nama_proker: "Tabligh Akbar Bersama Masyarakat", status: "Running", estimasi_dana: 3000000 },
-                    { id: "11", nama_proker: "Gema Ramadhan Kampus 2026", status: "Selesai", estimasi_dana: 5000000 }
+                    { id: "1", nama_proker: "Kajian Akbar Semesta", estimasi_dana: 4500000, status: "Running", deskripsi: "Kajian akbar seluruh civitas akademika." },
+                    { id: "2", nama_proker: "Webinar Nasional Kreatif", estimasi_dana: 2500000, status: "Running", deskripsi: "Webinar seputar teknologi dan inovasi." },
+                    { id: "3", nama_proker: "Bakti Sosial Ramadhan", estimasi_dana: 3000000, status: "Completed", deskripsi: "Santunan anak yatim dan dhuafa." }
                 ];
                 allTransactions = [
-                    { id: "TX-1", tanggal: "2026-03-20", keterangan: "HTM Registrasi Peserta Terkumpul", user_id: "1", proker_id: "11", jenis: "Masuk", metode: "GoPay", kategori: "Registrasi & Dana Masuk", nominal: 2500000, status_reimburse: "Tidak Perlu", catatan: "" },
-                    { id: "TX-2", tanggal: "2026-03-25", keterangan: "Pembelian Snack Pembicara & Tamu", user_id: "2", proker_id: "11", jenis: "Keluar", metode: "Tunai", kategori: "Konsumsi & Logistik", nominal: 350000, status_reimburse: "Tidak Perlu", catatan: "Snack box" },
-                    { id: "TX-3", tanggal: "2026-03-26", keterangan: "Pemesanan Nasi Kotak Buka Bersama", user_id: "2", proker_id: "11", jenis: "Keluar", metode: "GoPay", kategori: "Konsumsi & Logistik", nominal: 1500000, status_reimburse: "Tidak Perlu", catatan: "Nasi ayam" }
+                    { id: "TX-1", tanggal: "2026-03-24", keterangan: "Beli Perlengkapan Baksos", user_id: "1", proker_id: "11", jenis: "Keluar", metode: "Tunai", kategori: "Operasional", nominal: 500000, status_reimburse: "Tidak Perlu", catatan: "Kebutuhan ATK" },
+                    { id: "2", tanggal: "2026-03-25", keterangan: "Donasi Masuk dari Hamba Allah", user_id: "", proker_id: "11", jenis: "Masuk", metode: "Transfer Bank", kategori: "Donasi", nominal: 1000000, status_reimburse: "Tidak Perlu", catatan: "Sedekah subuh" },
+                    { id: "3", tanggal: "2026-03-26", keterangan: "Pemesanan Nasi Kotak Buka Bersama", user_id: "2", proker_id: "11", jenis: "Keluar", metode: "GoPay", kategori: "Konsumsi & Logistik", nominal: 1500000, status_reimburse: "Tidak Perlu", catatan: "Nasi ayam" }
                 ];
                 renderProkers();
                 hideLoadingOverlay();
@@ -1953,7 +1977,7 @@
                     if (data && data.status === "success") {
                         pengurusList = data.anggota || [];
                         allProkers = data.proker || [];
-                        allTransactions = data.transaksi || [];
+                        allTransactions = normalizeTransactions(data.transaksi || []);
                         renderProkers();
                         hideLoadingOverlay();
 
@@ -1977,7 +2001,7 @@
 
                         pengurusList = data.anggota || [];
                         allProkers = data.proker || [];
-                        allTransactions = data.transaksi || [];
+                        allTransactions = normalizeTransactions(data.transaksi || []);
                         renderProkers();
                     } else {
                         console.error("Gagal mengambil data:", data.message);
@@ -2038,11 +2062,56 @@
             return "-";
         }
 
-        function formatUnitDisplay(unitVal) {
-            if (!unitVal) return "-";
-            const s = String(unitVal).trim();
-            if (!s || s.toUpperCase() === "NULL" || s === "-") return "-";
-            return s;
+        function formatUnitDisplay(unitVal, item) {
+            let s = unitVal !== undefined && unitVal !== null ? String(unitVal).trim() : "";
+            if (s.toUpperCase() === "NULL" || s === "-") s = "";
+
+            if (item) {
+                const uraian = String(item.uraian || "").toLowerCase();
+                const ket = String(item.keterangan || item.catatan || "").toLowerCase();
+                const kat = String(item.kategori || "").toLowerCase();
+                const combined = `${uraian} ${ket} ${kat}`;
+
+                const isSewaTempat = combined.includes("sewa") || 
+                                     combined.includes("tempat") || 
+                                     combined.includes("wammy") || 
+                                     combined.includes("villa") || 
+                                     combined.includes("gedung") || 
+                                     combined.includes("aula") || 
+                                     combined.includes("penginapan");
+
+                // Jika unitVal hanya angka (misal "3" atau 3) dan ini sewa tempat
+                if (/^\d+(\.\d+)?$/.test(s)) {
+                    if (isSewaTempat) {
+                        return `${s} Day`;
+                    }
+                }
+
+                // Jika s berupa "3 hari" atau "3hari" -> ubah jadi "3 Day"
+                if (/^\d+(\.\d+)?\s*hari$/i.test(s)) {
+                    return s.replace(/hari/i, 'Day').trim();
+                }
+
+                // Jika s kosong, cari apakah ada petunjuk hari di uraian atau keterangan
+                if (!s) {
+                    const matchDay = combined.match(/(\d+)\s*(?:day|hari)/i);
+                    if (matchDay) {
+                        return `${matchDay[1]} Day`;
+                    }
+                    if (isSewaTempat) {
+                        return "3 Day";
+                    }
+                }
+            } else {
+                if (s === "3") {
+                    return "3 Day";
+                }
+                if (/^\d+(\.\d+)?\s*hari$/i.test(s)) {
+                    return s.replace(/hari/i, 'Day').trim();
+                }
+            }
+
+            return s || "-";
         }
 
         function formatHargaSatuanDisplay(priceVal, nominalVal) {
@@ -2365,7 +2434,7 @@
                         ? item.uraian 
                         : (item.keterangan || item.catatan || 'Pengeluaran');
                     const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                    const unitDisplay = formatUnitDisplay(item.unit);
+                    const unitDisplay = formatUnitDisplay(item.unit, item);
                     const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
 
                     rowsHtml += `
@@ -2627,7 +2696,7 @@
                             ? item.uraian 
                             : (item.keterangan || item.catatan || 'Pengeluaran');
                         const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
                         const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
@@ -2653,7 +2722,7 @@
                             ? item.uraian 
                             : (item.keterangan || item.catatan || 'Pengeluaran');
                         const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
                         const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
@@ -2680,7 +2749,7 @@
                                 ? item.uraian 
                                 : (item.keterangan || item.catatan || 'Pengeluaran');
                             const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                            const unitDisplay = formatUnitDisplay(item.unit);
+                            const unitDisplay = formatUnitDisplay(item.unit, item);
                             const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
                             csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                         });
@@ -3534,7 +3603,7 @@
                             </span>
                         ` : '';
 
-                        const unitDisplay = formatUnitDisplay(item.unit);
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
                         const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
 
                         // Desktop Table Row
@@ -3697,7 +3766,7 @@
                         </span>
                     ` : '';
 
-                    const unitDisplay = formatUnitDisplay(item.unit);
+                    const unitDisplay = formatUnitDisplay(item.unit, item);
                     const hargaSatuanDisplay = formatHargaSatuanDisplay(item.harga_satuan, item.nominal);
 
                     // Desktop Table Item Row

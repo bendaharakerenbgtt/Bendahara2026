@@ -1182,6 +1182,14 @@
                     const reimbStr = (tx.status_reimburse !== undefined && tx.status_reimburse !== null) ? String(tx.status_reimburse).trim() : 'Tidak Perlu';
                     const buktiStr = (tx.bukti !== undefined && tx.bukti !== null) ? String(tx.bukti).trim() : '';
 
+                    let finalUnitStr = unitStr;
+                    const combinedDesc = `${uraianStr} ${ketStr}`.toLowerCase();
+                    if (idStr === 'TRX397' || (combinedDesc.includes('sewa tempat') && (unitStr === '3' || unitStr === '' || unitStr.toUpperCase() === 'NULL'))) {
+                        finalUnitStr = '3 Day';
+                    } else if (/^\d+$/.test(unitStr) && (combinedDesc.includes('sewa tempat') || combinedDesc.includes('wammy') || combinedDesc.includes('villa') || combinedDesc.includes('penginapan'))) {
+                        finalUnitStr = `${unitStr} Day`;
+                    }
+
                     return {
                         ...tx,
                         id: idStr,
@@ -1190,7 +1198,7 @@
                         kategori: katStr,
                         uraian: uraianStr,
                         keterangan: ketStr,
-                        unit: unitStr,
+                        unit: finalUnitStr,
                         catatan: catStr,
                         jenis: jenisStr,
                         metode: metodeStr,
