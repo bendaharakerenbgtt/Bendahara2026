@@ -2668,6 +2668,23 @@
             mso-paper-source: 0;
         }
         div.Section1 { page: Section1; }
+        @page {
+            size: A4 portrait;
+            margin: 0mm;
+        }
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0mm;
+            }
+            html, body {
+                margin: 0 !important;
+                padding: 1.5cm 2cm !important;
+                background: #FFFFFF !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
         body {
             font-family: 'Times New Roman', serif;
             font-size: 11pt;
@@ -2677,9 +2694,6 @@
         }
         p { margin: 0; padding: 0; }
         table { border-collapse: collapse; width: 100%; }
-        @media print {
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
     </style>
 </head>
 <body>
@@ -2876,23 +2890,55 @@
             });
         }
 
+        function printHtmlDirectly(htmlContent, docTitle) {
+            let iframe = document.getElementById('lpj_print_frame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'lpj_print_frame';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.visibility = 'hidden';
+                document.body.appendChild(iframe);
+            }
+
+            try {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(htmlContent);
+                if (docTitle) doc.title = docTitle;
+                doc.close();
+
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }, 350);
+            } catch (err) {
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    Swal.fire({ icon: 'warning', title: 'Pop-up Terblokir', text: 'Izinkan pop-up browser untuk mencetak/menyimpan PDF.' });
+                    return;
+                }
+                printWindow.document.open();
+                printWindow.document.write(htmlContent);
+                if (docTitle) printWindow.document.title = docTitle;
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                }, 450);
+            }
+        }
+
         function printProkerLPJ(prokerId) {
             const data = getProkerReportData(prokerId);
             if (!data) return;
 
             const htmlContent = generateWordReportHtml(data);
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                Swal.fire({ icon: 'warning', title: 'Pop-up Terblokir', text: 'Izinkan pop-up browser untuk mencetak/menyimpan PDF.' });
-                return;
-            }
-
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
+            printHtmlDirectly(htmlContent, `Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}`);
         }
 
         function bukaModalExportProker(prokerId) {
@@ -3360,11 +3406,31 @@
     </xml>
     <![endif]-->
     <style>
-        @page {
-            size: A4 portrait;
-            margin: 2cm 2cm 2cm 2.5cm;
+        @page Section1 {
+            size: 210mm 297mm;
+            margin: 20mm 20mm 20mm 25mm;
             mso-header-margin: 1cm;
             mso-footer-margin: 1cm;
+            mso-paper-source: 0;
+        }
+        div.Section1 { page: Section1; }
+        @page {
+            size: A4 portrait;
+            margin: 0mm;
+            mso-page-orientation: portrait;
+        }
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0mm;
+            }
+            html, body {
+                margin: 0 !important;
+                padding: 1.5cm 2cm !important;
+                background: #FFFFFF !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
         body {
             font-family: 'Times New Roman', Times, serif;
@@ -3454,18 +3520,7 @@
         function printMasterLpj(options = {}) {
             const data = prepareMasterLpjData(options);
             const htmlContent = generateMasterLpjHtml(data);
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                Swal.fire({ icon: 'warning', title: 'Pop-up Terblokir', text: 'Izinkan pop-up browser untuk mencetak / menyimpan PDF.' });
-                return;
-            }
-
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
+            printHtmlDirectly(htmlContent, 'Master_Laporan_Pertanggungjawaban_Keuangan');
         }
 
         function handleMasterExportAction(actionType) {
