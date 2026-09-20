@@ -212,7 +212,8 @@
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid rgba(16, 185, 129, 0.3);
             box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(16, 185, 129, 0.15);
-            z-index: 40;
+            z-index: 1000;
+            touch-action: manipulation;
             padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
             align-items: center;
             justify-content: space-around;
@@ -234,6 +235,11 @@
             background: transparent;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
+            touch-action: manipulation;
+        }
+
+        .bottom-nav-item * {
+            pointer-events: none;
         }
 
         .bottom-nav-item:active {
@@ -478,7 +484,51 @@
         // SCRIPT URL backend
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
 
+        // Resilient storage fallbacks for Flutter WebView / Sandbox environments
+        const safeStorage = {
+            _mem: {},
+            getItem(key) {
+                try { return sessionStorage.getItem(key); } catch (e) { return this._mem[key] || null; }
+            },
+            setItem(key, val) {
+                try { sessionStorage.setItem(key, val); } catch (e) { this._mem[key] = String(val); }
+            },
+            removeItem(key) {
+                try { sessionStorage.removeItem(key); } catch (e) { delete this._mem[key]; }
+            }
+        };
+
+        const safeLocalStorage = {
+            _mem: {},
+            getItem(key) {
+                try { return localStorage.getItem(key); } catch (e) { return this._mem[key] || null; }
+            },
+            setItem(key, val) {
+                try { localStorage.setItem(key, val); } catch (e) { this._mem[key] = String(val); }
+            },
+            removeItem(key) {
+                try { localStorage.removeItem(key); } catch (e) { delete this._mem[key]; }
+            }
+        };
+
         let localAnggota = [];
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            }
+        }
+        function showLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.style.opacity = '1';
+                overlay.style.pointerEvents = 'auto';
+            }
+        }
+        // Safety timeout agar overlay tidak stuck jika jaringan lambat
+        setTimeout(hideLoadingOverlay, 4000);
 
         function initKelolaAnggotaPage() {
             fetchInitialData();
@@ -490,23 +540,46 @@
             initKelolaAnggotaPage();
         }
 
-        // Fetch data awal
-        function fetchInitialData(silent = false) {
-            if (!silent) showLoadingOverlay();
+        const CACHE_KEY = "ldk_db_cache";
+        const CACHE_TIME_KEY = "ldk_db_cache_time";
+        const CACHE_TTL = 3 * 60 * 1000; // 3 menit cache
 
-            const cacheKey = "bendahara_all_data_cache";
-            const cachedData = localStorage.getItem(cacheKey);
+        // Fetch data awal dengan Cache Pintar
+        function fetchInitialData(forceRefresh = false) {
+            if (forceRefresh) {
+                safeLocalStorage.removeItem(CACHE_KEY);
+                safeLocalStorage.removeItem(CACHE_TIME_KEY);
+                safeStorage.removeItem(CACHE_KEY);
+                safeStorage.removeItem(CACHE_TIME_KEY);
+                showLoadingOverlay();
+            }
+
+            const cachedData = safeLocalStorage.getItem(CACHE_KEY) || safeStorage.getItem(CACHE_KEY);
+            const cachedTime = safeLocalStorage.getItem(CACHE_TIME_KEY) || safeStorage.getItem(CACHE_TIME_KEY);
+            const now = Date.now();
             let hasRenderedFromCache = false;
 
             if (cachedData) {
                 try {
                     const parsed = JSON.parse(cachedData);
-                    localAnggota = parsed.anggota || [];
-                    renderAnggotaList();
-                    hasRenderedFromCache = true;
+                    if (parsed && (parsed.status === "success" || parsed.anggota)) {
+                        localAnggota = parsed.anggota || [];
+                        renderAnggotaList();
+                        hasRenderedFromCache = true;
+                        hideLoadingOverlay();
+
+                        // Jika cache masih dalam masa TTL dan tidak force refresh, gunakan langsung tanpa re-fetch
+                        if (cachedTime && (now - Number(cachedTime) < CACHE_TTL) && !forceRefresh) {
+                            return;
+                        }
+                    }
                 } catch(e) {
                     console.error("Gagal membaca cache lokal", e);
                 }
+            }
+
+            if (!hasRenderedFromCache) {
+                showLoadingOverlay();
             }
 
             if (!GOOGLE_SCRIPT_URL) {
@@ -530,17 +603,24 @@
                 .then(res => {
                     if (res.status === "success") {
                         localAnggota = res.anggota || [];
-                        localStorage.setItem(cacheKey, JSON.stringify(res));
+                        const timestampStr = Date.now().toString();
+                        safeLocalStorage.setItem(CACHE_KEY, JSON.stringify(res));
+                        safeLocalStorage.setItem(CACHE_TIME_KEY, timestampStr);
+                        safeStorage.setItem(CACHE_KEY, JSON.stringify(res));
+                        safeStorage.setItem(CACHE_TIME_KEY, timestampStr);
                         renderAnggotaList();
                     }
                 })
                 .catch(err => {
                     console.error("Fetch Error:", err);
                     if (!hasRenderedFromCache) {
-                        document.getElementById('anggotaListContainer').innerHTML = `
-                            <div class="py-12 text-center text-xs text-red-500 font-mono border border-red-950/20 rounded-xl bg-red-950/5">
-                                Koneksi gagal / database offline!
-                            </div>`;
+                        const container = document.getElementById('anggotaListContainer');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="py-12 text-center text-xs text-red-500 font-mono border border-red-950/20 rounded-xl bg-red-950/5">
+                                    Koneksi gagal / database offline!
+                                </div>`;
+                        }
                     }
                 })
                 .finally(() => {
@@ -549,25 +629,27 @@
                 });
         }
 
-        // Render Anggota ke HTML
+        // Render Anggota ke HTML secara batch untuk kecepatan maksimal
         function renderAnggotaList() {
             const container = document.getElementById('anggotaListContainer');
             if (!container) return;
 
-            container.innerHTML = '';
-            document.getElementById('memberCountBadge').innerText = `${localAnggota.length} Anggota`;
+            const badge = document.getElementById('memberCountBadge');
+            if (badge) badge.innerText = `${localAnggota.length} Anggota`;
 
             if (localAnggota.length === 0) {
                 container.innerHTML = `<div class="py-12 text-center text-xs text-neutral-500 font-mono border border-neutral-900 rounded-xl bg-neutral-950/20">Belum ada data anggota.</div>`;
                 return;
             }
 
-            localAnggota.forEach(m => {
+            let cardsHtml = '';
+            for (let i = 0; i < localAnggota.length; i++) {
+                const m = localAnggota[i];
                 const badgeActive = m.is_active !== false 
                     ? `<span class="px-2 py-0.5 rounded-md text-[8px] font-bold font-sans bg-emerald-950/50 border border-emerald-900/60 text-emerald-400 uppercase tracking-wider">Aktif</span>`
                     : `<span class="px-2 py-0.5 rounded-md text-[8px] font-bold font-sans bg-red-950/50 border border-red-900/60 text-rose-400 uppercase tracking-wider">Tidak Aktif</span>`;
                 
-                const cardHtml = `
+                cardsHtml += `
                     <div class="anggota-card bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl flex items-center justify-between gap-3 shadow-xs transition-all duration-300 hover:border-cyan-500/20" data-name="${String(m.name || '').toLowerCase()}" data-nim="${String(m.nim || '').toLowerCase()}">
                         <div class="overflow-hidden flex flex-col gap-0.5">
                             <div class="flex items-center gap-2 flex-wrap">
@@ -585,8 +667,8 @@
                         </button>
                     </div>
                 `;
-                container.innerHTML += cardHtml;
-            });
+            }
+            container.innerHTML = cardsHtml;
         }
 
         // Filter Anggota berdasarkan input
@@ -808,22 +890,6 @@
                 console.error(err);
                 Swal.fire({ icon: 'error', title: 'Gagal Menyimpan!', text: err.toString() });
             });
-        }
-
-        // Overlay Utilities
-        function showLoadingOverlay() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.opacity = '1';
-                overlay.style.pointerEvents = 'auto';
-            }
-        }
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.style.opacity = '0';
-                overlay.style.pointerEvents = 'none';
-            }
         }
     </script>
 </body>
