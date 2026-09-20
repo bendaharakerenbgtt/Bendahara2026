@@ -1229,7 +1229,7 @@
             const combined = `${rawCat} ${rawDesc}`.toLowerCase();
 
             if (combined.includes('iuran')) {
-                return 'Iuran Kepanitian';
+                return 'Iuran Kepanitiaan';
             }
             if (combined.includes('donasi')) {
                 return 'Donasi';
@@ -1319,45 +1319,7 @@
 
             const ketuaNama = getMemberName(p.id_anggota);
 
-            // 1. Grouping Income by Category
-            const inCatMap = {};
-            inTxs.forEach(t => {
-                const label = getIncomeCategoryLabel(t);
-                inCatMap[label] = (inCatMap[label] || 0) + (Number(t.nominal) || 0);
-            });
-
-            let inCategories = Object.keys(inCatMap).map(label => ({
-                label: label,
-                nominal: inCatMap[label]
-            }));
-
-            // Sort so "Kas LDK IMIP" is first, "Iuran Kepanitian" second if present, then others
-            inCategories.sort((a, b) => {
-                const priority = (name) => {
-                    if (/kas/i.test(name)) return 1;
-                    if (/iuran/i.test(name)) return 2;
-                    if (/donasi/i.test(name)) return 3;
-                    if (/danus/i.test(name)) return 4;
-                    if (/sponsor/i.test(name)) return 5;
-                    return 6;
-                };
-                const pa = priority(a.label);
-                const pb = priority(b.label);
-                if (pa !== pb) return pa - pb;
-                return a.label.localeCompare(b.label);
-            });
-
-            let effPemasukan = inCategories.reduce((sum, item) => sum + item.nominal, 0);
-            if (inCategories.length === 0) {
-                const fallbackIn = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : (p.anggaran || p.estimasi_dana || 0));
-                effPemasukan = fallbackIn;
-                inCategories = [{
-                    label: 'Kas LDK IMIP',
-                    nominal: fallbackIn
-                }];
-            }
-
-            // 2. Grouping Expense into Belanja Bahan, Belanja Sewa, Belanja Jasa
+            // 1. Grouping Expense into Belanja Bahan, Belanja Sewa, Belanja Jasa
             const bahanDivMap = {};
             const sewaDivMap = {};
             const jasaDivMap = {};
@@ -1396,6 +1358,51 @@
             }
 
             const effPengeluaran = totalBahan + totalSewa + totalJasa;
+
+            // 2. Grouping Income by Category
+            const inCatMap = {};
+            inTxs.forEach(t => {
+                const label = getIncomeCategoryLabel(t);
+                inCatMap[label] = (inCatMap[label] || 0) + (Number(t.nominal) || 0);
+            });
+
+            // Aturan LPJ: Total pemasukan disamakan dengan pengeluaran.
+            // Jika pemasukan tercatat masih kurang dari pengeluaran, kekurangannya otomatis ditambahkan sebagai "Kas LDK IMIP".
+            const currentRecordedIncome = Object.values(inCatMap).reduce((sum, val) => sum + (Number(val) || 0), 0);
+            if (currentRecordedIncome < effPengeluaran) {
+                const shortage = effPengeluaran - currentRecordedIncome;
+                inCatMap['Kas LDK IMIP'] = (inCatMap['Kas LDK IMIP'] || 0) + shortage;
+            } else if (currentRecordedIncome === 0 && effPengeluaran === 0) {
+                const fallbackIn = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : 0);
+                if (fallbackIn > 0) {
+                    inCatMap['Kas LDK IMIP'] = fallbackIn;
+                }
+            }
+
+            let inCategories = Object.keys(inCatMap)
+                .filter(label => (inCatMap[label] || 0) > 0)
+                .map(label => ({
+                    label: label,
+                    nominal: inCatMap[label]
+                }));
+
+            // Sort so "Kas LDK IMIP" is first, "Iuran Kepanitiaan" second, "Donasi" third, then others
+            inCategories.sort((a, b) => {
+                const priority = (name) => {
+                    if (/kas/i.test(name)) return 1;
+                    if (/iuran/i.test(name)) return 2;
+                    if (/donasi/i.test(name)) return 3;
+                    if (/danus/i.test(name)) return 4;
+                    if (/sponsor/i.test(name)) return 5;
+                    return 6;
+                };
+                const pa = priority(a.label);
+                const pb = priority(b.label);
+                if (pa !== pb) return pa - pb;
+                return a.label.localeCompare(b.label);
+            });
+
+            const effPemasukan = inCategories.reduce((sum, item) => sum + item.nominal, 0);
             const effSaldo = effPemasukan - effPengeluaran;
 
             return {
@@ -1473,7 +1480,13 @@
 
         function generateWordReportHtml(data) {
             // 1. Pemasukan Table
-            const inRowsHtml = data.inCategories.map((cat, idx) => `
+            const inRowsHtml = data.inCategories.length === 0 ? `
+                <tr>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">-</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: italic; width: 64%;">Nihil</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">Rp0,00</td>
+                </tr>
+            ` : data.inCategories.map((cat, idx) => `
                 <tr>
                     <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${idx + 1}.</td>
                     <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${escapeHtmlLPJ(cat.label)}</td>
@@ -1680,9 +1693,13 @@
             // 1. Pemasukan
             csv += `"1. Pemasukan"\n`;
             csv += `"No","Pemasukan","Jumlah"\n`;
-            data.inCategories.forEach((cat, idx) => {
-                csv += `"${idx + 1}.","${cat.label.replace(/"/g, '""')}","${formatRupiahLPJ(cat.nominal)}"\n`;
-            });
+            if (data.inCategories.length === 0) {
+                csv += `"-","Nihil","Rp0,00"\n`;
+            } else {
+                data.inCategories.forEach((cat, idx) => {
+                    csv += `"${idx + 1}.","${cat.label.replace(/"/g, '""')}","${formatRupiahLPJ(cat.nominal)}"\n`;
+                });
+            }
             csv += `"TOTAL","","${formatRupiahLPJ(data.effPemasukan)}"\n\n`;
 
             // 2. Pengeluaran
