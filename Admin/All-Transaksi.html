@@ -2426,12 +2426,19 @@
                 title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>✏️</span> Edit Transaksi</div>',
                 html: `
                     <div class="flex flex-col gap-3 text-left text-xs font-sans text-neutral-300 max-h-[75vh] overflow-y-auto pr-1 custom-scroll">
-                        <div class="flex items-center justify-between p-2.5 bg-neutral-900 border border-neutral-850 rounded-xl">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-neutral-900 border border-neutral-850 rounded-xl">
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase ${isMasuk ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50' : 'bg-rose-950/60 text-rose-400 border border-rose-800/50'}">${item.jenis}</span>
-                                <span class="text-[10px] font-mono text-neutral-400 select-all font-bold">ID: ${item.id}</span>
+                                <label for="swal-edit-jenis" class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Jenis:</label>
+                                <select id="swal-edit-jenis" class="bg-neutral-950 border rounded-lg px-2.5 py-1 text-xs font-bold font-sans cursor-pointer focus:outline-none transition-colors ${isMasuk ? 'text-emerald-400 border-emerald-800/80 bg-emerald-950/30' : 'text-rose-400 border-rose-800/80 bg-rose-950/30'}">
+                                    <option value="Masuk" class="text-emerald-400 bg-neutral-900" ${isMasuk ? 'selected' : ''}>🟢 Pemasukan (+)</option>
+                                    <option value="Keluar" class="text-rose-400 bg-neutral-900" ${!isMasuk ? 'selected' : ''}>🔴 Pengeluaran (-)</option>
+                                </select>
                             </div>
-                            <span class="text-[10px] font-mono text-neutral-500">${item.tanggal || '-'}</span>
+                            <div class="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
+                                <span class="font-bold text-neutral-400 select-all">ID: ${item.id}</span>
+                                <span>•</span>
+                                <span>${item.tanggal || '-'}</span>
+                            </div>
                         </div>
 
                         <div>
@@ -2538,6 +2545,37 @@
                     popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-lg w-full'
                 },
                 didOpen: () => {
+                    const jenisSelect = document.getElementById('swal-edit-jenis');
+                    if (jenisSelect) {
+                        jenisSelect.addEventListener('change', () => {
+                            const newIsMasuk = (jenisSelect.value === 'Masuk');
+                            if (newIsMasuk) {
+                                jenisSelect.className = 'bg-neutral-950 border border-emerald-800/80 bg-emerald-950/30 text-emerald-400 rounded-lg px-2.5 py-1 text-xs font-bold font-sans cursor-pointer focus:outline-none transition-colors';
+                            } else {
+                                jenisSelect.className = 'bg-neutral-950 border border-rose-800/80 bg-rose-950/30 text-rose-400 rounded-lg px-2.5 py-1 text-xs font-bold font-sans cursor-pointer focus:outline-none transition-colors';
+                            }
+
+                            // Dynamic update on Kategori dropdown options
+                            const katSelect = document.getElementById('swal-edit-kategori-select');
+                            if (katSelect) {
+                                const curVal = katSelect.value;
+                                const newCats = newIsMasuk ? standardCatsIn : standardCatsOut;
+                                let newKatHtml = '';
+                                let isMatched = false;
+                                newCats.forEach(cat => {
+                                    const isSel = (curVal.toLowerCase() === cat.toLowerCase());
+                                    if (isSel) isMatched = true;
+                                    newKatHtml += `<option value="${cat}" ${isSel ? 'selected' : ''}>🏷️ ${cat}</option>`;
+                                });
+                                if (!isMatched && curVal && curVal !== 'custom') {
+                                    newKatHtml += `<option value="${escapeHtmlAttr(curVal)}" selected>🏷️ ${escapeHtmlAttr(curVal)}</option>`;
+                                }
+                                newKatHtml += `<option value="custom">✏️ Tulis Sendiri...</option>`;
+                                katSelect.innerHTML = newKatHtml;
+                            }
+                        });
+                    }
+
                     const qtyInput = document.getElementById('swal-edit-qty');
                     const hargaSatuanInput = document.getElementById('swal-edit-harga-satuan');
                     const nominalInput = document.getElementById('swal-edit-nominal');
@@ -2663,7 +2701,11 @@
                     const anggotaSelect = document.getElementById('swal-edit-anggota');
                     const userId = anggotaSelect ? anggotaSelect.value : '';
 
+                    const jenisInput = document.getElementById('swal-edit-jenis');
+                    const jenis = jenisInput ? jenisInput.value : (isMasuk ? 'Masuk' : 'Keluar');
+
                     return {
+                        jenis,
                         uraian,
                         keterangan,
                         nominal,
@@ -2682,6 +2724,7 @@
                     const val = result.value;
 
                     // Update local object immediately
+                    item.jenis = val.jenis;
                     item.uraian = val.uraian;
                     item.keterangan = val.keterangan;
                     item.nominal = val.nominal;
@@ -2716,6 +2759,7 @@
                         body: JSON.stringify({
                             action: "edit_transaction",
                             id: id,
+                            jenis: val.jenis,
                             uraian: val.uraian,
                             keterangan: val.keterangan,
                             nominal: val.nominal,

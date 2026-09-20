@@ -1312,6 +1312,10 @@ function editTransaction(p) {
     const hs = parseFormattedNumber(p.harga_satuan);
     updateColumnById(sheet, p.id, "harga_satuan", hs);
   }
+  if (p.jenis      !== undefined) {
+    const cleanJenis = (p.jenis && p.jenis.toString().trim().toLowerCase() === "masuk") ? "Masuk" : "Keluar";
+    updateColumnById(sheet, p.id, "jenis", cleanJenis);
+  }
   if (p.metode     !== undefined) updateColumnById(sheet, p.id, "metode", p.metode);
   if (p.kategori   !== undefined) updateColumnById(sheet, p.id, "kategori", p.kategori);
   if (p.proker_id  !== undefined) {
