@@ -1678,7 +1678,7 @@
                 });
         }
         function calculateAndRenderStats(transactions) {
-            const approved = (transactions || []).filter(t => t.status_reimburse === "Tidak Perlu");
+            const approved = transactions || [];
             
             let totalSaldo = 0;
             let gopaySaldo = 0;
@@ -1737,7 +1737,7 @@
             window.lastProcessedTransactions = transactions;
             if (!window.ldkChart && !window.mobileConstellationChart) return;
             const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-            const approvedTx = (transactions || []).filter(t => t.status_reimburse === "Tidak Perlu");
+            const approvedTx = (transactions || []).slice();
             
             approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
             

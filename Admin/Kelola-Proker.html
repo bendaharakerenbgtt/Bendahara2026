@@ -1427,9 +1427,7 @@
             if (!p) return null;
 
             const prokerTx = localTransactions.filter(t => {
-                const isMatchProker = (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
-                const isApprovedOrMasuk = (t.jenis || '').trim().toLowerCase() === 'masuk' || !t.status_reimburse || t.status_reimburse === 'Tidak Perlu';
-                return isMatchProker && isApprovedOrMasuk;
+                return (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
             });
 
             const inTxs = [];
@@ -2650,9 +2648,7 @@
 
         function buildProkerCardAdminHtml(p, isSelesai) {
             const prokerTx = localTransactions.filter(t => {
-                const isMatchProker = (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
-                const isApprovedOrMasuk = (t.jenis || '').trim().toLowerCase() === 'masuk' || !t.status_reimburse || t.status_reimburse === 'Tidak Perlu';
-                return isMatchProker && isApprovedOrMasuk;
+                return (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
             });
 
             let totalIn = 0;
@@ -3373,7 +3369,7 @@
         }
 
         function populateModalTransactions() {
-            const unlinked = localTransactions.filter(t => t.status_reimburse === "Tidak Perlu" && (!t.proker_id || t.proker_id.toString().trim() === "" || t.proker_id.toString().toLowerCase().trim() === "null"));
+            const unlinked = localTransactions.filter(t => !t.proker_id || t.proker_id.toString().trim() === "" || t.proker_id.toString().toLowerCase().trim() === "null");
 
             const inBox = document.querySelector('#box-tx-masuk div');
             const outBox = document.querySelector('#box-tx-keluar div');
