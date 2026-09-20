@@ -3026,12 +3026,13 @@
                         })
                     })
                     .then(() => {
+                        const waitMs = (val.bukti && val.bukti.startsWith('data:')) ? 4000 : 1500;
                         setTimeout(() => {
                             Swal.close();
                             Swal.fire({ icon: 'success', title: 'Transaksi Berhasil Diperbarui!', showConfirmButton: false, timer: 1200 });
                             clearStoredDbCache();
                             fetchInitialData(true);
-                        }, 1500);
+                        }, waitMs);
                     })
                     .catch(err => {
                         Swal.close();

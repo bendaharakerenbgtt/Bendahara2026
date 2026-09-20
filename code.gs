@@ -107,7 +107,7 @@ function doGet(e) {
       }
       result = jsonResponse({
         status: "success",
-        script_version: "2026-09-20_v8_edit_jenis_transaksi",
+        script_version: "2026-09-20_v9_edit_upload_bukti",
         drive_status: driveStatus,
         folder_id: folderId
       }, callback);
