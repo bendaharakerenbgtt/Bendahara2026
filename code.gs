@@ -214,9 +214,22 @@ function getAllData(callback) {
       user_id: getVal(t, "id_anggota") !== undefined ? getVal(t, "id_anggota") : (getVal(t, "user_id") || ""),
       proker_id: (() => {
         const val = getVal(t, "id_kegiatan") !== undefined ? getVal(t, "id_kegiatan") : getVal(t, "proker_id");
-        if (val === undefined || val === null) return "";
-        const valStr = val.toString().trim();
-        return valStr.toLowerCase() === "null" ? "" : valStr;
+        let valStr = (val !== undefined && val !== null) ? val.toString().trim() : "";
+        if (valStr.toLowerCase() === "null") valStr = "";
+        
+        const idTx = (getVal(t, "id_transaksi") !== undefined ? getVal(t, "id_transaksi") : (getVal(t, "id") || "")).toString();
+        const uraianCombined = `${String(uraianVal || "")} ${String(ketVal || "")}`.toLowerCase();
+        
+        if (idTx === "TRX006" || idTx === "TRX007" || uraianCombined.includes("acara takram")) {
+          return "7";
+        }
+        if (idTx === "TRX020" || idTx === "TRX021" || uraianCombined.includes("saat itikaf") || uraianCombined.includes("acara itikaf")) {
+          return "8";
+        }
+        if (["TRX275", "TRX276", "TRX277", "TRX385", "TRX386", "TRX388"].indexOf(idTx) !== -1 || (uraianCombined.includes("stuban") && (valStr === "12" || !valStr))) {
+          return "13";
+        }
+        return valStr;
       })(),
       jenis: String(getVal(t, "jenis") || "Keluar").trim(),
       metode: String(getVal(t, "metode") || "Tunai").trim(),
@@ -1306,6 +1319,7 @@ function editTransaction(p) {
       ? p.proker_id.toString().trim()
       : "NULL";
     updateColumnById(sheet, p.id, "proker_id", cleanProkerId);
+    updateColumnById(sheet, p.id, "id_kegiatan", cleanProkerId);
   }
   if (p.divisi     !== undefined) {
     const cleanDivisi = (p.divisi && p.divisi.toString().trim() !== "" && p.divisi.toString().trim().toUpperCase() !== "NULL")

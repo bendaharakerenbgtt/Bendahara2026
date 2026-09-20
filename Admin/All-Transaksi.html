@@ -1205,6 +1205,15 @@
                         finalUnitStr = capitalizeUnit(unitStr);
                     }
 
+                    let finalProkerIdStr = prokerIdStr;
+                    if (idStr === 'TRX006' || idStr === 'TRX007' || combinedDesc.includes('acara takram')) {
+                        finalProkerIdStr = '7';
+                    } else if (idStr === 'TRX020' || idStr === 'TRX021' || combinedDesc.includes('saat itikaf') || combinedDesc.includes('acara itikaf')) {
+                        finalProkerIdStr = '8';
+                    } else if (['TRX275', 'TRX276', 'TRX277', 'TRX385', 'TRX386', 'TRX388'].includes(idStr) || (combinedDesc.includes('stuban') && (finalProkerIdStr === '12' || !finalProkerIdStr))) {
+                        finalProkerIdStr = '13';
+                    }
+
                     return {
                         ...tx,
                         id: idStr,
@@ -1217,7 +1226,7 @@
                         catatan: catStr,
                         jenis: jenisStr,
                         metode: metodeStr,
-                        proker_id: prokerIdStr,
+                        proker_id: finalProkerIdStr,
                         nama_pic_pengeluar: picStr,
                         status_reimburse: reimbStr,
                         bukti: buktiStr

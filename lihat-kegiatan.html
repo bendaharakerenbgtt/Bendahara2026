@@ -1887,9 +1887,19 @@
                     finalUnit = capitalizeUnit(unitStr);
                 }
 
+                let finalProkerId = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
+                if (idStr === 'TRX006' || idStr === 'TRX007' || combined.includes('acara takram')) {
+                    finalProkerId = '7';
+                } else if (idStr === 'TRX020' || idStr === 'TRX021' || combined.includes('saat itikaf') || combined.includes('acara itikaf')) {
+                    finalProkerId = '8';
+                } else if (['TRX275', 'TRX276', 'TRX277', 'TRX385', 'TRX386', 'TRX388'].includes(idStr) || (combined.includes('stuban') && (finalProkerId === '12' || !finalProkerId))) {
+                    finalProkerId = '13';
+                }
+
                 return {
                     ...tx,
-                    unit: finalUnit
+                    unit: finalUnit,
+                    proker_id: finalProkerId
                 };
             });
         }
@@ -2496,10 +2506,11 @@
                 </table>
             `;
 
-            // 2. Pengeluaran Sections: 2.1 Belanja Bahan & 2.2 Belanja Sewa
+            // 2. Pengeluaran Sections: Dynamic Numbering (Belanja Bahan, Belanja Sewa opsional, Belanja Jasa opsional)
+            let expSubIdx = 1;
             const bahanTableHtml = `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                    2.1 Belanja Bahan
+                    2.${expSubIdx++} Belanja Bahan
                 </p>
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
@@ -2521,9 +2532,10 @@
                 </table>
             `;
 
-            const sewaTableHtml = `
+            const hasSewa = (data.totalSewa > 0 || (data.sewaDivMap && Object.keys(data.sewaDivMap).length > 0));
+            const sewaTableHtml = hasSewa ? `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                    2.2 Belanja Sewa
+                    2.${expSubIdx++} Belanja Sewa
                 </p>
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
@@ -2543,11 +2555,12 @@
                         </tr>
                     </tbody>
                 </table>
-            `;
+            ` : '';
 
-            const jasaTableHtml = (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0)) ? `
+            const hasJasa = (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0));
+            const jasaTableHtml = hasJasa ? `
                 <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 4pt; margin-left: 18pt;">
-                    2.3 Belanja Jasa
+                    2.${expSubIdx++} Belanja Jasa
                 </p>
                 <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                     <thead>
@@ -2687,9 +2700,10 @@
 
             // 2. Pengeluaran
             csv += `"2. Pengeluaran"\n`;
+            let csvExpIdx = 1;
 
             // 2.1 Belanja Bahan
-            csv += `"2.1 Belanja Bahan"\n`;
+            csv += `"2.${csvExpIdx++} Belanja Bahan"\n`;
             csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
             const bahanDivKeys = Object.keys(data.bahanDivMap || {});
             if (bahanDivKeys.length === 0) {
@@ -2714,13 +2728,11 @@
             }
             csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalBahan)}"\n\n`;
 
-            // 2.2 Belanja Sewa
-            csv += `"2.2 Belanja Sewa"\n`;
-            csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
-            const sewaDivKeys = Object.keys(data.sewaDivMap || {});
-            if (sewaDivKeys.length === 0) {
-                csv += `"-","Nihil","-","-","Rp0,00"\n`;
-            } else {
+            // Belanja Sewa (Hanya jika ada transaksi)
+            if (data.totalSewa > 0 || (data.sewaDivMap && Object.keys(data.sewaDivMap).length > 0)) {
+                csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
+                csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
+                const sewaDivKeys = Object.keys(data.sewaDivMap || {});
                 sewaDivKeys.forEach((divName, divIdx) => {
                     const items = data.sewaDivMap[divName] || [];
                     const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
@@ -2737,34 +2749,30 @@
                         csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
                 });
+                csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
             }
-            csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalSewa)}"\n\n`;
 
-            // 2.3 Belanja Jasa
+            // Belanja Jasa (Hanya jika ada transaksi)
             if (data.totalJasa > 0 || (data.jasaDivMap && Object.keys(data.jasaDivMap).length > 0)) {
-                csv += `"2.3 Belanja Jasa"\n`;
+                csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
                 csv += `"No","Uraian","Unit","Harga Satuan","Jumlah"\n`;
                 const jasaDivKeys = Object.keys(data.jasaDivMap || {});
-                if (jasaDivKeys.length === 0) {
-                    csv += `"-","Nihil","-","-","Rp0,00"\n`;
-                } else {
-                    jasaDivKeys.forEach((divName, divIdx) => {
-                        const items = data.jasaDivMap[divName] || [];
-                        const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
-                        const letter = getGroupLetter(divIdx);
-                        csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
-                        items.forEach(item => {
-                            const itemNominal = Number(item.nominal) || 0;
-                            const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
-                                ? item.uraian 
-                                : (item.keterangan || item.catatan || 'Pengeluaran');
-                            const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
-                            const unitDisplay = formatUnitDisplay(item.unit, item);
-                            const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
-                            csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
-                        });
+                jasaDivKeys.forEach((divName, divIdx) => {
+                    const items = data.jasaDivMap[divName] || [];
+                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                    const letter = getGroupLetter(divIdx);
+                    csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
+                    items.forEach(item => {
+                        const itemNominal = Number(item.nominal) || 0;
+                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                            ? item.uraian 
+                            : (item.keterangan || item.catatan || 'Pengeluaran');
+                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                        const unitDisplay = formatUnitDisplay(item.unit, item);
+                        const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
+                        csv += `"","${cleanUraian.replace(/"/g, '""')}","${unitDisplay.replace(/"/g, '""')}","${hargaSatuanDisplay.replace(/"/g, '""')}","${formatRupiahLPJ(itemNominal)}"\n`;
                     });
-                }
+                });
                 csv += `"TOTAL","","","","${formatRupiahLPJ(data.totalJasa)}"\n\n`;
             }
 
