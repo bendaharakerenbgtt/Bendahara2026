@@ -1426,7 +1426,11 @@
             const p = localProkers.find(item => item.id.toString() === prokerId.toString());
             if (!p) return null;
 
-            const prokerTx = localTransactions.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString() && t.status_reimburse === "Tidak Perlu");
+            const prokerTx = localTransactions.filter(t => {
+                const isMatchProker = (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
+                const isApprovedOrMasuk = (t.jenis || '').trim().toLowerCase() === 'masuk' || !t.status_reimburse || t.status_reimburse === 'Tidak Perlu';
+                return isMatchProker && isApprovedOrMasuk;
+            });
 
             const inTxs = [];
             const outTxs = [];
@@ -2645,7 +2649,11 @@
         window.printMasterLpj = printMasterLpj;
 
         function buildProkerCardAdminHtml(p, isSelesai) {
-            const prokerTx = localTransactions.filter(t => t.proker_id && t.proker_id.toString() === p.id.toString() && t.status_reimburse === "Tidak Perlu");
+            const prokerTx = localTransactions.filter(t => {
+                const isMatchProker = (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
+                const isApprovedOrMasuk = (t.jenis || '').trim().toLowerCase() === 'masuk' || !t.status_reimburse || t.status_reimburse === 'Tidak Perlu';
+                return isMatchProker && isApprovedOrMasuk;
+            });
 
             let totalIn = 0;
             let totalOut = 0;

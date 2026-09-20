@@ -252,11 +252,13 @@ function getAllData(callback) {
     let dynamicIn = 0;
     let dynamicOut = 0;
     transaksiData.forEach(tx => {
-      if (tx.proker_id && tx.proker_id.toString().trim() === idKegiatan.trim()) {
+      const pId = (tx.proker_id || tx.id_kegiatan || "").toString().trim();
+      if (pId === idKegiatan.trim()) {
         const val = Number(tx.jumlah !== undefined ? tx.jumlah : tx.nominal) || 0;
-        if (tx.jenis === "Masuk") {
+        const j = (tx.jenis || "").toString().trim().toLowerCase();
+        if (j === "masuk") {
           dynamicIn += val;
-        } else if (tx.jenis === "Keluar") {
+        } else if (j === "keluar") {
           dynamicOut += val;
         }
       }
@@ -266,13 +268,13 @@ function getAllData(callback) {
     const rawPengeluaran = getVal(k, "pengeluaran");
     const rawRealisasi = getVal(k, "realisasi");
 
-    const pemasukanVal = (rawPemasukan !== undefined && rawPemasukan !== null && rawPemasukan !== "" && Number(rawPemasukan) > 0)
-      ? parseFormattedNumber(rawPemasukan)
-      : dynamicIn;
+    const pemasukanVal = dynamicIn > 0
+      ? dynamicIn
+      : (rawPemasukan !== undefined && rawPemasukan !== null && rawPemasukan !== "" && Number(rawPemasukan) > 0 ? parseFormattedNumber(rawPemasukan) : 0);
 
-    const pengeluaranVal = (rawPengeluaran !== undefined && rawPengeluaran !== null && rawPengeluaran !== "" && Number(rawPengeluaran) > 0)
-      ? parseFormattedNumber(rawPengeluaran)
-      : dynamicOut;
+    const pengeluaranVal = dynamicOut > 0
+      ? dynamicOut
+      : (rawPengeluaran !== undefined && rawPengeluaran !== null && rawPengeluaran !== "" && Number(rawPengeluaran) > 0 ? parseFormattedNumber(rawPengeluaran) : 0);
 
     let realisasiVal = 0;
     if (rawRealisasi !== undefined && rawRealisasi !== null && rawRealisasi !== "" && Number(rawRealisasi) > 0) {
