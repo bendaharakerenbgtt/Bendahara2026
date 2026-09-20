@@ -1298,7 +1298,43 @@ function editTransaction(p) {
   const sheet = getSheetByNameCaseInsensitive(ss, SHEET_NAME_TRANSAKSI);
   
   if (p.uraian     !== undefined) updateColumnById(sheet, p.id, "uraian", p.uraian);
-  if (p.keterangan !== undefined) updateColumnById(sheet, p.id, "keterangan", p.keterangan);
+
+  let driveUrl = undefined;
+  if (p.bukti !== undefined) {
+    driveUrl = p.bukti || "";
+    if (p.bukti && p.bukti.toString().trim().startsWith("data:")) {
+      driveUrl = saveImageToDrive(p.bukti, p.id);
+    }
+    updateColumnById(sheet, p.id, "bukti", driveUrl);
+  }
+
+  if (p.keterangan !== undefined) {
+    let finalKet = p.keterangan ? p.keterangan.toString().trim() : "";
+    finalKet = finalKet.replace(/\s*\(Bukti:\s*https?:\/\/[^\)]+\)/gi, "").replace(/\s*Bukti:\s*https?:\/\/\S+/gi, "").trim();
+    if (driveUrl) {
+      finalKet = finalKet ? (finalKet + " (Bukti: " + driveUrl + ")") : ("(Bukti: " + driveUrl + ")");
+    }
+    updateColumnById(sheet, p.id, "keterangan", finalKet);
+  } else if (driveUrl !== undefined) {
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => h.toString().trim().toLowerCase());
+    const idCol = getIdColumnIndex(headers, sheet);
+    const ketCol = headers.indexOf("keterangan");
+    if (idCol !== -1 && ketCol !== -1) {
+      for (let i = 1; i < data.length; i++) {
+        if (safeCompareIds(data[i][idCol], p.id)) {
+          let curKet = (data[i][ketCol] || "").toString().trim();
+          curKet = curKet.replace(/\s*\(Bukti:\s*https?:\/\/[^\)]+\)/gi, "").replace(/\s*Bukti:\s*https?:\/\/\S+/gi, "").trim();
+          if (driveUrl) {
+            curKet = curKet ? (curKet + " (Bukti: " + driveUrl + ")") : ("(Bukti: " + driveUrl + ")");
+          }
+          sheet.getRange(i + 1, ketCol + 1).setValue(curKet);
+          break;
+        }
+      }
+    }
+  }
+
   if (p.nominal    !== undefined) {
     const num = parseFormattedNumber(p.nominal);
     updateColumnById(sheet, p.id, "nominal", num);
@@ -1342,7 +1378,7 @@ function editTransaction(p) {
     updateColumnById(sheet, p.id, "user_id", cleanUserId);
   }
   
-  return jsonResponse({ status: "success" });
+  return jsonResponse({ status: "success", bukti: driveUrl });
 }
 
 /** Auto-remove deprecated columns (e.g. 'catatan' from sheet transaksi) */

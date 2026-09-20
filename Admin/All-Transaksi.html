@@ -2420,6 +2420,7 @@
             const existingKet = cleanTitle(item.keterangan && cleanTitle(item.keterangan) !== cleanTitle(item.uraian) ? item.keterangan : '');
             const existingNominal = Number(item.nominal || item.jumlah || 0);
             const isMasuk = (item.jenis || '').trim().toLowerCase() === 'masuk';
+            const existingBukti = (item.bukti !== undefined && item.bukti !== null) ? item.bukti.toString().trim() : '';
 
             // Current Proker
             const currentProkerId = (item.proker_id !== undefined && item.proker_id !== null && item.proker_id.toString().trim() !== '' && item.proker_id.toString().trim().toUpperCase() !== 'NULL') 
@@ -2634,6 +2635,58 @@
                             </select>
                             <input type="text" id="swal-edit-kategori-custom" placeholder="Ketik kategori kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                         </div>
+
+                        <!-- Bukti / Nota Transaksi Section -->
+                        <div class="flex flex-col gap-2 pt-2 border-t border-neutral-900/80">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold">🧾 Bukti / Nota Transaksi</label>
+                                ${existingBukti ? `<span id="swal-current-bukti-status" class="text-[9px] font-mono text-emerald-400 font-bold flex items-center gap-1"><span>✓</span> Ada Bukti</span>` : `<span id="swal-current-bukti-status" class="text-[9px] font-mono text-neutral-500">Belum ada bukti</span>`}
+                            </div>
+
+                            <!-- Box Bukti Tersimpan -->
+                            ${existingBukti ? `
+                            <div id="swal-existing-bukti-box" class="p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <div class="w-11 h-11 rounded-lg bg-neutral-950 border border-neutral-700 flex items-center justify-center shrink-0 overflow-hidden text-base">
+                                        ${existingBukti.startsWith('data:image') 
+                                            ? `<img src="${escapeHtmlAttr(existingBukti)}" class="w-full h-full object-cover">` 
+                                            : `<span class="text-lg">📄</span>`}
+                                    </div>
+                                    <div class="flex flex-col min-w-0">
+                                        <span class="text-[11px] font-bold text-neutral-200 truncate">Bukti Tersimpan</span>
+                                        <a href="${escapeHtmlAttr(existingBukti)}" target="_blank" rel="noopener noreferrer" class="text-[9.5px] font-mono text-cyan-400 hover:underline truncate">Buka file bukti ↗</a>
+                                    </div>
+                                </div>
+                                <button type="button" id="btn-delete-existing-bukti" class="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-neutral-950 border border-neutral-800 hover:border-rose-500/40 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all font-bold shrink-0">Hapus</button>
+                            </div>
+                            ` : ''}
+
+                            <!-- Upload Button / Dropzone -->
+                            <div id="swal-upload-box" class="flex flex-col gap-1.5">
+                                <label for="swal-edit-bukti-file" class="group relative flex items-center justify-between bg-neutral-900/90 border border-dashed border-neutral-700 hover:border-cyan-500/80 p-2.5 rounded-xl cursor-pointer transition-all">
+                                    <div class="flex items-center gap-2 overflow-hidden">
+                                        <span class="text-base group-hover:scale-110 transition-transform">📸</span>
+                                        <span id="swal-edit-file-name" class="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate">
+                                            ${existingBukti ? 'Ganti foto nota / bukti...' : 'Unggah foto nota / kwitansi...'}
+                                        </span>
+                                    </div>
+                                    <span class="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-800/40 px-2.5 py-1 rounded-lg shrink-0">Pilih Foto</span>
+                                </label>
+                                <input type="file" id="swal-edit-bukti-file" accept="image/*" class="hidden">
+                            </div>
+
+                            <!-- Preview Bukti Baru Terpilih -->
+                            <div id="swal-new-preview-box" class="hidden p-2.5 bg-neutral-900 border border-cyan-800/60 rounded-xl flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <img id="swal-new-image-preview" src="" class="w-11 h-11 rounded-lg object-cover border border-cyan-700 shrink-0">
+                                    <div class="flex flex-col min-w-0">
+                                        <span class="text-[11px] font-bold text-cyan-300 truncate">Foto Baru Terpilih</span>
+                                        <span id="swal-new-reduction-info" class="text-[9px] font-mono text-neutral-400">Siap diunggah</span>
+                                    </div>
+                                </div>
+                                <button type="button" id="btn-cancel-new-bukti" class="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-neutral-950 border border-neutral-800 hover:border-rose-500/40 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all font-bold shrink-0">Batal</button>
+                            </div>
+                        </div>
                     </div>
                 `,
                 showCancelButton: true,
@@ -2746,6 +2799,95 @@
                             katCustom.value = '';
                         }
                     });
+
+                    // Handler Upload & Ganti Foto Bukti
+                    let editImageBase64 = '';
+                    let editImageAction = 'keep'; // 'keep' | 'replace' | 'delete'
+
+                    const editFileInput = document.getElementById('swal-edit-bukti-file');
+                    const editFileName = document.getElementById('swal-edit-file-name');
+                    const newPreviewBox = document.getElementById('swal-new-preview-box');
+                    const newImgPreview = document.getElementById('swal-new-image-preview');
+                    const newInfoSpan = document.getElementById('swal-new-reduction-info');
+                    const btnCancelNew = document.getElementById('btn-cancel-new-bukti');
+                    const existingBox = document.getElementById('swal-existing-bukti-box');
+                    const btnDeleteExisting = document.getElementById('btn-delete-existing-bukti');
+                    const statusBadge = document.getElementById('swal-current-bukti-status');
+
+                    if (editFileInput) {
+                        editFileInput.addEventListener('change', async function(e) {
+                            const file = e.target.files && e.target.files[0];
+                            if (!file) return;
+                            if (!file.type.startsWith('image/')) {
+                                Swal.showValidationMessage('File harus berupa gambar (JPG, PNG, WebP)!');
+                                return;
+                            }
+
+                            const originalSizeKB = Math.round(file.size / 1024);
+                            if (editFileName) editFileName.textContent = file.name;
+
+                            try {
+                                const compressed = await compressImageFile(file, 900, 0.75);
+                                editImageBase64 = compressed;
+                                editImageAction = 'replace';
+
+                                if (newImgPreview) newImgPreview.src = compressed;
+                                if (newPreviewBox) newPreviewBox.classList.remove('hidden');
+
+                                const approxKB = Math.round((compressed.length * 3 / 4) / 1024);
+                                if (newInfoSpan) newInfoSpan.textContent = `${originalSizeKB}KB → ~${approxKB}KB (Kompres)`;
+                                if (statusBadge) {
+                                    statusBadge.textContent = 'Foto baru siap disimpan';
+                                    statusBadge.className = 'text-[9px] font-mono text-cyan-400 font-bold';
+                                }
+                                if (existingBox) existingBox.classList.add('hidden');
+                            } catch (err) {
+                                console.error("Gagal kompres foto:", err);
+                            }
+                        });
+                    }
+
+                    if (btnCancelNew) {
+                        btnCancelNew.addEventListener('click', function() {
+                            editImageBase64 = '';
+                            if (editFileInput) editFileInput.value = '';
+                            if (newPreviewBox) newPreviewBox.classList.add('hidden');
+                            if (editFileName) editFileName.textContent = existingBukti ? 'Ganti foto nota / bukti...' : 'Unggah foto nota / kwitansi...';
+                            if (existingBukti && existingBox) {
+                                editImageAction = 'keep';
+                                existingBox.classList.remove('hidden');
+                                if (statusBadge) {
+                                    statusBadge.innerHTML = '<span>✓</span> Ada Bukti';
+                                    statusBadge.className = 'text-[9px] font-mono text-emerald-400 font-bold flex items-center gap-1';
+                                }
+                            } else {
+                                editImageAction = 'keep';
+                                if (statusBadge) {
+                                    statusBadge.textContent = 'Belum ada bukti';
+                                    statusBadge.className = 'text-[9px] font-mono text-neutral-500';
+                                }
+                            }
+                        });
+                    }
+
+                    if (btnDeleteExisting) {
+                        btnDeleteExisting.addEventListener('click', function() {
+                            editImageAction = 'delete';
+                            editImageBase64 = '';
+                            if (existingBox) existingBox.classList.add('hidden');
+                            if (statusBadge) {
+                                statusBadge.textContent = 'Bukti akan dihapus saat disimpan';
+                                statusBadge.className = 'text-[9px] font-mono text-rose-400 font-bold';
+                            }
+                            if (editFileName) editFileName.textContent = 'Unggah foto nota / kwitansi...';
+                        });
+                    }
+
+                    window._getSwalFinalBukti = function() {
+                        if (editImageAction === 'replace') return editImageBase64;
+                        if (editImageAction === 'delete') return '';
+                        return existingBukti;
+                    };
                 },
                 preConfirm: () => {
                     const uraian = document.getElementById('swal-edit-uraian').value.trim();
@@ -2805,6 +2947,10 @@
                     const jenisInput = document.getElementById('swal-edit-jenis');
                     const jenis = jenisInput ? jenisInput.value : (isMasuk ? 'Masuk' : 'Keluar');
 
+                    const finalBukti = (typeof window._getSwalFinalBukti === 'function') 
+                        ? window._getSwalFinalBukti() 
+                        : existingBukti;
+
                     return {
                         jenis,
                         uraian,
@@ -2817,7 +2963,8 @@
                         divisi,
                         kategori,
                         unit: finalUnit,
-                        harga_satuan: finalHargaSatuan
+                        harga_satuan: finalHargaSatuan,
+                        bukti: finalBukti
                     };
                 }
             }).then((result) => {
@@ -2838,6 +2985,9 @@
                     item.kategori = val.kategori;
                     item.unit = val.unit;
                     item.harga_satuan = val.harga_satuan;
+                    if (val.bukti !== undefined) {
+                        item.bukti = val.bukti;
+                    }
 
                     applyMutationFilters(false);
 
@@ -2848,7 +2998,7 @@
 
                     Swal.fire({
                         title: 'Memperbarui Transaksi...',
-                        text: 'Menyimpan perubahan ke Google Sheets...',
+                        text: val.bukti && val.bukti.startsWith('data:') ? 'Mengunggah bukti foto & menyimpan perubahan...' : 'Menyimpan perubahan ke Google Sheets...',
                         allowOutsideClick: false,
                         didOpen: () => { Swal.showLoading(); }
                     });
@@ -2871,7 +3021,8 @@
                             divisi: val.divisi,
                             kategori: val.kategori,
                             unit: val.unit,
-                            harga_satuan: val.harga_satuan
+                            harga_satuan: val.harga_satuan,
+                            bukti: val.bukti
                         })
                     })
                     .then(() => {
