@@ -2881,9 +2881,17 @@
             Swal.fire({
                 icon: 'success',
                 title: 'File Word Berhasil Diunduh!',
-                text: `Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}.doc siap dibuka di Microsoft Word / WPS / Google Docs.`,
-                timer: 2000,
-                showConfirmButton: false
+                html: `
+                    <div class="text-xs text-neutral-700 dark:text-neutral-300 text-left space-y-2 mt-2">
+                        <div>📄 Berkas: <b>Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}.doc</b></div>
+                        <div class="p-2.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-800 dark:text-blue-200">
+                            💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
+                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan opsi <b>Cetak PDF</b> agar langsung tampil sempurna di HP.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Oke, Mengerti',
+                confirmButtonColor: '#FF7300'
             });
         }
 
@@ -2914,6 +2922,22 @@
         }
 
         function printHtmlDirectly(htmlContent, docTitle) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.open();
+                    printWindow.document.write(htmlContent);
+                    if (docTitle) printWindow.document.title = docTitle;
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 500);
+                    return;
+                }
+            }
+
             let iframe = document.getElementById('lpj_print_frame');
             if (!iframe) {
                 iframe = document.createElement('iframe');
@@ -2983,7 +3007,7 @@
                                     <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-neutral-800 dark:text-neutral-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Format resmi LPJ, tabel rapi, font Times New Roman</div>
+                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Bagus untuk PC / Laptop (Word & WPS). Di HP gunakan WPS Office</div>
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
@@ -3005,7 +3029,7 @@
                                     <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-neutral-800 dark:text-neutral-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 text-xs truncate">Cetak / Simpan PDF</div>
-                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Pratinjau cetak browser & simpan sebagai PDF</div>
+                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Paling disarankan untuk HP — langsung tampil rapi & siap dibagikan</div>
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/40 px-2 py-1 rounded shrink-0">Cetak PDF</span>
@@ -3576,9 +3600,17 @@
             Swal.fire({
                 icon: 'success',
                 title: 'Master LPJ Berhasil Diunduh!',
-                text: 'File Word (.doc) berisi seluruh laporan pertanggungjawaban siap dibuka di Microsoft Word / Google Docs / WPS.',
-                timer: 2500,
-                showConfirmButton: false
+                html: `
+                    <div class="text-xs text-neutral-700 dark:text-neutral-300 text-left space-y-2 mt-2">
+                        <div>📄 Berkas: <b>Laporan_Pertanggungjawaban_Keuangan_Keseluruhan_${new Date().toISOString().slice(0, 10)}.doc</b></div>
+                        <div class="p-2.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-800 dark:text-blue-200">
+                            💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
+                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan opsi <b>Cetak PDF</b> agar langsung tampil sempurna di HP.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Oke, Mengerti',
+                confirmButtonColor: '#FF7300'
             });
         }
 
@@ -3651,7 +3683,7 @@
                                     <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-neutral-800 dark:text-neutral-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Format resmi LPJ lengkap, Times New Roman, tabel bergaris hitam</div>
+                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Bagus untuk PC / Laptop (Word & WPS). Di HP gunakan WPS Office</div>
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
@@ -3662,7 +3694,7 @@
                                     <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
                                     <div class="min-w-0">
                                         <div class="font-bold text-neutral-800 dark:text-neutral-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 text-xs truncate">Cetak / Simpan PDF</div>
-                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Pratinjau cetak browser & siap simpan PDF (A4 standar)</div>
+                                        <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Paling disarankan untuk HP — langsung tampil rapi & siap dibagikan</div>
                                     </div>
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/40 px-2 py-1 rounded shrink-0">Cetak PDF</span>

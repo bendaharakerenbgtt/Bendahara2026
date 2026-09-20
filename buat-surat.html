@@ -976,6 +976,22 @@
 </body>
 </html>`;
 
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.open();
+                    printWindow.document.write(fullPrintHtml);
+                    printWindow.document.title = cleanTitle;
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 500);
+                    return;
+                }
+            }
+
             let iframe = document.getElementById('surat_print_frame');
             if (!iframe) {
                 iframe = document.createElement('iframe');
@@ -1097,9 +1113,17 @@
             Swal.fire({
                 icon: 'success',
                 title: 'Surat Berhasil Diunduh!',
-                text: `${cleanTitle}.doc siap dibuka di Microsoft Word / Google Docs.`,
-                timer: 2500,
-                showConfirmButton: false
+                html: `
+                    <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
+                        <div>📄 Berkas: <b>${cleanTitle}.doc</b></div>
+                        <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
+                            💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
+                            📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan tombol <b>Cetak / Simpan PDF</b> agar langsung tampil rapi di HP.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Oke, Mengerti',
+                confirmButtonColor: '#FF7300'
             });
         }
 
