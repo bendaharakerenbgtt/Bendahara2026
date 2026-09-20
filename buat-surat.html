@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') !== 'dark') {
+            document.documentElement.classList.add('light-mode');
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.remove('light-mode');
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanaIMIP — Buat Surat Resmi LDK IMIP</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #080C14;
+            --bg-card: rgba(17, 24, 39, 0.88);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-muted: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-sec-100: #f1f5f9;
+            --text-sec-200: #e2e8f0;
+            --text-sec-300: #cbd5e1;
+            --text-sec-400: #94a3b8;
+            --text-sec-500: #64748b;
+            --orange-soft: #FF7300;
+            --orange-bg: rgba(255, 115, 0, 0.12);
+            --orange-border: rgba(255, 115, 0, 0.35);
+        }
+
+        html.light-mode {
+            --bg-main: #F4F6F9;
+            --bg-card: #FFFFFF;
+            --border-card: #E2E8F0;
+            --border-muted: #CBD5E1;
+            --text-primary: #0F172A;
+            --text-sec-100: #1E293B;
+            --text-sec-200: #334155;
+            --text-sec-300: #475569;
+            --text-sec-400: #64748b;
+            --text-sec-500: #94a3b8;
+            --orange-soft: #EA580C;
+            --orange-bg: rgba(234, 88, 12, 0.08);
+            --orange-border: rgba(234, 88, 12, 0.3);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 90px;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 1rem;
+            backdrop-filter: blur(12px);
+        }
+
+        /* Input Controls */
+        .form-input {
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.45);
+            border: 1px solid var(--border-card);
+            border-radius: 0.65rem;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.825rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        html.light-mode .form-input {
+            background-color: #F8FAFC;
+            border-color: #E2E8F0;
+        }
+        .form-input:focus {
+            border-color: #FF7300;
+            box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.15);
+        }
+
+        /* Paper Preview (A4 Sim) */
+        .a4-preview-sheet {
+            background-color: #FFFFFF !important;
+            color: #000000 !important;
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            border-radius: 4px;
+            width: 100%;
+            min-height: 29.7cm;
+            padding: 2.2cm 2.2cm 2cm 2.5cm;
+            box-sizing: border-box;
+            position: relative;
+            line-height: 1.4;
+            font-size: 11pt;
+        }
+
+        @media (max-width: 768px) {
+            .a4-preview-sheet {
+                padding: 1.2cm 1cm;
+                font-size: 10pt;
+                min-height: auto;
+            }
+        }
+
+        /* Kop Surat Separator Line */
+        .kop-separator {
+            border-top: 2.5px solid #000000;
+            border-bottom: 0.8px solid #000000;
+            height: 3px;
+            margin: 8pt 0 14pt 0;
+        }
+
+        /* Navigation dock */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.6rem;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 9999px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            z-index: 50;
+            max-width: 95vw;
+        }
+        html.light-mode .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(226, 232, 240, 0.9);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            color: #94a3b8;
+            font-size: 0.65rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .bottom-nav-item i {
+            font-size: 0.95rem;
+            margin-bottom: 0.15rem;
+        }
+        .bottom-nav-item.active {
+            color: #FF7300;
+            background: rgba(255, 115, 0, 0.12);
+        }
+        html.light-mode .bottom-nav-item {
+            color: #64748b;
+        }
+        html.light-mode .bottom-nav-item.active {
+            color: #EA580C;
+            background: rgba(234, 88, 12, 0.1);
+        }
+
+        /* Type Tab Badge */
+        .type-tab-btn.active {
+            background: linear-gradient(135deg, #FF7300, #FF9500);
+            color: #FFFFFF !important;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(255, 115, 0, 0.35);
+        }
+
+        /* Print iframe & media */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 20mm 20mm 20mm 25mm;
+            }
+            body {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP HEADER NAVBAR -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-neutral-950/70 border-b border-neutral-900 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="dasboard.html" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors" title="Kembali ke Beranda">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+            </a>
+            <div class="flex items-center gap-2.5">
+                <img src="IMIP.png" alt="Logo LDK IMIP" class="w-7 h-7 object-contain rounded-full bg-white/10 p-0.5 border border-white/20">
+                <div>
+                    <h1 class="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+                        Generator Surat <span class="bg-gradient-to-r from-[#FF7300] to-[#FFA500] bg-clip-text text-transparent">LDK IMIP</span>
+                    </h1>
+                    <p class="text-[9px] text-neutral-400 font-mono">Format Resmi Ormawa 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button type="button" onclick="quickPrintSurat()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-lg shadow-sm transition-all active:scale-95">
+                <i class="fa-solid fa-print text-xs"></i> Cetak / PDF
+            </button>
+            <button type="button" onclick="exportSuratWord()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 rounded-lg transition-all active:scale-95">
+                <i class="fa-solid fa-file-word text-xs"></i> Ekspor Word
+            </button>
+            <button type="button" onclick="toggleTheme(event)" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-orange-500 hover:bg-neutral-800 transition-colors" title="Ubah Tema">
+                <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6">
+        
+        <!-- HEADER HERO TITLE -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <span class="text-[10px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">PERSURATAN RESMI</span>
+                <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5">
+                    Buat Surat <span class="bg-gradient-to-r from-[#FF7300] to-[#FFA500] bg-clip-text text-transparent">Cepat & Standar</span>
+                </h2>
+                <p class="text-xs text-neutral-400 mt-1 max-w-xl">
+                    Pilih jenis surat (SPM, SBA, SPZ, SUD), sesuaikan formulir di sebelah kiri, lalu cetak langsung ke PDF atau unduh file Word (.doc).
+                </p>
+            </div>
+
+            <!-- TABS PEMILIHAN JENIS SURAT -->
+            <div class="flex items-center gap-1.5 p-1 bg-neutral-900/90 border border-neutral-800 rounded-xl overflow-x-auto max-w-full">
+                <button type="button" onclick="selectSuratType('SPM')" id="tab_SPM" class="type-tab-btn active px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-file-lines text-xs"></i> SPM (Permohonan)
+                </button>
+                <button type="button" onclick="selectSuratType('SBA')" id="tab_SBA" class="type-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-scroll text-xs"></i> SBA (Berita Acara)
+                </button>
+                <button type="button" onclick="selectSuratType('SPZ')" id="tab_SPZ" class="type-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-shield-halved text-xs"></i> SPZ (Perizinan)
+                </button>
+                <button type="button" onclick="selectSuratType('SUD')" id="tab_SUD" class="type-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 transition-all flex items-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-envelope-open-text text-xs"></i> SUD (Undangan)
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN 2-COLUMN GRID (EDITOR & PREVIEW) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- FORM EDITOR COLUMN (5 COLS) -->
+            <div class="lg:col-span-5 flex flex-col gap-4">
+                
+                <!-- CARD: KOP & PENOMORAN -->
+                <div class="glass-card p-4 sm:p-5">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-heading text-orange-500"></i> Kop & Nomor Surat
+                        </span>
+                        <label class="flex items-center gap-1.5 text-[11px] text-neutral-300 cursor-pointer">
+                            <input type="checkbox" id="field_use_kop" checked onchange="updatePreview()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5">
+                            Gunakan Kop Resmi
+                        </label>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-300">Nomor Surat</label>
+                                <button type="button" onclick="autoGenerateNoSurat()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Nomor Otomatis
+                                </button>
+                            </div>
+                            <input type="text" id="field_nomor_surat" oninput="updatePreview()" class="form-input font-mono text-xs" placeholder="001/SPM/LDK-IMIP/POLIMEDIA/IX/2026">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="text-[11px] font-bold text-neutral-300 block mb-1">Lampiran</label>
+                                <input type="text" id="field_lampiran" oninput="updatePreview()" class="form-input" placeholder="- atau 1 Berkas" value="-">
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-neutral-300 block mb-1">Kota & Tanggal Surat</label>
+                                <input type="text" id="field_tanggal_surat" oninput="updatePreview()" class="form-input" placeholder="Jakarta, 20 September 2026">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Perihal / Hal</label>
+                            <input type="text" id="field_perihal" oninput="updatePreview()" class="form-input font-medium" placeholder="Permohonan Bantuan Dana Kegiatan Dauroh">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: PENERIMA / TUJUAN -->
+                <div class="glass-card p-4 sm:p-5">
+                    <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2 mb-3 border-b border-neutral-800 pb-2.5">
+                        <i class="fa-solid fa-user-tag text-orange-500"></i> Tujuan / Kepada Yth.
+                    </span>
+                    <div class="flex flex-col gap-2.5">
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Penerima Surat (Bisa multi-baris)</label>
+                            <textarea id="field_tujuan" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Yth. Bapak/Ibu Pembantu Direktur III&#10;Politeknik Negeri Media Kreatif&#10;di Tempat"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: DETAIL KEGIATAN (WAKTU & TEMPAT) -->
+                <div class="glass-card p-4 sm:p-5" id="card_detail_kegiatan">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-orange-500"></i> Rincian Acara / Kegiatan
+                        </span>
+                        <label class="flex items-center gap-1.5 text-[11px] text-neutral-300 cursor-pointer">
+                            <input type="checkbox" id="field_include_event_details" checked onchange="toggleEventDetailsSection()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5">
+                            Sertakan Rincian Acara
+                        </label>
+                    </div>
+
+                    <div id="event_details_fields" class="flex flex-col gap-2.5">
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Nama Kegiatan</label>
+                            <input type="text" id="field_nama_acara" oninput="updatePreview()" class="form-input" placeholder="Dauroh Marhalah 1 LDK IMIP 2026">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="text-[11px] font-bold text-neutral-300 block mb-1">Hari, Tanggal</label>
+                                <input type="text" id="field_hari_tanggal" oninput="updatePreview()" class="form-input" placeholder="Sabtu - Ahad, 24 - 25 April 2026">
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-neutral-300 block mb-1">Waktu / Pukul</label>
+                                <input type="text" id="field_waktu" oninput="updatePreview()" class="form-input" placeholder="08.00 WIB s.d. Selesai">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Tempat Pelaksanaan</label>
+                            <input type="text" id="field_tempat" oninput="updatePreview()" class="form-input" placeholder="Ruang Serbaguna Lt. 3 Polimedia Jakarta">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: KONTEN TEKS SURAT -->
+                <div class="glass-card p-4 sm:p-5">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-align-left text-orange-500"></i> Isi & Narasi Surat
+                        </span>
+                        <button type="button" onclick="resetToCurrentTemplate()" class="text-[10px] text-neutral-400 hover:text-white font-mono flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Template
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Paragraf Pembuka</label>
+                            <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Isi Inti / Tambahan</label>
+                            <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Paragraf Penutup</label>
+                            <textarea id="field_penutup" oninput="updatePreview()" rows="2" class="form-input text-xs"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: TANDA TANGAN -->
+                <div class="glass-card p-4 sm:p-5">
+                    <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2 mb-3 border-b border-neutral-800 pb-2.5">
+                        <i class="fa-solid fa-signature text-orange-500"></i> Penandatangan Surat
+                    </span>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <!-- Tanda Tangan Kiri -->
+                        <div class="p-2.5 rounded-lg bg-neutral-900/50 border border-neutral-800 flex flex-col gap-2">
+                            <span class="text-[10px] font-black text-orange-400 uppercase block font-mono">Pihak 1 (Kiri)</span>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">Jabatan</label>
+                                <input type="text" id="field_ttd1_jabatan" oninput="updatePreview()" class="form-input text-xs" value="Ketua Pelaksana">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
+                                <input type="text" id="field_ttd1_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama Ketua Pelaksana">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">NIM / ID</label>
+                                <input type="text" id="field_ttd1_nim" oninput="updatePreview()" class="form-input text-xs" placeholder="NIM. 240101001">
+                            </div>
+                        </div>
+
+                        <!-- Tanda Tangan Kanan -->
+                        <div class="p-2.5 rounded-lg bg-neutral-900/50 border border-neutral-800 flex flex-col gap-2">
+                            <span class="text-[10px] font-black text-orange-400 uppercase block font-mono">Pihak 2 (Kanan)</span>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">Jabatan</label>
+                                <input type="text" id="field_ttd2_jabatan" oninput="updatePreview()" class="form-input text-xs" value="Ketua Umum LDK IMIP">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
+                                <input type="text" id="field_ttd2_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama Ketua Umum">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">NIM / ID</label>
+                                <input type="text" id="field_ttd2_nim" oninput="updatePreview()" class="form-input text-xs" placeholder="NIM. 230101002">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tanda Tangan Mengetahui (Tengah Bawah) -->
+                    <div class="p-2.5 rounded-lg bg-neutral-900/40 border border-neutral-800 flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black text-neutral-300 uppercase block font-mono">Mengetahui / Pihak 3 (Opsional)</span>
+                            <label class="flex items-center gap-1.5 text-[10px] text-neutral-400 cursor-pointer">
+                                <input type="checkbox" id="field_ttd3_active" onchange="updatePreview()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3 h-3">
+                                Tampilkan
+                            </label>
+                        </div>
+                        <div id="ttd3_container" class="grid grid-cols-3 gap-2 opacity-50 pointer-events-none transition-opacity">
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">Jabatan</label>
+                                <input type="text" id="field_ttd3_jabatan" oninput="updatePreview()" class="form-input text-xs" value="Pembina LDK IMIP">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
+                                <input type="text" id="field_ttd3_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama Pembina / Pejabat">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-0.5">NIP / NIDN</label>
+                                <input type="text" id="field_ttd3_nim" oninput="updatePreview()" class="form-input text-xs" placeholder="NIP. 19850101...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOMBOL ACTION MOBILE / DESKTOP BOTTOM -->
+                <div class="flex items-center gap-2 pt-2">
+                    <button type="button" onclick="quickPrintSurat()" class="flex-1 py-3 px-4 rounded-xl font-black text-xs text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+                    </button>
+                    <button type="button" onclick="exportSuratWord()" class="flex-1 py-3 px-4 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <i class="fa-solid fa-file-word"></i> Unduh Word (.doc)
+                    </button>
+                    <button type="button" onclick="copySuratText()" class="p-3 rounded-xl text-neutral-300 bg-neutral-900 border border-neutral-800 hover:text-white transition-colors" title="Salin Teks Surat">
+                        <i class="fa-solid fa-copy text-sm"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- LIVE PREVIEW COLUMN (7 COLS) -->
+            <div class="lg:col-span-7 flex flex-col gap-3">
+                <div class="flex items-center justify-between px-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-bold font-mono tracking-wider text-neutral-400 uppercase">Pratinjau Kertas A4 Langsung</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="preview_type_badge" class="px-2.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-[10px] font-bold text-orange-400 font-mono uppercase">
+                            SPM
+                        </span>
+                        <button type="button" onclick="copySuratText()" class="text-xs text-neutral-400 hover:text-neutral-200 flex items-center gap-1 font-mono">
+                            <i class="fa-solid fa-copy"></i> Salin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SHEET CONTAINER -->
+                <div class="rounded-xl border border-neutral-800 bg-neutral-950/40 p-2 sm:p-4 overflow-x-auto">
+                    <div id="rendered_surat_paper" class="a4-preview-sheet mx-auto">
+                        <!-- Konten surat dirender secara dinamis di sini -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center mt-12">
+        <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-bold">LDK IMIP SYSTEM © 2026</span>
+    </footer>
+
+    <!-- MODERN MOBILE BOTTOM NAVIGATION DOCK -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah">
+        <a href="dasboard.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-house"></i></div>
+            <span class="nav-label">Beranda</span>
+        </a>
+        <a href="pembayaran-kas.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+            <span class="nav-label">Bayar Kas</span>
+        </a>
+        <a href="lihat-kegiatan.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-calendar-check"></i></div>
+            <span class="nav-label">Kegiatan</span>
+        </a>
+        <a href="buat-surat.html" class="bottom-nav-item active">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-envelope-open-text"></i></div>
+            <span class="nav-label">Surat</span>
+        </a>
+        <a href="riwayat-transaksi.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <span class="nav-label">Rekap</span>
+        </a>
+        <button type="button" onclick="toggleTheme(event)" class="bottom-nav-item" id="mobileThemeBtn" title="Ubah Tema">
+            <div class="nav-icon-wrap"><i id="mobileThemeIcon" class="fa-solid fa-sun text-orange-500"></i></div>
+            <span class="nav-label" id="mobileThemeLabel">Mode</span>
+        </button>
+    </nav>
+
+    <!-- HIDDEN PRINT IFRAME -->
+    <iframe id="surat_print_frame" style="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;"></iframe>
+
+    <script>
+        // DATA TEMPLATES
+        const SURAT_TEMPLATES = {
+            SPM: {
+                title: 'Surat Permohonan',
+                kode: 'SPM',
+                perihal: 'Permohonan Bantuan Dana Kegiatan',
+                tujuan: 'Yth. Pembantu Direktur III Bidang Kemahasiswaan\nPoliteknik Negeri Media Kreatif\ndi Tempat',
+                namaAcara: 'Dauroh Marhalah 1 LDK IMIP 2026',
+                hariTanggal: 'Sabtu - Ahad, 24 - 25 April 2026',
+                waktu: '08.00 WIB s.d. Selesai',
+                tempat: 'Gedung Hall Polimedia Jakarta',
+                pembuka: 'Segala puji dan syukur kita panjatkan kehadirat Allah SWT yang senantiasa melimpahkan rahmat, taufik, serta hidayah-Nya kepada kita semua. Shalawat serta salam semoga tercurah kepada junjungan kita Nabi Muhammad SAW, beserta keluarga, sahabat, dan pengikutnya hingga akhir zaman.\n\nSehubungan dengan akan dilaksanakannya agenda kerja tahunan Lembaga Dakwah Kampus Ikatan Mahasiswa Islam Polimedia (LDK IMIP), kami bermaksud memohon bantuan dana guna mendukung kelancaran pelaksanaan kegiatan yang insya Allah akan dilaksanakan pada:',
+                isiInti: 'Besar harapan kami agar permohonan bantuan dana ini dapat disetujui guna menyukseskan terselenggaranya kegiatan tersebut. Sebagai bahan pertimbangan, rincian anggaran biaya dan proposal kegiatan telah kami lampirkan bersama surat ini.',
+                penutup: 'Demikian surat permohonan ini kami sampaikan. Atas perhatian, dukungan, dan kerja sama Bapak/Ibu, kami haturkan terima kasih banyak.',
+                ttd1Jabatan: 'Ketua Pelaksana',
+                ttd1Nama: 'Muhammad Rayhan',
+                ttd1Nim: 'NIM. 240101001',
+                ttd2Jabatan: 'Ketua Umum LDK IMIP',
+                ttd2Nama: 'Ahmad Faiz Al-Ghifari',
+                ttd2Nim: 'NIM. 230101002',
+                ttd3Active: true,
+                ttd3Jabatan: 'Pembina LDK IMIP',
+                ttd3Nama: 'Drs. H. Mulyadi, M.Pd.',
+                ttd3Nim: 'NIP. 197505122002121001'
+            },
+            SBA: {
+                title: 'Surat Berita Acara',
+                kode: 'SBA',
+                perihal: 'Berita Acara Serah Terima Dana / LPJ Kegiatan',
+                tujuan: 'Yth. Pengurus Harian & Majelis Syura\nLDK IMIP Polimedia\ndi Tempat',
+                namaAcara: 'Serah Terima Sisa Anggaran & LPJ Dauroh 2026',
+                hariTanggal: 'Senin, 27 April 2026',
+                waktu: '16.30 WIB s.d. Selesai',
+                tempat: 'Sekretariat LDK IMIP Lt. 2 Polimedia',
+                pembuka: 'Pada hari ini, Senin tanggal dua puluh tujuh bulan April tahun dua ribu dua puluh enam, bertempat di Sekretariat LDK IMIP Politeknik Negeri Media Kreatif Jakarta, telah dilakukan serah terima pertanggungjawaban dana dan inventaris kegiatan dengan rincian sebagai berikut:',
+                isiInti: 'Pihak Pertama telah menyerahkan seluruh berkas bukti transaksi dan sisa kas operasional kegiatan sebesar Rp2.737.499,00 (Dua Juta Tujuh Ratus Tiga Puluh Tujuh Ribu Empat Ratus Sembilan Puluh Sembilan Rupiah) kepada Pihak Kedua dalam keadaan lengkap dan dapat dipertanggungjawabkan.\n\nPihak Kedua telah menerima seluruh berkas dan sisa dana tersebut untuk dikembalikan ke Kas Besar LDK IMIP.',
+                penutup: 'Demikian Berita Acara ini dibuat dengan sebenarnya dalam rangkap 2 (dua) untuk dapat dipergunakan sebagaimana mestinya.',
+                ttd1Jabatan: 'Pihak Pertama (Ketua Pelaksana)',
+                ttd1Nama: 'Muhammad Rayhan',
+                ttd1Nim: 'NIM. 240101001',
+                ttd2Jabatan: 'Pihak Kedua (Bendahara Umum)',
+                ttd2Nama: 'Siti Nurhaliza',
+                ttd2Nim: 'NIM. 230101008',
+                ttd3Active: true,
+                ttd3Jabatan: 'Mengetahui, Ketua Umum LDK IMIP',
+                ttd3Nama: 'Ahmad Faiz Al-Ghifari',
+                ttd3Nim: 'NIM. 230101002'
+            },
+            SPZ: {
+                title: 'Surat Perizinan',
+                kode: 'SPZ',
+                perihal: 'Permohonan Izin Kegiatan & Peminjaman Ruangan',
+                tujuan: 'Yth. Kepala Bagian Umum & Sarana Prasarana\nPoliteknik Negeri Media Kreatif\ndi Tempat',
+                namaAcara: 'Kajian Akbar & Buka Puasa Bersama (TAKRAM)',
+                hariTanggal: 'Kamis, 15 Ramadhan 1447 H / 03 April 2026',
+                waktu: '15.30 WIB s.d. 19.30 WIB',
+                tempat: 'Masjid Al-Qalam & Selasar Polimedia',
+                pembuka: 'Semoga rahmat dan karunia Allah SWT senantiasa menyertai kita dalam menjalankan aktivitas sehari-hari. Aamiin.\n\nDalam rangka menyemarakkan syiar bulan suci Ramadhan, kami pengurus LDK IMIP bermaksud memohon izin penggunaan fasilitas dan peminjaman ruangan kampus yang akan dilaksanakan pada:',
+                isiInti: 'Adapun fasilitas sarana prasarana yang kami mohonkan izin peminjamannya mencakup: Ruang ibadah utama, sound system, 2 unit mic wireless, dan karpet selasar. Kami berkomitmen untuk menjaga ketertiban dan kebersihan seluruh area selama kegiatan berlangsung.',
+                penutup: 'Demikian surat permohonan izin ini kami ajukan. Atas izin, dispensasi, dan perhatian yang Bapak/Ibu berikan, kami haturkan terima kasih.',
+                ttd1Jabatan: 'Ketua Pelaksana',
+                ttd1Nama: 'Fikri Haikal',
+                ttd1Nim: 'NIM. 240201015',
+                ttd2Jabatan: 'Ketua Umum LDK IMIP',
+                ttd2Nama: 'Ahmad Faiz Al-Ghifari',
+                ttd2Nim: 'NIM. 230101002',
+                ttd3Active: true,
+                ttd3Jabatan: 'Menyetujui, Pembina LDK IMIP',
+                ttd3Nama: 'Drs. H. Mulyadi, M.Pd.',
+                ttd3Nim: 'NIP. 197505122002121001'
+            },
+            SUD: {
+                title: 'Surat Undangan',
+                kode: 'SUD',
+                perihal: 'Undangan Menghadiri Acara Pembukaan',
+                tujuan: 'Yth. Ketua Umum BEM / DPM / Ormawa Polimedia\ndi Tempat',
+                namaAcara: 'Grand Opening & Seminar Nasional IMIP Fair 2026',
+                hariTanggal: 'Sabtu, 22 Agustus 2026',
+                waktu: '08.30 WIB s.d. Selesai',
+                tempat: 'Auditorium Utama Politeknik Negeri Media Kreatif',
+                pembuka: 'Teriring salam dan doa kami sampaikan, semoga Allah SWT senantiasa melimpahkan berkah dan kesuksesan dalam setiap amanah kepengurusan yang diemban.\n\nSehubungan dengan penyelenggaraan rangkaian acara tahunan IMIP Fair 2026, kami bermaksud mengundang Saudara/i perwakilan organisasi mahasiswa untuk hadir pada agenda:',
+                isiInti: 'Kehadiran dan partisipasi Saudara/i sangat berarti bagi kami demi mempererat ukhuwah islamiyah dan sinergi antar-lembaga kemahasiswaan di lingkungan Polimedia.',
+                penutup: 'Mengingat pentingnya agenda ini, kami sangat mengharapkan kehadiran Saudara/i tepat pada waktu yang telah ditentukan. Atas perhatian dan kehadirannya, kami ucapkan terima kasih.',
+                ttd1Jabatan: 'Ketua Pelaksana',
+                ttd1Nama: 'Zidan Al-Farisi',
+                ttd1Nim: 'NIM. 240301020',
+                ttd2Jabatan: 'Ketua Umum LDK IMIP',
+                ttd2Nama: 'Ahmad Faiz Al-Ghifari',
+                ttd2Nim: 'NIM. 230101002',
+                ttd3Active: false,
+                ttd3Jabatan: 'Sekretaris Umum',
+                ttd3Nama: 'Fathimah Azzahra',
+                ttd3Nim: 'NIM. 230101045'
+            }
+        };
+
+        let currentSuratType = 'SPM';
+
+        // ROMAN MONTH GENERATOR
+        function getRomanMonth(dateObj) {
+            const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+            return romans[dateObj.getMonth()];
+        }
+
+        function formatIndoDate(dateObj) {
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+        }
+
+        // AUTO-GENERATE NOMOR SURAT
+        function autoGenerateNoSurat() {
+            const now = new Date();
+            const romanMonth = getRomanMonth(now);
+            const year = now.getFullYear();
+            const randomNum = String(Math.floor(Math.random() * 89) + 10).padStart(3, '0');
+            const noSurat = `${randomNum}/${currentSuratType}/LDK-IMIP/POLIMEDIA/${romanMonth}/${year}`;
+            document.getElementById('field_nomor_surat').value = noSurat;
+            updatePreview();
+        }
+
+        // SELECT SURAT TYPE
+        function selectSuratType(type) {
+            if (!SURAT_TEMPLATES[type]) return;
+            currentSuratType = type;
+
+            // Update Tab UI
+            ['SPM', 'SBA', 'SPZ', 'SUD'].forEach(t => {
+                const btn = document.getElementById(`tab_${t}`);
+                if (btn) {
+                    if (t === type) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+
+            document.getElementById('preview_type_badge').innerText = type;
+
+            // Load default data for selected template
+            const tpl = SURAT_TEMPLATES[type];
+            document.getElementById('field_perihal').value = tpl.perihal;
+            document.getElementById('field_tujuan').value = tpl.tujuan;
+            document.getElementById('field_nama_acara').value = tpl.namaAcara;
+            document.getElementById('field_hari_tanggal').value = tpl.hariTanggal;
+            document.getElementById('field_waktu').value = tpl.waktu;
+            document.getElementById('field_tempat').value = tpl.tempat;
+            document.getElementById('field_pembuka').value = tpl.pembuka;
+            document.getElementById('field_isi_inti').value = tpl.isiInti;
+            document.getElementById('field_penutup').value = tpl.penutup;
+
+            document.getElementById('field_ttd1_jabatan').value = tpl.ttd1Jabatan;
+            document.getElementById('field_ttd1_nama').value = tpl.ttd1Nama;
+            document.getElementById('field_ttd1_nim').value = tpl.ttd1Nim;
+
+            document.getElementById('field_ttd2_jabatan').value = tpl.ttd2Jabatan;
+            document.getElementById('field_ttd2_nama').value = tpl.ttd2Nama;
+            document.getElementById('field_ttd2_nim').value = tpl.ttd2Nim;
+
+            const ttd3Check = document.getElementById('field_ttd3_active');
+            ttd3Check.checked = tpl.ttd3Active;
+            document.getElementById('field_ttd3_jabatan').value = tpl.ttd3Jabatan;
+            document.getElementById('field_ttd3_nama').value = tpl.ttd3Nama;
+            document.getElementById('field_ttd3_nim').value = tpl.ttd3Nim;
+
+            autoGenerateNoSurat();
+            updateTtd3State();
+            updatePreview();
+        }
+
+        function resetToCurrentTemplate() {
+            selectSuratType(currentSuratType);
+            Swal.fire({
+                icon: 'info',
+                title: 'Template Direset',
+                text: `Formulir dikembalikan ke contoh bawaan ${currentSuratType}.`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function updateTtd3State() {
+            const active = document.getElementById('field_ttd3_active').checked;
+            const container = document.getElementById('ttd3_container');
+            if (active) {
+                container.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                container.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function toggleEventDetailsSection() {
+            const inc = document.getElementById('field_include_event_details').checked;
+            const wrap = document.getElementById('event_details_fields');
+            if (inc) {
+                wrap.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                wrap.classList.add('opacity-40', 'pointer-events-none');
+            }
+            updatePreview();
+        }
+
+        // GENERATE KOP HTML
+        function generateKopHtml() {
+            const useKop = document.getElementById('field_use_kop').checked;
+            if (!useKop) return '';
+
+            return `
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 2pt;">
+                    <tr>
+                        <td style="width: 18%; vertical-align: middle; text-align: center;">
+                            <img src="IMIP.png" alt="Logo LDK IMIP" style="width: 82px; height: 82px; object-contain: contain;">
+                        </td>
+                        <td style="width: 82%; vertical-align: middle; text-align: center; font-family: 'Times New Roman', serif;">
+                            <p style="margin: 0; font-size: 13pt; font-weight: bold; letter-spacing: 0.5pt; text-transform: uppercase;">LEMBAGA DAKWAH KAMPUS</p>
+                            <p style="margin: 0; font-size: 15pt; font-weight: bold; letter-spacing: 1pt; text-transform: uppercase; color: #111;">IKATAN MAHASISWA ISLAM POLIMEDIA</p>
+                            <p style="margin: 0; font-size: 12pt; font-weight: bold; letter-spacing: 0.5pt;">POLITEKNIK NEGERI MEDIA KREATIF</p>
+                            <p style="margin: 2pt 0 0 0; font-size: 8.5pt; font-style: normal; color: #222;">
+                                Jl. Srengseng Sawah, Jagakarsa, Jakarta Selatan 12640 | Telp: 0859-7253-5329
+                            </p>
+                            <p style="margin: 0; font-size: 8pt; font-style: italic; color: #333;">
+                                E-mail: ldkimip.polimedia@gmail.com | Website: https://www.danaimip.web.id
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                <div class="kop-separator"></div>
+            `;
+        }
+
+        // RENDER SURAT FULL HTML (FOR PREVIEW & PRINT & WORD)
+        function renderSuratFullHtml() {
+            const noSurat = document.getElementById('field_nomor_surat').value.trim() || '-';
+            const lampiran = document.getElementById('field_lampiran').value.trim() || '-';
+            const perihal = document.getElementById('field_perihal').value.trim() || '-';
+            const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || `Jakarta, ${formatIndoDate(new Date())}`;
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. Bapak/Ibu\ndi Tempat';
+
+            const incEvent = document.getElementById('field_include_event_details').checked;
+            const namaAcara = document.getElementById('field_nama_acara').value.trim();
+            const hariTanggal = document.getElementById('field_hari_tanggal').value.trim();
+            const waktu = document.getElementById('field_waktu').value.trim();
+            const tempat = document.getElementById('field_tempat').value.trim();
+
+            const pembuka = document.getElementById('field_pembuka').value.trim();
+            const isiInti = document.getElementById('field_isi_inti').value.trim();
+            const penutup = document.getElementById('field_penutup').value.trim();
+
+            const ttd1Jabatan = document.getElementById('field_ttd1_jabatan').value.trim();
+            const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Nama Lengkap';
+            const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. -';
+
+            const ttd2Jabatan = document.getElementById('field_ttd2_jabatan').value.trim();
+            const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Nama Lengkap';
+            const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. -';
+
+            const ttd3Active = document.getElementById('field_ttd3_active').checked;
+            const ttd3Jabatan = document.getElementById('field_ttd3_jabatan').value.trim();
+            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim();
+            const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim();
+
+            const kopHtml = generateKopHtml();
+
+            // Format Event Box
+            let eventBoxHtml = '';
+            if (incEvent && (namaAcara || hariTanggal || waktu || tempat)) {
+                eventBoxHtml = `
+                    <div style="margin: 8pt 0 10pt 1.5cm;">
+                        <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            ${namaAcara ? `<tr><td style="width: 25%; vertical-align: top; padding: 1.5pt 0;">Nama Kegiatan</td><td style="width: 3%; vertical-align: top;">:</td><td style="width: 72%; vertical-align: top; font-weight: bold;">${escapeHtml(namaAcara)}</td></tr>` : ''}
+                            ${hariTanggal ? `<tr><td style="vertical-align: top; padding: 1.5pt 0;">Hari, Tanggal</td><td style="vertical-align: top;">:</td><td style="vertical-align: top;">${escapeHtml(hariTanggal)}</td></tr>` : ''}
+                            ${waktu ? `<tr><td style="vertical-align: top; padding: 1.5pt 0;">Waktu</td><td style="vertical-align: top;">:</td><td style="vertical-align: top;">${escapeHtml(waktu)}</td></tr>` : ''}
+                            ${tempat ? `<tr><td style="vertical-align: top; padding: 1.5pt 0;">Tempat</td><td style="vertical-align: top;">:</td><td style="vertical-align: top;">${escapeHtml(tempat)}</td></tr>` : ''}
+                        </table>
+                    </div>
+                `;
+            }
+
+            // Paragraph formats
+            const pembukaParas = pembuka.split('\n\n').filter(p => p.trim() !== '').map(p => `
+                <p style="margin: 0 0 7pt 0; text-align: justify; text-indent: 1.25cm;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>
+            `).join('');
+
+            const intiParas = isiInti.split('\n\n').filter(p => p.trim() !== '').map(p => `
+                <p style="margin: 0 0 7pt 0; text-align: justify; text-indent: 1.25cm;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>
+            `).join('');
+
+            const penutupParas = penutup.split('\n\n').filter(p => p.trim() !== '').map(p => `
+                <p style="margin: 0 0 7pt 0; text-align: justify; text-indent: 1.25cm;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>
+            `).join('');
+
+            // Format Tanda Tangan 3 (Mengetahui)
+            let ttd3Html = '';
+            if (ttd3Active && (ttd3Nama || ttd3Jabatan)) {
+                ttd3Html = `
+                    <div style="margin-top: 18pt; text-align: center;">
+                        <p style="margin: 0 0 2pt 0; font-size: 11pt;">Mengetahui,</p>
+                        <p style="margin: 0 0 54pt 0; font-size: 11pt; font-weight: bold;">${escapeHtml(ttd3Jabatan)}</p>
+                        <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd3Nama)}</p>
+                        <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd3Nim)}</p>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="Section1" style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000000; line-height: 1.35;">
+                    ${kopHtml}
+
+                    <!-- TANGGAL SURAT -->
+                    <div style="text-align: right; margin-bottom: 8pt;">
+                        <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                    </div>
+
+                    <!-- META NOMOR & PERIHAL -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <tr>
+                            <td style="width: 15%; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
+                            <td style="width: 3%; vertical-align: top; padding: 1.5pt 0;">:</td>
+                            <td style="width: 82%; vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
+                            <td style="vertical-align: top; padding: 1.5pt 0;">:</td>
+                            <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 1.5pt 0; font-weight: bold;">Perihal</td>
+                            <td style="vertical-align: top; padding: 1.5pt 0; font-weight: bold;">:</td>
+                            <td style="vertical-align: top; padding: 1.5pt 0; font-weight: bold;">${escapeHtml(perihal)}</td>
+                        </tr>
+                    </table>
+
+                    <!-- TUJUAN KEPADA YTH -->
+                    <div style="margin-bottom: 12pt;">
+                        <p style="margin: 0 0 2pt 0;">Kepada Yth,</p>
+                        <p style="margin: 0; font-weight: bold; line-height: 1.35;">${escapeHtml(tujuan).replace(/\n/g, '<br>')}</p>
+                    </div>
+
+                    <!-- SALAM PEMBUKA -->
+                    <div style="margin-bottom: 8pt;">
+                        <p style="margin: 0; font-style: italic;">Assalamu’alaikum Warahmatullahi Wabarakatuh,</p>
+                    </div>
+
+                    <!-- ISI SURAT -->
+                    ${pembukaParas}
+                    ${eventBoxHtml}
+                    ${intiParas}
+                    ${penutupParas}
+
+                    <!-- SALAM PENUTUP -->
+                    <div style="margin-bottom: 16pt;">
+                        <p style="margin: 0; font-style: italic;">Wassalamu’alaikum Warahmatullahi Wabarakatuh.</p>
+                    </div>
+
+                    <!-- TANDA TANGAN SECTION -->
+                    <div style="margin-top: 14pt; page-break-inside: avoid; break-inside: avoid;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
+                                    <p style="margin: 0 0 2pt 0;">${escapeHtml(ttd1Jabatan)},</p>
+                                </td>
+                                <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
+                                    <p style="margin: 0 0 2pt 0;">${escapeHtml(ttd2Jabatan)},</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd1Nama)}</p>
+                                    <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd1Nim)}</p>
+                                </td>
+                                <td style="vertical-align: top;">
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd2Nama)}</p>
+                                    <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd2Nim)}</p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        ${ttd3Html}
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // UPDATE LIVE PREVIEW
+        function updatePreview() {
+            const container = document.getElementById('rendered_surat_paper');
+            if (container) {
+                container.innerHTML = renderSuratFullHtml();
+            }
+        }
+
+        // QUICK PRINT TO PDF
+        function quickPrintSurat() {
+            const rawBody = renderSuratFullHtml();
+            const noSurat = document.getElementById('field_nomor_surat').value.trim() || 'Surat_LDK_IMIP';
+            const cleanTitle = `Surat_${currentSuratType}_${noSurat.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+
+            const fullPrintHtml = `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <title>${cleanTitle}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 20mm 20mm 20mm 25mm;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            color: #000000;
+            background: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.35;
+        }
+        .kop-separator {
+            border-top: 2.5px solid #000000;
+            border-bottom: 0.8px solid #000000;
+            height: 3px;
+            margin: 8pt 0 14pt 0;
+        }
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    ${rawBody}
+</body>
+</html>`;
+
+            let iframe = document.getElementById('surat_print_frame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'surat_print_frame';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.visibility = 'hidden';
+                document.body.appendChild(iframe);
+            }
+
+            try {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(fullPrintHtml);
+                doc.title = cleanTitle;
+                doc.close();
+
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }, 350);
+            } catch (err) {
+                const printWin = window.open('', '_blank');
+                if (!printWin) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Pop-up Terblokir',
+                        text: 'Izinkan pop-up browser untuk mencetak surat.'
+                    });
+                    return;
+                }
+                printWin.document.open();
+                printWin.document.write(fullPrintHtml);
+                printWin.document.title = cleanTitle;
+                printWin.document.close();
+                printWin.focus();
+                setTimeout(() => {
+                    printWin.print();
+                }, 400);
+            }
+        }
+
+        // EXPORT TO MICROSOFT WORD (.DOC)
+        function exportSuratWord() {
+            const rawBody = renderSuratFullHtml();
+            const noSurat = document.getElementById('field_nomor_surat').value.trim() || 'LDK_IMIP';
+            const cleanTitle = `Surat_${currentSuratType}_${noSurat.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+
+            const wordDocumentHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset='utf-8'>
+    <title>${cleanTitle}</title>
+    <!--[if gte mso 9]>
+    <xml>
+    <w:WordDocument>
+    <w:View>Print</w:View>
+    <w:Zoom>100</w:Zoom>
+    <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page Section1 {
+            size: 210mm 297mm;
+            margin: 20mm 20mm 20mm 25mm;
+            mso-header-margin: 35.4pt;
+            mso-footer-margin: 35.4pt;
+            mso-paper-source: 0;
+        }
+        div.Section1 { page: Section1; }
+        @page {
+            size: A4 portrait;
+            margin: 20mm 20mm 20mm 25mm;
+            mso-page-orientation: portrait;
+        }
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            color: #000000;
+            line-height: 1.35;
+            background: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
+        p { margin: 0; padding: 0; }
+        table { border-collapse: collapse; width: 100%; }
+        .kop-separator {
+            border-top: 2.5pt solid #000000;
+            border-bottom: 0.8pt solid #000000;
+            height: 3pt;
+            margin: 8pt 0 14pt 0;
+        }
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    ${rawBody}
+</body>
+</html>`;
+
+            const blob = new Blob(['\ufeff', wordDocumentHtml], {
+                type: 'application/msword;charset=utf-8'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${cleanTitle}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Surat Berhasil Diunduh!',
+                text: `${cleanTitle}.doc siap dibuka di Microsoft Word / Google Docs.`,
+                timer: 2500,
+                showConfirmButton: false
+            });
+        }
+
+        // COPY RAW TEXT
+        function copySuratText() {
+            const noSurat = document.getElementById('field_nomor_surat').value.trim();
+            const perihal = document.getElementById('field_perihal').value.trim();
+            const tujuan = document.getElementById('field_tujuan').value.trim();
+            const pembuka = document.getElementById('field_pembuka').value.trim();
+            const namaAcara = document.getElementById('field_nama_acara').value.trim();
+            const hariTanggal = document.getElementById('field_hari_tanggal').value.trim();
+            const waktu = document.getElementById('field_waktu').value.trim();
+            const tempat = document.getElementById('field_tempat').value.trim();
+            const inti = document.getElementById('field_isi_inti').value.trim();
+            const penutup = document.getElementById('field_penutup').value.trim();
+
+            const text = `*LEMBAGA DAKWAH KAMPUS (LDK) IMIP POLIMEDIA*
+Nomor: ${noSurat}
+Perihal: ${perihal}
+
+Kepada Yth,
+${tujuan}
+
+Assalamu’alaikum Warahmatullahi Wabarakatuh,
+
+${pembuka}
+
+${namaAcara ? `• Kegiatan: ${namaAcara}` : ''}
+${hariTanggal ? `• Hari/Tgl: ${hariTanggal}` : ''}
+${waktu ? `• Waktu: ${waktu}` : ''}
+${tempat ? `• Tempat: ${tempat}` : ''}
+
+${inti}
+
+${penutup}
+
+Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
+
+            navigator.clipboard.writeText(text.trim()).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Teks Berhasil Disalin!',
+                    text: 'Format teks surat telah disalin ke clipboard.',
+                    timer: 1800,
+                    showConfirmButton: false
+                });
+            }).catch(() => {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Salin Manual',
+                    text: 'Gunakan tombol Cetak atau Ekspor Word untuk mengunduh dokumen.'
+                });
+            });
+        }
+
+        // THEME TOGGLE
+        function toggleTheme(event) {
+            if (event) event.preventDefault();
+            const isLight = document.documentElement.classList.contains('light-mode');
+            if (isLight) {
+                document.documentElement.classList.remove('light-mode');
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.add('light-mode');
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+            syncThemeIcons();
+        }
+
+        function syncThemeIcons() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const icon = document.getElementById('themeIcon');
+            const mobIcon = document.getElementById('mobileThemeIcon');
+            const mobLabel = document.getElementById('mobileThemeLabel');
+
+            if (icon) icon.className = isLight ? 'fa-solid fa-moon text-xs text-neutral-400' : 'fa-solid fa-sun text-xs text-orange-500';
+            if (mobIcon) mobIcon.className = isLight ? 'fa-solid fa-moon text-neutral-400' : 'fa-solid fa-sun text-orange-500';
+            if (mobLabel) mobLabel.innerText = isLight ? 'Gelap' : 'Terang';
+        }
+
+        // INITIALIZE ON LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            syncThemeIcons();
+            const now = new Date();
+            document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
+            selectSuratType('SPM');
+        });
+    </script>
+</body>
+</html>
