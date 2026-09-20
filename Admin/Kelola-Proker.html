@@ -2119,9 +2119,525 @@
             printHtmlDirectly(htmlContent, `Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}`);
         }
 
+        function isLikelyImageUrl(url) {
+            if (!url) return false;
+            const u = String(url).toLowerCase().trim();
+            if (u.startsWith('data:image/')) return true;
+            if (u.includes('drive.google.com') || u.includes('googleusercontent.com')) return true;
+            if (u.match(/\.(jpeg|jpg|png|webp|gif|bmp)(\?.*)?$/i)) return true;
+            if (u.includes('imgur.com') || u.includes('cloudinary.com') || u.includes('ibb.co')) return true;
+            return false;
+        }
+
+        function getAllReceiptPaths(tx) {
+            if (!tx) return [];
+            const list = [];
+            const candidates = [tx.bukti, tx.keterangan, tx.catatan, tx.uraian];
+            for (const raw of candidates) {
+                if (!raw) continue;
+                const str = String(raw).trim();
+                if (!str) continue;
+
+                const base64Matches = str.match(/data:image\/[a-zA-Z0-9+=\/;,]+/g);
+                if (base64Matches) {
+                    base64Matches.forEach(b => {
+                        if (!list.includes(b)) list.push(b);
+                    });
+                }
+
+                const urlMatches = str.match(/https?:\/\/[^\s),;"']+/g);
+                if (urlMatches) {
+                    urlMatches.forEach(u => {
+                        if (isLikelyImageUrl(u) && !list.includes(u)) {
+                            list.push(u);
+                        }
+                    });
+                }
+            }
+            if (list.length === 0) {
+                const single = getReceiptPath(tx);
+                if (single && !list.includes(single)) list.push(single);
+            }
+            return list;
+        }
+
+        function getDirectImageUrl(src) {
+            if (!src) return '';
+            const s = String(src).trim();
+            const driveId = getGoogleDriveFileId(s);
+            if (driveId) {
+                return `https://lh3.googleusercontent.com/d/${driveId}`;
+            }
+            return s;
+        }
+
+        function getProkerReceipts(prokerId, txList) {
+            const list = txList || (typeof localTransactions !== 'undefined' ? localTransactions : (typeof allTransactions !== 'undefined' ? allTransactions : []));
+            const prokerTx = list.filter(t => {
+                return (t.proker_id && t.proker_id.toString() === prokerId.toString()) || 
+                       (t.id_kegiatan && t.id_kegiatan.toString() === prokerId.toString());
+            });
+
+            prokerTx.sort((a, b) => (a.tanggal || '').localeCompare(b.tanggal || ''));
+
+            const receipts = [];
+            prokerTx.forEach(t => {
+                const paths = getAllReceiptPaths(t);
+                paths.forEach((p, idx) => {
+                    const did = getGoogleDriveFileId(p);
+                    receipts.push({
+                        url: p,
+                        displayUrl: getDirectImageUrl(p),
+                        fallbackUrl: did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : p,
+                        uraian: cleanTitle(t.uraian || t.keterangan || t.catatan || 'Transaksi'),
+                        nominal: Number(t.nominal) || 0,
+                        tanggal: t.tanggal || '',
+                        jenis: t.jenis || 'Keluar',
+                        driveId: did,
+                        subIndex: idx
+                    });
+                });
+            });
+            return receipts;
+        }
+
+        function generateNotaBodyHtml(options = {}) {
+            const isSingle = !!options.prokerId;
+            const hideEmpty = options.hideEmpty !== false;
+            const includeCaption = !!options.includeCaption;
+            const txSource = (typeof localTransactions !== 'undefined' && Array.isArray(localTransactions))
+                ? localTransactions
+                : ((typeof allTransactions !== 'undefined' && Array.isArray(allTransactions)) ? allTransactions : []);
+            const prokerSource = (typeof localProkers !== 'undefined' && Array.isArray(localProkers))
+                ? localProkers
+                : ((typeof allProkers !== 'undefined' && Array.isArray(allProkers)) ? allProkers : []);
+
+            let targetProkers = [];
+            if (isSingle) {
+                const found = prokerSource.find(p => p.id.toString() === options.prokerId.toString());
+                if (found) targetProkers = [found];
+            } else {
+                targetProkers = prokerSource.filter(p => {
+                    if (options.allStatus) return true;
+                    const s = (p.status || '').toLowerCase().trim();
+                    return s === 'selesai' || s === 'completed' || s === 'done';
+                });
+                if (targetProkers.length === 0) {
+                    targetProkers = prokerSource;
+                }
+            }
+
+            targetProkers = targetProkers.filter(p => {
+                const name = (p.nama_kegiatan || p.nama_proker || '').trim();
+                if (!name) return false;
+                if ((name.toLowerCase().includes('operasional / rutin') || p.id == 1) && Number(p.anggaran || p.estimasi_dana || 0) === 0 && Number(p.pengeluaran || 0) === 0) {
+                    return false;
+                }
+                return true;
+            });
+
+            const items = [];
+            targetProkers.forEach(p => {
+                const receipts = getProkerReceipts(p.id, txSource);
+                if (!hideEmpty || receipts.length > 0) {
+                    items.push({
+                        proker: p,
+                        receipts: receipts
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                return `<p style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; font-style: italic; color: #555555; margin: 12pt 0 16pt 0;">(Tidak ada lampiran nota transaksi fisik yang ditemukan)</p>`;
+            }
+
+            let out = '';
+            items.forEach((item, pIdx) => {
+                const num = pIdx + 1;
+                const pName = escapeHtmlLPJ(item.proker.nama_kegiatan || item.proker.nama_proker || 'Kegiatan');
+
+                out += `
+                <div class="proker-section" style="margin-bottom: 18pt; page-break-inside: avoid;">
+                    <p class="proker-title-nota" style="font-family: 'Times New Roman', Times, serif; font-size: 12pt; font-weight: normal; margin: 0 0 6pt 0; line-height: 1.4; color: #000000;">
+                        ${num}. ${pName}
+                    </p>
+                `;
+
+                if (item.receipts.length === 0) {
+                    out += `
+                    <p style="font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; font-style: italic; color: #666666; margin: 2pt 0 10pt 16pt;">
+                        (Tidak ada lampiran nota fisik kegiatan)
+                    </p>`;
+                } else {
+                    out += `<table class="nota-grid-table" style="width: 100%; border-collapse: separate !important; border-spacing: 7px !important; margin: 0 0 10pt 0; border: none !important;">`;
+                    
+                    for (let i = 0; i < item.receipts.length; i += 4) {
+                        const chunk = item.receipts.slice(i, i + 4);
+                        out += `<tr style="page-break-inside: avoid; break-inside: avoid;">`;
+                        for (let c = 0; c < 4; c++) {
+                            if (c < chunk.length) {
+                                const r = chunk[c];
+                                const did = r.driveId;
+                                out += `
+                                <td style="width: 25%; vertical-align: middle; text-align: center; border: 1px solid #c8c8c8 !important; background-color: #fafafa !important; padding: 4px !important;">
+                                    <div style="width: 100%; height: 180px; text-align: center; line-height: 180px;">
+                                        <img src="${r.displayUrl}" alt="Nota" style="max-width: 140px; max-height: 175px; width: auto; height: auto; vertical-align: middle; display: inline-block; object-fit: contain;" onerror="if(!this.dataset.fallback){this.dataset.fallback='1'; const d='${did||''}'; if(d) this.src='https://drive.google.com/thumbnail?id='+d+'&sz=w1000';}" />
+                                    </div>
+                                    ${includeCaption ? `
+                                    <div style="font-family: 'Times New Roman', Times, serif; font-size: 8pt; color: #333333; margin-top: 4px; line-height: 1.2; text-align: center; word-break: break-word;">
+                                        ${escapeHtmlLPJ(r.uraian)}<br>
+                                        <b>${formatRupiahLPJ(r.nominal)}</b>
+                                    </div>` : ''}
+                                </td>`;
+                            } else {
+                                out += `<td class="empty-cell" style="width: 25%; border: none !important; background: transparent !important; padding: 4px !important;"></td>`;
+                            }
+                        }
+                        out += `</tr>`;
+                    }
+                    out += `</table>`;
+                }
+
+                out += `</div>`;
+            });
+
+            return out;
+        }
+
+        function generateNotaReportHtml(options = {}) {
+            const isSingle = !!options.prokerId;
+            const prokerSource = (typeof localProkers !== 'undefined' && Array.isArray(localProkers))
+                ? localProkers
+                : ((typeof allProkers !== 'undefined' && Array.isArray(allProkers)) ? allProkers : []);
+            
+            let docTitle = 'c. Nota transaksi kegiatan';
+            if (isSingle) {
+                const found = prokerSource.find(p => p.id.toString() === options.prokerId.toString());
+                if (found) {
+                    docTitle = `Lampiran Nota - ${found.nama_kegiatan || found.nama_proker}`;
+                }
+            }
+
+            const bodyHtml = generateNotaBodyHtml(options);
+
+            return `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <title>${escapeHtmlLPJ(docTitle)}</title>
+    <!--[if gte mso 9]>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+            <w:Compatibility>
+                <w:BreakWrappedTables/>
+                <w:SnapToGridInCell/>
+                <w:WrapTextWithPunct/>
+                <w:UseAsianBreakRules/>
+                <w:DontGrowAutofit/>
+            </w:Compatibility>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page Section1 {
+            size: 210mm 297mm;
+            margin: 20mm 20mm 20mm 25mm;
+            mso-header-margin: 35.4pt;
+            mso-footer-margin: 35.4pt;
+            mso-paper-source: 0;
+        }
+        div.Section1 { page: Section1; }
+        @page {
+            size: A4 portrait;
+            margin: 20mm 20mm 20mm 25mm;
+            mso-page-orientation: portrait;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            color: #000000;
+            background: #FFFFFF;
+            line-height: 1.35;
+            margin: 0;
+            padding: 0;
+            mso-pagination: widow-orphan;
+        }
+        p, div {
+            font-family: 'Times New Roman', Times, serif;
+            mso-pagination: widow-orphan;
+        }
+        p {
+            margin: 0 0 6pt 0;
+        }
+        table.nota-grid-table {
+            width: 100%;
+            border-collapse: separate !important;
+            border-spacing: 7px !important;
+            margin-top: 4pt;
+            margin-bottom: 14pt;
+            border: none !important;
+            mso-pagination: widow-orphan;
+        }
+        table.nota-grid-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        table.nota-grid-table td {
+            width: 25%;
+            vertical-align: middle;
+            text-align: center;
+            border: 1px solid #c8c8c8 !important;
+            background-color: #fafafa !important;
+            padding: 4px !important;
+            mso-line-height-rule: exactly;
+        }
+        table.nota-grid-table td.empty-cell {
+            border: none !important;
+            background: transparent !important;
+            padding: 4px !important;
+        }
+        .proker-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 16pt;
+        }
+        .header-title-nota {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            font-weight: normal;
+            margin-bottom: 12pt;
+            color: #000000;
+        }
+        .proker-title-nota {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            font-weight: normal;
+            margin-top: 8pt;
+            margin-bottom: 5pt;
+            page-break-after: avoid;
+            break-after: avoid;
+            color: #000000;
+        }
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .proker-section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="Section1">
+        <div class="header-title-nota">c. Nota transaksi kegiatan</div>
+        ${bodyHtml}
+    </div>
+</body>
+</html>`;
+        }
+
+        function printNotaDirectly(htmlContent, docTitle) {
+            const scriptToInject = `
+            <script>
+                (function() {
+                    function triggerPrint() {
+                        setTimeout(function() {
+                            window.focus();
+                            window.print();
+                        }, 350);
+                    }
+                    window.addEventListener('load', function() {
+                        var imgs = Array.from(document.querySelectorAll('img'));
+                        if (imgs.length === 0) {
+                            triggerPrint();
+                            return;
+                        }
+                        var loadedCount = 0;
+                        var total = imgs.length;
+                        function checkAll() {
+                            loadedCount++;
+                            if (loadedCount >= total) {
+                                triggerPrint();
+                            }
+                        }
+                        imgs.forEach(function(img) {
+                            if (img.complete && img.naturalHeight !== 0) {
+                                checkAll();
+                            } else {
+                                img.addEventListener('load', checkAll);
+                                img.addEventListener('error', checkAll);
+                            }
+                        });
+                        setTimeout(triggerPrint, 4500);
+                    });
+                })();
+            <\/script>
+            `;
+
+            const fullHtml = htmlContent.replace('</body>', scriptToInject + '</body>');
+
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.open();
+                    printWindow.document.write(fullHtml);
+                    if (docTitle) printWindow.document.title = docTitle;
+                    printWindow.document.close();
+                    return;
+                }
+            }
+
+            let iframe = document.getElementById('lpj_nota_print_frame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'lpj_nota_print_frame';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.visibility = 'hidden';
+                document.body.appendChild(iframe);
+            }
+
+            try {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(fullHtml);
+                if (docTitle) doc.title = docTitle;
+                doc.close();
+            } catch (err) {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.open();
+                    printWindow.document.write(fullHtml);
+                    if (docTitle) printWindow.document.title = docTitle;
+                    printWindow.document.close();
+                } else {
+                    Swal.fire({ icon: 'warning', title: 'Pop-up Terblokir', text: 'Izinkan pop-up browser untuk mencetak/menyimpan PDF nota.' });
+                }
+            }
+        }
+
+        function printProkerNota(prokerId) {
+            const receipts = getProkerReceipts(prokerId);
+            if (receipts.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Belum Ada Nota',
+                    text: 'Belum ada bukti transaksi / foto nota yang dilampirkan pada kegiatan ini.',
+                    confirmButtonColor: '#FF7300'
+                });
+                return;
+            }
+            const prokerSource = (typeof localProkers !== 'undefined' && Array.isArray(localProkers)) ? localProkers : (typeof allProkers !== 'undefined' ? allProkers : []);
+            const p = prokerSource.find(item => item.id.toString() === prokerId.toString());
+            const name = p ? (p.nama_kegiatan || p.nama_proker) : 'Kegiatan';
+            const html = generateNotaReportHtml({ prokerId: prokerId, hideEmpty: false });
+            printNotaDirectly(html, `Lampiran_Nota_${sanitizeFilename(name)}`);
+        }
+
+        function exportProkerNotaToWord(prokerId) {
+            const receipts = getProkerReceipts(prokerId);
+            if (receipts.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Belum Ada Nota',
+                    text: 'Belum ada bukti transaksi / foto nota yang dilampirkan pada kegiatan ini.',
+                    confirmButtonColor: '#FF7300'
+                });
+                return;
+            }
+            const prokerSource = (typeof localProkers !== 'undefined' && Array.isArray(localProkers)) ? localProkers : (typeof allProkers !== 'undefined' ? allProkers : []);
+            const p = prokerSource.find(item => item.id.toString() === prokerId.toString());
+            const name = p ? (p.nama_kegiatan || p.nama_proker) : 'Kegiatan';
+            const htmlContent = generateNotaReportHtml({ prokerId: prokerId, hideEmpty: false });
+
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword;charset=utf-8'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Lampiran_Nota_${sanitizeFilename(name)}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berkas Nota Word Berhasil Diunduh!',
+                html: `
+                    <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
+                        <div>📄 Berkas: <b>Lampiran_Nota_${sanitizeFilename(name)}.doc</b></div>
+                        <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
+                            💻 Buka langsung dengan Microsoft Word atau WPS Office.<br>
+                            📱 <b>Di HP:</b> Disarankan gunakan opsi <b>Cetak / Simpan PDF</b> untuk kualitas tampilan foto nota terbaik.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Oke, Mengerti',
+                confirmButtonColor: '#FF7300'
+            });
+        }
+
+        function printMasterNotaReport(options = {}) {
+            const html = generateNotaReportHtml(options);
+            printNotaDirectly(html, 'Lampiran_Nota_Transaksi_Kegiatan_Seluruh_Proker');
+        }
+
+        function exportMasterNotaToWord(options = {}) {
+            const htmlContent = generateNotaReportHtml(options);
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword;charset=utf-8'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Lampiran_Nota_Transaksi_Kegiatan_${new Date().toISOString().slice(0, 10)}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berkas Nota Word Berhasil Diunduh!',
+                html: `
+                    <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
+                        <div>📄 Berkas: <b>Lampiran_Nota_Transaksi_Kegiatan_${new Date().toISOString().slice(0, 10)}.doc</b></div>
+                        <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
+                            💻 Buka dengan Microsoft Word atau WPS Office.<br>
+                            📱 <b>Di HP:</b> Disarankan gunakan opsi <b>Cetak / Simpan PDF</b> agar foto tersusun rapi langsung siap cetak/kirim.
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Oke, Mengerti',
+                confirmButtonColor: '#FF7300'
+            });
+        }
+
         function bukaModalExportProker(prokerId) {
             const p = localProkers.find(item => item.id.toString() === prokerId.toString());
             if (!p) return;
+
+            const prokerReceipts = getProkerReceipts(p.id);
+            const receiptCount = prokerReceipts.length;
 
             Swal.fire({
                 title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans">Export Laporan Keuangan LPJ</div>',
@@ -2169,6 +2685,29 @@
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-1 rounded shrink-0">Unduh .csv</span>
                             </button>
                         </div>
+
+                        <div class="mt-3 pt-3 border-t border-neutral-800">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm">🧾</span>
+                                    <span class="font-bold text-neutral-200 text-xs">c. Lampiran Nota Transaksi Kegiatan</span>
+                                </div>
+                                <span class="text-[9px] font-mono font-bold ${receiptCount > 0 ? 'text-cyan-400 bg-cyan-950/70 border-cyan-800/50' : 'text-neutral-500 bg-neutral-900 border-neutral-800'} border px-2 py-0.5 rounded">
+                                    ${receiptCount} Nota Tersedia
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-neutral-400 mb-2">
+                                Format lampiran foto nota fisik (Grid 4 Kolom resmi LPJ).
+                            </p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="printProkerNota('${p.id}'); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-amber-950/30 hover:bg-amber-950/50 border border-amber-500/50 hover:border-amber-400 rounded-xl text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
+                                    <span>🖨️ Cetak / PDF Nota</span>
+                                </button>
+                                <button type="button" onclick="exportProkerNotaToWord('${p.id}'); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl text-neutral-300 hover:text-cyan-300 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
+                                    <span>📄 Unduh Word (.doc)</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `,
                 showConfirmButton: false,
@@ -2184,6 +2723,12 @@
         window.exportProkerToWord = exportProkerToWord;
         window.exportProkerToCsv = exportProkerToCsv;
         window.printProkerLPJ = printProkerLPJ;
+        window.getProkerReceipts = getProkerReceipts;
+        window.printProkerNota = printProkerNota;
+        window.exportProkerNotaToWord = exportProkerNotaToWord;
+        window.printMasterNotaReport = printMasterNotaReport;
+        window.exportMasterNotaToWord = exportMasterNotaToWord;
+        window.generateNotaReportHtml = generateNotaReportHtml;
 
         // ============================================================
         // MASTER LPJ (SELURUH LAPORAN PERTANGGUNGJAWABAN KEUANGAN)
@@ -2417,7 +2962,9 @@
                 grandTotalRealisasi: grandTotalRealisasi,
                 initialSaldoOperasional: initialSaldoOperasional,
                 totalDanaOperasionalOut: totalDanaOperasionalOut,
-                finalSaldoOperasional: runningSaldo
+                finalSaldoOperasional: runningSaldo,
+                includeNotaAppendix: !!options.includeNotaAppendix,
+                notaBodyHtml: options.includeNotaAppendix ? generateNotaBodyHtml(options) : ''
             };
         }
 
@@ -2686,6 +3233,48 @@
             margin-top: 18pt;
             margin-bottom: 6pt;
         }
+        table.nota-grid-table {
+            width: 100%;
+            border-collapse: separate !important;
+            border-spacing: 7px !important;
+            margin-top: 4pt;
+            margin-bottom: 14pt;
+            border: none !important;
+        }
+        table.nota-grid-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        table.nota-grid-table td {
+            width: 25%;
+            vertical-align: middle;
+            text-align: center;
+            border: 1px solid #c8c8c8 !important;
+            background-color: #fafafa !important;
+            padding: 4px !important;
+        }
+        table.nota-grid-table td.empty-cell {
+            border: none !important;
+            background: transparent !important;
+            padding: 4px !important;
+        }
+        .header-title-nota {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            font-weight: normal;
+            margin-bottom: 12pt;
+            color: #000000;
+        }
+        .proker-title-nota {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            font-weight: normal;
+            margin-top: 8pt;
+            margin-bottom: 5pt;
+            page-break-after: avoid;
+            break-after: avoid;
+            color: #000000;
+        }
     </style>
 </head>
 <body>
@@ -2700,6 +3289,13 @@
 
         <div class="section-title">IV.III Rekapitulasi Penggunaan Dana Operasional</div>
         ${iv3TableHtml}
+
+        ${data.includeNotaAppendix && data.notaBodyHtml ? `
+        <div style="page-break-before: always; margin-top: 24pt;">
+            <div class="header-title-nota">c. Nota transaksi kegiatan</div>
+            ${data.notaBodyHtml}
+        </div>
+        ` : ''}
     </div>
 </body>
 </html>`;
@@ -2748,10 +3344,14 @@
             const saldoStr = saldoInput ? (saldoInput.value || '').replace(/\D/g, '') : '';
             const initialSaldo = Number(saldoStr) || 0;
 
+            const includeNotaCheckbox = document.getElementById('master_include_nota');
+            const includeNota = includeNotaCheckbox ? includeNotaCheckbox.checked : false;
+
             Swal.close();
 
             const options = {
-                initialSaldoOperasional: initialSaldo
+                initialSaldoOperasional: initialSaldo,
+                includeNotaAppendix: includeNota
             };
 
             if (type === 'word') {
@@ -2767,6 +3367,16 @@
                 : ((typeof allTransactions !== 'undefined' && Array.isArray(allTransactions)) ? allTransactions : []);
             const autoDanaOperasional2026 = sumDanaOperasional2026Masuk(txList);
             const defaultSaldo = autoDanaOperasional2026;
+
+            const prokerList = (typeof localProkers !== 'undefined' && Array.isArray(localProkers)) ? localProkers : (typeof allProkers !== 'undefined' ? allProkers : []);
+            const completedProkers = prokerList.filter(p => {
+                const s = (p.status || '').toLowerCase().trim();
+                return s === 'selesai' || s === 'completed' || s === 'done';
+            });
+            let totalMasterReceipts = 0;
+            (completedProkers.length > 0 ? completedProkers : prokerList).forEach(p => {
+                totalMasterReceipts += getProkerReceipts(p.id, txList).length;
+            });
 
             Swal.fire({
                 title: '<div class="text-base sm:text-lg font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Export Seluruh LPJ Keuangan</span></div>',
@@ -2797,6 +3407,11 @@
                             </span>
                         </div>
 
+                        <label class="flex items-center gap-2 cursor-pointer p-2 bg-neutral-900/60 border border-neutral-800/80 rounded-lg text-neutral-300 hover:text-neutral-100 transition-colors">
+                            <input type="checkbox" id="master_include_nota" class="rounded bg-neutral-950 border-neutral-700 text-cyan-500 focus:ring-0">
+                            <span class="text-[10.5px]">Sertakan lampiran foto nota fisik di akhir berkas Master LPJ</span>
+                        </label>
+
                         <p class="text-[11px] text-neutral-400 pt-1 font-bold">Pilih format ekspor master laporan:</p>
                         
                         <div class="flex flex-col gap-2">
@@ -2824,6 +3439,29 @@
                                 </div>
                                 <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
                             </button>
+                        </div>
+
+                        <div class="mt-2 pt-3 border-t border-neutral-800">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm">🧾</span>
+                                    <span class="font-bold text-neutral-200 text-xs">c. Lampiran Nota Transaksi (Seluruh Proker)</span>
+                                </div>
+                                <span class="text-[9px] font-mono font-bold ${totalMasterReceipts > 0 ? 'text-emerald-400 bg-emerald-950/70 border-emerald-800/50' : 'text-neutral-500 bg-neutral-900 border-neutral-800'} border px-2 py-0.5 rounded">
+                                    ${totalMasterReceipts} Nota Ditemukan
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-neutral-400 mb-2">
+                                Kompilasi foto nota transaksi per kegiatan (Grid 4 kolom resmi LPJ).
+                            </p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="printMasterNotaReport(); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-amber-950/30 hover:bg-amber-950/50 border border-amber-500/50 hover:border-amber-400 rounded-xl text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
+                                    <span>🖨️ Cetak / PDF Semua Nota</span>
+                                </button>
+                                <button type="button" onclick="exportMasterNotaToWord(); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl text-neutral-300 hover:text-cyan-300 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
+                                    <span>📄 Unduh Word (.doc)</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `,
