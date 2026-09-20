@@ -2306,27 +2306,35 @@
 
             data.activities.forEach((keg, kIdx) => {
                 const curNum = actNum + kIdx;
+                const totalRows = 1 + (keg.categories ? keg.categories.length : 0);
+
                 iv1RowsHtml += `
                     <tr style="font-weight: bold;">
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: top;">${curNum}</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: top;">${escapeHtmlLPJ(keg.nama_kegiatan.toUpperCase())}</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: top;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
-                        <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
+                        <td rowspan="${totalRows}" valign="middle" align="center" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; vertical-align: middle; font-weight: normal;">${curNum}</td>
+                        <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-weight: bold;">${escapeHtmlLPJ(keg.nama_kegiatan)}</td>
+                        <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: bold;">${formatRupiahLPJ(keg.totalAnggaran)}</td>
+                        <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: bold;">${formatRupiahLPJ(keg.totalRealisasi)}</td>
+                        <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt; vertical-align: middle;"></td>
                     </tr>
                 `;
 
-                keg.categories.forEach(cat => {
+                (keg.categories || []).forEach(cat => {
                     iv1RowsHtml += `
-                        <tr>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt;"></td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 18pt; text-align: left; font-style: italic;">${cat.code} ${escapeHtmlLPJ(cat.name)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(cat.anggaran)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(cat.realisasi)}</td>
-                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-size: 8.5pt;">${escapeHtmlLPJ(cat.keterangan)}</td>
+                        <tr style="font-weight: normal;">
+                            <td valign="middle" style="border: 1px solid black; padding: 4.5pt 6pt 4.5pt 10pt; text-align: left; vertical-align: middle; font-style: normal; font-weight: normal;">${cat.code} ${escapeHtmlLPJ(cat.name)}</td>
+                            <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: normal;">${formatRupiahLPJ(cat.anggaran)}</td>
+                            <td valign="middle" align="right" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; vertical-align: middle; font-weight: normal;">${formatRupiahLPJ(cat.realisasi)}</td>
+                            <td valign="middle" align="left" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; vertical-align: middle; font-size: 9pt; font-style: normal; font-weight: normal; line-height: 1.25;">${escapeHtmlLPJ(cat.keterangan)}</td>
                         </tr>
                     `;
                 });
+
+                // Baris jarak (separator) kosong antar kegiatan
+                iv1RowsHtml += `
+                    <tr style="height: 12pt;">
+                        <td colspan="5" style="border: 1px solid black; height: 12pt; padding: 0; background-color: #FFFFFF;"></td>
+                    </tr>
+                `;
             });
 
             const iv1TableHtml = `
