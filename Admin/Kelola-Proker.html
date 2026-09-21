@@ -2730,71 +2730,124 @@
             const receiptCount = prokerReceipts.length;
 
             Swal.fire({
-                title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans">Export Laporan Keuangan LPJ</div>',
+                title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Export Laporan & Nota LPJ</span></div>',
                 html: `
-                    <div class="text-left font-sans text-xs text-neutral-300">
-                        <div class="p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl mb-3">
-                            <div class="text-cyan-400 font-bold text-xs uppercase">${escapeHtmlLPJ(p.nama_proker)}</div>
-                            <div class="text-[10px] text-neutral-400 mt-0.5">Divisi: ${escapeHtmlLPJ(p.divisi || '-')} • Ketua: ${escapeHtmlLPJ(getMemberName(p.id_anggota))}</div>
+                    <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3">
+                        <!-- Activity Header -->
+                        <div class="p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl">
+                            <div class="text-cyan-400 font-bold text-xs uppercase flex items-center gap-1.5">
+                                <span>📌</span> <span>${escapeHtmlLPJ(p.nama_proker)}</span>
+                            </div>
+                            <div class="text-[10px] text-neutral-400 mt-0.5">
+                                Divisi: <b>${escapeHtmlLPJ(p.divisi || '-')}</b> • Ketua: <b>${escapeHtmlLPJ(getMemberName(p.id_anggota))}</b>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-neutral-400 mb-2">Pilih format ekspor laporan keuangan:</p>
-                        <div class="flex flex-col gap-2">
-                            <button type="button" onclick="printProkerLPJ('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-amber-950/20 hover:bg-amber-950/40 border-2 border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-bold text-neutral-100 text-xs">Cetak / Simpan PDF</span>
-                                            <span class="text-[8.5px] font-bold text-amber-300 bg-amber-900/60 px-1.5 py-0.5 rounded">⭐ Terbaik di HP</span>
+
+                        <!-- Himbauan Khusus HP -->
+                        <div class="p-2.5 bg-amber-950/30 border border-amber-600/50 rounded-xl flex items-start gap-2 text-amber-200 shadow-xs">
+                            <span class="text-sm shrink-0 mt-0.5">📱</span>
+                            <div class="text-[10px] leading-relaxed">
+                                <b class="font-extrabold uppercase tracking-wide block text-amber-100">Catatan Buka File di HP:</b>
+                                File format <b>Word (.doc)</b> membutuhkan aplikasi pengolah kata (WPS Office, Microsoft 365, atau Google Dokumen). Jika di HP Anda file .doc tidak bisa langsung terbuka, <b>disarankan memilih opsi [Cetak / Simpan PDF] (⭐ Rekomendasi)</b> karena langsung rapi, tabel tidak berantakan, dan otomatis terbuka di semua HP!
+                            </div>
+                        </div>
+
+                        <!-- 1. DOKUMEN LAPORAN LPJ KEUANGAN -->
+                        <div class="border-2 border-blue-500/40 bg-blue-950/20 rounded-xl p-3 flex flex-col gap-2">
+                            <div class="flex items-center justify-between pb-1.5 border-b border-blue-800/40">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-md bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">📑</span>
+                                    <div>
+                                        <h4 class="font-black text-xs text-blue-300 uppercase tracking-tight">1. Laporan Keuangan LPJ</h4>
+                                        <span class="text-[9px] text-neutral-400 block -mt-0.5">Tabel Realisasi RAB, Rincian Belanja & Rekap Kas</span>
+                                    </div>
+                                </div>
+                                <span class="text-[8px] font-mono font-bold bg-blue-500/15 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">DOKUMEN LPJ</span>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5 pt-0.5">
+                                <!-- Pilihan 1: PDF (Rekomendasi) -->
+                                <button type="button" onclick="printProkerLPJ('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 bg-neutral-900 hover:bg-amber-950/40 border-2 border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-extrabold text-neutral-100 text-xs">Cetak / Simpan PDF LPJ</span>
+                                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-500 px-1.5 py-0.2 rounded-full shadow-xs">⭐ REKOMENDASI HP</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-400 truncate">Format resmi tabel siap kirim & cetak (anti-geser)</div>
                                         </div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Tampilan 100% rapi, bergaris resmi, tidak akan berantakan di HP</div>
                                     </div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2 py-1 rounded shrink-0">Buka PDF</span>
-                            </button>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-300 bg-amber-900/60 border border-amber-700 px-2 py-1 rounded shrink-0">Buka PDF</span>
+                                </button>
 
-                            <button type="button" onclick="exportProkerToWord('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl transition-all cursor-pointer group text-left">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Khusus PC / Laptop (Word & WPS) untuk diedit</div>
+                                <!-- Pilihan 2: Word (.doc) -->
+                                <button type="button" onclick="exportProkerToWord('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-blue-500/40 rounded-xl transition-all cursor-pointer group text-left">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-neutral-200 text-xs">Microsoft Word (.doc) LPJ</span>
+                                                <span class="text-[8px] font-mono text-neutral-400 bg-neutral-800 px-1.5 py-0.2 rounded">PC / Laptop</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-400 truncate">Format tabel bisa diedit di MS Word / WPS (PC)</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
-                            </button>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
+                                </button>
 
-                            <button type="button" onclick="exportProkerToCsv('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-emerald-500/50 rounded-xl transition-all cursor-pointer group text-left">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm shrink-0">X</span>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-emerald-400 text-xs truncate">Spreadsheet CSV (.csv)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Tabel data terstruktur untuk Excel & Google Sheets</div>
+                                <!-- Pilihan 3: CSV -->
+                                <button type="button" onclick="exportProkerToCsv('${p.id}'); Swal.close();" class="w-full flex items-center justify-between p-2.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-emerald-500/40 rounded-xl transition-all cursor-pointer group text-left">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm shrink-0">X</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-neutral-200 text-xs">Spreadsheet CSV (.csv) LPJ</span>
+                                                <span class="text-[8px] font-mono text-neutral-400 bg-neutral-800 px-1.5 py-0.2 rounded">Excel / Sheets</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-400 truncate">Tabel data olah angka per pos belanja</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-1 rounded shrink-0">Unduh .csv</span>
-                            </button>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-1 rounded shrink-0">Unduh .csv</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="mt-3 pt-3 border-t border-neutral-800">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-sm">🧾</span>
-                                    <span class="font-bold text-neutral-200 text-xs">c. Lampiran Nota Transaksi Kegiatan</span>
+                        <!-- 2. LAMPIRAN BUKTI NOTA FISIK -->
+                        <div class="border-2 border-orange-500/45 bg-orange-950/20 rounded-xl p-3 flex flex-col gap-2">
+                            <div class="flex items-center justify-between pb-1.5 border-b border-orange-800/40">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-md bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-xs">🧾</span>
+                                    <div>
+                                        <h4 class="font-black text-xs text-orange-300 uppercase tracking-tight">2. Lampiran Bukti Nota</h4>
+                                        <span class="text-[9px] text-neutral-400 block -mt-0.5">Koleksi Foto Kuitansi, Struk & Bukti Belanja</span>
+                                    </div>
                                 </div>
-                                <span class="text-[9px] font-mono font-bold ${receiptCount > 0 ? 'text-cyan-400 bg-cyan-950/70 border-cyan-800/50' : 'text-neutral-500 bg-neutral-900 border-neutral-800'} border px-2 py-0.5 rounded">
-                                    ${receiptCount} Nota Tersedia
+                                <span class="text-[8.5px] font-mono font-bold ${receiptCount > 0 ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' : 'bg-neutral-800 text-neutral-500'} border px-2 py-0.5 rounded-full">
+                                    ${receiptCount} NOTA TERSEDIA
                                 </span>
                             </div>
-                            <p class="text-[10px] text-neutral-400 mb-2">
-                                Format lampiran foto nota fisik (Grid 4 Kolom resmi LPJ).
+
+                            <p class="text-[10px] text-neutral-400">
+                                Kompilasi foto fisik nota yang disusun otomatis dalam <b>Grid 4 Kolom resmi</b> per baris belanja.
                             </p>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" onclick="printProkerNota('${p.id}'); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-amber-950/30 hover:bg-amber-950/50 border border-amber-500/50 hover:border-amber-400 rounded-xl text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
-                                    <span>🖨️ Cetak / PDF Nota</span>
+
+                            <div class="grid grid-cols-2 gap-2 pt-0.5">
+                                <button type="button" onclick="printProkerNota('${p.id}'); Swal.close();" class="flex flex-col items-center justify-center p-2.5 bg-amber-950/40 hover:bg-amber-950/60 border-2 border-amber-500/70 rounded-xl text-center transition-all cursor-pointer shadow-xs">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs">🖨️</span>
+                                        <span class="text-[10.5px] font-black text-amber-200">PDF Nota</span>
+                                        <span class="text-[7.5px] font-black text-white bg-amber-500 px-1 rounded-sm">⭐ REKOM</span>
+                                    </div>
+                                    <span class="text-[8.5px] text-neutral-400 mt-0.5">Foto nota rapi siap cetak</span>
                                 </button>
-                                <button type="button" onclick="exportProkerNotaToWord('${p.id}'); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl text-neutral-300 hover:text-cyan-300 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
-                                    <span>📄 Unduh Word (.doc)</span>
+
+                                <button type="button" onclick="exportProkerNotaToWord('${p.id}'); Swal.close();" class="flex flex-col items-center justify-center p-2.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-orange-500/40 rounded-xl text-center transition-all cursor-pointer shadow-xs">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs">📄</span>
+                                        <span class="text-[10.5px] font-bold text-neutral-200">Word (.doc) Nota</span>
+                                    </div>
+                                    <span class="text-[8.5px] text-neutral-400 mt-0.5">File docx untuk diedit</span>
                                 </button>
                             </div>
                         </div>
@@ -2804,7 +2857,7 @@
                 showCloseButton: true,
                 background: '#0F1623',
                 customClass: {
-                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-md'
+                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-md w-[95%] sm:w-full'
                 }
             });
         }
@@ -3472,12 +3525,22 @@
                 title: '<div class="text-base sm:text-lg font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Export Seluruh LPJ Keuangan</span></div>',
                 html: `
                     <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 pt-1">
+                        <!-- Ringkasan Isi LPJ -->
                         <div class="p-2.5 bg-neutral-900/90 border border-neutral-800 rounded-xl leading-relaxed text-neutral-400 text-[11px]">
                             Laporan resmi menyatukan seluruh program kerja & agenda yang sudah selesai ke dalam 3 tabel resmi LPJ:
                             <div class="text-[10px] font-mono text-neutral-300 mt-1 space-y-0.5">
                                 <div>• <b>IV.I Realisasi Keuangan</b> (RAB & Belanja Bahan, Sewa, Jasa, Lainnya)</div>
                                 <div>• <b>IV.II Rekapitulasi Keuangan</b> (Anggaran & realisasi per kegiatan)</div>
-                                <div>• <b>IV.III Rekap Penggunaan Dana Operasional</b> (Aliran kas & saldo akhir — kategori Dana Operasional 2026)</div>
+                                <div>• <b>IV.III Rekap Penggunaan Dana Operasional</b> (Aliran kas & saldo akhir — Dana Operasional 2026)</div>
+                            </div>
+                        </div>
+
+                        <!-- Himbauan Khusus HP -->
+                        <div class="p-2.5 bg-amber-950/30 border border-amber-600/50 rounded-xl flex items-start gap-2 text-amber-200 shadow-xs">
+                            <span class="text-sm shrink-0 mt-0.5">📱</span>
+                            <div class="text-[10px] leading-relaxed">
+                                <b class="font-extrabold uppercase tracking-wide block text-amber-100">Catatan Buka File di HP:</b>
+                                File format <b>Word (.doc)</b> membutuhkan aplikasi pengolah kata (WPS Office, Microsoft 365, atau Google Dokumen). Jika di HP Anda file .doc tidak bisa langsung terbuka, <b>disarankan memilih opsi [Cetak / Simpan PDF] (⭐ Rekomendasi)</b> karena langsung rapi, tabel tidak berantakan, dan otomatis terbuka di semua HP!
                             </div>
                         </div>
 
@@ -3502,54 +3565,87 @@
                             <span class="text-[10.5px]">Sertakan lampiran foto nota fisik di akhir berkas Master LPJ</span>
                         </label>
 
-                        <p class="text-[11px] text-neutral-400 pt-1 font-bold">Pilih format ekspor master laporan:</p>
-                        
-                        <div class="flex flex-col gap-2">
-                            <button type="button" onclick="handleMasterExportAction('print')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-amber-950/20 hover:bg-amber-950/40 border-2 border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-bold text-neutral-100 text-xs">Cetak / Simpan PDF</span>
-                                            <span class="text-[8.5px] font-bold text-amber-300 bg-amber-900/60 px-1.5 py-0.5 rounded">⭐ Terbaik di HP</span>
-                                        </div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Tabel 3 bab lengkap, bergaris resmi, langsung rapi & siap cetak/kirim</div>
+                        <!-- 1. DOKUMEN MASTER LPJ KEUANGAN -->
+                        <div class="border-2 border-blue-500/40 bg-blue-950/20 rounded-xl p-3 flex flex-col gap-2">
+                            <div class="flex items-center justify-between pb-1.5 border-b border-blue-800/40">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-md bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">📑</span>
+                                    <div>
+                                        <h4 class="font-black text-xs text-blue-300 uppercase tracking-tight">1. Master LPJ Keuangan</h4>
+                                        <span class="text-[9px] text-neutral-400 block -mt-0.5">Tabel IV.I, IV.II & IV.III Lengkap</span>
                                     </div>
                                 </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-400 bg-amber-950/80 px-2 py-1 rounded shrink-0">Buka PDF</span>
-                            </button>
+                                <span class="text-[8px] font-mono font-bold bg-blue-500/15 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">DOKUMEN UTAMA</span>
+                            </div>
 
-                            <button type="button" onclick="handleMasterExportAction('word')" class="w-full flex items-center justify-between p-2.5 sm:p-3 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl transition-all cursor-pointer group text-left">
-                                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                                    <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-neutral-200 group-hover:text-cyan-400 text-xs truncate">Microsoft Word (.doc)</div>
-                                        <div class="text-[9.5px] text-neutral-400 truncate">Khusus PC / Laptop (Word & WPS) untuk diedit</div>
+                            <div class="flex flex-col gap-1.5 pt-0.5">
+                                <!-- Cetak / PDF Master LPJ (Rekomendasi HP) -->
+                                <button type="button" onclick="handleMasterExportAction('print')" class="w-full flex items-center justify-between p-2.5 bg-neutral-900 hover:bg-amber-950/40 border-2 border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-extrabold text-neutral-100 text-xs">Cetak / Simpan PDF Master LPJ</span>
+                                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-500 px-1.5 py-0.2 rounded-full shadow-xs">⭐ REKOMENDASI HP</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-400 truncate">3 bab lengkap rapi, bergaris resmi & anti-geser di HP</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <span class="text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
-                            </button>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-300 bg-amber-900/60 border border-amber-700 px-2 py-1 rounded shrink-0">Buka PDF</span>
+                                </button>
+
+                                <!-- Word Master LPJ -->
+                                <button type="button" onclick="handleMasterExportAction('word')" class="w-full flex items-center justify-between p-2.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-blue-500/40 rounded-xl transition-all cursor-pointer group text-left">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-neutral-200 text-xs">Microsoft Word (.doc) Master LPJ</span>
+                                                <span class="text-[8px] font-mono text-neutral-400 bg-neutral-800 px-1.5 py-0.2 rounded">PC / Laptop</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-400 truncate">Khusus diedit di MS Word / WPS Office (PC)</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-blue-400 bg-blue-950/60 border border-blue-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="mt-2 pt-3 border-t border-neutral-800">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-sm">🧾</span>
-                                    <span class="font-bold text-neutral-200 text-xs">c. Lampiran Nota Transaksi (Seluruh Proker)</span>
+                        <!-- 2. LAMPIRAN BUKTI NOTA (SELURUH PROKER) -->
+                        <div class="border-2 border-orange-500/45 bg-orange-950/20 rounded-xl p-3 flex flex-col gap-2">
+                            <div class="flex items-center justify-between pb-1.5 border-b border-orange-800/40">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-md bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-xs">🧾</span>
+                                    <div>
+                                        <h4 class="font-black text-xs text-orange-300 uppercase tracking-tight">2. Lampiran Bukti Nota</h4>
+                                        <span class="text-[9px] text-neutral-400 block -mt-0.5">Seluruh Foto Nota & Kuitansi Belanja Proker</span>
+                                    </div>
                                 </div>
-                                <span class="text-[9px] font-mono font-bold ${totalMasterReceipts > 0 ? 'text-emerald-400 bg-emerald-950/70 border-emerald-800/50' : 'text-neutral-500 bg-neutral-900 border-neutral-800'} border px-2 py-0.5 rounded">
-                                    ${totalMasterReceipts} Nota Ditemukan
+                                <span class="text-[8.5px] font-mono font-bold ${totalMasterReceipts > 0 ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' : 'bg-neutral-800 text-neutral-500'} border px-2 py-0.5 rounded-full">
+                                    ${totalMasterReceipts} NOTA DITEMUKAN
                                 </span>
                             </div>
-                            <p class="text-[10px] text-neutral-400 mb-2">
-                                Kompilasi foto nota transaksi per kegiatan (Grid 4 kolom resmi LPJ).
+
+                            <p class="text-[10px] text-neutral-400">
+                                Kompilasi foto fisik nota seluruh kegiatan proker selesai dalam <b>Grid 4 Kolom resmi LPJ</b>.
                             </p>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" onclick="printMasterNotaReport(); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-amber-950/30 hover:bg-amber-950/50 border border-amber-500/50 hover:border-amber-400 rounded-xl text-amber-300 hover:text-amber-200 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
-                                    <span>🖨️ Cetak / PDF Semua Nota</span>
+
+                            <div class="grid grid-cols-2 gap-2 pt-0.5">
+                                <button type="button" onclick="printMasterNotaReport(); Swal.close();" class="flex flex-col items-center justify-center p-2.5 bg-amber-950/40 hover:bg-amber-950/60 border-2 border-amber-500/70 rounded-xl text-center transition-all cursor-pointer shadow-xs">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs">🖨️</span>
+                                        <span class="text-[10.5px] font-black text-amber-200">PDF Semua Nota</span>
+                                        <span class="text-[7.5px] font-black text-white bg-amber-500 px-1 rounded-sm">⭐ REKOM</span>
+                                    </div>
+                                    <span class="text-[8.5px] text-neutral-400 mt-0.5">Foto nota rapi siap cetak</span>
                                 </button>
-                                <button type="button" onclick="exportMasterNotaToWord(); Swal.close();" class="flex items-center justify-center gap-1.5 p-2.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl text-neutral-300 hover:text-cyan-300 text-[11px] font-bold transition-all cursor-pointer shadow-xs">
-                                    <span>📄 Unduh Word (.doc)</span>
+
+                                <button type="button" onclick="exportMasterNotaToWord(); Swal.close();" class="flex flex-col items-center justify-center p-2.5 bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-orange-500/40 rounded-xl text-center transition-all cursor-pointer shadow-xs">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs">📄</span>
+                                        <span class="text-[10.5px] font-bold text-neutral-200">Word (.doc) Nota</span>
+                                    </div>
+                                    <span class="text-[8.5px] text-neutral-400 mt-0.5">File docx untuk diedit</span>
                                 </button>
                             </div>
                         </div>
@@ -3559,7 +3655,7 @@
                 showCloseButton: true,
                 background: '#0F1623',
                 customClass: {
-                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-md'
+                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-md w-[95%] sm:w-full'
                 }
             });
         }
@@ -3977,131 +4073,6 @@
                     </div>
                 `;
             }
-
-            // Action Buttons
-            let actionsHtml = '';
-            if (!isSelesai) {
-                actionsHtml = `
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        <button type="button" onclick="bukaModalLinkData('${p.id}', '${p.nama_proker}'); event.stopPropagation();" class="bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-[9px] sm:text-[10px] font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg active:scale-95 transition-all cursor-pointer shadow-xs flex items-center gap-1.5">
-                            <span>+</span> <span>Tautkan</span>
-                        </button>
-                        <button type="button" onclick="bukaModalExportProker('${p.id}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-cyan-500/40 text-cyan-400 font-mono text-[9px] sm:text-[10px] font-bold px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-xs" title="Export Laporan Keuangan LPJ (Word / CSV)">
-                            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <span>Export LPJ</span>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <button type="button" onclick="editProker('${p.id}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-cyan-950/30 border border-neutral-800 text-cyan-400 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 text-[9px] sm:text-[10px] font-mono" title="Edit Event">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h14a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <span class="hidden sm:inline">Edit</span>
-                        </button>
-                        <button type="button" onclick="setProkerSelesaiRealTime('${p.id}', '${p.nama_proker}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-emerald-950/40 border border-neutral-800 border-emerald-900/50 text-emerald-400 font-mono text-[9px] sm:text-[10px] font-bold px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1" title="Tandai Kegiatan Selesai">
-                            <span>Selesai</span> <span class="text-emerald-400 font-bold">✓</span>
-                        </button>
-                        <button type="button" onclick="hapusEventRealTime('${p.id}', '${p.nama_proker}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-red-950/40 border border-neutral-800 border-rose-900/40 text-rose-400 p-1.5 sm:px-2 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer" title="Hapus Event">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-            } else {
-                actionsHtml = `
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        <button type="button" onclick="bukaModalLinkData('${p.id}', '${p.nama_proker}'); event.stopPropagation();" class="bg-cyan-600 hover:bg-cyan-500 text-white font-mono text-[9px] sm:text-[10px] font-bold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg active:scale-95 transition-all cursor-pointer shadow-xs flex items-center gap-1.5">
-                            <span>+</span> <span>Tautkan</span>
-                        </button>
-                        <button type="button" onclick="bukaModalExportProker('${p.id}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-cyan-500/40 text-cyan-400 font-mono text-[9px] sm:text-[10px] font-bold px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-xs" title="Export Laporan Keuangan LPJ (Word / CSV)">
-                            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <span>Export LPJ</span>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <button type="button" onclick="editProker('${p.id}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-cyan-950/30 border border-neutral-800 text-cyan-400 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 text-[9px] sm:text-[10px] font-mono" title="Edit Event">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h14a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <span class="hidden sm:inline">Edit</span>
-                        </button>
-                        <button type="button" onclick="hapusEventRealTime('${p.id}', '${p.nama_proker}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-red-950/40 border border-neutral-800 border-rose-900/40 text-rose-400 p-1.5 sm:px-2 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer" title="Hapus Event">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="bg-neutral-950 border ${isSelesai ? 'border-neutral-900 hover:border-emerald-500/40' : 'border-neutral-900 hover:border-cyan-500/40'} rounded-xl overflow-hidden shadow-xs mb-3.5" id="proker-card-${p.id}">
-                    <!-- PRATINJAU HEADER SEBELUM DIPENCET -->
-                    <div class="p-3 sm:p-4 bg-neutral-900/10 border-b border-neutral-900/50 flex flex-col gap-2.5">
-                        <!-- BARIS 1: BADGE, JUDUL, ACCORDION ARROW -->
-                        <div onclick="toggleProkerAccordion('${p.id}')" class="flex items-start justify-between gap-2 cursor-pointer">
-                            <div class="flex-grow min-w-0">
-                                <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                                    <span class="text-[8.5px] font-mono px-2 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400 font-bold uppercase tracking-wider">${p.jenis || "Program Kerja"}</span>
-                                    ${isSelesai 
-                                        ? '<span class="inline-flex items-center gap-1 text-[8.5px] font-mono px-2 py-0.5 bg-emerald-950/90 border border-emerald-500/40 rounded text-emerald-300 font-bold uppercase shadow-[0_0_8px_rgba(16,185,129,0.2)]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>✓ Selesai</span>' 
-                                        : '<span class="inline-flex items-center gap-1 text-[8.5px] font-mono px-2 py-0.5 bg-cyan-950/90 border border-cyan-500/40 rounded text-cyan-300 font-bold uppercase shadow-[0_0_8px_rgba(6,182,212,0.2)]"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>⏳ Sedang Berjalan</span>'
-                                    }
-                                </div>
-                                <h3 class="text-xs sm:text-sm font-bold text-neutral-100 font-mono tracking-wide uppercase leading-snug break-words">${p.nama_proker}</h3>
-                            </div>
-                            <button type="button" onclick="toggleProkerAccordion('${p.id}'); event.stopPropagation();" class="p-1 text-neutral-500 hover:text-cyan-400 transition-colors shrink-0 cursor-pointer">
-                                <svg id="p-arrow-${p.id}" class="w-4 h-4 text-neutral-500 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- BARIS 2: METADATA LENGKAP -->
-                        <div onclick="toggleProkerAccordion('${p.id}')" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[8.5px] sm:text-[9.5px] font-mono text-neutral-400 cursor-pointer leading-tight">
-                            <span>Divisi: <span class="text-neutral-200 font-medium">${p.divisi || "-"}</span></span>
-                            <span class="text-neutral-700">|</span>
-                            <span>Ketua: <span class="text-neutral-200 font-semibold">${ketuaNama}</span></span>
-                            <span class="text-neutral-700">|</span>
-                            <span>Tanggal: <span class="text-neutral-200">${formatReadableDate(p.estimasi_tanggal)} (${p.tahun || new Date().getFullYear()})</span></span>
-                            ${effAnggaran > 0 ? `<span class="text-neutral-700">|</span><span>RAB: <span class="text-neutral-300 font-semibold">Rp${effAnggaran.toLocaleString('id-ID')}</span></span>` : ''}
-                            ${p.keterangan ? `<span class="text-neutral-700">|</span><span>Ket: <span class="text-neutral-300">${p.keterangan}</span></span>` : ''}
-                        </div>
-
-                        <!-- BARIS 3: ACTION BUTTONS (BARIS TERPISAH: RAPI, LEGA, RESPONSIF) -->
-                        <div class="flex items-center justify-between gap-2 pt-2 border-t border-neutral-900/60">
-                            ${actionsHtml}
-                        </div>
-
-                        <!-- BARIS 4: PRATINJAU KEUANGAN: PEMASUKAN, PENGELUARAN, SALDO -->
-                        <div onclick="toggleProkerAccordion('${p.id}')" class="grid grid-cols-3 gap-1.5 sm:gap-2 font-mono cursor-pointer pt-0.5">
-                            <div class="p-2 sm:p-2.5 bg-neutral-950/90 border border-neutral-850/90 rounded-xl flex flex-col hover:border-neutral-750 transition-colors">
-                                <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 inline-block"></span> MASUK
-                                </span>
-                                <span class="text-[10.5px] sm:text-xs font-bold text-emerald-400 mt-0.5 truncate">+Rp${effPemasukan.toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="p-2 sm:p-2.5 bg-neutral-950/90 border border-neutral-850/90 rounded-xl flex flex-col hover:border-neutral-750 transition-colors">
-                                <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0 inline-block"></span> KELUAR
-                                </span>
-                                <span class="text-[10.5px] sm:text-xs font-bold text-rose-400 mt-0.5 truncate">-Rp${effPengeluaran.toLocaleString('id-ID')}</span>
-                            </div>
-                            <div class="p-2 sm:p-2.5 bg-neutral-950/90 border ${effSaldo >= 0 ? 'border-cyan-500/30 bg-cyan-950/10' : 'border-rose-500/30 bg-rose-950/10'} rounded-xl flex flex-col hover:border-neutral-750 transition-colors">
-                                <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
-                                    <span class="w-1.5 h-1.5 rounded-full ${effSaldo >= 0 ? 'bg-cyan-400' : 'bg-rose-400'} shrink-0 inline-block"></span> SALDO
-                                </span>
-                                <span class="text-[10.5px] sm:text-xs font-black ${effSaldo >= 0 ? 'text-cyan-400' : 'text-rose-400'} mt-0.5 truncate">
-                                    ${effSaldo >= 0 ? '+' : '-'}Rp${Math.abs(effSaldo).toLocaleString('id-ID')}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
 
             return `
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1 border-b border-neutral-900/60 mb-2">
