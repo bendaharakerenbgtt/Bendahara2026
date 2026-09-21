@@ -282,6 +282,38 @@
         }
 
         /* GREETING HERO CARD STYLES */
+        .desktop-welcome-row {
+            width: 100%;
+        }
+        .desktop-welcome-title {
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.25;
+            color: #FFFFFF;
+        }
+        .desktop-welcome-subtitle {
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 0.825rem;
+            color: #94A3B8;
+            margin-top: 3px;
+        }
+        .desktop-date-pill {
+            background: rgba(17, 24, 39, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #E2E8F0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .desktop-date-pill:hover {
+            border-color: rgba(255, 115, 0, 0.4);
+            transform: translateY(-1px);
+        }
+
         .greeting-card {
             background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-neutral-pill) 100%);
             backdrop-filter: blur(16px);
@@ -920,6 +952,22 @@
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
+        }
+        html.light-mode .desktop-welcome-title {
+            color: #0F172A !important;
+        }
+        html.light-mode .desktop-welcome-subtitle {
+            color: #64748B !important;
+        }
+        html.light-mode .desktop-date-pill {
+            background: #FFFFFF !important;
+            border: 1px solid #E2E8F0 !important;
+            color: #1E293B !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        }
+        html.light-mode .desktop-date-pill:hover {
+            border-color: #CBD5E1 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
         }
         html.light-mode .greeting-card {
             background: linear-gradient(135deg, #FFFFFF 0%, #FFFBF7 50%, #FFF4E8 100%) !important;
@@ -1568,37 +1616,29 @@
                 </div>
             </div>
 
-            <!-- 1. GREETING & ACTION HERO CARD (DESKTOP) -->
-            <section class="greeting-card relative overflow-hidden hidden sm:block">
-                <!-- CABINET CORNER LINE ACCENT (LIGHT MODE) -->
-                <div class="cabinet-decor absolute -top-10 -right-10 w-64 h-64 pointer-events-none opacity-30 overflow-hidden">
-                    <img src="assetkabinet/garis.png" alt="Garis Kabinet" class="w-full h-full object-contain">
-                </div>
-                <!-- CABINET ORNAMENT SHADES (LIGHT MODE) -->
-                <div class="cabinet-decor absolute -right-6 -bottom-10 w-44 h-44 pointer-events-none opacity-40">
-                    <img src="assetkabinet/bungaorangejelas.png" alt="Bunga Orange" class="w-full h-full object-contain">
-                </div>
-                <div class="cabinet-decor absolute -left-10 -top-10 w-40 h-40 pointer-events-none opacity-30">
-                    <img src="assetkabinet/bungabirublur.png" alt="Bunga Biru Blur" class="w-full h-full object-contain">
-                </div>
-                <div class="cabinet-decor absolute right-40 top-3 w-8 h-8 pointer-events-none opacity-70 animate-pulse">
-                    <img src="assetkabinet/bintangorange.png" alt="Bintang Orange" class="w-full h-full object-contain">
+            <!-- 1. GREETING & DATE HEADER (DESKTOP FINTECH STYLE SESUAI REFERENSI) -->
+            <section class="desktop-welcome-row hidden sm:flex items-center justify-between gap-4 pt-1 pb-1 px-0.5">
+                <div class="flex flex-col">
+                    <h1 class="desktop-welcome-title text-2xl lg:text-3xl font-extrabold tracking-tight text-neutral-100 font-sans leading-tight">
+                        Assalamu'alaikum, <span class="text-[#FF7300]">Pejuang Dakwah</span>
+                    </h1>
+                    <p class="desktop-welcome-subtitle text-xs lg:text-sm text-neutral-400 font-medium mt-1">
+                        Transparansi Amanah & Kas Pengurus LDK IMIP 2026
+                    </p>
                 </div>
 
-                <div class="greeting-content relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/25 text-[9px] font-mono font-bold text-orange-600 mb-1.5 md:hidden">
-                            <span>✨</span> DANAIMIP 2026
-                        </div>
-                        <h2 class="greeting-title">Assalamu'alaikum, Pejuang Dakwah</h2>
-                        <p class="greeting-subtitle">Transparansi Amanah & Kas Pengurus LDK IMIP 2026</p>
+                <!-- TANGGAL BIASA & TANGGAL HIJRIAH (FINTECH PILLS) -->
+                <div class="flex items-center gap-2.5 shrink-0 flex-wrap justify-end">
+                    <!-- TANGGAL BIASA (MASEHI) -->
+                    <div id="gregorian-date-badge" class="desktop-date-pill flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold">
+                        <i class="fa-regular fa-calendar text-[#FF7300] text-sm"></i>
+                        <span id="gregorian-date-text">Senin, 21 September 2026</span>
                     </div>
 
-                    <div class="flex items-center gap-3 flex-wrap">
-                        <div class="date-badge-box">
-                            <span class="date-badge" id="hijri-date-badge"><i class="fa-solid fa-moon-stars"></i> <span id="hijri-date-text">-- Safar 1448 H</span></span>
-                            <span class="date-badge date-badge-secondary" id="gregorian-date-badge"><i class="fa-regular fa-calendar"></i> <span id="gregorian-date-text">-- Agustus 2026</span></span>
-                        </div>
+                    <!-- TANGGAL HIJRIAH -->
+                    <div id="hijri-date-badge" class="desktop-date-pill flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold">
+                        <i class="fa-solid fa-moon text-amber-400 text-sm"></i>
+                        <span id="hijri-date-text">9 Rabi'ul Akhir 1448 H</span>
                     </div>
                 </div>
             </section>
