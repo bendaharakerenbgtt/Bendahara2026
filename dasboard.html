@@ -1085,6 +1085,17 @@
             border-color: #FDBA74 !important;
             box-shadow: 0 3px 10px rgba(249, 115, 22, 0.20) !important;
         }
+        html.light-mode .mobile-circle-date {
+            background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%) !important;
+            border-color: #FDBA74 !important;
+            box-shadow: 0 3px 10px rgba(249, 115, 22, 0.18) !important;
+        }
+        html.light-mode .mobile-circle-date #mobile-date-day {
+            color: #0f172a !important;
+        }
+        html.light-mode .mobile-circle-date #mobile-date-month {
+            color: #ea580c !important;
+        }
         html.light-mode .kabinet-badge-desktop {
             background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%) !important;
             border-color: #FED7AA !important;
@@ -1295,9 +1306,11 @@
             </div>
             
             <div class="flex items-center gap-2">
-                <div class="px-2.5 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center gap-1.5 text-orange-400 shadow-xs">
-                    <i class="fa-regular fa-calendar text-[11px]"></i>
-                    <span class="text-[9.5px] font-mono font-bold" id="mobile-date-text">2026</span>
+                <!-- CIRCULAR MINI DATE BADGE -->
+                <div id="mobile-date-btn" class="mobile-circle-date w-10 h-10 rounded-full bg-neutral-900/80 border border-orange-500/30 flex flex-col items-center justify-center shrink-0 shadow-xs active:scale-95 transition-all" title="Tanggal Hari Ini">
+                    <span id="mobile-date-month" class="text-[7.5px] font-black uppercase text-[#FF7300] tracking-wider leading-none">SEP</span>
+                    <span id="mobile-date-day" class="text-[12.5px] font-black font-mono text-neutral-100 leading-none mt-0.5">21</span>
+                    <span id="mobile-date-text" class="hidden"></span>
                 </div>
                 <div class="kabinet-avatar w-10 h-10 rounded-full p-1 bg-gradient-to-tr from-amber-500/30 via-orange-500/20 to-neutral-900 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0" title="Kabinet Muharrik 2026">
                     <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-full h-full object-contain">
@@ -2018,6 +2031,18 @@
         const mobileDateEl = document.getElementById('mobile-date-text');
         if (mobileDateEl) {
             mobileDateEl.textContent = `${now.getDate()} ${monthsIndo[now.getMonth()].substring(0, 3)} ${now.getFullYear()}`;
+        }
+        const mobileDateDayEl = document.getElementById('mobile-date-day');
+        if (mobileDateDayEl) {
+            mobileDateDayEl.textContent = now.getDate();
+        }
+        const mobileDateMonthEl = document.getElementById('mobile-date-month');
+        if (mobileDateMonthEl) {
+            mobileDateMonthEl.textContent = monthsIndo[now.getMonth()].substring(0, 3).toUpperCase();
+        }
+        const mobileDateBtn = document.getElementById('mobile-date-btn');
+        if (mobileDateBtn) {
+            mobileDateBtn.title = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
         }
     }
 
