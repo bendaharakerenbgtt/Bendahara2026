@@ -1788,6 +1788,8 @@
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } } },
                 y: { 
+                    beginAtZero: true,
+                    min: 0,
                     grid: { color: '#121420' }, 
                     ticks: { 
                         color: '#3f3f46', 
@@ -2092,36 +2094,12 @@
         if (keluarEl) keluarEl.innerText = 'Rp ' + totalKeluar.toLocaleString('id-ID');
     }
 
-    window.chartMode = 'monthly';
-    window.lastTransactions = [];
-
-    function setChartMode(mode) {
-        window.chartMode = mode;
-        const btnMonthly = document.getElementById('btn-chart-monthly');
-        const btnCumulative = document.getElementById('btn-chart-cumulative');
-
-        if (mode === 'monthly') {
-            if (btnMonthly) btnMonthly.className = 'px-2 py-0.5 rounded text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs cursor-pointer';
-            if (btnCumulative) btnCumulative.className = 'px-2 py-0.5 rounded text-neutral-400 hover:text-white transition-colors cursor-pointer';
-        } else {
-            if (btnCumulative) btnCumulative.className = 'px-2 py-0.5 rounded text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs cursor-pointer';
-            if (btnMonthly) btnMonthly.className = 'px-2 py-0.5 rounded text-neutral-400 hover:text-white transition-colors cursor-pointer';
-        }
-
-        if (window.lastTransactions && window.lastTransactions.length > 0) {
-            updateChartWithData(window.lastTransactions);
-        }
-    }
-
     function updateChartWithData(transactions) {
         if (!window.ldkChart) return;
-        if (transactions && transactions.length > 0) {
-            window.lastTransactions = transactions;
-        }
-        const txList = (transactions || window.lastTransactions || []).slice();
         const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+        const approvedTx = (transactions || []).slice();
         
-        txList.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+        approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
         const goPayBalances = Array(12).fill(0);
         const tunaiBalances = Array(12).fill(0);
@@ -2132,7 +2110,7 @@
         const monthlyGoPayDiff = Array(12).fill(0);
         const monthlyTunaiDiff = Array(12).fill(0);
 
-        txList.forEach(tx => {
+        approvedTx.forEach(tx => {
             const d = new Date(tx.tanggal);
             const mIdx = d.getMonth();
             if (mIdx >= 0 && mIdx < 12) {
@@ -2150,27 +2128,18 @@
         for (let i = 0; i < 12; i++) {
             cumulativeGoPay += monthlyGoPayDiff[i];
             cumulativeTunai += monthlyTunaiDiff[i];
-            goPayBalances[i] = cumulativeGoPay;
-            tunaiBalances[i] = cumulativeTunai;
+            goPayBalances[i] = Math.max(0, cumulativeGoPay);
+            tunaiBalances[i] = Math.max(0, cumulativeTunai);
         }
 
         const maxMonthIndex = Math.max(5, new Date().getMonth());
         const activeMonths = months.slice(0, maxMonthIndex + 1);
         
         window.ldkChart.data.labels = activeMonths;
-
-        if (window.chartMode === 'cumulative') {
-            window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
-            window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
-            window.ldkChart.data.datasets[0].label = 'GoPay (Akumulasi)';
-            window.ldkChart.data.datasets[1].label = 'Tunai (Akumulasi)';
-        } else {
-            window.ldkChart.data.datasets[0].data = monthlyGoPayDiff.slice(0, maxMonthIndex + 1);
-            window.ldkChart.data.datasets[1].data = monthlyTunaiDiff.slice(0, maxMonthIndex + 1);
-            window.ldkChart.data.datasets[0].label = 'GoPay (Bulanan)';
-            window.ldkChart.data.datasets[1].label = 'Tunai (Bulanan)';
-        }
-
+        window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
+        window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
+        window.ldkChart.data.datasets[0].label = 'Saldo GoPay';
+        window.ldkChart.data.datasets[1].label = 'Saldo Tunai';
         window.ldkChart.update();
     }
 
