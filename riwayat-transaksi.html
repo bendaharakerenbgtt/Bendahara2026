@@ -43,9 +43,9 @@
             --blue-bg: rgba(123, 142, 205, 0.15);
             --blue-border: rgba(123, 142, 205, 0.35);
             
-            --bg-cyan-pill: rgba(6, 182, 212, 0.08);
-            --border-cyan-pill: rgba(6, 182, 212, 0.20);
-            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            --bg-cyan-pill: rgba(255, 115, 0, 0.12);
+            --border-cyan-pill: rgba(255, 115, 0, 0.30);
+            --text-cyan-accent: #FF7300;     /* Orange 500 */
             
             --bg-green-pill: rgba(34, 197, 94, 0.08);
             --border-green-pill: rgba(34, 197, 94, 0.20);
@@ -66,13 +66,13 @@
             --header-bg: rgba(8, 12, 20, 0.88);
             --modal-bg: rgba(17, 24, 39, 0.96);
             
-            --hover-cyan-border: rgba(6, 182, 212, 0.4);
+            --hover-cyan-border: rgba(255, 115, 0, 0.45);
             --hover-green-border: rgba(34, 197, 94, 0.4);
             --hover-amber-border: rgba(245, 158, 11, 0.4);
             --hover-neutral-border: #334155;
 
             /* Button variables */
-            --btn-cyan-bg: #FF7300;
+            --btn-cyan-bg: linear-gradient(135deg, #FF7300 0%, #EA580C 100%);
             --btn-cyan-text: #ffffff;
             --btn-cyan-hover: #e06000;
 
@@ -553,9 +553,46 @@
             text-align: center;
         }
         .rekap-type-btn.active {
-            background-color: #10b981;
-            color: #09090b;
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 10px rgba(255, 115, 0, 0.35) !important;
+        }
+
+        #input-search:focus {
+            border-color: #FF7300 !important;
+            box-shadow: 0 0 0 2px rgba(255, 115, 0, 0.18) !important;
+        }
+        select:focus {
+            border-color: #FF7300 !important;
+            box-shadow: 0 0 0 2px rgba(255, 115, 0, 0.15) !important;
+        }
+        .stat-card-saldo {
+            border-color: rgba(255, 115, 0, 0.25) !important;
+        }
+        :root:not(.light-mode) .stat-card-saldo {
+            background: rgba(255, 115, 0, 0.04) !important;
+        }
+
+        html.light-mode #pagination-panel {
+            border-color: rgba(254, 215, 170, 0.7) !important;
+        }
+        html.light-mode #pagination-info {
+            color: #64748b !important;
+        }
+        html.light-mode #pagination-current {
+            color: #0f172a !important;
+        }
+        html.light-mode #btn-prev,
+        html.light-mode #btn-next {
+            background-color: #ffffff !important;
+            border-color: rgba(254, 215, 170, 0.9) !important;
+            color: #334155 !important;
+        }
+        html.light-mode #btn-prev:hover,
+        html.light-mode #btn-next:hover {
+            background-color: #fff7ed !important;
+            border-color: #FF7300 !important;
+            color: #ea580c !important;
         }
 
         #filter-arrow {
@@ -1155,7 +1192,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-emerald-950 selection:text-emerald-400 relative">
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-orange-950 selection:text-orange-400 relative">
 
     <script>
         window.onerror = function(msg, src, line, col, err) {
@@ -1197,7 +1234,7 @@
     <canvas id="canvas-sparks" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
     <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] px-4 sm:px-6 h-14 flex items-center justify-between">
-        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-emerald-400 transition-all duration-300 active:scale-95 font-bold shadow-inner z-10">
+        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-[#FF7300] transition-all duration-300 active:scale-95 font-bold shadow-inner z-10">
             <span>←</span> <span>Dashboard</span>
         </a>
 
@@ -1211,35 +1248,45 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-3.5 sm:py-8 w-full flex-grow flex flex-col gap-3 sm:gap-6 z-10 relative">
+    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3 sm:gap-5 z-10 relative">
         
-        <div class="flex flex-col gap-1 sm:gap-1.5">
-            <h1 class="text-xl sm:text-3xl font-black tracking-tight text-white bg-gradient-to-r from-white via-neutral-200 to-neutral-500 bg-clip-text text-transparent">
-                Keuangan LDK IMIP 
-            </h1>
-            <div class="flex items-center justify-between flex-wrap gap-2">
-                <p class="text-[10px] sm:text-xs text-neutral-400 uppercase font-mono tracking-wider">
-                    Seluruh Aliran Arus Kas
-                </p>
-                <button type="button" onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[9.5px] sm:text-[10px] font-mono text-amber-400 hover:text-amber-300 transition-all flex items-center gap-1 cursor-pointer bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/25 active:scale-95 shadow-sm">
+        <!-- SCREEN TITLE & COMPACT HEADER (MOBILE & DESKTOP HARMONIZED) -->
+        <div class="flex items-center justify-between gap-3 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF7300]/20 via-[#EA580C]/15 to-transparent border border-[#FF7300]/35 flex items-center justify-center text-sm shadow-xs shrink-0">
+                    <i class="fa-solid fa-receipt text-[#FF7300]"></i>
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-sm sm:text-base font-extrabold text-neutral-900 dark:text-neutral-100 font-sans tracking-tight leading-none flex items-center gap-1.5">
+                        Riwayat Transaksi <span class="text-[#FF7300]">IMIP</span>
+                    </h1>
+                    <p class="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">Buku Kas & Transparansi 2026</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="downloadCSV()" class="bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#EA580C] hover:to-[#C2410C] text-white text-[10px] sm:text-[10.5px] font-mono font-bold px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95 shrink-0" title="Unduh CSV Transaksi">
+                    <span>📥</span>
+                    <span>CSV</span>
+                </button>
+                <button type="button" onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[9.5px] sm:text-[10px] font-mono text-amber-500 hover:text-amber-400 transition-all items-center gap-1 cursor-pointer bg-amber-500/10 px-2 py-1.5 rounded-xl border border-amber-500/25 active:scale-95 shadow-xs" title="Info Sinkronisasi">
                     <span>⚠️</span>
-                    <span>Info Sinkron</span>
                 </button>
             </div>
         </div>
 
         <!-- Sync Notice Banner (Collapsible on Mobile) -->
-        <div id="sync-notice-banner" class="relative bg-amber-500/5 border border-amber-500/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 flex gap-2.5 sm:gap-4 overflow-hidden backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.01)] transition-all duration-300 transform">
+        <div id="sync-notice-banner" class="relative bg-amber-500/5 border border-amber-500/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 flex gap-2.5 sm:gap-3.5 overflow-hidden backdrop-blur-sm shadow-[0_0_15px_rgba(245,158,11,0.01)] transition-all duration-300 transform">
             <div class="absolute -left-16 -top-16 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="flex-shrink-0 flex items-center justify-center w-7 h-7 sm:w-10 sm:h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg sm:rounded-xl">
-                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="flex-shrink-0 flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg sm:rounded-xl">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             </div>
             <div class="flex-grow flex flex-col justify-center pr-6">
-                <h4 class="text-[10.5px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider font-mono">Pemberitahuan Sinkronisasi</h4>
-                <p class="text-[9.5px] sm:text-[11px] leading-relaxed text-neutral-300 mt-0.5">
-                    Jika iuran kas atau pengeluaran yang baru Anda input belum tercantum, mohon tunggu validasi Bendahara Admin. Silakan hubungi Admin bila ada ketidakcocokan data.
+                <h4 class="text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider font-mono">Pemberitahuan Sinkronisasi</h4>
+                <p class="text-[9px] sm:text-[10.5px] leading-relaxed text-neutral-300 mt-0.5">
+                    Jika iuran kas atau pengeluaran baru belum tercantum, mohon tunggu validasi Bendahara Admin. Silakan hubungi Admin bila ada ketidakcocokan data.
                 </p>
             </div>
             <button type="button" onclick="toggleNotice(false)" class="absolute right-2 top-2 sm:right-3 sm:top-3 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/15 text-amber-400 text-[10px] sm:text-xs flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95" title="Tutup">
@@ -1249,10 +1296,10 @@
 
         <!-- 3 Financial Stat Cards Strip (Unified Scale, Non-Truncating) -->
         <div class="grid grid-cols-3 gap-2 sm:gap-3">
-            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pemasukan</span>
+                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pemasukan</span>
                     <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-emerald-950/50 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-[9px] sm:text-xs shrink-0">
                         ↙
                     </div>
@@ -1260,10 +1307,10 @@
                 <span id="stat-pemasukan" class="rekap-stat-val text-emerald-400 mt-0.5 sm:mt-1">Rp0</span>
             </div>
 
-            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pengeluaran</span>
+                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pengeluaran</span>
                     <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-rose-950/50 border border-rose-500/10 flex items-center justify-center text-rose-400 text-[9px] sm:text-xs shrink-0">
                         ↗
                     </div>
@@ -1271,11 +1318,11 @@
                 <span id="stat-pengeluaran" class="rekap-stat-val text-rose-400 mt-0.5 sm:mt-1">Rp0</span>
             </div>
 
-            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
-                <div class="absolute -right-8 -top-8 w-20 h-20 bg-blue-500/5 rounded-full blur-xl group-hover:bg-blue-500/10 transition-all duration-500"></div>
+            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1 border border-orange-500/20 relative overflow-hidden group min-w-0">
+                <div class="absolute -right-8 -top-8 w-20 h-20 bg-[#FF7300]/10 rounded-full blur-xl group-hover:bg-[#FF7300]/15 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-[8.5px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Saldo Net</span>
-                    <div id="stat-saldo-indicator" class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[9px] sm:text-xs shrink-0">
+                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-orange-400/90 font-semibold truncate">Saldo Net</span>
+                    <div id="stat-saldo-indicator" class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-[9px] sm:text-xs shrink-0">
                         ⚖
                     </div>
                 </div>
@@ -1284,13 +1331,13 @@
         </div>
 
         <!-- Modern Compact Search & Filter Control Panel -->
-        <div class="glass-panel rounded-2xl p-2.5 sm:p-4 flex flex-col gap-2 sm:gap-3.5 border border-neutral-900/60 shadow-lg">
+        <div class="glass-panel rounded-2xl p-2.5 sm:p-4 flex flex-col gap-2.5 sm:gap-3.5 border border-neutral-900/60 shadow-lg">
             
             <!-- Quick Search Input -->
             <div class="relative w-full">
                 <input type="text" id="input-search" 
-                       placeholder="Cari keterangan, proker, PIC, kategori..." 
-                       class="w-full bg-neutral-950/80 border border-neutral-900 text-neutral-100 placeholder-neutral-500 text-xs px-3.5 py-2 sm:py-2.5 rounded-xl focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/10 transition-all font-sans pr-9">
+                       placeholder="Cari transaksi, proker, PIC, kategori..." 
+                       class="w-full bg-neutral-950/80 border border-neutral-900 text-neutral-100 placeholder-neutral-500 text-xs px-3.5 py-2 sm:py-2.5 rounded-xl focus:outline-none focus:border-[#FF7300]/50 focus:ring-1 focus:ring-[#FF7300]/20 transition-all font-sans pr-9">
                 <div class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1298,49 +1345,47 @@
                 </div>
             </div>
 
-            <!-- Segmented Pill Switcher & Drawer Toggle Row -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <!-- Segmented Type Selector (Semua | Masuk | Keluar) -->
-                <div class="grid grid-cols-3 p-1 bg-neutral-950/90 rounded-xl border border-neutral-900/90 w-full sm:w-auto sm:inline-flex rekap-type-container">
-                    <button type="button" onclick="filterType('semua')" id="btn-type-semua" class="rekap-type-btn active px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-sm">
-                        Semua
-                    </button>
-                    <button type="button" onclick="filterType('Masuk')" id="btn-type-masuk" class="rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
-                        Pemasukan
-                    </button>
-                    <button type="button" onclick="filterType('Keluar')" id="btn-type-keluar" class="rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
-                        Pengeluaran
-                    </button>
-                </div>
+            <!-- Segmented Pill Switcher (Semua | Masuk | Keluar) -->
+            <div class="w-full grid grid-cols-3 p-1 bg-neutral-950/90 rounded-xl border border-neutral-900/90 rekap-type-container">
+                <button type="button" onclick="filterType('semua')" id="btn-type-semua" class="rekap-type-btn active px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all bg-gradient-to-r from-[#FF7300] to-[#EA580C] text-white cursor-pointer shadow-xs">
+                    Semua
+                </button>
+                <button type="button" onclick="filterType('Masuk')" id="btn-type-masuk" class="rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                    Pemasukan
+                </button>
+                <button type="button" onclick="filterType('Keluar')" id="btn-type-keluar" class="rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
+                    Pengeluaran
+                </button>
+            </div>
 
-                <!-- Action Controls: Filter Drawer Toggle & CSV Download -->
-                <div class="flex items-center justify-between sm:justify-end gap-2">
-                    <button type="button" onclick="toggleFilterDrawer()" id="btn-toggle-filters" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-950/80 hover:bg-neutral-900 border border-neutral-900 text-neutral-300 text-[10.5px] font-mono font-medium transition-all cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                        </svg>
-                        <span>Filter & Urutkan</span>
-                        <span id="active-filter-badge" class="hidden px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 rounded-full text-[9px] font-bold border border-emerald-500/30">0</span>
-                        <span id="filter-arrow" class="text-[9px] text-neutral-400 ml-0.5">▼</span>
-                    </button>
+            <!-- Controls Row: Filter Drawer Toggle, Reset & CSV Export -->
+            <div class="flex items-center justify-between gap-2 pt-0.5">
+                <button type="button" onclick="toggleFilterDrawer()" id="btn-toggle-filters" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-950/80 hover:bg-neutral-900 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium transition-all cursor-pointer active:scale-95">
+                    <svg class="w-3.5 h-3.5 text-[#FF7300]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span>Filter & Urutkan</span>
+                    <span id="active-filter-badge" class="hidden px-1.5 py-0.2 bg-[#FF7300]/20 text-[#FF7300] rounded-full text-[9px] font-bold border border-[#FF7300]/30">0</span>
+                    <span id="filter-arrow" class="text-[9px] text-neutral-400 ml-0.5">▼</span>
+                </button>
 
-                    <div class="flex items-center gap-1.5">
-                        <button type="button" onclick="resetFilters()" id="btn-reset-filters" class="hidden px-2 py-1 text-[10px] font-mono text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer">
-                            Reset
-                        </button>
-                        <button type="button" onclick="downloadCSV()" class="bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-[10px] sm:text-[10.5px] font-mono font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0">
-                            <span>📥</span>
-                            <span>CSV</span>
-                        </button>
-                    </div>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="resetFilters()" id="btn-reset-filters" class="hidden px-2.5 py-1 text-[10px] font-mono text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer rounded-lg bg-neutral-900/50 border border-neutral-800">
+                        ✕ Reset
+                    </button>
+                    <button type="button" onclick="downloadCSV()" class="bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#EA580C] hover:to-[#C2410C] text-white text-[10px] sm:text-[10.5px] font-mono font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95 shrink-0" title="Unduh CSV">
+                        <span>📥</span>
+                        <span>CSV</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Collapsible Advanced Filters Drawer -->
-            <div id="advanced-filters-drawer" class="hidden pt-2 border-t border-neutral-900/40">
+            <div id="advanced-filters-drawer" class="hidden pt-2.5 border-t border-neutral-900/40">
                 <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     <div>
-                        <select id="select-month" onchange="filterMonth(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer">
+                        <span class="block text-[8px] font-mono uppercase text-neutral-500 mb-1">Bulan</span>
+                        <select id="select-month" onchange="filterMonth(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer">
                             <option value="">Semua Bulan</option>
                             <option value="01">Januari</option>
                             <option value="02">Februari</option>
@@ -1358,7 +1403,8 @@
                     </div>
 
                     <div>
-                        <select id="select-sort" onchange="changeSort(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                        <span class="block text-[8px] font-mono uppercase text-neutral-500 mb-1">Urutan</span>
+                        <select id="select-sort" onchange="changeSort(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer font-sans">
                             <option value="terbaru">Terbaru (Tanggal)</option>
                             <option value="terlama">Terlama (Tanggal)</option>
                             <option value="termahal">Termahal (Nominal)</option>
@@ -1367,7 +1413,8 @@
                     </div>
 
                     <div>
-                        <select id="select-metode" onchange="filterMetode(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                        <span class="block text-[8px] font-mono uppercase text-neutral-500 mb-1">Metode</span>
+                        <select id="select-metode" onchange="filterMetode(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer font-sans">
                             <option value="all">Semua Metode</option>
                             <option value="Tunai">💵 Tunai</option>
                             <option value="GoPay">📱 GoPay</option>
@@ -1375,13 +1422,15 @@
                     </div>
 
                     <div>
-                        <select id="select-kategori" onchange="filterKategori(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                        <span class="block text-[8px] font-mono uppercase text-neutral-500 mb-1">Kategori</span>
+                        <select id="select-kategori" onchange="filterKategori(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer font-sans">
                             <option value="">Semua Kategori</option>
                         </select>
                     </div>
 
                     <div class="col-span-2 sm:col-span-1">
-                        <select id="select-proker" onchange="filterProker(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-emerald-500/30 transition-all cursor-pointer font-sans">
+                        <span class="block text-[8px] font-mono uppercase text-neutral-500 mb-1">Kegiatan</span>
+                        <select id="select-proker" onchange="filterProker(this.value)" class="w-full bg-neutral-950 border border-neutral-900 text-neutral-300 text-[10px] sm:text-[10.5px] font-mono font-medium px-2.5 py-2 rounded-xl focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer font-sans">
                             <option value="">Semua Kegiatan</option>
                         </select>
                     </div>
@@ -1877,7 +1926,7 @@
             Object.keys(btns).forEach(key => {
                 if (!btns[key]) return;
                 if (key === type) {
-                    btns[key].className = "rekap-type-btn active px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-sm";
+                    btns[key].className = "rekap-type-btn active px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all bg-gradient-to-r from-[#FF7300] to-[#EA580C] text-white cursor-pointer shadow-xs";
                 } else {
                     btns[key].className = "rekap-type-btn px-2 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer";
                 }
@@ -1934,13 +1983,13 @@
                 }
                 if (resetBtn) resetBtn.classList.remove('hidden');
                 if (toggleBtn) {
-                    toggleBtn.classList.add('border-emerald-500/50', 'text-emerald-400');
+                    toggleBtn.classList.add('border-[#FF7300]/60', 'text-[#FF7300]');
                 }
             } else {
                 if (badge) badge.classList.add('hidden');
                 if (resetBtn) resetBtn.classList.add('hidden');
                 if (toggleBtn) {
-                    toggleBtn.classList.remove('border-emerald-500/50', 'text-emerald-400');
+                    toggleBtn.classList.remove('border-[#FF7300]/60', 'text-[#FF7300]');
                 }
             }
         }
@@ -2259,11 +2308,11 @@
                     : '';
 
                 const picTag = tx.nama_pic_pengeluar 
-                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-cyan-400 font-mono font-bold">Penanggung Jawab: ${tx.nama_pic_pengeluar}</span>` 
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[9px] text-orange-400 font-mono font-bold">Penanggung Jawab: ${tx.nama_pic_pengeluar}</span>` 
                     : '';
 
                 const labelText = isMasuk ? "Penyetor" : "Penanggung Jawab";
-                const labelColor = isMasuk ? "text-neutral-500" : "text-cyan-400";
+                const labelColor = isMasuk ? "text-neutral-500" : "text-orange-400";
                 const userTag = tx.user_name 
                     ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-neutral-900/60 border border-neutral-800/40 text-[9px] ${labelColor} font-mono">${labelText}: ${tx.user_name}</span>`
                     : '';
@@ -2314,7 +2363,7 @@
                 }
 
                 html += `
-                    <div class="glass-card rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden tx-card-item ${accentBorder}" data-type="${tx.jenis}" style="animation-delay: ${indexInView * 40}ms">
+                    <div class="glass-card rounded-2xl p-3.5 sm:p-4 flex flex-col gap-2.5 sm:gap-3 relative overflow-hidden tx-card-item ${accentBorder}" data-type="${tx.jenis}" style="animation-delay: ${indexInView * 40}ms">
                         <div class="flex items-start justify-between gap-3">
                             <div class="flex flex-col gap-1">
                                 <div class="flex items-center flex-wrap gap-2 text-[10px]">
@@ -2468,19 +2517,19 @@
 
                 if (placeholder) placeholder.classList.add('hidden');
                 link.innerText = "Buka Lampiran di Google Drive ↗";
-                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
-                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20', 'hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-[#FF7300]', 'hover:border-[#FF7300]/40');
             } else if (isDrive) {
                 img.classList.add('hidden');
                 link.innerText = "Buka Lampiran di Google Drive ↗";
-                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
-                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20', 'hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-[#FF7300]', 'hover:border-[#FF7300]/40');
                 if (!placeholder) {
                     placeholder = document.createElement('div');
                     placeholder.id = 'drive-receipt-placeholder';
                     placeholder.className = 'text-center py-8 px-4 flex flex-col items-center justify-center gap-3';
                     placeholder.innerHTML = `
-                        <div class="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-850 flex items-center justify-center text-emerald-400">
+                        <div class="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-850 flex items-center justify-center text-[#FF7300]">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
@@ -2498,8 +2547,8 @@
                 img.src = src;
                 img.onerror = null;
                 link.innerText = "Unduh / Buka File Lampiran ↗";
-                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20');
-                link.classList.add('hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.remove('hover:text-cyan-400', 'hover:border-cyan-500/20', 'hover:text-emerald-400', 'hover:border-emerald-500/20');
+                link.classList.add('hover:text-[#FF7300]', 'hover:border-[#FF7300]/40');
                 if (placeholder) {
                     placeholder.classList.add('hidden');
                 }
