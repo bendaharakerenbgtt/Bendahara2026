@@ -1457,7 +1457,12 @@
         }
 
         /* Mobile Breakpoint Overrides */
-        @media (max-width: 768px) {
+        html.light-mode .desktop-side-dock .dock-divider {
+            border-color: #FED7AA !important;
+            background-color: #FED7AA !important;
+        }
+
+        @media (max-width: 1023px) {
             #particle-canvas {
                 display: none !important;
             }
@@ -1610,98 +1615,120 @@
         </div>
     </div>
 
-    <!-- STICKY APP HEADER (MATCHING FINTECH REFERENCE) -->
-    <header class="app-header">
-        <div class="header-container">
-            <!-- BRAND LOGO & TITLE (SINGLE LINE ROW LIKE QUIXOTIC) -->
-            <a href="dasboard.html" class="logo-group">
-                <div class="logo-icon rounded-full overflow-hidden">
-                    <img src="bendahara.png" alt="Logo DANAIMIP" class="w-full h-full object-contain">
-                </div>
-                <span class="brand-title">DANA<span class="text-[#FF7300]">IMIP</span></span>
-            </a>
-
-            <!-- DESKTOP PILL NAVIGATION (CENTERED) -->
-            <nav class="desktop-pill-nav hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-xs">
-                <a href="dasboard.html" class="active px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-gradient-to-r from-[#FF7300] to-[#EA580C] text-white shadow-xs">Beranda</a>
-                <a href="pembayaran-kas.html" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-400 hover:text-neutral-100 transition-all">Bayar Kas</a>
-                <a href="lihat-kegiatan.html" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-400 hover:text-neutral-100 transition-all">Kegiatan</a>
-                <a href="riwayat-transaksi.html" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-400 hover:text-neutral-100 transition-all">Riwayat Kas</a>
-                <a href="buat-surat.html" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-neutral-400 hover:text-neutral-100 transition-all">Buat Surat</a>
-            </nav>
-
-            <!-- RIGHT ACTIONS: MODE (ROUND ICON ONLY) + LOGO KABINET BULAT -->
-            <div class="header-actions">
-                <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="theme-toggle-btn" title="Ubah Mode Warna">
-                    <i class="fa-solid fa-moon text-amber-400"></i>
-                </button>
-                <div class="kabinet-circle-btn" title="Kabinet Muharrik 2026">
-                    <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-full h-full object-contain">
-                </div>
-            </div>
-        </div>
-    </header>
-
     <!-- KABINET MUHARRIK CORNER WATERMARK (TOP-RIGHT & GEDEAN) -->
     <div class="kabinet-watermark-topright fixed top-0 right-0 pointer-events-none z-[-1] overflow-hidden w-64 h-64 sm:w-80 sm:h-80 md:w-[460px] md:h-[460px]" aria-hidden="true">
         <img src="assetkabinet/logokabinetblur.png" alt="" class="w-full h-full object-contain transform translate-x-12 -translate-y-8 sm:translate-x-16 sm:-translate-y-12 opacity-20 dark:opacity-15 select-none">
     </div>
 
-    <main class="max-w-[1440px] mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-grow flex flex-col gap-4 sm:gap-5">
+    <main class="max-w-[1440px] mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-grow flex gap-4 lg:gap-6 items-start">
+        
+        <!-- 0. DESKTOP FLOATING SIDEBAR DOCK (LEFT - SESUAI REFERENSI) -->
+        <aside class="desktop-side-dock hidden lg:flex flex-col items-center justify-between py-5 px-2.5 rounded-3xl shrink-0 w-[70px] self-start sticky top-6 z-30 transition-all duration-300 min-h-[460px]">
+            <div class="flex flex-col items-center gap-3 w-full">
+                <!-- TOP EMBLEM LOGO -->
+                <a href="dasboard.html" class="w-10 h-10 rounded-2xl flex items-center justify-center p-1 bg-gradient-to-tr from-orange-500/20 to-amber-500/10 border border-orange-500/30 mb-1 transition-transform hover:scale-105" title="DANA IMIP">
+                    <img src="bendahara.png" alt="Logo" class="w-full h-full object-contain rounded-full">
+                </a>
+                
+                <div class="dock-divider w-8 h-[1px] bg-neutral-800/80 mb-1"></div>
+
+                <!-- NAVIGATION ICONS -->
+                <a href="dasboard.html" class="dock-item active w-11 h-11 rounded-2xl flex items-center justify-center transition-all group relative" title="Beranda">
+                    <i class="fa-solid fa-house text-sm"></i>
+                    <span class="dock-tooltip">Beranda</span>
+                </a>
+                <a href="pembayaran-kas.html" class="dock-item w-11 h-11 rounded-2xl flex items-center justify-center transition-all group relative" title="Bayar Kas">
+                    <i class="fa-solid fa-wallet text-sm"></i>
+                    <span class="dock-tooltip">Bayar Kas</span>
+                </a>
+                <a href="lihat-kegiatan.html" class="dock-item w-11 h-11 rounded-2xl flex items-center justify-center transition-all group relative" title="Kegiatan & Proker">
+                    <i class="fa-solid fa-calendar-check text-sm"></i>
+                    <span class="dock-tooltip">Kegiatan</span>
+                </a>
+                <a href="riwayat-transaksi.html" class="dock-item w-11 h-11 rounded-2xl flex items-center justify-center transition-all group relative" title="Riwayat Kas">
+                    <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                    <span class="dock-tooltip">Riwayat Kas</span>
+                </a>
+                <a href="buat-surat.html" class="dock-item w-11 h-11 rounded-2xl flex items-center justify-center transition-all group relative" title="Buat Surat">
+                    <i class="fa-solid fa-envelope-open-text text-sm"></i>
+                    <span class="dock-tooltip">Buat Surat</span>
+                </a>
+            </div>
+
+            <div class="flex flex-col items-center gap-3 w-full pt-4 border-t border-neutral-800/80 dock-divider">
+                <a href="Admin/Login-Admin.html" class="dock-item w-11 h-11 rounded-2xl flex items-center justify-center transition-all group relative" title="Portal Admin">
+                    <i class="fa-solid fa-shield-halved text-sm text-neutral-400 hover:text-cyan-400"></i>
+                    <span class="dock-tooltip">Login Admin</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-grow min-w-0 flex flex-col gap-4 sm:gap-5 w-full">
             
-        <!-- MOBILE TOP BAR (MOCKUP STYLE: AVATAR/LOGO + GREETING + DANAIMIP + DATE BADGE + KABINET MUHARRIK) -->
-        <div id="mobile-top-bar" class="sm:hidden flex items-center justify-between w-full pt-0.5 pb-1 shrink-0">
-            <div class="flex items-center gap-2.5">
-                <div class="w-10 h-10 rounded-full p-0.5 bg-gradient-to-tr from-orange-500/40 via-amber-400/30 to-orange-400/50 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0">
-                    <img src="bendahara.png" alt="Logo DanaIMIP" class="w-full h-full rounded-full object-contain">
+            <!-- MOBILE TOP BAR (MOCKUP STYLE: AVATAR/LOGO + GREETING + DANAIMIP + DATE BADGE + KABINET MUHARRIK) -->
+            <div id="mobile-top-bar" class="sm:hidden flex items-center justify-between w-full pt-0.5 pb-1 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-full p-0.5 bg-gradient-to-tr from-orange-500/40 via-amber-400/30 to-orange-400/50 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0">
+                        <img src="bendahara.png" alt="Logo DanaIMIP" class="w-full h-full rounded-full object-contain">
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <span class="text-[9.5px] font-sans font-medium text-neutral-400 leading-none">Assalamu'alaikum, Pejuang Dakwah</span>
+                        <span class="text-base font-black tracking-tight font-sans text-neutral-100 flex items-center gap-1 leading-none mt-1">
+                            DANA<span class="text-[#FF7300]">IMIP</span>
+                        </span>
+                    </div>
                 </div>
-                <div class="flex flex-col justify-center">
-                    <span class="text-[9.5px] font-sans font-medium text-neutral-400 leading-none">Assalamu'alaikum, Pejuang Dakwah</span>
-                    <span class="text-base font-black tracking-tight font-sans text-neutral-100 flex items-center gap-1 leading-none mt-1">
-                        DANA<span class="text-[#FF7300]">IMIP</span>
-                    </span>
+                
+                <div class="flex items-center gap-2">
+                    <!-- CIRCULAR MINI DATE BADGE -->
+                    <div id="mobile-date-btn" class="mobile-circle-date w-10 h-10 rounded-full bg-neutral-900/80 border border-orange-500/30 flex flex-col items-center justify-center shrink-0 shadow-xs active:scale-95 transition-all" title="Tanggal Hari Ini">
+                        <span id="mobile-date-month" class="text-[7.5px] font-black uppercase text-[#FF7300] tracking-wider leading-none">SEP</span>
+                        <span id="mobile-date-day" class="text-[12.5px] font-black font-mono text-neutral-100 leading-none mt-0.5">21</span>
+                        <span id="mobile-date-text" class="hidden"></span>
+                    </div>
+                    <div class="kabinet-avatar w-10 h-10 rounded-full p-1 bg-gradient-to-tr from-amber-500/30 via-orange-500/20 to-neutral-900 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0" title="Kabinet Muharrik 2026">
+                        <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-full h-full object-contain">
+                    </div>
                 </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <!-- CIRCULAR MINI DATE BADGE -->
-                <div id="mobile-date-btn" class="mobile-circle-date w-10 h-10 rounded-full bg-neutral-900/80 border border-orange-500/30 flex flex-col items-center justify-center shrink-0 shadow-xs active:scale-95 transition-all" title="Tanggal Hari Ini">
-                    <span id="mobile-date-month" class="text-[7.5px] font-black uppercase text-[#FF7300] tracking-wider leading-none">SEP</span>
-                    <span id="mobile-date-day" class="text-[12.5px] font-black font-mono text-neutral-100 leading-none mt-0.5">21</span>
-                    <span id="mobile-date-text" class="hidden"></span>
-                </div>
-                <div class="kabinet-avatar w-10 h-10 rounded-full p-1 bg-gradient-to-tr from-amber-500/30 via-orange-500/20 to-neutral-900 border border-orange-400/40 shadow-[0_0_14px_rgba(255,115,0,0.25)] flex items-center justify-center shrink-0" title="Kabinet Muharrik 2026">
-                    <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-full h-full object-contain">
-                </div>
-            </div>
-        </div>
-
-        <!-- 1. GREETING & DATE HEADER (DESKTOP FINTECH STYLE SESUAI REFERENSI) -->
-        <section class="desktop-welcome-row hidden sm:flex items-center justify-between gap-4 pt-1 pb-1 px-0.5">
-            <div class="flex flex-col">
-                <h1 class="desktop-welcome-title text-2xl lg:text-3xl font-extrabold tracking-tight text-neutral-100 font-sans leading-tight">
-                    Assalamu'alaikum, <span class="text-[#FF7300]">Pejuang Dakwah</span>
-                </h1>
-                <p class="desktop-welcome-subtitle text-xs lg:text-sm text-neutral-400 font-medium mt-1">
-                    Transparansi Amanah & Kas Pengurus LDK IMIP 2026
-                </p>
             </div>
 
-            <!-- TANGGAL BIASA & TANGGAL HIJRIAH (FINTECH PILLS) -->
-            <div class="flex items-center gap-2.5 shrink-0 flex-wrap justify-end">
-                <!-- TANGGAL BIASA (MASEHI) -->
-                <div id="gregorian-date-badge" class="desktop-date-pill flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold">
-                    <i class="fa-regular fa-calendar text-[#FF7300] text-sm"></i>
-                    <span id="gregorian-date-text">Senin, 21 September 2026</span>
+            <!-- 1. GREETING & DATE HEADER (DESKTOP FINTECH STYLE SESUAI REFERENSI) -->
+            <section class="desktop-welcome-row hidden sm:flex items-center justify-between gap-4 pt-1 pb-1 px-0.5">
+                <div class="flex flex-col">
+                    <h1 class="desktop-welcome-title text-2xl lg:text-3xl font-extrabold tracking-tight text-neutral-100 font-sans leading-tight">
+                        Assalamu'alaikum, <span class="text-[#FF7300]">Pejuang Dakwah</span>
+                    </h1>
+                    <p class="desktop-welcome-subtitle text-xs lg:text-sm text-neutral-400 font-medium mt-1">
+                        Transparansi Amanah & Kas Pengurus LDK IMIP 2026
+                    </p>
                 </div>
 
-                <!-- TANGGAL HIJRIAH -->
-                <div id="hijri-date-badge" class="desktop-date-pill flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold">
-                    <i class="fa-solid fa-moon text-amber-400 text-sm"></i>
-                    <span id="hijri-date-text">9 Rabi'ul Akhir 1448 H</span>
+                <!-- TANGGAL BIASA & HIJRIAH + MODE TOGGLE & LOGO KABINET -->
+                <div class="flex items-center gap-2.5 shrink-0 flex-wrap justify-end">
+                    <!-- TANGGAL BIASA (MASEHI) -->
+                    <div id="gregorian-date-badge" class="desktop-date-pill flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold">
+                        <i class="fa-regular fa-calendar text-[#FF7300] text-sm"></i>
+                        <span id="gregorian-date-text">Senin, 21 September 2026</span>
+                    </div>
+
+                    <!-- TANGGAL HIJRIAH -->
+                    <div id="hijri-date-badge" class="desktop-date-pill flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold">
+                        <i class="fa-solid fa-moon text-amber-400 text-sm"></i>
+                        <span id="hijri-date-text">9 Rabi'ul Akhir 1448 H</span>
+                    </div>
+
+                    <!-- UBAH MODE WARNA (BULAT ICON ONLY) -->
+                    <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="theme-toggle-btn" title="Ubah Mode Warna">
+                        <i class="fa-solid fa-moon text-amber-400"></i>
+                    </button>
+
+                    <!-- LOGO KABINET BULAT -->
+                    <div class="kabinet-circle-btn" title="Kabinet Muharrik 2026">
+                        <img src="assetkabinet/logokabinetjelas.png" alt="Logo Kabinet Muharrik" class="w-full h-full object-contain">
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
         <!-- 3-BAGIAN DASHBOARD GRID: KIRI (SALDO) | TENGAH (DIAGRAM) | KANAN (MENU WIDGET) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start mb-16 lg:mb-32">
@@ -1907,6 +1934,7 @@
                 </div>
 
             </div>
+        </div>
     </main>
 
     <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center">
