@@ -658,8 +658,8 @@
         /* 1. Tab Navigation (Sleek Modern Segmented Pill) */
         .proker-tab-container {
             transition: all 0.25s ease;
-            padding: 3px !important;
-            border-radius: 9999px !important;
+            padding: 4px !important;
+            border-radius: 0.85rem !important;
         }
         html.light-mode .proker-tab-container {
             background: #FFFFFF !important;
@@ -667,17 +667,17 @@
             box-shadow: 0 2px 8px rgba(255, 115, 0, 0.08) !important;
         }
         :root:not(.light-mode) .proker-tab-container {
-            background: rgba(15, 23, 42, 0.75) !important;
+            background: rgba(10, 10, 10, 0.85) !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
         }
         .tab-btn {
-            padding: 0.38rem 0.6rem !important;
+            padding: 0.45rem 0.6rem !important;
             text-align: center;
-            font-size: 0.72rem !important; /* ~11.5px compact */
+            font-size: 0.75rem !important;
             font-weight: 700 !important;
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            border-radius: 9999px !important;
+            border-radius: 0.65rem !important;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             border: none;
@@ -692,28 +692,76 @@
         }
         @media (min-width: 640px) {
             .tab-btn {
-                padding: 0.48rem 1rem !important;
-                font-size: 0.78rem !important;
+                padding: 0.5rem 1rem !important;
+                font-size: 0.8rem !important;
             }
         }
         .tab-btn.tab-active {
-            background: linear-gradient(135deg, #FF7300 0%, #FFA500 100%) !important;
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
             color: #FFFFFF !important;
             box-shadow: 0 2px 8px rgba(255, 115, 0, 0.3) !important;
             font-weight: 800 !important;
         }
+        .tab-btn.tab-active .tab-badge {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
         .tab-btn.tab-inactive {
             background: transparent !important;
+            color: #94A3B8 !important;
+        }
+        .tab-btn.tab-inactive .tab-badge {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #94A3B8 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
         html.light-mode .tab-btn.tab-inactive {
             color: #64748B !important;
         }
-        :root:not(.light-mode) .tab-btn.tab-inactive {
-            color: #94A3B8 !important;
+        html.light-mode .tab-btn.tab-inactive .tab-badge {
+            background: #E2E8F0 !important;
+            color: #475569 !important;
+            border: 1px solid #CBD5E1 !important;
         }
         .tab-btn.tab-inactive:hover {
             color: #EA580C !important;
             background: rgba(255, 115, 0, 0.08) !important;
+        }
+
+        /* Status Filter Buttons (Aligned 3 Columns) */
+        .filter-status-btn {
+            cursor: pointer;
+            user-select: none;
+            outline: none;
+        }
+        .filter-status-btn.active {
+            background: #171717 !important;
+            color: #FF7300 !important;
+            border: 1px solid rgba(255, 115, 0, 0.4) !important;
+            box-shadow: 0 2px 6px rgba(255, 115, 0, 0.15) !important;
+        }
+        .filter-status-btn.inactive {
+            background: transparent !important;
+            color: #737373 !important;
+            border: 1px solid transparent !important;
+        }
+        .filter-status-btn.inactive:hover {
+            color: #D4D4D4 !important;
+        }
+        html.light-mode .status-filter-container {
+            background: #FFFFFF !important;
+            border-color: #FED7AA !important;
+        }
+        html.light-mode .filter-status-btn.active {
+            background: #FFF7ED !important;
+            color: #C2410C !important;
+            border: 1.5px solid #FF7300 !important;
+            box-shadow: 0 2px 6px rgba(255, 115, 0, 0.12) !important;
+        }
+        html.light-mode .filter-status-btn.inactive {
+            color: #64748B !important;
+            background: transparent !important;
         }
 
         /* 2. Proker Card Container */
@@ -1504,41 +1552,54 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-3.5 sm:px-6 py-4 sm:py-6 w-full flex-grow flex flex-col gap-3.5 sm:gap-5">
+    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
         
-        <div class="flex flex-col gap-1 border-b border-neutral-200/80 dark:border-neutral-900 pb-3 sm:pb-4">
-            <h2 class="text-lg sm:text-2xl font-black text-white tracking-tight">Daftar Seluruh Kegiatan <span class="bg-gradient-to-r from-[#FF7300] via-[#FFA500] to-[#FF8C00] bg-clip-text text-transparent">LDK IMIP</span></h2>
-            <p class="text-[11px] sm:text-xs text-neutral-400">Disini berisi rincian finansial program kerja LDK IMIP. Jika ada keliruan dalam informasi, silakan hubungi admin.</p>
+        <!-- COMPACT SCREEN HEADER (MOBILE & DESKTOP ALIGNED) -->
+        <div class="flex items-center justify-between gap-3 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-500/20 via-amber-500/15 to-transparent border border-orange-500/35 flex items-center justify-center text-sm shadow-xs shrink-0">
+                    <i class="fa-solid fa-clipboard-list text-[#FF7300]"></i>
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-sm sm:text-base font-extrabold text-neutral-900 dark:text-neutral-100 font-sans tracking-tight leading-none flex items-center gap-1.5">
+                        Program & Kegiatan <span class="text-[#FF7300]">IMIP</span>
+                    </h1>
+                    <p class="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">Finansial & LPJ Organisasi 2026</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="bukaModalExportMasterLPJ()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF7300]/15 hover:bg-[#FF7300]/25 border border-[#FF7300]/35 text-[#FF7300] hover:text-white text-[10px] font-mono font-bold transition-all active:scale-95 shadow-xs cursor-pointer" title="Export Seluruh Laporan Pertanggungjawaban (Master LPJ)">
+                    <span>📑</span> <span>Export LPJ</span>
+                </button>
+                <button id="themeToggleBtnMobile" onclick="toggleTheme()" class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 flex items-center justify-center text-xs shadow-xs text-neutral-600 dark:text-neutral-300 active:scale-95 transition-all md:hidden cursor-pointer" title="Ubah Tema">
+                    🌙
+                </button>
+            </div>
         </div>
 
-        <!-- TAB UTAMA: PROGRAM KERJA VS AGENDA KERJA -->
-        <div class="w-full max-w-[360px] sm:max-w-md mx-auto grid grid-cols-2 gap-1 p-1 bg-neutral-950 border border-neutral-900 rounded-full proker-tab-container shadow-xs">
+        <!-- 1. TAB UTAMA: PROGRAM KERJA VS AGENDA KERJA -->
+        <div class="w-full grid grid-cols-2 gap-1.5 p-1 bg-neutral-950/80 border border-neutral-900 rounded-xl proker-tab-container shadow-xs">
             <button onclick="switchProkerTab('Program Kerja')" id="tab-btn-proker" class="tab-btn tab-active">
                 <span>📌 Program Kerja</span>
-                <span id="tab-badge-proker" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-neutral-900 border border-neutral-800 font-bold ml-1">0</span>
+                <span id="tab-badge-proker" class="tab-badge text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold">0</span>
             </button>
             <button onclick="switchProkerTab('Agenda Kerja')" id="tab-btn-agenda" class="tab-btn tab-inactive">
                 <span>📅 Agenda Kerja</span>
-                <span id="tab-badge-agenda" class="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-neutral-900 border border-neutral-800 font-bold ml-1">0</span>
+                <span id="tab-badge-agenda" class="tab-badge text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold">0</span>
             </button>
         </div>
 
-        <!-- SUB-ACTION BAR: SUB-FILTER STATUS & MASTER LPJ EXPORT -->
-        <div class="flex items-center justify-between gap-2 max-w-[360px] sm:max-w-md mx-auto w-full px-1 flex-wrap">
-            <div class="inline-flex items-center gap-1 p-0.5 bg-neutral-950 border border-neutral-900 rounded-lg text-[10px] font-mono">
-                <button type="button" onclick="setStatusFilter('all')" id="filter-btn-all" class="px-2.5 py-1 rounded font-bold transition-all bg-neutral-900 text-[#FF7300] border border-[#FF7300]/30 cursor-pointer shadow-xs">
-                    Semua (<span id="pub-count-all">0</span>)
-                </button>
-                <button type="button" onclick="setStatusFilter('running')" id="filter-btn-running" class="px-2.5 py-1 rounded font-bold transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer border border-transparent">
-                    ⏳ Berjalan (<span id="pub-count-running">0</span>)
-                </button>
-                <button type="button" onclick="setStatusFilter('selesai')" id="filter-btn-selesai" class="px-2.5 py-1 rounded font-bold transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer border border-transparent">
-                    ✅ Selesai (<span id="pub-count-selesai">0</span>)
-                </button>
-            </div>
-
-            <button type="button" onclick="bukaModalExportMasterLPJ()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 hover:bg-neutral-200 dark:hover:bg-neutral-850 border border-neutral-300 dark:border-neutral-800 hover:border-[#FF7300]/40 text-[#FF7300] text-[10px] font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-xs" title="Export Seluruh LPJ">
-                <span>📑</span> <span>Export Seluruh LPJ</span>
+        <!-- 2. SUB-FILTER STATUS: SEMUA, BERJALAN, SELESAI (1 BARIS PENUH) -->
+        <div class="w-full grid grid-cols-3 gap-1.5 p-1 bg-neutral-950/60 dark:bg-neutral-950/90 border border-neutral-200 dark:border-neutral-900 rounded-xl text-[10.5px] font-mono status-filter-container shadow-xs">
+            <button type="button" onclick="setStatusFilter('all')" id="filter-btn-all" class="filter-status-btn active text-center py-1.5 px-1 rounded-lg font-bold transition-all">
+                Semua (<span id="pub-count-all">0</span>)
+            </button>
+            <button type="button" onclick="setStatusFilter('running')" id="filter-btn-running" class="filter-status-btn inactive text-center py-1.5 px-1 rounded-lg font-bold transition-all">
+                ⏳ Berjalan (<span id="pub-count-running">0</span>)
+            </button>
+            <button type="button" onclick="setStatusFilter('selesai')" id="filter-btn-selesai" class="filter-status-btn inactive text-center py-1.5 px-1 rounded-lg font-bold transition-all">
+                ✅ Selesai (<span id="pub-count-selesai">0</span>)
             </button>
         </div>
 
@@ -1815,8 +1876,8 @@
             const btnRunning = document.getElementById('filter-btn-running');
             const btnSelesai = document.getElementById('filter-btn-selesai');
 
-            const activeBtn = "px-2.5 py-1 rounded font-bold transition-all bg-neutral-900 text-[#FF7300] border border-[#FF7300]/30 cursor-pointer shadow-xs";
-            const inactiveBtn = "px-2.5 py-1 rounded font-bold transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer border border-transparent";
+            const activeBtn = "filter-status-btn active text-center py-1.5 px-1 rounded-lg font-bold transition-all";
+            const inactiveBtn = "filter-status-btn inactive text-center py-1.5 px-1 rounded-lg font-bold transition-all";
 
             if (btnAll) btnAll.className = activePublicStatusFilter === 'all' ? activeBtn : inactiveBtn;
             if (btnRunning) btnRunning.className = activePublicStatusFilter === 'running' ? activeBtn : inactiveBtn;
@@ -5518,12 +5579,14 @@
             const btn = document.getElementById('themeToggleBtn');
             const mobileIcon = document.getElementById('mobileThemeIcon');
             const mobileLabel = document.getElementById('mobileThemeLabel');
+            const btnMob = document.getElementById('themeToggleBtnMobile');
             if (theme === 'light') {
                 document.documentElement.classList.add('light-mode');
                 document.documentElement.classList.remove('dark');
                 document.body.classList.add('light-mode');
                 document.body.classList.remove('dark');
                 if (btn) btn.innerText = '☀️';
+                if (btnMob) btnMob.innerText = '☀️';
                 if (mobileIcon) mobileIcon.className = 'fa-solid fa-sun text-orange-500';
                 if (mobileLabel) mobileLabel.innerText = 'Terang';
             } else {
@@ -5532,6 +5595,7 @@
                 document.body.classList.remove('light-mode');
                 document.body.classList.add('dark');
                 if (btn) btn.innerText = '🌙';
+                if (btnMob) btnMob.innerText = '🌙';
                 if (mobileIcon) mobileIcon.className = 'fa-solid fa-moon text-amber-400';
                 if (mobileLabel) mobileLabel.innerText = 'Gelap';
             }
