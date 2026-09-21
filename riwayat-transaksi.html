@@ -595,6 +595,28 @@
             color: #ea580c !important;
         }
 
+        /* Screen Title Header & Subtitle High Contrast Rules */
+        .screen-title {
+            color: #ffffff;
+            transition: color 0.3s ease;
+        }
+        .screen-subtitle {
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+        html.light-mode .screen-title,
+        html.light-mode h1 {
+            color: #0f172a !important; /* Bold solid dark slate in Light Mode */
+            font-weight: 900 !important;
+        }
+        html.light-mode .screen-subtitle {
+            color: #475569 !important; /* Crisp readable slate in Light Mode */
+            font-weight: 600 !important;
+        }
+        html.light-mode .screen-header-wrap {
+            border-bottom-color: rgba(254, 215, 170, 0.85) !important;
+        }
+
         #filter-arrow {
             display: inline-block;
             transition: transform 0.25s ease;
@@ -1251,26 +1273,22 @@
     <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3 sm:gap-5 z-10 relative">
         
         <!-- SCREEN TITLE & COMPACT HEADER (MOBILE & DESKTOP HARMONIZED) -->
-        <div class="flex items-center justify-between gap-3 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
+        <div class="screen-header-wrap flex items-center justify-between gap-3 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
             <div class="flex items-center gap-2.5">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF7300]/20 via-[#EA580C]/15 to-transparent border border-[#FF7300]/35 flex items-center justify-center text-sm shadow-xs shrink-0">
                     <i class="fa-solid fa-receipt text-[#FF7300]"></i>
                 </div>
                 <div class="flex flex-col">
-                    <h1 class="text-sm sm:text-base font-extrabold text-neutral-900 dark:text-neutral-100 font-sans tracking-tight leading-none flex items-center gap-1.5">
+                    <h1 class="screen-title text-sm sm:text-base font-extrabold font-sans tracking-tight leading-none flex items-center gap-1.5">
                         Riwayat Transaksi <span class="text-[#FF7300]">IMIP</span>
                     </h1>
-                    <p class="text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">Buku Kas & Transparansi 2026</p>
+                    <p class="screen-subtitle text-[9.5px] font-mono mt-0.5">Buku Kas & Transparansi 2026</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-1.5">
-                <button type="button" onclick="downloadCSV()" class="bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#EA580C] hover:to-[#C2410C] text-white text-[10px] sm:text-[10.5px] font-mono font-bold px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95 shrink-0" title="Unduh CSV Transaksi">
-                    <span>📥</span>
-                    <span>CSV</span>
-                </button>
-                <button type="button" onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[9.5px] sm:text-[10px] font-mono text-amber-500 hover:text-amber-400 transition-all items-center gap-1 cursor-pointer bg-amber-500/10 px-2 py-1.5 rounded-xl border border-amber-500/25 active:scale-95 shadow-xs" title="Info Sinkronisasi">
-                    <span>⚠️</span>
+                <button type="button" onclick="toggleNotice(true)" id="btn-show-notice" class="hidden text-[9.5px] sm:text-[10px] font-mono text-amber-500 hover:text-amber-400 transition-all items-center gap-1 cursor-pointer bg-amber-500/10 px-2.5 py-1.5 rounded-xl border border-amber-500/25 active:scale-95 shadow-xs" title="Info Sinkronisasi">
+                    <span>⚠️</span> <span class="text-[9px] font-mono uppercase font-bold">Info Sinkron</span>
                 </button>
             </div>
         </div>
