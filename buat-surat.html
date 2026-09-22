@@ -133,15 +133,15 @@
             box-sizing: border-box;
             position: relative;
             overflow: hidden;
-            line-height: 1.45;
-            font-size: 11pt;
+            line-height: 1.5;
+            font-size: 12pt;
             margin: 0 auto 36px auto;
         }
 
         /* SPZ Centered Watermark Layer - Always Perfect 1:1 Aspect Ratio (No Stretching / Gepeng) */
         .spz-watermark-layer {
             position: absolute;
-            top: 50%;
+            top: 145mm;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 345px;
@@ -1196,8 +1196,8 @@
 
             const spzKop = generateKopHtmlSpz();
 
-            // Reusable Watermark Layer (Guaranteed 1:1 Aspect Ratio, Never Stretches, Dead-Center, Master PDF 93mm Size)
-            const getSpzWatermarkHtml = (topOffset = '50%') => `
+            // Reusable Watermark Layer (Guaranteed 1:1 Aspect Ratio, Never Stretches, Master PDF 93mm Size)
+            const getSpzWatermarkHtml = (topOffset = '145mm') => `
                 <div class="spz-watermark-layer" style="position: absolute !important; top: ${topOffset} !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 345px !important; height: 345px !important; max-width: 345px !important; max-height: 345px !important; pointer-events: none !important; z-index: 1 !important; user-select: none !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important;">
                     <img src="surat/assets/watermark_spz.png" alt="Watermark SPZ" style="width: 345px !important; height: 345px !important; max-width: 345px !important; max-height: 345px !important; object-fit: contain !important; display: block !important; opacity: 0.95 !important; border: 0 !important;">
                 </div>
@@ -1205,18 +1205,18 @@
 
             // Paragraph formatting with bold support and accurate indentation
             const pembukaParas = pembuka.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
+                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
 
             const intiParas = isiInti.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
+                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
 
             // Format Event Details Box (Accurate Indentation & Column Widths)
             const eventBoxHtml = `
-                <table style="margin: 0 0 26pt 1.85cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5;">
+                <table style="margin: 0 0 26pt 1.85cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5;">
                     <tr>
-                        <td style="width: 115px; vertical-align: top; padding: 2.5pt 0;">Hari, Tanggal</td>
+                        <td style="width: 125px; vertical-align: top; padding: 2.5pt 0;">Hari, Tanggal</td>
                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
                         <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(hariTanggal)}</td>
                     </tr>
@@ -1241,7 +1241,7 @@
                 </div>
                 <div class="spz-page-sheet" data-page="${currentPageNum}">
                     <!-- WATERMARK PERSIS DI TENGAH BODY & TIDAK GEPENG -->
-                    ${getSpzWatermarkHtml('50%')}
+                    ${getSpzWatermarkHtml('145mm')}
 
                     <!-- KONTEN RESMI HALAMAN 1 -->
                     <div style="position: relative; z-index: 2;">
@@ -1249,41 +1249,41 @@
 
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
-                            <div style="text-align: right; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <div style="text-align: right; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
                             </div>
 
                             <!-- META SURAT -->
-                            <table style="border-collapse: collapse; margin-bottom: 24pt; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.45;">
+                            <table style="border-collapse: collapse; margin-bottom: 24pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
                                 <tr>
-                                    <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
+                                    <td style="width: 80px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
                                     <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
+                                    <td style="width: 80px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
                                     <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(perihal)}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
+                                    <td style="width: 80px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
                                     <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
                                 </tr>
                             </table>
 
                             <!-- TUJUAN SURAT -->
-                            <div style="margin-bottom: 24pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <div style="margin-bottom: 24pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${formatSpzTujuan(tujuan)}
                             </div>
 
                             <!-- SALAM PEMBUKA -->
-                            <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 <p style="margin: 0;">Dengan Hormat,</p>
                             </div>
 
                             <!-- PARAGRAF PEMBUKA -->
-                            <div style="margin-bottom: 26pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <div style="margin-bottom: 26pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${pembukaParas}
                             </div>
 
@@ -1291,7 +1291,7 @@
                             ${eventBoxHtml}
 
                             <!-- PARAGRAF INTI -->
-                            <div style="margin-bottom: 0; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <div style="margin-bottom: 0; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${intiParas}
                             </div>
                         </div>
@@ -1308,25 +1308,25 @@
                 </div>
                 <div class="spz-page-sheet" data-page="${currentPageNum}">
                     <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                    ${getSpzWatermarkHtml('50%')}
+                    ${getSpzWatermarkHtml('135mm')}
 
                     <!-- KONTEN HALAMAN 2 -->
                     <div style="position: relative; z-index: 2;">
                         ${spzKop}
 
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                            <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">
+                            <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                                 <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
                             </div>
 
-                            <p style="margin: 0 0 20pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <p style="margin: 0 0 20pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${escapeHtml(penutup).replace(/\n/g, '<br>')}
                             </p>
 
                             <div style="font-family: 'Times New Roman', serif;">
                                 <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
-                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 11pt;">Penanggung Jawab,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 20pt;">
+                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
+                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 20pt;">
                                     <tr>
                                         <td style="width: 50%; vertical-align: top; padding-bottom: 50pt; line-height: 1.3;">
                                             Ketua UKM LDK IMIP<br>Periode 2026
@@ -1338,18 +1338,18 @@
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.3;">
                                             <strong style="text-decoration: underline;">${escapeHtml(ttd2Nama)}</strong><br>
-                                            <span style="font-size: 10pt;">${escapeHtml(ttd2Nim)}</span>
+                                            <span style="font-size: 10.5pt;">${escapeHtml(ttd2Nim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.3;">
                                             <strong style="text-decoration: underline;">${escapeHtml(ttd1Nama)}</strong><br>
-                                            <span style="font-size: 10pt;">${escapeHtml(ttd1Nim)}</span>
+                                            <span style="font-size: 10.5pt;">${escapeHtml(ttd1Nim)}</span>
                                         </td>
                                     </tr>
                                 </table>
 
                                 <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
-                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 11pt;">Mengetahui,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 10.5pt; margin-bottom: 20pt;">
+                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
+                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 20pt;">
                                     <tr>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.3;">
                                             Dosen Pembimbing<br>UKM IMIP
@@ -1364,31 +1364,31 @@
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.3;">
                                             <strong style="text-decoration: underline;">Zainul Hakim, S.Ag.,M.Pd.I</strong><br>
-                                            <span style="font-size: 9.5pt;">NIP. 198005072023211013</span>
+                                            <span style="font-size: 10pt;">NIP. 198005072023211013</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.3;">
                                             <strong style="text-decoration: underline;">Sheyla Aulya</strong><br>
-                                            <span style="font-size: 9.5pt;">NIM. 2491345088</span>
+                                            <span style="font-size: 10pt;">NIM. 2491345088</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.3;">
                                             <strong style="text-decoration: underline;">Ujang Rahman</strong><br>
-                                            <span style="font-size: 9.5pt;">NIM. 2490343155</span>
+                                            <span style="font-size: 10pt;">NIM. 2490343155</span>
                                         </td>
                                     </tr>
                                 </table>
 
                                 <!-- BARIS 3: MENYETUJUI WADIR III -->
                                 <div style="text-align: center; margin-bottom: 18pt;">
-                                    <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold;">Menyetujui,</p>
-                                    <p style="margin: 0 0 46pt 0; font-size: 10.5pt; line-height: 1.3;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
-                                    <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
-                                    <p style="margin: 0; font-size: 10pt;">NIP. 197602012002122001</p>
+                                    <p style="margin: 0 0 2pt 0; font-size: 12pt; font-weight: bold;">Menyetujui,</p>
+                                    <p style="margin: 0 0 46pt 0; font-size: 11.5pt; line-height: 1.3;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
+                                    <p style="margin: 0; font-size: 12pt; font-weight: bold; text-decoration: underline;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
+                                    <p style="margin: 0; font-size: 10.5pt;">NIP. 197602012002122001</p>
                                 </div>
 
                                 <!-- BARIS 4: TEMBUSAN (Tabel Bernomor Eksplisit) -->
-                                <div style="font-size: 10pt; line-height: 1.35; text-align: left;">
-                                    <p style="margin: 0 0 3pt 0; font-weight: bold;">Tembusan :</p>
-                                    <table style="border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 10pt; line-height: 1.35;">
+                                <div style="font-size: 10.5pt; line-height: 1.35; text-align: left;">
+                                    <p style="margin: 0 0 3pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
+                                    <table style="border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.35;">
                                         <tr>
                                             <td style="width: 18px; vertical-align: top; padding: 0.5pt 0;">1.</td>
                                             <td style="vertical-align: top; padding: 0.5pt 0;">Wadir Direktur Bidang Kemahasiswaan dan Alumni</td>
@@ -1438,19 +1438,19 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${getSpzWatermarkHtml('50%')}
+                        ${getSpzWatermarkHtml('115mm')}
 
                         <!-- KONTEN HALAMAN 3 -->
                         <div style="position: relative; z-index: 2;">
                             ${spzKop}
 
                             <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                                <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">
+                                <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                                     <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
                                 </div>
 
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Lampiran</p>
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Panitia Kegiatan</p>
+                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Panitia Kegiatan</p>
 
                                 <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 9.5pt; border: 1px solid #000000 !important;">
                                     <thead>
@@ -1467,7 +1467,7 @@
                                     </tbody>
                                 </table>
 
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Susunan Kegiatan</p>
+                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Susunan Kegiatan</p>
 
                                 <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt; border: 1px solid #000000 !important;">
                                     <thead>
@@ -1498,20 +1498,20 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${getSpzWatermarkHtml('50%')}
+                        ${getSpzWatermarkHtml('135mm')}
 
                         <!-- KONTEN HALAMAN 4 -->
                         <div style="position: relative; z-index: 2;">
                             ${spzKop}
 
                             <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                                <p style="margin: 0 0 10pt 0; text-align: justify; font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.4;">
+                                <p style="margin: 0 0 10pt 0; text-align: justify; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
                                     Dengan dikeluarkannya surat ini, Subbagian Umum Politeknik Negeri Media Kreatif menyetujui untuk memfasilitasi pengajuan peminjaman pada:
                                 </p>
 
-                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.4;">
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
                                     <tr>
-                                        <td style="width: 160px; vertical-align: top; padding: 1.5pt 0;">Nomor Surat</td>
+                                        <td style="width: 170px; vertical-align: top; padding: 1.5pt 0;">Nomor Surat</td>
                                         <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
                                         <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
                                     </tr>
@@ -1537,12 +1537,12 @@
                                     </tr>
                                 </table>
 
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 10.5pt; font-weight: bold; line-height: 1.35;">
+                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.4;">
                                     Hal – hal terkait penggunaan sarana dan prasarana, dapat dijaga dan disepakati bersama atas peraturan sebagai berikut :
                                 </p>
 
                                 <!-- DAFTAR 11 PERATURAN BERNOMOR EKSPLISIT (TABEL DUA KOLOM) -->
-                                <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 10pt; line-height: 1.35; margin-bottom: 14pt;">
+                                <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.35; margin-bottom: 14pt;">
                                     <tr>
                                         <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">1.</td>
                                         <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Tidak boleh ada yang merokok disetiap ruangan yang dipakai acara sampai selesai acara.</td>
@@ -1589,11 +1589,11 @@
                                     </tr>
                                 </table>
 
-                                <div style="text-align: right; margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                                <div style="text-align: right; margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                     <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
                                     <p style="margin: 0 0 52pt 0; font-weight: bold;">Kepala Subbagian Umum</p>
                                     <p style="margin: 0; font-weight: bold; text-decoration: underline;">Runny Wachyuni, S.Pd., M.M.</p>
-                                    <p style="margin: 0; font-size: 10pt;">NIP. 198106172005012004</p>
+                                    <p style="margin: 0; font-size: 10.5pt;">NIP. 198106172005012004</p>
                                 </div>
                             </div>
                         </div>
@@ -1805,12 +1805,12 @@
         }
         body {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 11pt;
+            font-size: ${currentSuratType === 'SPZ' ? '12pt' : '11pt'};
             color: #000000;
             background: #FFFFFF;
             margin: 0;
             padding: 0;
-            line-height: 1.35;
+            line-height: 1.45;
         }
         .kop-separator {
             border-top: 2.5px solid #000000;
@@ -1825,6 +1825,7 @@
             background-color: #FFFFFF !important;
             color: #000000 !important;
             font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt !important;
             box-shadow: none !important;
             border: none !important;
             margin: 0 !important;
@@ -1837,6 +1838,8 @@
             break-inside: avoid !important;
             box-sizing: border-box;
             position: relative !important;
+            min-height: 268mm !important;
+            height: 268mm !important;
         }
         .spz-page-sheet:last-child {
             page-break-after: auto !important;
@@ -1844,7 +1847,6 @@
         }
         .spz-watermark-layer {
             position: absolute !important;
-            top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
             width: 345px !important;
