@@ -144,8 +144,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 420px;
-            height: 420px;
+            width: 345px;
+            height: 345px;
             pointer-events: none;
             z-index: 1;
             user-select: none;
@@ -1145,17 +1145,23 @@
 
         function formatSpzTujuan(text) {
             if (!text) return '';
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
-            return lines.map((line, idx) => {
+            const rawLines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+            return rawLines.map((line, idx) => {
                 let formatted = formatSpzText(line);
-                if (idx === 0 && !formatted.includes('<strong') && formatted.includes('Kepala Subbagian Umum')) {
+                if (!formatted.includes('<strong') && formatted.includes('Kepala Subbagian Umum')) {
                     formatted = formatted.replace('Kepala Subbagian Umum', '<strong style="font-weight: bold;">Kepala Subbagian Umum</strong>');
                 }
-                if (idx === 0) {
-                    return `<p style="margin: 0; line-height: 1.4;">${formatted}</p>`;
-                } else {
-                    return `<p style="margin: 0; padding-left: 24px; line-height: 1.4;">${formatted}</p>`;
+                const isOnlyKepadaYth = /^Kepada\s+Yth\.?,?$/i.test(line);
+                if (isOnlyKepadaYth) {
+                    return `<p style="margin: 0; line-height: 1.45;">${formatted}</p>`;
                 }
+                if (idx === 0) {
+                    return `<p style="margin: 0 0 10pt 0; line-height: 1.45;">${formatted}</p>`;
+                }
+                if (idx === 1 && /^Kepada\s+Yth\.?,?$/i.test(rawLines[0])) {
+                    return `<p style="margin: 0 0 10pt 0; line-height: 1.45;">${formatted}</p>`;
+                }
+                return `<p style="margin: 0; padding-left: 24px; line-height: 1.45;">${formatted}</p>`;
             }).join('');
         }
 
@@ -1190,10 +1196,10 @@
 
             const spzKop = generateKopHtmlSpz();
 
-            // Reusable Watermark Layer (Guaranteed 1:1 Aspect Ratio, Never Stretches, Dead-Center)
+            // Reusable Watermark Layer (Guaranteed 1:1 Aspect Ratio, Never Stretches, Dead-Center, Master PDF 93mm Size)
             const getSpzWatermarkHtml = (topOffset = '50%') => `
-                <div class="spz-watermark-layer" style="position: absolute !important; top: ${topOffset} !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 420px !important; height: 420px !important; max-width: 420px !important; max-height: 420px !important; pointer-events: none !important; z-index: 1 !important; user-select: none !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important;">
-                    <img src="surat/assets/watermark_spz.png" alt="Watermark SPZ" style="width: 420px !important; height: 420px !important; max-width: 420px !important; max-height: 420px !important; object-fit: contain !important; display: block !important; opacity: 0.95 !important; border: 0 !important;">
+                <div class="spz-watermark-layer" style="position: absolute !important; top: ${topOffset} !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 345px !important; height: 345px !important; max-width: 345px !important; max-height: 345px !important; pointer-events: none !important; z-index: 1 !important; user-select: none !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important;">
+                    <img src="surat/assets/watermark_spz.png" alt="Watermark SPZ" style="width: 345px !important; height: 345px !important; max-width: 345px !important; max-height: 345px !important; object-fit: contain !important; display: block !important; opacity: 0.95 !important; border: 0 !important;">
                 </div>
             `;
 
@@ -1235,7 +1241,7 @@
                 </div>
                 <div class="spz-page-sheet" data-page="${currentPageNum}">
                     <!-- WATERMARK PERSIS DI TENGAH BODY & TIDAK GEPENG -->
-                    ${getSpzWatermarkHtml('57%')}
+                    ${getSpzWatermarkHtml('50%')}
 
                     <!-- KONTEN RESMI HALAMAN 1 -->
                     <div style="position: relative; z-index: 2;">
@@ -1432,7 +1438,7 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${getSpzWatermarkHtml('52%')}
+                        ${getSpzWatermarkHtml('50%')}
 
                         <!-- KONTEN HALAMAN 3 -->
                         <div style="position: relative; z-index: 2;">
@@ -1492,7 +1498,7 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${getSpzWatermarkHtml('52%')}
+                        ${getSpzWatermarkHtml('50%')}
 
                         <!-- KONTEN HALAMAN 4 -->
                         <div style="position: relative; z-index: 2;">
@@ -1841,10 +1847,10 @@
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            width: 420px !important;
-            height: 420px !important;
-            max-width: 420px !important;
-            max-height: 420px !important;
+            width: 345px !important;
+            height: 345px !important;
+            max-width: 345px !important;
+            max-height: 345px !important;
             pointer-events: none !important;
             z-index: 1 !important;
             user-select: none !important;
@@ -1855,10 +1861,10 @@
             padding: 0 !important;
         }
         .spz-watermark-layer img {
-            width: 420px !important;
-            height: 420px !important;
-            max-width: 420px !important;
-            max-height: 420px !important;
+            width: 345px !important;
+            height: 345px !important;
+            max-width: 345px !important;
+            max-height: 345px !important;
             object-fit: contain !important;
             display: block !important;
             opacity: 0.95 !important;
