@@ -158,6 +158,19 @@
             padding: 0 6px;
         }
 
+        /* SPZ Table Borders (Fix Tailwind CSS Reset Override) */
+        table.spz-border-table {
+            border-collapse: collapse !important;
+            border: 1px solid #000000 !important;
+            width: 100% !important;
+        }
+        table.spz-border-table th, 
+        table.spz-border-table td {
+            border: 1px solid #000000 !important;
+            padding: 3.5pt 5pt !important;
+            color: #000000 !important;
+        }
+
         /* Kop Surat Separator Line */
         .kop-separator {
             border-top: 2.5px solid #000000;
@@ -534,7 +547,7 @@
                                 <span class="text-xs font-bold text-neutral-200">Lampiran 1: Panitia & Rundown Acara</span>
                                 <span class="text-[10px] text-neutral-400">Tabel delegasi panitia & susunan jadwal kegiatan</span>
                             </div>
-                            <input type="checkbox" id="spz_inc_lampiran_panitia" checked onchange="updatePreview()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                            <input type="checkbox" id="spz_inc_lampiran_panitia" checked onchange="toggleSpzAttachmentSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
                         <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
                             <div class="flex flex-col pr-2">
@@ -547,6 +560,45 @@
                             <label class="text-[10px] text-neutral-400 block mb-1">No. WhatsApp / HP Ketua Pelaksana (Dicantumkan di Lembar Subbag Umum)</label>
                             <input type="text" id="spz_no_hp" value="085775628607" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="0857...">
                         </div>
+
+                        <!-- SECTION: EDIT PANITIA KEGIATAN -->
+                        <div id="spz_panitia_section" class="mt-2 pt-3 border-t border-neutral-800/80">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-users text-orange-500"></i> Panitia Kegiatan
+                                    <span id="spz_panitia_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">10 Orang</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="resetSpzPanitiaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke panitia default">Reset</button>
+                                    <button type="button" onclick="addSpzPanitiaRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="spz_panitia_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+
+                        <!-- SECTION: EDIT SUSUNAN KEGIATAN (RUNDOWN) -->
+                        <div id="spz_rundown_section" class="mt-2 pt-3 border-t border-neutral-800/80">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Susunan Kegiatan (Rundown)
+                                    <span id="spz_rundown_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Agenda</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="resetSpzRundownDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke rundown default">Reset</button>
+                                    <button type="button" onclick="addSpzRundownRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="spz_rundown_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -776,6 +828,8 @@
             if (type === 'SPZ') {
                 if (spzBanner) spzBanner.classList.remove('hidden');
                 if (spzLampiranCard) spzLampiranCard.classList.remove('hidden');
+                if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
+                if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
             } else {
                 if (spzBanner) spzBanner.classList.add('hidden');
                 if (spzLampiranCard) spzLampiranCard.classList.add('hidden');
@@ -918,6 +972,152 @@
                     <div style="margin-top: 6pt; height: 3.5px; background-color: #000000; width: 100%;"></div>
                 </div>
             `;
+        }
+
+        // ==========================================
+        // DEDICATED DATA & MANAGERS FOR SPZ LAMPIRAN
+        // ==========================================
+        const DEFAULT_SPZ_PANITIA = [
+            { nama: 'Muhammad Raihan Rionaldho', nim: '2421408023', prodi: 'Teknik Pemeliharaan Mesin', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Muhamad Hafiz Alfariz', nim: '2490444040', prodi: 'Teknik Grafika', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Dimas Alfianoci Sadiyo', nim: '2490444030', prodi: 'Teknik Grafika', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Rifai Rasyidin', nim: '2490343137', prodi: 'Teknologi Rekayasa Multimedia', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Muhammad Iqbal Addin', nim: '2491471055', prodi: 'Fotografi', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Fadly Ahmad Chandi', nim: '2490345034', prodi: 'Animasi', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Muhammad Haris', nim: '2490343090', prodi: 'Teknologi Rekayasa Multimedia', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Muhamad Fitra Robbani', nim: '2591361059', prodi: 'Produksi Film dan Televisi', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Abdul Malik', nim: '2521408001', prodi: 'Teknik Pemeliharaan Mesin', delegasi: 'UKM LDK IMIP' },
+            { nama: 'Muhammad Doddy Bakar Nur Junior', nim: '2591361056', prodi: 'Produksi Film dan Televisi', delegasi: 'UKM LDK IMIP' }
+        ];
+
+        const DEFAULT_SPZ_RUNDOWN = [
+            { nama: 'Pengecekan Kondisi Hewan Qurban', waktu: '18.00 – 19.00 WIB', pj: 'Logistik' },
+            { nama: 'Briefing dan Pembagian Jadwal Jaga', waktu: '19.00 – 19.30 WIB', pj: 'Koorlap' },
+            { nama: 'Penjagaan dan Pengawasan Hewan Qurban Sesi 1', waktu: '19.30 – 00.30 WIB', pj: 'Koorlap' },
+            { nama: 'Penjagaan dan Pengawasan Hewan Qurban sesi 2', waktu: '00.30 – 05.00 WIB', pj: 'Koorlap' },
+            { nama: 'Pengecekan Akhir Hewan Qurban', waktu: '05.00 – 06.00 WIB', pj: 'Acara & Logistik' }
+        ];
+
+        let spzPanitiaList = JSON.parse(JSON.stringify(DEFAULT_SPZ_PANITIA));
+        let spzRundownList = JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN));
+
+        function renderSpzPanitiaEditor() {
+            const container = document.getElementById('spz_panitia_editor_container');
+            if (!container) return;
+            const badge = document.getElementById('spz_panitia_count_badge');
+            if (badge) badge.innerText = `${spzPanitiaList.length} Orang`;
+
+            container.innerHTML = spzPanitiaList.map((item, idx) => `
+                <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 flex flex-col gap-1.5 text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono font-bold text-[11px] text-orange-400">#${idx + 1}</span>
+                        <button type="button" onclick="removeSpzPanitiaRow(${idx})" class="text-neutral-500 hover:text-red-400 p-0.5 transition-colors" title="Hapus Panitia">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzPanitiaField(${idx}, 'nama', this.value)" placeholder="Nama Lengkap" class="form-input text-xs py-1 px-2">
+                        <input type="text" value="${escapeHtml(item.nim || '')}" oninput="updateSpzPanitiaField(${idx}, 'nim', this.value)" placeholder="NIM" class="form-input text-xs py-1 px-2 font-mono">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        <input type="text" value="${escapeHtml(item.prodi || '')}" oninput="updateSpzPanitiaField(${idx}, 'prodi', this.value)" placeholder="Program Studi" class="form-input text-xs py-1 px-2">
+                        <input type="text" value="${escapeHtml(item.delegasi || 'UKM LDK IMIP')}" oninput="updateSpzPanitiaField(${idx}, 'delegasi', this.value)" placeholder="Delegasi" class="form-input text-xs py-1 px-2">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addSpzPanitiaRow() {
+            spzPanitiaList.push({ nama: '', nim: '', prodi: '', delegasi: 'UKM LDK IMIP' });
+            renderSpzPanitiaEditor();
+            updatePreview();
+        }
+
+        function removeSpzPanitiaRow(idx) {
+            if (spzPanitiaList.length <= 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tidak Bisa Dihapus',
+                    text: 'Minimal harus ada 1 nama panitia kegiatan.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            spzPanitiaList.splice(idx, 1);
+            renderSpzPanitiaEditor();
+            updatePreview();
+        }
+
+        function updateSpzPanitiaField(idx, field, val) {
+            if (spzPanitiaList[idx]) {
+                spzPanitiaList[idx][field] = val;
+                updatePreview();
+            }
+        }
+
+        function resetSpzPanitiaDefault() {
+            spzPanitiaList = JSON.parse(JSON.stringify(DEFAULT_SPZ_PANITIA));
+            renderSpzPanitiaEditor();
+            updatePreview();
+        }
+
+        function renderSpzRundownEditor() {
+            const container = document.getElementById('spz_rundown_editor_container');
+            if (!container) return;
+            const badge = document.getElementById('spz_rundown_count_badge');
+            if (badge) badge.innerText = `${spzRundownList.length} Agenda`;
+
+            container.innerHTML = spzRundownList.map((item, idx) => `
+                <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 flex flex-col gap-1.5 text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono font-bold text-[11px] text-orange-400">Agenda #${idx + 1}</span>
+                        <button type="button" onclick="removeSpzRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-0.5 transition-colors" title="Hapus Agenda">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                    <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzRundownField(${idx}, 'nama', this.value)" placeholder="Nama Kegiatan" class="form-input text-xs py-1 px-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                        <input type="text" value="${escapeHtml(item.waktu || '')}" oninput="updateSpzRundownField(${idx}, 'waktu', this.value)" placeholder="Waktu (e.g. 18.00 – 19.00 WIB)" class="form-input text-xs py-1 px-2 font-mono">
+                        <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSpzRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1 px-2">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addSpzRundownRow() {
+            spzRundownList.push({ nama: '', waktu: '', pj: '' });
+            renderSpzRundownEditor();
+            updatePreview();
+        }
+
+        function removeSpzRundownRow(idx) {
+            if (spzRundownList.length <= 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tidak Bisa Dihapus',
+                    text: 'Minimal harus ada 1 susunan agenda kegiatan.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                return;
+            }
+            spzRundownList.splice(idx, 1);
+            renderSpzRundownEditor();
+            updatePreview();
+        }
+
+        function updateSpzRundownField(idx, field, val) {
+            if (spzRundownList[idx]) {
+                spzRundownList[idx][field] = val;
+                updatePreview();
+            }
+        }
+
+        function resetSpzRundownDefault() {
+            spzRundownList = JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN));
+            renderSpzRundownEditor();
+            updatePreview();
         }
 
         // RENDER DEDICATED OFFICIAL SPZ MULTI-PAGE SYSTEM (MATCHING 025_SPZ QURMEDIA 2026.pdf)
@@ -1113,14 +1313,23 @@
                             <p style="margin: 0; font-size: 10pt;">NIP. 197602012002122001</p>
                         </div>
 
-                        <!-- BARIS 4: TEMBUSAN -->
+                        <!-- BARIS 4: TEMBUSAN (Tabel Bernomor Eksplisit) -->
                         <div style="font-size: 10pt; line-height: 1.35; text-align: left;">
-                            <p style="margin: 0 0 2pt 0; font-weight: bold;">Tembusan :</p>
-                            <ol style="margin: 0; padding-left: 18pt;">
-                                <li>Wadir Direktur Bidang Kemahasiswaan dan Alumni</li>
-                                <li>Satpam & OB</li>
-                                <li>Arsip</li>
-                            </ol>
+                            <p style="margin: 0 0 3pt 0; font-weight: bold;">Tembusan :</p>
+                            <table style="border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 10pt; line-height: 1.35;">
+                                <tr>
+                                    <td style="width: 18px; vertical-align: top; padding: 0.5pt 0;">1.</td>
+                                    <td style="vertical-align: top; padding: 0.5pt 0;">Wadir Direktur Bidang Kemahasiswaan dan Alumni</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 18px; vertical-align: top; padding: 0.5pt 0;">2.</td>
+                                    <td style="vertical-align: top; padding: 0.5pt 0;">Satpam & OB</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 18px; vertical-align: top; padding: 0.5pt 0;">3.</td>
+                                    <td style="vertical-align: top; padding: 0.5pt 0;">Arsip</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1129,6 +1338,25 @@
 
             // === HALAMAN 3: LAMPIRAN PANITIA & RUNDOWN (JIKA AKTIF) ===
             if (incPanitia) {
+                const panitiaRowsHtml = spzPanitiaList.map((p, idx) => `
+                    <tr>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt;">${idx + 1}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt;">${escapeHtml(p.nama || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt;">${escapeHtml(p.nim || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt;">${escapeHtml(p.prodi || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
+                    </tr>
+                `).join('');
+
+                const rundownRowsHtml = spzRundownList.map((r, idx) => `
+                    <tr>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt;">${idx + 1}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt;">${escapeHtml(r.nama || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt;">${escapeHtml(r.waktu || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt;">${escapeHtml(r.pj || '-')}</td>
+                    </tr>
+                `).join('');
+
                 pagesHtml += `
                     <div class="spz-sheet-badge print:hidden">
                         <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran Panitia & Rundown</span>
@@ -1144,40 +1372,35 @@
                         <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Lampiran</p>
                         <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Panitia Kegiatan</p>
 
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 9.5pt;" border="1" cellpadding="4">
-                            <tr style="background-color: #fafafa; font-weight: bold; text-align: center;">
-                                <td style="width: 5%;">No</td>
-                                <td style="width: 32%;">Nama Lengkap</td>
-                                <td style="width: 18%;">NIM</td>
-                                <td style="width: 27%;">Program Studi</td>
-                                <td style="width: 18%;">Delegasi</td>
-                            </tr>
-                            <tr><td style="text-align: center;">1</td><td>Muhammad Raihan Rionaldho</td><td>2421408023</td><td>Teknik Pemeliharaan Mesin</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">2</td><td>Muhamad Hafiz Alfariz</td><td>2490444040</td><td>Teknik Grafika</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">3</td><td>Dimas Alfianoci Sadiyo</td><td>2490444030</td><td>Teknik Grafika</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">4</td><td>Rifai Rasyidin</td><td>2490343137</td><td>Teknologi Rekayasa Multimedia</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">5</td><td>Muhammad Iqbal Addin</td><td>2491471055</td><td>Fotografi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">6</td><td>Fadly Ahmad Chandi</td><td>2490345034</td><td>Animasi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">7</td><td>Muhammad Haris</td><td>2490343090</td><td>Teknologi Rekayasa Multimedia</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">8</td><td>Muhamad Fitra Robbani</td><td>2591361059</td><td>Produksi Film dan Televisi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">9</td><td>Abdul Malik</td><td>2521408001</td><td>Teknik Pemeliharaan Mesin</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
-                            <tr><td style="text-align: center;">10</td><td>Muhammad Doddy Bakar Nur Junior</td><td>2591361056</td><td>Produksi Film dan Televisi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 9.5pt; border: 1px solid #000000 !important;">
+                            <thead>
+                                <tr style="background-color: #fafafa; font-weight: bold; text-align: center;">
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center;">No</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 32%; text-align: center;">Nama Lengkap</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 18%; text-align: center;">NIM</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 26%; text-align: center;">Program Studi</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 18%; text-align: center;">Delegasi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${panitiaRowsHtml}
+                            </tbody>
                         </table>
 
                         <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Susunan Kegiatan</p>
 
-                        <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt;" border="1" cellpadding="4">
-                            <tr style="background-color: #fafafa; font-weight: bold; text-align: center;">
-                                <td style="width: 5%;">No</td>
-                                <td style="width: 45%;">Nama Kegiatan</td>
-                                <td style="width: 25%;">Waktu</td>
-                                <td style="width: 25%;">Penanggung Jawab</td>
-                            </tr>
-                            <tr><td style="text-align: center;">1</td><td>Pengecekan Kondisi Hewan Qurban</td><td>18.00 – 19.00 WIB</td><td>Logistik</td></tr>
-                            <tr><td style="text-align: center;">2</td><td>Briefing dan Pembagian Jadwal Jaga</td><td>19.00 – 19.30 WIB</td><td>Koorlap</td></tr>
-                            <tr><td style="text-align: center;">3</td><td>Penjagaan dan Pengawasan Hewan Qurban Sesi 1</td><td>19.30 – 00.30 WIB</td><td>Koorlap</td></tr>
-                            <tr><td style="text-align: center;">4</td><td>Penjagaan dan Pengawasan Hewan Qurban sesi 2</td><td>00.30 – 05.00 WIB</td><td>Koorap</td></tr>
-                            <tr><td style="text-align: center;">5</td><td>Pengecekan Akhir Hewan Qurban</td><td>05.00 – 06.00 WIB</td><td>Acara & Logistik</td></tr>
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt; border: 1px solid #000000 !important;">
+                            <thead>
+                                <tr style="background-color: #fafafa; font-weight: bold; text-align: center;">
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center;">No</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 44%; text-align: center;">Nama Kegiatan</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center;">Waktu</th>
+                                    <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center;">Penanggung Jawab</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rundownRowsHtml}
+                            </tbody>
                         </table>
                     </div>
                 `;
@@ -1230,19 +1453,53 @@
                             Hal – hal terkait penggunaan sarana dan prasarana, dapat dijaga dan disepakati bersama atas peraturan sebagai berikut :
                         </p>
 
-                        <ol style="margin: 0 0 16pt 0; padding-left: 20pt; font-family: 'Times New Roman', serif; font-size: 10pt; line-height: 1.35;">
-                            <li>Tidak boleh ada yang merokok disetiap ruangan yang dipakai acara sampai selesai acara.</li>
-                            <li>Segala kerusakan fasilitas yang ada di ruangan maupun yang dipinjam menjadi tanggung jawab peminjam atau pemakai ruangan.</li>
-                            <li>Jaga kebersihan tempat yang dipakai dari awal kegiatan sampai selesai kegiatan.</li>
-                            <li>Wajib koordinasi dan lapor dengan komandan satpam dan regu satpam.</li>
-                            <li>Penyerahan SPZ maksimal H-3 sebelum acara, sudah ada di ruang sub tim umum.</li>
-                            <li>Waktu kegiatan maksimal pukul 16.00 WIB.</li>
-                            <li>Dilarang menginap di dalam kelas dan sekitar lingkungan kampus.</li>
-                            <li>Dilarang merubah susunan meja dan kursi dan sarana yang lain.</li>
-                            <li>Segala kerusakan dan kehilangan menjadi tanggung jawab pihak peminjam.</li>
-                            <li>Dilarang mencoret – coret di tempat yang tidak semestinya tanpa persetujuan.</li>
-                            <li>Segala bentuk pelanggaran akan dikenakan sanksi sesuai peraturan tata tertib yang berlaku di Kampus PoliMedia.</li>
-                        </ol>
+                        <!-- DAFTAR 11 PERATURAN BERNOMOR EKSPLISIT (TABEL DUA KOLOM) -->
+                        <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 10pt; line-height: 1.35; margin-bottom: 14pt;">
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">1.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Tidak boleh ada yang merokok disetiap ruangan yang dipakai acara sampai selesai acara.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">2.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Segala kerusakan fasilitas yang ada di ruangan maupun yang dipinjam menjadi tanggung jawab peminjam atau pemakai ruangan.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">3.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Jaga kebersihan tempat yang dipakai dari awal kegiatan sampai selesai kegiatan.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">4.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Wajib koordinasi dan lapor dengan komandan satpam dan regu satpam.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">5.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Penyerahan SPZ maksimal H-3 sebelum acara, sudah ada di ruang sub tim umum.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">6.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Waktu kegiatan maksimal pukul 16.00 WIB.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">7.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Dilarang menginap di dalam kelas dan sekitar lingkungan kampus.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">8.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Dilarang merubah susunan meja dan kursi dan sarana yang lain.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">9.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Segala kerusakan dan kehilangan menjadi tanggung jawab pihak peminjam.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">10.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Dilarang mencoret – coret di tempat yang tidak semestinya tanpa persetujuan.</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 22px; vertical-align: top; text-align: left; padding: 1.5pt 0;">11.</td>
+                                <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Segala bentuk pelanggaran akan dikenakan sanksi sesuai peraturan tata tertib yang berlaku di Kampus PoliMedia.</td>
+                            </tr>
+                        </table>
 
                         <div style="text-align: right; margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
                             <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
@@ -1752,6 +2009,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             syncThemeIcons();
             const now = new Date();
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
+            if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
+            if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
             selectSuratType('SPM');
         });
     </script>
