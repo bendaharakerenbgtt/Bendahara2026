@@ -118,6 +118,46 @@
             }
         }
 
+        /* SPZ Authentic A4 Multi-Page System */
+        .spz-page-sheet {
+            background-color: #FFFFFF !important;
+            background-image: url('surat/assets/watermark_spz.png') !important;
+            background-size: 100% 100% !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            color: #000000 !important;
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 794px;
+            min-height: 1123px;
+            padding: 2.2cm 2.2cm 2cm 2.5cm;
+            box-sizing: border-box;
+            position: relative;
+            line-height: 1.45;
+            font-size: 11pt;
+            margin: 0 auto 36px auto;
+        }
+
+        @media (max-width: 768px) {
+            .spz-page-sheet {
+                padding: 1.2cm 1cm;
+                font-size: 10pt;
+                min-height: auto;
+            }
+        }
+
+        .spz-sheet-badge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 794px;
+            margin: 0 auto 8px auto;
+            padding: 0 6px;
+        }
+
         /* Kop Surat Separator Line */
         .kop-separator {
             border-top: 2.5px solid #000000;
@@ -486,7 +526,7 @@
                         <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
                             <i class="fa-solid fa-paperclip text-orange-500"></i> Lampiran Resmi SPZ
                         </span>
-                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400">Halaman 2 & 3</span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400">Halaman 3 & 4</span>
                     </div>
                     <div class="flex flex-col gap-2.5">
                         <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
@@ -503,6 +543,10 @@
                             </div>
                             <input type="checkbox" id="spz_inc_subbag_umum" checked onchange="updatePreview()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
+                        <div class="pt-2 border-t border-neutral-800/80">
+                            <label class="text-[10px] text-neutral-400 block mb-1">No. WhatsApp / HP Ketua Pelaksana (Dicantumkan di Lembar Subbag Umum)</label>
+                            <input type="text" id="spz_no_hp" value="085775628607" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="0857...">
+                        </div>
                     </div>
                 </div>
 
@@ -633,6 +677,9 @@
             SPZ: {
                 title: 'Surat Perizinan',
                 kode: 'SPZ',
+                nomorSurat: '025/SPZ/E1/UKM IMIP/V/2026',
+                lampiran: '1 Lembar',
+                tanggalSurat: 'Jakarta, 26 Mei 2026',
                 perihal: 'Surat Perizinan Fasilitas Masjid Ar-Rahman Polimedia',
                 tujuan: 'Kepada Yth, Kepala Subbagian Umum\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 namaAcara: 'QURMEDIA 2026',
@@ -736,6 +783,22 @@
 
             // Load default data for selected template
             const tpl = SURAT_TEMPLATES[type];
+            if (tpl.nomorSurat) {
+                document.getElementById('field_nomor_surat').value = tpl.nomorSurat;
+            } else {
+                autoGenerateNoSurat();
+            }
+            if (tpl.lampiran) {
+                document.getElementById('field_lampiran').value = tpl.lampiran;
+            } else {
+                document.getElementById('field_lampiran').value = '-';
+            }
+            if (tpl.tanggalSurat) {
+                document.getElementById('field_tanggal_surat').value = tpl.tanggalSurat;
+            } else {
+                document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(new Date())}`;
+            }
+
             document.getElementById('field_perihal').value = tpl.perihal;
             document.getElementById('field_tujuan').value = tpl.tujuan;
             document.getElementById('field_nama_acara').value = tpl.namaAcara;
@@ -797,7 +860,7 @@
             updatePreview();
         }
 
-        // GENERATE KOP HTML
+        // GENERATE STANDARD KOP HTML (FOR SPM, SBA, SUD)
         function generateKopHtml() {
             const useKop = document.getElementById('field_use_kop').checked;
             if (!useKop) return '';
@@ -825,8 +888,381 @@
             `;
         }
 
-        // RENDER SURAT FULL HTML (FOR PREVIEW & PRINT & WORD)
+        // GENERATE OFFICIAL SPZ KOP HTML (POLIMEDIA + UKM LDK IMIP + GREEN & ORANGE LOGOS)
+        function generateKopHtmlSpz() {
+            const useKop = document.getElementById('field_use_kop').checked;
+            if (!useKop) return '';
+
+            return `
+                <div class="spz-kop-container" style="position: relative; margin-bottom: 14pt; font-family: 'Times New Roman', serif;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 16%; vertical-align: middle; text-align: left; padding: 0;">
+                                <img src="surat/assets/logo_polimedia.png" alt="Logo Polimedia" style="height: 72px; width: auto; object-fit: contain;">
+                            </td>
+                            <td style="width: 66%; vertical-align: middle; text-align: center; padding: 0 4px; line-height: 1.2;">
+                                <p style="margin: 0; font-size: 11pt; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">UNIT KEGIATAN MAHASISWA</p>
+                                <p style="margin: 0; font-size: 12pt; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">LDK IKATAN MAHASISWA ISLAM</p>
+                                <p style="margin: 0; font-size: 11pt; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">POLITEKNIK NEGERI MEDIA KREATIF</p>
+                                <p style="margin: 2pt 0 0 0; font-size: 9pt; color: #000;">Jalan Srengseng Sawah, Jagakarsa Jakarta Selatan 12640</p>
+                                <p style="margin: 0; font-size: 9pt;"><a href="mailto:ldkimip@gmail.com" style="color: #0066cc; text-decoration: underline;">ldkimip@gmail.com</a></p>
+                            </td>
+                            <td style="width: 18%; vertical-align: middle; text-align: right; padding: 0; white-space: nowrap;">
+                                <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                                    <img src="surat/assets/logo_imip_text.png" alt="Logo IMIP" style="height: 64px; width: auto; object-fit: contain;">
+                                    <img src="surat/assets/logo_imip_motif.png" alt="Logo Motif IMIP" style="height: 64px; width: auto; object-fit: contain;">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top: 6pt; height: 3.5px; background-color: #000000; width: 100%;"></div>
+                </div>
+            `;
+        }
+
+        // RENDER DEDICATED OFFICIAL SPZ MULTI-PAGE SYSTEM (MATCHING 025_SPZ QURMEDIA 2026.pdf)
+        function renderSpzLetterHtml() {
+            const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/V/2026';
+            const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
+            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Fasilitas Masjid Ar-Rahman Polimedia';
+            const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Kepada Yth, Kepala Subbagian Umum\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+
+            const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
+            const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
+            const waktu = document.getElementById('field_waktu').value.trim() || '18.00 s/d 06.00 WIB';
+            const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630';
+
+            const pembuka = document.getElementById('field_pembuka').value.trim();
+            const isiInti = document.getElementById('field_isi_inti').value.trim();
+            const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat perizinan ini kami sampaikan. Atas perhatian dan kerja sama, kami sampaikan terima kasih.';
+
+            const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Sarah Muthmainnah Prayogo';
+            const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2590331052';
+            const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
+            const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
+
+            const incPanitia = document.getElementById('spz_inc_lampiran_panitia') ? document.getElementById('spz_inc_lampiran_panitia').checked : true;
+            const incSubbag = document.getElementById('spz_inc_subbag_umum') ? document.getElementById('spz_inc_subbag_umum').checked : true;
+            const noHp = document.getElementById('spz_no_hp') ? document.getElementById('spz_no_hp').value.trim() : '085775628607';
+
+            const totalPages = 2 + (incPanitia ? 1 : 0) + (incSubbag ? 1 : 0);
+            let currentPageNum = 1;
+
+            const spzKop = generateKopHtmlSpz();
+
+            // Paragraph formatting
+            const pembukaParas = pembuka.split('\n\n').filter(p => p.trim() !== '').map(p => `
+                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>
+            `).join('');
+
+            const intiParas = isiInti.split('\n\n').filter(p => p.trim() !== '').map(p => `
+                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5;">${escapeHtml(p).replace(/\n/g, '<br>')}</p>
+            `).join('');
+
+            // Format Event Details Box
+            const eventBoxHtml = `
+                <table style="margin: 0 0 14pt 1.25cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5;">
+                    <tr>
+                        <td style="width: 120px; vertical-align: top; padding: 1.5pt 0;">Hari, Tanggal</td>
+                        <td style="width: 20px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(hariTanggal)}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; padding: 1.5pt 0;">Pukul</td>
+                        <td style="vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(waktu)}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top; padding: 1.5pt 0;">Tempat</td>
+                        <td style="vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
+                    </tr>
+                </table>
+            `;
+
+            // === HALAMAN 1: SURAT PERMOHONAN IZIN ===
+            let pagesHtml = `
+                <div class="spz-sheet-badge print:hidden">
+                    <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Surat Permohonan Izin</span>
+                    <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
+                </div>
+                <div class="spz-page-sheet" data-page="${currentPageNum}">
+                    ${spzKop}
+
+                    <!-- TANGGAL SURAT -->
+                    <div style="text-align: right; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                    </div>
+
+                    <!-- META SURAT -->
+                    <table style="border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.4;">
+                        <tr>
+                            <td style="width: 90px; vertical-align: top; padding: 1pt 0;">Nomor</td>
+                            <td style="width: 15px; vertical-align: top; text-align: center; padding: 1pt 0;">:</td>
+                            <td style="vertical-align: top; padding: 1pt 0;">${escapeHtml(noSurat)}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 1pt 0;">Hal</td>
+                            <td style="vertical-align: top; text-align: center; padding: 1pt 0;">:</td>
+                            <td style="vertical-align: top; padding: 1pt 0;">${escapeHtml(perihal)}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; padding: 1pt 0;">Lampiran</td>
+                            <td style="vertical-align: top; text-align: center; padding: 1pt 0;">:</td>
+                            <td style="vertical-align: top; padding: 1pt 0;">${escapeHtml(lampiran)}</td>
+                        </tr>
+                    </table>
+
+                    <!-- TUJUAN SURAT -->
+                    <div style="margin-bottom: 18pt; line-height: 1.4; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <p style="margin: 0;">Kepada Yth, <strong style="font-weight: bold;">Kepala Subbagian Umum</strong></p>
+                        <p style="margin: 0; padding-left: 20px;">Politeknik Negeri Media Kreatif</p>
+                        <p style="margin: 0; padding-left: 20px;">Di Tempat</p>
+                    </div>
+
+                    <!-- SALAM PEMBUKA -->
+                    <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <p style="margin: 0;">Dengan Hormat,</p>
+                    </div>
+
+                    <!-- ISI SURAT -->
+                    ${pembukaParas}
+                    ${eventBoxHtml}
+                    ${intiParas}
+                </div>
+            `;
+            currentPageNum++;
+
+            // === HALAMAN 2: PENGESAHAN 6 PIHAK & TEMBUSAN ===
+            pagesHtml += `
+                <div class="spz-sheet-badge print:hidden">
+                    <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Pengesahan 6 Pihak & Tembusan</span>
+                    <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
+                </div>
+                <div class="spz-page-sheet" data-page="${currentPageNum}">
+                    ${spzKop}
+
+                    <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">
+                        <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
+                    </div>
+
+                    <p style="margin: 0 0 20pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        ${escapeHtml(penutup).replace(/\n/g, '<br>')}
+                    </p>
+
+                    <div style="font-family: 'Times New Roman', serif;">
+                        <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
+                        <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 11pt;">Penanggung Jawab,</p>
+                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 20pt;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top; padding-bottom: 50pt; line-height: 1.3;">
+                                    Ketua UKM LDK IMIP<br>Periode 2026
+                                </td>
+                                <td style="width: 50%; vertical-align: top; padding-bottom: 50pt; line-height: 1.3;">
+                                    Ketua Pelaksana<br>${escapeHtml(namaAcara)}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; line-height: 1.3;">
+                                    <strong style="text-decoration: underline;">${escapeHtml(ttd2Nama)}</strong><br>
+                                    <span style="font-size: 10pt;">${escapeHtml(ttd2Nim)}</span>
+                                </td>
+                                <td style="vertical-align: top; line-height: 1.3;">
+                                    <strong style="text-decoration: underline;">${escapeHtml(ttd1Nama)}</strong><br>
+                                    <span style="font-size: 10pt;">${escapeHtml(ttd1Nim)}</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
+                        <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 11pt;">Mengetahui,</p>
+                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 10.5pt; margin-bottom: 20pt;">
+                            <tr>
+                                <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.3;">
+                                    Dosen Pembimbing<br>UKM IMIP
+                                </td>
+                                <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.3;">
+                                    Ketua Umum MPM<br>PoliMedia Periode 2026
+                                </td>
+                                <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.3;">
+                                    Ketua BEM PoliMedia<br>Periode 2026
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; line-height: 1.3;">
+                                    <strong style="text-decoration: underline;">Zainul Hakim, S.Ag.,M.Pd.I</strong><br>
+                                    <span style="font-size: 9.5pt;">NIP. 198005072023211013</span>
+                                </td>
+                                <td style="vertical-align: top; line-height: 1.3;">
+                                    <strong style="text-decoration: underline;">Sheyla Aulya</strong><br>
+                                    <span style="font-size: 9.5pt;">NIM. 2491345088</span>
+                                </td>
+                                <td style="vertical-align: top; line-height: 1.3;">
+                                    <strong style="text-decoration: underline;">Ujang Rahman</strong><br>
+                                    <span style="font-size: 9.5pt;">NIM. 2490343155</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- BARIS 3: MENYETUJUI WADIR III -->
+                        <div style="text-align: center; margin-bottom: 18pt;">
+                            <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold;">Menyetujui,</p>
+                            <p style="margin: 0 0 46pt 0; font-size: 10.5pt; line-height: 1.3;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
+                            <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
+                            <p style="margin: 0; font-size: 10pt;">NIP. 197602012002122001</p>
+                        </div>
+
+                        <!-- BARIS 4: TEMBUSAN -->
+                        <div style="font-size: 10pt; line-height: 1.35; text-align: left;">
+                            <p style="margin: 0 0 2pt 0; font-weight: bold;">Tembusan :</p>
+                            <ol style="margin: 0; padding-left: 18pt;">
+                                <li>Wadir Direktur Bidang Kemahasiswaan dan Alumni</li>
+                                <li>Satpam & OB</li>
+                                <li>Arsip</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            `;
+            currentPageNum++;
+
+            // === HALAMAN 3: LAMPIRAN PANITIA & RUNDOWN (JIKA AKTIF) ===
+            if (incPanitia) {
+                pagesHtml += `
+                    <div class="spz-sheet-badge print:hidden">
+                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran Panitia & Rundown</span>
+                        <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
+                    </div>
+                    <div class="spz-page-sheet" data-page="${currentPageNum}">
+                        ${spzKop}
+
+                        <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">
+                            <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
+                        </div>
+
+                        <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Lampiran</p>
+                        <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Panitia Kegiatan</p>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', serif; font-size: 9.5pt;" border="1" cellpadding="4">
+                            <tr style="background-color: #fafafa; font-weight: bold; text-align: center;">
+                                <td style="width: 5%;">No</td>
+                                <td style="width: 32%;">Nama Lengkap</td>
+                                <td style="width: 18%;">NIM</td>
+                                <td style="width: 27%;">Program Studi</td>
+                                <td style="width: 18%;">Delegasi</td>
+                            </tr>
+                            <tr><td style="text-align: center;">1</td><td>Muhammad Raihan Rionaldho</td><td>2421408023</td><td>Teknik Pemeliharaan Mesin</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">2</td><td>Muhamad Hafiz Alfariz</td><td>2490444040</td><td>Teknik Grafika</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">3</td><td>Dimas Alfianoci Sadiyo</td><td>2490444030</td><td>Teknik Grafika</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">4</td><td>Rifai Rasyidin</td><td>2490343137</td><td>Teknologi Rekayasa Multimedia</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">5</td><td>Muhammad Iqbal Addin</td><td>2491471055</td><td>Fotografi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">6</td><td>Fadly Ahmad Chandi</td><td>2490345034</td><td>Animasi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">7</td><td>Muhammad Haris</td><td>2490343090</td><td>Teknologi Rekayasa Multimedia</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">8</td><td>Muhamad Fitra Robbani</td><td>2591361059</td><td>Produksi Film dan Televisi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">9</td><td>Abdul Malik</td><td>2521408001</td><td>Teknik Pemeliharaan Mesin</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                            <tr><td style="text-align: center;">10</td><td>Muhammad Doddy Bakar Nur Junior</td><td>2591361056</td><td>Produksi Film dan Televisi</td><td style="text-align: center;">UKM LDK IMIP</td></tr>
+                        </table>
+
+                        <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">Susunan Kegiatan</p>
+
+                        <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt;" border="1" cellpadding="4">
+                            <tr style="background-color: #fafafa; font-weight: bold; text-align: center;">
+                                <td style="width: 5%;">No</td>
+                                <td style="width: 45%;">Nama Kegiatan</td>
+                                <td style="width: 25%;">Waktu</td>
+                                <td style="width: 25%;">Penanggung Jawab</td>
+                            </tr>
+                            <tr><td style="text-align: center;">1</td><td>Pengecekan Kondisi Hewan Qurban</td><td>18.00 – 19.00 WIB</td><td>Logistik</td></tr>
+                            <tr><td style="text-align: center;">2</td><td>Briefing dan Pembagian Jadwal Jaga</td><td>19.00 – 19.30 WIB</td><td>Koorlap</td></tr>
+                            <tr><td style="text-align: center;">3</td><td>Penjagaan dan Pengawasan Hewan Qurban Sesi 1</td><td>19.30 – 00.30 WIB</td><td>Koorlap</td></tr>
+                            <tr><td style="text-align: center;">4</td><td>Penjagaan dan Pengawasan Hewan Qurban sesi 2</td><td>00.30 – 05.00 WIB</td><td>Koorap</td></tr>
+                            <tr><td style="text-align: center;">5</td><td>Pengecekan Akhir Hewan Qurban</td><td>05.00 – 06.00 WIB</td><td>Acara & Logistik</td></tr>
+                        </table>
+                    </div>
+                `;
+                currentPageNum++;
+            }
+
+            // === HALAMAN 4: LEMBAR PERSETUJUAN SUBBAG UMUM (JIKA AKTIF) ===
+            if (incSubbag) {
+                pagesHtml += `
+                    <div class="spz-sheet-badge print:hidden">
+                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lembar Persetujuan Subbag Umum</span>
+                        <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
+                    </div>
+                    <div class="spz-page-sheet" data-page="${currentPageNum}">
+                        ${spzKop}
+
+                        <p style="margin: 0 0 10pt 0; text-align: justify; font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.4;">
+                            Dengan dikeluarkannya surat ini, Subbagian Umum Politeknik Negeri Media Kreatif menyetujui untuk memfasilitasi pengajuan peminjaman pada:
+                        </p>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.4;">
+                            <tr>
+                                <td style="width: 160px; vertical-align: top; padding: 1.5pt 0;">Nomor Surat</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">Perihal</td>
+                                <td style="vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">Surat Perizinan Penggunaan Fasilitas Masjid Polimedia</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">Tanggal</td>
+                                <td style="vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(hariTanggal)}</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">Ketua Pelaksana</td>
+                                <td style="vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(ttd1Nama)}</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">Nomor Handphone</td>
+                                <td style="vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noHp)}</td>
+                            </tr>
+                        </table>
+
+                        <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 10.5pt; font-weight: bold; line-height: 1.35;">
+                            Hal – hal terkait penggunaan sarana dan prasarana, dapat dijaga dan disepakati bersama atas peraturan sebagai berikut :
+                        </p>
+
+                        <ol style="margin: 0 0 16pt 0; padding-left: 20pt; font-family: 'Times New Roman', serif; font-size: 10pt; line-height: 1.35;">
+                            <li>Tidak boleh ada yang merokok disetiap ruangan yang dipakai acara sampai selesai acara.</li>
+                            <li>Segala kerusakan fasilitas yang ada di ruangan maupun yang dipinjam menjadi tanggung jawab peminjam atau pemakai ruangan.</li>
+                            <li>Jaga kebersihan tempat yang dipakai dari awal kegiatan sampai selesai kegiatan.</li>
+                            <li>Wajib koordinasi dan lapor dengan komandan satpam dan regu satpam.</li>
+                            <li>Penyerahan SPZ maksimal H-3 sebelum acara, sudah ada di ruang sub tim umum.</li>
+                            <li>Waktu kegiatan maksimal pukul 16.00 WIB.</li>
+                            <li>Dilarang menginap di dalam kelas dan sekitar lingkungan kampus.</li>
+                            <li>Dilarang merubah susunan meja dan kursi dan sarana yang lain.</li>
+                            <li>Segala kerusakan dan kehilangan menjadi tanggung jawab pihak peminjam.</li>
+                            <li>Dilarang mencoret – coret di tempat yang tidak semestinya tanpa persetujuan.</li>
+                            <li>Segala bentuk pelanggaran akan dikenakan sanksi sesuai peraturan tata tertib yang berlaku di Kampus PoliMedia.</li>
+                        </ol>
+
+                        <div style="text-align: right; margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                            <p style="margin: 0 0 52pt 0; font-weight: bold;">Kepala Subbagian Umum</p>
+                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">Runny Wachyuni, S.Pd., M.M.</p>
+                            <p style="margin: 0; font-size: 10pt;">NIP. 198106172005012004</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return pagesHtml;
+        }
+
+        // RENDER SURAT FULL HTML (DISPATCHER: SPZ VS GENERAL LETTERS)
         function renderSuratFullHtml() {
+            if (currentSuratType === 'SPZ') {
+                return renderSpzLetterHtml();
+            }
+
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '-';
             const lampiran = document.getElementById('field_lampiran').value.trim() || '-';
             const perihal = document.getElementById('field_perihal').value.trim() || '-';
@@ -853,8 +1289,8 @@
 
             const ttd3Active = document.getElementById('field_ttd3_active').checked;
             const ttd3Jabatan = document.getElementById('field_ttd3_jabatan').value.trim();
-            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim();
-            const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim();
+            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Nama Lengkap';
+            const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. -';
 
             const kopHtml = generateKopHtml();
 
@@ -934,15 +1370,9 @@
                     </div>
 
                     <!-- SALAM PEMBUKA -->
-                    ${currentSuratType === 'SPZ' ? `
-                        <div style="margin-bottom: 8pt;">
-                            <p style="margin: 0; font-weight: bold;">Dengan Hormat,</p>
-                        </div>
-                    ` : `
-                        <div style="margin-bottom: 8pt;">
-                            <p style="margin: 0; font-style: italic;">Assalamu’alaikum Warahmatullahi Wabarakatuh,</p>
-                        </div>
-                    `}
+                    <div style="margin-bottom: 8pt;">
+                        <p style="margin: 0; font-style: italic;">Assalamu’alaikum Warahmatullahi Wabarakatuh,</p>
+                    </div>
 
                     <!-- ISI SURAT -->
                     ${pembukaParas}
@@ -951,237 +1381,35 @@
                     ${penutupParas}
 
                     <!-- SALAM PENUTUP -->
-                    ${currentSuratType === 'SPZ' ? '' : `
-                        <div style="margin-bottom: 16pt;">
-                            <p style="margin: 0; font-style: italic;">Wassalamu’alaikum Warahmatullahi Wabarakatuh.</p>
-                        </div>
-                    `}
+                    <div style="margin-bottom: 16pt;">
+                        <p style="margin: 0; font-style: italic;">Wassalamu’alaikum Warahmatullahi Wabarakatuh.</p>
+                    </div>
 
-                    <!-- TANDA TANGAN SECTION -->
-                    ${currentSuratType === 'SPZ' ? `
-                        <!-- TANDA TANGAN MULTI-PIHAK KHUSUS SPZ RESMI -->
-                        <div style="margin-top: 14pt; page-break-inside: avoid; break-inside: avoid;">
-                            <p style="margin: 0 0 6pt 0; text-align: left; font-weight: bold;">Penanggung Jawab,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-family: 'Times New Roman', serif; font-size: 11pt; margin-bottom: 16pt;">
-                                <tr>
-                                    <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
-                                        <p style="margin: 0 0 2pt 0;">Ketua UKM LDK IMIP<br>Periode 2026</p>
-                                    </td>
-                                    <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
-                                        <p style="margin: 0 0 2pt 0;">Ketua Pelaksana<br>${escapeHtml(namaAcara)}</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">Hafiz Alfariz</p>
-                                        <p style="margin: 0; font-size: 10pt;">NIM. 2490444040</p>
-                                    </td>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd1Nama)}</p>
-                                        <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd1Nim)}</p>
-                                    </td>
-                                </tr>
-                            </table>
+                    <!-- TANDA TANGAN SECTION (STANDAR SPM, SBA, SUD) -->
+                    <div style="margin-top: 14pt; page-break-inside: avoid; break-inside: avoid;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
+                                    <p style="margin: 0 0 2pt 0;">${escapeHtml(ttd1Jabatan)},</p>
+                                </td>
+                                <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
+                                    <p style="margin: 0 0 2pt 0;">${escapeHtml(ttd2Jabatan)},</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd1Nama)}</p>
+                                    <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd1Nim)}</p>
+                                </td>
+                                <td style="vertical-align: top;">
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd2Nama)}</p>
+                                    <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd2Nim)}</p>
+                                </td>
+                            </tr>
+                        </table>
 
-                            <p style="margin: 0 0 6pt 0; text-align: center; font-weight: bold;">Mengetahui,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-family: 'Times New Roman', serif; font-size: 10pt; margin-bottom: 16pt;">
-                                <tr>
-                                    <td style="width: 33.3%; vertical-align: top; padding-bottom: 44pt;">
-                                        <p style="margin: 0 0 2pt 0;">Dosen Pembimbing<br>UKM IMIP</p>
-                                    </td>
-                                    <td style="width: 33.3%; vertical-align: top; padding-bottom: 44pt;">
-                                        <p style="margin: 0 0 2pt 0;">Ketua Umum MPM<br>PoliMedia Periode 2026</p>
-                                    </td>
-                                    <td style="width: 33.3%; vertical-align: top; padding-bottom: 44pt;">
-                                        <p style="margin: 0 0 2pt 0;">Ketua BEM PoliMedia<br>Periode 2026</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">Zainul Hakim, S.Ag.,M.Pd.I</p>
-                                        <p style="margin: 0; font-size: 9.5pt;">NIP. 198005072023211013</p>
-                                    </td>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">Sheyla Aulya</p>
-                                        <p style="margin: 0; font-size: 9.5pt;">NIM. 2491345088</p>
-                                    </td>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">Ujang Rahman</p>
-                                        <p style="margin: 0; font-size: 9.5pt;">NIM. 2490343155</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <div style="text-align: center; margin-bottom: 14pt;">
-                                <p style="margin: 0 0 2pt 0; font-size: 10.5pt;">Menyetujui,</p>
-                                <p style="margin: 0 0 44pt 0; font-size: 10.5pt; font-weight: bold;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
-                                <p style="margin: 0; font-size: 10.5pt; font-weight: bold; text-decoration: underline;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
-                                <p style="margin: 0; font-size: 10pt;">NIP. 197602012002122001</p>
-                            </div>
-
-                            <div style="font-size: 9.5pt; line-height: 1.35; text-align: left;">
-                                <p style="margin: 0 0 2pt 0; font-weight: bold;">Tembusan :</p>
-                                <ol style="margin: 0; padding-left: 16pt;">
-                                    <li>Wadir Direktur Bidang Kemahasiswaan dan Alumni</li>
-                                    <li>Satpam & OB</li>
-                                    <li>Arsip</li>
-                                </ol>
-                            </div>
-                        </div>
-                    ` : `
-                        <div style="margin-top: 14pt; page-break-inside: avoid; break-inside: avoid;">
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-family: 'Times New Roman', serif; font-size: 11pt;">
-                                <tr>
-                                    <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
-                                        <p style="margin: 0 0 2pt 0;">${escapeHtml(ttd1Jabatan)},</p>
-                                    </td>
-                                    <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
-                                        <p style="margin: 0 0 2pt 0;">${escapeHtml(ttd2Jabatan)},</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd1Nama)}</p>
-                                        <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd1Nim)}</p>
-                                    </td>
-                                    <td style="vertical-align: top;">
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd2Nama)}</p>
-                                        <p style="margin: 0; font-size: 10pt;">${escapeHtml(ttd2Nim)}</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            ${ttd3Html}
-                        </div>
-                    `}
-
-                    <!-- LAMPIRAN KHUSUS SPZ -->
-                    ${(() => {
-                        if (currentSuratType !== 'SPZ') return '';
-                        const incPanitia = document.getElementById('spz_inc_lampiran_panitia') ? document.getElementById('spz_inc_lampiran_panitia').checked : true;
-                        const incSubbag = document.getElementById('spz_inc_subbag_umum') ? document.getElementById('spz_inc_subbag_umum').checked : true;
-                        let extraHtml = '';
-
-                        if (incPanitia) {
-                            extraHtml += `
-                                <div style="page-break-before: always; margin-top: 24pt; font-family: 'Times New Roman', serif; font-size: 10.5pt; color: #000;">
-                                    ${kopHtml}
-                                    <p style="margin: 0 0 6pt 0; text-align: right; font-weight: bold;">[${escapeHtml(noSurat)}]</p>
-                                    <h3 style="margin: 0 0 10pt 0; font-size: 12pt; text-align: center; text-transform: uppercase; font-weight: bold; text-decoration: underline;">Lampiran Kegiatan</h3>
-                                    
-                                    <p style="margin: 0 0 4pt 0; font-weight: bold;">Panitia Kegiatan :</p>
-                                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 14pt; font-size: 10pt;" border="1" cellpadding="4">
-                                        <tr style="background-color: #f2f2f2; font-weight: bold; text-align: center;">
-                                            <td style="width: 6%;">No</td>
-                                            <td style="width: 34%;">Nama Lengkap</td>
-                                            <td style="width: 18%;">NIM</td>
-                                            <td style="width: 24%;">Program Studi</td>
-                                            <td style="width: 18%;">Delegasi</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">1</td>
-                                            <td>${escapeHtml(ttd1Nama)}</td>
-                                            <td>${escapeHtml(ttd1Nim).replace(/NIM\.\s*/i, '')}</td>
-                                            <td>Teknik Grafika</td>
-                                            <td style="text-align: center;">Ketua Pelaksana</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">2</td>
-                                            <td>Hafiz Alfariz</td>
-                                            <td>2490444040</td>
-                                            <td>Teknik Grafika</td>
-                                            <td style="text-align: center;">UKM LDK IMIP</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">3</td>
-                                            <td>Dimas Alfianoci Sadiyo</td>
-                                            <td>2490444030</td>
-                                            <td>Teknologi Rekayasa Multimedia</td>
-                                            <td style="text-align: center;">UKM LDK IMIP</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">4</td>
-                                            <td>Rifai Rasyidin</td>
-                                            <td>2490343137</td>
-                                            <td>Fotografi</td>
-                                            <td style="text-align: center;">UKM LDK IMIP</td>
-                                        </tr>
-                                    </table>
-
-                                    <p style="margin: 0 0 4pt 0; font-weight: bold;">Susunan Kegiatan :</p>
-                                    <table style="width: 100%; border-collapse: collapse; font-size: 10pt;" border="1" cellpadding="4">
-                                        <tr style="background-color: #f2f2f2; font-weight: bold; text-align: center;">
-                                            <td style="width: 6%;">No</td>
-                                            <td style="width: 44%;">Nama Kegiatan</td>
-                                            <td style="width: 26%;">Waktu</td>
-                                            <td style="width: 24%;">Penanggung Jawab</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">1</td>
-                                            <td>Persiapan & Briefing Panitia</td>
-                                            <td>${escapeHtml(waktu)}</td>
-                                            <td>Divisi Acara</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">2</td>
-                                            <td>Pelaksanaan Inti ${escapeHtml(namaAcara)}</td>
-                                            <td>${escapeHtml(waktu)}</td>
-                                            <td>Koorlap & Divisi Acara</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="text-align: center;">3</td>
-                                            <td>Evaluasi & Pembersihan Lokasi</td>
-                                            <td>Selesai Acara</td>
-                                            <td>Divisi Kebersihan & Logistik</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            `;
-                        }
-
-                        if (incSubbag) {
-                            extraHtml += `
-                                <div style="page-break-before: always; margin-top: 24pt; font-family: 'Times New Roman', serif; font-size: 10.5pt; color: #000; line-height: 1.35;">
-                                    ${kopHtml}
-                                    <p style="margin: 0 0 8pt 0; text-align: justify;">
-                                        Dengan dikeluarkannya surat ini, Subbagian Umum Politeknik Negeri Media Kreatif menyetujui untuk memfasilitasi pengajuan peminjaman pada:
-                                    </p>
-                                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 8pt; font-size: 10.5pt;">
-                                        <tr><td style="width: 25%; padding: 1.5pt 0;">Nomor Surat</td><td style="width: 3%;">:</td><td>${escapeHtml(noSurat)}</td></tr>
-                                        <tr><td style="padding: 1.5pt 0;">Perihal</td><td>:</td><td>${escapeHtml(perihal)}</td></tr>
-                                        <tr><td style="padding: 1.5pt 0;">Tanggal</td><td>:</td><td>${escapeHtml(hariTanggal)}</td></tr>
-                                        <tr><td style="padding: 1.5pt 0;">Ketua Pelaksana</td><td>:</td><td>${escapeHtml(ttd1Nama)}</td></tr>
-                                    </table>
-
-                                    <p style="margin: 8pt 0 4pt 0; font-weight: bold;">
-                                        Hal – hal terkait penggunaan sarana dan prasarana, dapat dijaga dan disepakati bersama atas peraturan sebagai berikut :
-                                    </p>
-                                    <ol style="margin: 0 0 12pt 0; padding-left: 18pt; font-size: 9.5pt; line-height: 1.3;">
-                                        <li>Tidak boleh ada yang merokok disetiap ruangan yang dipakai acara sampai selesai acara.</li>
-                                        <li>Segala kerusakan fasilitas yang ada di ruangan maupun yang dipinjam menjadi tanggung jawab peminjam atau pemakai ruangan.</li>
-                                        <li>Jaga kebersihan tempat yang dipakai dari awal kegiatan sampai selesai kegiatan.</li>
-                                        <li>Wajib koordinasi dan lapor dengan komandan satpam dan regu satpam.</li>
-                                        <li>Penyerahan SPZ maksimal H-3 sebelum acara, sudah ada di ruang sub tim umum.</li>
-                                        <li>Waktu kegiatan maksimal pukul 16.00 WIB.</li>
-                                        <li>Dilarang menginap di dalam kelas dan sekitar lingkungan kampus.</li>
-                                        <li>Dilarang merubah susunan meja dan kursi dan sarana yang lain.</li>
-                                        <li>Segala kerusakan dan kehilangan menjadi tanggung jawab pihak peminjam.</li>
-                                        <li>Dilarang mencoret – coret di tempat yang tidak semestinya tanpa persetujuan.</li>
-                                        <li>Segala bentuk pelanggaran akan dikenakan sanksi sesuai peraturan tata tertib yang berlaku di Kampus PoliMedia.</li>
-                                    </ol>
-
-                                    <div style="text-align: right; margin-top: 10pt;">
-                                        <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
-                                        <p style="margin: 0 0 44pt 0; font-weight: bold;">Kepala Subbagian Umum</p>
-                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">Runny Wachyuni, S.Pd., M.M.</p>
-                                        <p style="margin: 0; font-size: 10pt;">NIP. 198106172005012004</p>
-                                    </div>
-                                </div>
-                            `;
-                        }
-
-                        return extraHtml;
-                    })()}
+                        ${ttd3Html}
+                    </div>
                 </div>
             `;
         }
@@ -1200,6 +1428,11 @@
         function updatePreview() {
             const container = document.getElementById('rendered_surat_paper');
             if (container) {
+                if (currentSuratType === 'SPZ') {
+                    container.className = 'w-full space-y-6 mx-auto';
+                } else {
+                    container.className = 'a4-preview-sheet mx-auto';
+                }
                 container.innerHTML = renderSuratFullHtml();
             }
         }
@@ -1235,10 +1468,39 @@
             height: 3px;
             margin: 8pt 0 14pt 0;
         }
+        .spz-sheet-badge {
+            display: none !important;
+        }
+        .spz-page-sheet {
+            background-color: #FFFFFF !important;
+            background-image: url('surat/assets/watermark_spz.png') !important;
+            background-size: 100% 100% !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            color: #000000 !important;
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 0 20mm 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .spz-page-sheet:last-child {
+            page-break-after: auto !important;
+            break-after: auto !important;
+        }
         @media print {
             body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .spz-sheet-badge {
+                display: none !important;
             }
         }
     </style>
@@ -1312,9 +1574,16 @@
 
         // EXPORT TO MICROSOFT WORD (.DOC)
         function exportSuratWord() {
-            const rawBody = renderSuratFullHtml();
+            let rawBody = renderSuratFullHtml();
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || 'LDK_IMIP';
             const cleanTitle = `Surat_${currentSuratType}_${noSurat.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+
+            if (currentSuratType === 'SPZ') {
+                // Strip sheet preview badges
+                rawBody = rawBody.replace(/<div class="spz-sheet-badge[\s\S]*?<\/div>/gi, '');
+                // Replace inter-sheet gaps with Word section page-breaks
+                rawBody = rawBody.replace(/<\/div>\s*<div class="spz-page-sheet"[^>]*>/gi, '</div><br clear="all" style="page-break-before:always; mso-break-type:section-break"><div class="spz-page-sheet">');
+            }
 
             const wordDocumentHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
 <head>
