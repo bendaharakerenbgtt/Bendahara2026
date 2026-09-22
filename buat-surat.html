@@ -966,34 +966,14 @@
             `;
         }
 
-        // GENERATE OFFICIAL SPZ KOP HTML (POLIMEDIA + UKM LDK IMIP + GREEN & ORANGE LOGOS)
+        // GENERATE OFFICIAL SPZ KOP HTML (USING OFFICIAL TEMPLATE KOP ASSET DIRECTLY)
         function generateKopHtmlSpz() {
             const useKop = document.getElementById('field_use_kop').checked;
             if (!useKop) return '';
 
             return `
-                <div class="spz-kop-container" style="position: relative; margin-bottom: 18pt; font-family: 'Times New Roman', serif;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 17%; vertical-align: middle; text-align: left; padding: 0;">
-                                <img src="surat/assets/logo_polimedia.png" alt="Logo Polimedia" style="height: 104px; width: auto; object-fit: contain; display: block;">
-                            </td>
-                            <td style="width: 63%; vertical-align: middle; text-align: center; padding: 0 4px; line-height: 1.2;">
-                                <p style="margin: 0; font-size: 12pt; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase;">UNIT KEGIATAN MAHASISWA</p>
-                                <p style="margin: 2pt 0 0 0; font-size: 14pt; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase;">LDK IKATAN MAHASISWA ISLAM</p>
-                                <p style="margin: 2pt 0 0 0; font-size: 12.5pt; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase;">POLITEKNIK NEGERI MEDIA KREATIF</p>
-                                <p style="margin: 3.5pt 0 0 0; font-size: 10.5pt; color: #000000; letter-spacing: 0.1px;">Jalan Srengseng Sawah, Jagakarsa Jakarta Selatan 12640</p>
-                                <p style="margin: 1.5pt 0 0 0; font-size: 10.5pt;"><a href="mailto:ldkimip@gmail.com" style="color: #045fc1; text-decoration: underline;">ldkimip@gmail.com</a></p>
-                            </td>
-                            <td style="width: 20%; vertical-align: middle; text-align: right; padding: 0; white-space: nowrap;">
-                                <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px;">
-                                    <img src="surat/assets/logo_imip_text.png" alt="Logo IMIP" style="height: 86px; width: auto; object-fit: contain; display: block;">
-                                    <img src="surat/assets/logo_imip_motif.png" alt="Logo Motif IMIP" style="height: 76px; width: auto; object-fit: contain; display: block;">
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <div style="margin-top: 7pt; height: 3.5px; background-color: #000000; width: 100%;"></div>
+                <div class="spz-kop-container" style="position: relative; margin-bottom: 18pt; width: 100%;">
+                    <img src="surat/assets/kop_spz_official.png" alt="Kop Surat Resmi SPZ" style="width: 100%; height: auto; display: block; object-fit: contain;">
                 </div>
             `;
         }
@@ -2149,8 +2129,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const now = new Date();
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
             if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
-            if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
-            selectSuratType('SPM');
+            const urlParamType = new URLSearchParams(window.location.search).get('type');
+            const hashType = window.location.hash ? window.location.hash.replace('#', '').toUpperCase() : '';
+            const initialType = (urlParamType ? urlParamType.toUpperCase() : '') || hashType || 'SPM';
+            selectSuratType(['SPM', 'SBA', 'SPZ', 'SUD'].includes(initialType) ? initialType : 'SPM');
         });
     </script>
 </body>
