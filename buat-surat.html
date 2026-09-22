@@ -1211,38 +1211,38 @@
             const spzKop = generateKopHtmlSpz();
 
             // Reusable Watermark Layer (Guaranteed 1:1 Aspect Ratio, Never Stretches, Dead-Center)
-            const SPZ_WATERMARK_HTML = `
-                <div class="spz-watermark-layer" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 420px !important; height: 420px !important; max-width: 420px !important; max-height: 420px !important; pointer-events: none !important; z-index: 1 !important; user-select: none !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important;">
+            const getSpzWatermarkHtml = (topOffset = '50%') => `
+                <div class="spz-watermark-layer" style="position: absolute !important; top: ${topOffset} !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: 420px !important; height: 420px !important; max-width: 420px !important; max-height: 420px !important; pointer-events: none !important; z-index: 1 !important; user-select: none !important; display: flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important;">
                     <img src="surat/assets/watermark_spz.png" alt="Watermark SPZ" style="width: 420px !important; height: 420px !important; max-width: 420px !important; max-height: 420px !important; object-fit: contain !important; display: block !important; opacity: 0.95 !important; border: 0 !important;">
                 </div>
             `;
 
             // Paragraph formatting with bold support and accurate indentation
             const pembukaParas = pembuka.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
+                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
 
             const intiParas = isiInti.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
+                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
 
             // Format Event Details Box (Accurate Indentation & Column Widths)
             const eventBoxHtml = `
-                <table style="margin: 0 0 14pt 1.75cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.45;">
+                <table style="margin: 0 0 26pt 1.85cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5;">
                     <tr>
-                        <td style="width: 115px; vertical-align: top; padding: 2pt 0;">Hari, Tanggal</td>
-                        <td style="width: 18px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(hariTanggal)}</td>
+                        <td style="width: 115px; vertical-align: top; padding: 2.5pt 0;">Hari, Tanggal</td>
+                        <td style="width: 18px; vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(hariTanggal)}</td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top; padding: 2pt 0;">Pukul</td>
-                        <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(waktu)}</td>
+                        <td style="vertical-align: top; padding: 2.5pt 0;">Pukul</td>
+                        <td style="vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(waktu)}</td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top; padding: 2pt 0;">Tempat</td>
-                        <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
+                        <td style="vertical-align: top; padding: 2.5pt 0;">Tempat</td>
+                        <td style="vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
                     </tr>
                 </table>
             `;
@@ -1254,49 +1254,49 @@
                     <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
                 </div>
                 <div class="spz-page-sheet" data-page="${currentPageNum}">
-                    <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                    ${SPZ_WATERMARK_HTML}
+                    <!-- WATERMARK PERSIS DI TENGAH BODY & TIDAK GEPENG -->
+                    ${getSpzWatermarkHtml('57%')}
 
                     <!-- KONTEN RESMI HALAMAN 1 -->
                     <div style="position: relative; z-index: 2;">
                         ${spzKop}
 
                         <!-- TANGGAL SURAT -->
-                        <div style="text-align: right; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <div style="text-align: right; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
                             <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
                         </div>
 
                         <!-- META SURAT -->
-                        <table style="border-collapse: collapse; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
+                        <table style="border-collapse: collapse; margin-bottom: 24pt; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.45;">
                             <tr>
-                                <td style="width: 75px; vertical-align: top; padding: 1pt 0;">Nomor</td>
-                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1pt 0;">:</td>
-                                <td style="vertical-align: top; padding: 1pt 0;">${escapeHtml(noSurat)}</td>
+                                <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
                             </tr>
                             <tr>
-                                <td style="width: 75px; vertical-align: top; padding: 1pt 0;">Hal</td>
-                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1pt 0;">:</td>
-                                <td style="vertical-align: top; padding: 1pt 0;">${escapeHtml(perihal)}</td>
+                                <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(perihal)}</td>
                             </tr>
                             <tr>
-                                <td style="width: 75px; vertical-align: top; padding: 1pt 0;">Lampiran</td>
-                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1pt 0;">:</td>
-                                <td style="vertical-align: top; padding: 1pt 0;">${escapeHtml(lampiran)}</td>
+                                <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
                             </tr>
                         </table>
 
                         <!-- TUJUAN SURAT -->
-                        <div style="margin-bottom: 14pt; line-height: 1.35; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <div style="margin-bottom: 24pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 11pt;">
                             ${formatSpzTujuan(tujuan)}
                         </div>
 
                         <!-- SALAM PEMBUKA -->
-                        <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
                             <p style="margin: 0;">Dengan Hormat,</p>
                         </div>
 
                         <!-- PARAGRAF PEMBUKA -->
-                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <div style="margin-bottom: 26pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
                             ${pembukaParas}
                         </div>
 
@@ -1304,7 +1304,7 @@
                         ${eventBoxHtml}
 
                         <!-- PARAGRAF INTI -->
-                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 11pt;">
+                        <div style="margin-bottom: 0; font-family: 'Times New Roman', serif; font-size: 11pt;">
                             ${intiParas}
                         </div>
                     </div>
@@ -1320,7 +1320,7 @@
                 </div>
                 <div class="spz-page-sheet" data-page="${currentPageNum}">
                     <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                    ${SPZ_WATERMARK_HTML}
+                    ${getSpzWatermarkHtml('50%')}
 
                     <!-- KONTEN HALAMAN 2 -->
                     <div style="position: relative; z-index: 2;">
@@ -1448,7 +1448,7 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${SPZ_WATERMARK_HTML}
+                        ${getSpzWatermarkHtml('52%')}
 
                         <!-- KONTEN HALAMAN 3 -->
                         <div style="position: relative; z-index: 2;">
@@ -1506,7 +1506,7 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${SPZ_WATERMARK_HTML}
+                        ${getSpzWatermarkHtml('52%')}
 
                         <!-- KONTEN HALAMAN 4 -->
                         <div style="position: relative; z-index: 2;">
@@ -1804,7 +1804,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 12mm 15mm 15mm 20mm;
+            margin: 18mm 20mm 20mm 25mm;
         }
         * {
             box-sizing: border-box;
