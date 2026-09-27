@@ -542,21 +542,14 @@
             </span>
         </div>
 
-        <div class="w-full flex items-center gap-2">
-            <div class="flex-grow grid grid-cols-2 gap-1.5 p-1 bg-neutral-950 border border-neutral-900 rounded-xl shadow-xs ledger-tab-container">
-                <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
-                    <span class="text-xs">⬇️</span>
-                    <span>Pemasukan<span class="hidden sm:inline"> / Arus Masuk</span></span>
-                </button>
-                <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
-                    <span class="text-xs">⬆️</span>
-                    <span>Pengeluaran<span class="hidden sm:inline"> / Arus Keluar</span></span>
-                </button>
-            </div>
-            <!-- Tombol Panduan Input Transaksi (?) (Desktop) -->
-            <button type="button" onclick="openPanduanTransaksiModal()" class="hidden sm:flex items-center gap-2 px-3.5 py-2.5 bg-neutral-950 hover:bg-neutral-900 border border-neutral-800 hover:border-amber-500/50 rounded-xl text-neutral-400 hover:text-amber-300 transition-all cursor-pointer shadow-xs shrink-0 select-none group" title="Panduan Kolom Transaksi (?)">
-                <span class="w-5 h-5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xs font-black group-hover:scale-110 transition-transform">?</span>
-                <span class="text-xs font-bold font-sans">Panduan</span>
+        <div class="w-full grid grid-cols-2 gap-1.5 p-1 bg-neutral-950 border border-neutral-900 rounded-xl shadow-xs ledger-tab-container">
+            <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
+                <span class="text-xs">⬇️</span>
+                <span>Pemasukan<span class="hidden sm:inline"> / Arus Masuk</span></span>
+            </button>
+            <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
+                <span class="text-xs">⬆️</span>
+                <span>Pengeluaran<span class="hidden sm:inline"> / Arus Keluar</span></span>
             </button>
         </div>
 
@@ -575,15 +568,9 @@
             </div>
             
             <div id="ledger-panel-in" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex flex-col gap-3.5 sm:gap-4 shadow-xs">
-                <div class="flex items-center justify-between pb-1 border-b border-neutral-900/60">
-                    <div>
-                        <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">PEMASUKAN</span>
-                        <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pemasukan Baru</h2>
-                    </div>
-                    <button type="button" onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-cyan-500/40 text-neutral-300 hover:text-cyan-400 text-xs transition-all cursor-pointer group shadow-xs" title="Panduan Kolom Transaksi (?)">
-                        <span class="w-4 h-4 rounded-full bg-cyan-950 border border-cyan-800/60 text-cyan-400 text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform">?</span>
-                        <span class="text-[11px] font-sans font-medium text-neutral-400 group-hover:text-cyan-300">Panduan Kolom</span>
-                    </button>
+                <div>
+                    <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">PEMASUKAN</span>
+                    <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pemasukan Baru</h2>
                 </div>
                 
                 <div class="flex flex-col gap-4">
@@ -609,7 +596,16 @@
                                 <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Divisi</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 hover:border hover:border-cyan-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Divisi">?</span></label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Divisi</span>
+                                    <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                            Dari divisi apa transaksi ini, umumnya bila tidak terhubung proker biarkan kosong.
+                                            <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select id="in_divisi_select" onchange="checkCustomDivisi('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
                                     <option value="NULL" selected>- Tanpa Divisi (Umum) -</option>
                                     <option value="Acara">Acara</option>
@@ -626,7 +622,16 @@
                                 <input type="text" id="in_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Kategori</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 hover:border hover:border-cyan-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Kategori">?</span></label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Kategori</span>
+                                    <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                            Jenis atau sumber dana transaksi, seperti Kas, Danusan, Donasi, Iuran Panitia, dan lainnya.
+                                            <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select id="in_kategori_select" onchange="checkCustomCategory('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
                                     <option value="">Pilih Kategori...</option>
                                     <option value="Dana Operasional 2026">Dana Operasional 2026</option>
@@ -643,7 +648,16 @@
                         <div class="flex flex-col gap-3.5 bg-neutral-900/30 p-3.5 sm:p-4 border border-neutral-900 rounded-xl">
                             <!-- Uraian Pemasukan (Full Width) -->
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Uraian Pemasukan <span class="text-rose-400">*</span></span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 hover:border hover:border-cyan-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Uraian">?</span></label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Uraian Pemasukan <span class="text-rose-400">*</span></span>
+                                    <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="pointer-events-none absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-60 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                            Keterangan umum transaksi. Tuliskan pembelian atau pemasukan secara singkat tanpa detail tambahan.
+                                            <span class="hidden sm:block absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <input type="text" id="in_keterangan" placeholder="Contoh: Totebag, Dana Turunan Mukamil, Donasi Alumni..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
                             </div>
 
@@ -657,13 +671,31 @@
                                     </select>
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Anggota Penyetor <span class="text-rose-400">*</span></span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 hover:border hover:border-cyan-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Anggota Penyetor">?</span></label>
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                        <span>Anggota Penyetor <span class="text-rose-400">*</span></span>
+                                        <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                            <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                            <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-60 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                                Anggota yang melakukan pembayaran atau memberikan pemasukan. Jika bukan anggota LDK IMIP, gunakan nama penyetor.
+                                                <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <input type="text" id="in_user_search" list="in_members_list" required placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
                                     <datalist id="in_members_list"></datalist>
                                     <input type="hidden" id="in_user_id">
                                 </div>
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Hubungkan Ke Proker</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 hover:border hover:border-cyan-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Hubungkan ke Proker">?</span></label>
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                        <span>Hubungkan Ke Proker</span>
+                                        <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                            <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                            <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                                Proker yang berkaitan dengan transaksi. Jika tidak berkaitan dengan proker, pilih Tanpa Proker (Umum).
+                                                <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                            </span>
+                                        </span>
+                                    </label>
                                     <select id="in_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
                                         <option value="NULL" selected>- Tanpa Proker (Umum) -</option>
                                     </select>
@@ -705,7 +737,16 @@
 
                             <!-- Catatan Tambahan (Opsional) -->
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Catatan Tambahan (Opsional)</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-cyan-950 text-neutral-400 hover:text-cyan-400 hover:border hover:border-cyan-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Catatan Tambahan">?</span></label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Catatan Tambahan (Opsional)</span>
+                                    <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="pointer-events-none absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-64 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                            Detail atau informasi tambahan yang tidak dicantumkan pada uraian, seperti identitas pemberi donasi atau keterangan pembelian.
+                                            <span class="hidden sm:block absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <input type="text" id="in_catatan_opsional" placeholder="Keterangan opsional (misal: pembeli Fadli, nota menyusul)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
                             </div>
 
@@ -751,15 +792,9 @@
             </div>
 
             <div id="ledger-panel-out" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex flex-col gap-3.5 sm:gap-4 shadow-xs">
-                <div class="flex items-center justify-between pb-1 border-b border-neutral-900/60">
-                    <div>
-                        <span class="text-[9px] font-mono tracking-widest text-rose-400 uppercase font-black block">PENGELUARAN</span>
-                        <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pengeluaran Baru</h2>
-                    </div>
-                    <button type="button" onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-rose-500/40 text-neutral-300 hover:text-rose-400 text-xs transition-all cursor-pointer group shadow-xs" title="Panduan Kolom Transaksi (?)">
-                        <span class="w-4 h-4 rounded-full bg-rose-950 border border-rose-800/60 text-rose-400 text-[10px] font-black flex items-center justify-center group-hover:scale-110 transition-transform">?</span>
-                        <span class="text-[11px] font-sans font-medium text-neutral-400 group-hover:text-rose-300">Panduan Kolom</span>
-                    </button>
+                <div>
+                    <span class="text-[9px] font-mono tracking-widest text-rose-400 uppercase font-black block">PENGELUARAN</span>
+                    <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pengeluaran Baru</h2>
                 </div>
                 
                 <form id="pengeluaranForm" onsubmit="tambahPengeluaranLokal(event)" class="flex flex-col gap-4">
@@ -769,7 +804,16 @@
                             <input type="date" id="out_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-mono">
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Divisi</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-rose-950 text-neutral-400 hover:text-rose-400 hover:border hover:border-rose-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Divisi">?</span></label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                <span>Divisi</span>
+                                <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-rose-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                    <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                        Dari divisi apa transaksi ini, umumnya bila tidak terhubung proker biarkan kosong.
+                                        <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                    </span>
+                                </span>
+                            </label>
                             <select id="out_divisi_select" onchange="checkCustomDivisi('out')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                 <option value="NULL" selected>- Tanpa Divisi (Umum) -</option>
                                 <option value="Acara">Acara</option>
@@ -786,7 +830,16 @@
                             <input type="text" id="out_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Kategori</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-rose-950 text-neutral-400 hover:text-rose-400 hover:border hover:border-rose-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Kategori">?</span></label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                <span>Kategori</span>
+                                <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-rose-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                    <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                        Jenis atau sumber dana transaksi, seperti Kas, Danusan, Donasi, Iuran Panitia, dan lainnya.
+                                        <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                    </span>
+                                </span>
+                            </label>
                             <select id="out_kategori_select" onchange="checkCustomCategory('out')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                 <option value="">Pilih Kategori...</option>
                                 <option value="Dana Operasional 2026">Dana Operasional 2026</option>
@@ -803,7 +856,16 @@
                     <div class="flex flex-col gap-3.5 bg-neutral-900/30 p-3.5 sm:p-4 border border-neutral-900 rounded-xl">
                         <!-- Nama Barang / Uraian (Full Width) -->
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Nama Barang / Uraian Pengeluaran <span class="text-rose-400">*</span></span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-rose-950 text-neutral-400 hover:text-rose-400 hover:border hover:border-rose-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Uraian">?</span></label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                <span>Nama Barang / Uraian Pengeluaran <span class="text-rose-400">*</span></span>
+                                <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-rose-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                    <span class="pointer-events-none absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-60 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                        Keterangan umum transaksi. Tuliskan pembelian atau pemasukan secara singkat tanpa detail tambahan.
+                                        <span class="hidden sm:block absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                    </span>
+                                </span>
+                            </label>
                             <input type="text" id="exp_nama_barang" placeholder="Uraian barang (misal: Air Mineral, Bingkisan, Banner...)" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                         </div>
 
@@ -817,13 +879,31 @@
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Penanggung Jawab (PJ) <span class="text-rose-400">*</span></span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-rose-950 text-neutral-400 hover:text-rose-400 hover:border hover:border-rose-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Penanggung Jawab / Penyetor">?</span></label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Penanggung Jawab (PJ) <span class="text-rose-400">*</span></span>
+                                    <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-rose-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-60 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                            Anggota yang melakukan pembayaran atau memberikan pemasukan. Jika bukan anggota LDK IMIP, gunakan nama penyetor.
+                                            <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <input type="text" id="out_user_search" list="out_members_list" required placeholder="Cari & pilih penanggung jawab..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                                 <datalist id="out_members_list"></datalist>
                                 <input type="hidden" id="out_user_id">
                             </div>
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Hubungkan Ke Proker</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-rose-950 text-neutral-400 hover:text-rose-400 hover:border hover:border-rose-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Hubungkan ke Proker">?</span></label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Hubungkan Ke Proker</span>
+                                    <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-rose-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                            Proker yang berkaitan dengan transaksi. Jika tidak berkaitan dengan proker, pilih Tanpa Proker (Umum).
+                                            <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                        </span>
+                                    </span>
+                                </label>
                                 <select id="out_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                     <option value="NULL" selected>- Tanpa Proker (Umum) -</option>
                                 </select>
@@ -864,7 +944,16 @@
 
                         <!-- Catatan Tambahan (Opsional) -->
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1"><span>Catatan Tambahan (Opsional)</span><span onclick="openPanduanTransaksiModal()" class="hidden sm:inline-flex w-3.5 h-3.5 items-center justify-center rounded-full bg-neutral-800 hover:bg-rose-950 text-neutral-400 hover:text-rose-400 hover:border hover:border-rose-500/30 text-[8px] font-bold cursor-pointer transition-all" title="Panduan Catatan Tambahan">?</span></label>
+                            <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                <span>Catatan Tambahan (Opsional)</span>
+                                <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-rose-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                    <span class="pointer-events-none absolute bottom-full left-0 sm:left-1/2 sm:-translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-64 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
+                                        Detail atau informasi tambahan yang tidak dicantumkan pada uraian, seperti identitas pemberi donasi atau keterangan pembelian.
+                                        <span class="hidden sm:block absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
+                                    </span>
+                                </span>
+                            </label>
                             <input type="text" id="out_catatan_opsional" placeholder="Keterangan tambahan (misal: konsumsi rapat, belanja logistik)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans">
                         </div>
 
@@ -3332,40 +3421,6 @@
             }, 300);
         };
 
-        window.openPanduanTransaksiModal = function() {
-            const modal = document.getElementById('panduan-transaksi-modal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            modal.classList.remove('pointer-events-none');
-            modal.classList.add('pointer-events-auto');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.classList.add('opacity-100');
-                const card = modal.querySelector('.transform');
-                if (card) {
-                    card.classList.remove('scale-95');
-                    card.classList.add('scale-100');
-                }
-            }, 10);
-        };
-
-        window.closePanduanTransaksiModal = function() {
-            const modal = document.getElementById('panduan-transaksi-modal');
-            if (!modal) return;
-            modal.classList.remove('opacity-100');
-            modal.classList.add('opacity-0');
-            const card = modal.querySelector('.transform');
-            if (card) {
-                card.classList.remove('scale-100');
-                card.classList.add('scale-95');
-            }
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('pointer-events-auto');
-                modal.classList.add('pointer-events-none');
-            }, 300);
-        };
-
         function initTransactionChart() {
             const canvasEl = document.getElementById('ldkLineChart');
             if (!canvasEl) return;
@@ -3481,21 +3536,8 @@
                     });
                 }
 
-                const panduanModal = document.getElementById('panduan-transaksi-modal');
-                if (panduanModal) {
-                    panduanModal.addEventListener('click', (e) => {
-                        if (e.target === panduanModal) {
-                            closePanduanTransaksiModal();
-                        }
-                    });
-                }
-
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
-                        const pm = document.getElementById('panduan-transaksi-modal');
-                        if (pm && !pm.classList.contains('hidden')) {
-                            closePanduanTransaksiModal();
-                        }
                         const rm = document.getElementById('receipt-modal');
                         if (rm && !rm.classList.contains('hidden')) {
                             closeReceiptModal();
@@ -3542,125 +3584,6 @@
                 <a id="receipt-download-link" href="" target="_blank" class="w-full text-center text-xs font-mono py-2.5 rounded-xl border border-emerald-500/10 bg-emerald-500/5 text-emerald-400 hover:bg-emerald-500 hover:text-neutral-950 transition-all font-semibold">
                     Unduh/Buka File Lampiran ↗
                 </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL PANDUAN INPUT TRANSAKSI (DESKTOP) -->
-    <div id="panduan-transaksi-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 pointer-events-none">
-        <div class="relative bg-neutral-900 border border-neutral-800 max-w-xl w-full rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col max-h-[88vh]">
-            <!-- Header Modal -->
-            <div class="flex items-center justify-between border-b border-neutral-800/80 px-5 py-4 bg-neutral-950/70">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-sm font-black shadow-xs">
-                        ?
-                    </div>
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-neutral-100 font-sans tracking-wide">Panduan Kolom Transaksi</h3>
-                        <p class="text-[10px] text-neutral-400 font-mono">Petunjuk pengisian formulir pemasukan & pengeluaran</p>
-                    </div>
-                </div>
-                <button onclick="closePanduanTransaksiModal()" class="w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 text-xs font-mono text-neutral-400 hover:text-white hover:border-neutral-600 transition-all flex items-center justify-center cursor-pointer active:scale-95" title="Tutup">✕</button>
-            </div>
-            
-            <!-- Isi Panduan 6 Kolom -->
-            <div class="p-4 sm:p-5 overflow-y-auto space-y-3 max-h-[68vh]">
-                <!-- 1. Uraian -->
-                <div class="p-3.5 rounded-xl bg-neutral-950/60 border border-neutral-800/80 hover:border-cyan-500/30 transition-colors flex gap-3.5 items-start">
-                    <div class="w-8 h-8 rounded-lg bg-cyan-950/50 border border-cyan-800/40 text-cyan-400 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
-                        📝
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-bold text-neutral-200">Uraian</span>
-                        </div>
-                        <p class="text-[11px] text-neutral-400 leading-relaxed font-sans">
-                            Keterangan umum transaksi. Tuliskan pembelian atau pemasukan secara singkat tanpa detail tambahan.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 2. Anggota Penyetor -->
-                <div class="p-3.5 rounded-xl bg-neutral-950/60 border border-neutral-800/80 hover:border-emerald-500/30 transition-colors flex gap-3.5 items-start">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-950/50 border border-emerald-800/40 text-emerald-400 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
-                        👤
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-bold text-neutral-200">Anggota Penyetor</span>
-                        </div>
-                        <p class="text-[11px] text-neutral-400 leading-relaxed font-sans">
-                            Anggota yang melakukan pembayaran atau memberikan pemasukan. Jika bukan anggota LDK IMIP, gunakan nama penyetor.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 3. Hubungkan ke Proker -->
-                <div class="p-3.5 rounded-xl bg-neutral-950/60 border border-neutral-800/80 hover:border-purple-500/30 transition-colors flex gap-3.5 items-start">
-                    <div class="w-8 h-8 rounded-lg bg-purple-950/50 border border-purple-800/40 text-purple-400 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
-                        🎯
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-bold text-neutral-200">Hubungkan ke Proker</span>
-                        </div>
-                        <p class="text-[11px] text-neutral-400 leading-relaxed font-sans">
-                            Proker yang berkaitan dengan transaksi. Jika tidak berkaitan dengan proker, pilih Tanpa Proker (Umum).
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 4. Kategori -->
-                <div class="p-3.5 rounded-xl bg-neutral-950/60 border border-neutral-800/80 hover:border-amber-500/30 transition-colors flex gap-3.5 items-start">
-                    <div class="w-8 h-8 rounded-lg bg-amber-950/50 border border-amber-800/40 text-amber-400 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
-                        📁
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-bold text-neutral-200">Kategori</span>
-                        </div>
-                        <p class="text-[11px] text-neutral-400 leading-relaxed font-sans">
-                            Jenis atau sumber dana transaksi, seperti Kas, Danusan, Donasi, Iuran Panitia, dan lainnya.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 5. Divisi -->
-                <div class="p-3.5 rounded-xl bg-neutral-950/60 border border-neutral-800/80 hover:border-blue-500/30 transition-colors flex gap-3.5 items-start">
-                    <div class="w-8 h-8 rounded-lg bg-blue-950/50 border border-blue-800/40 text-blue-400 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
-                        🏢
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-bold text-neutral-200">Divisi</span>
-                        </div>
-                        <p class="text-[11px] text-neutral-400 leading-relaxed font-sans">
-                            Dari divisi apa transaksi ini, umumnya bila tidak terhubung proker biarkan kosong.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 6. Catatan Tambahan -->
-                <div class="p-3.5 rounded-xl bg-neutral-950/60 border border-neutral-800/80 hover:border-neutral-700 transition-colors flex gap-3.5 items-start">
-                    <div class="w-8 h-8 rounded-lg bg-neutral-800/60 border border-neutral-700/60 text-neutral-300 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-xs">
-                        💬
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-bold text-neutral-200">Catatan Tambahan</span>
-                        </div>
-                        <p class="text-[11px] text-neutral-400 leading-relaxed font-sans">
-                            Detail atau informasi tambahan yang tidak dicantumkan pada uraian, seperti identitas pemberi donasi atau keterangan pembelian.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Modal -->
-            <div class="border-t border-neutral-800/80 px-5 py-3.5 bg-neutral-950/70 flex justify-end">
-                <button onclick="closePanduanTransaksiModal()" class="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-neutral-700 text-xs font-semibold text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95 shadow-xs">
-                    Mengerti & Tutup
-                </button>
             </div>
         </div>
     </div>
