@@ -764,14 +764,14 @@
                 nomorSurat: '025/SPZ/E1/UKM IMIP/V/2026',
                 lampiran: '1 Lembar',
                 tanggalSurat: 'Jakarta, 26 Mei 2026',
-                perihal: 'Surat Perizinan Fasilitas Masjid Ar-Rahman Polimedia',
-                tujuan: 'Kepada Yth, **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
+                perihal: 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia',
+                tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
                 waktu: '18.00 s/d 06.00 WIB',
                 tempat: 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630',
-                pembuka: 'Melalui surat ini, kami **UKM LDK IMIP**, bermaksud untuk mengajukan permohonan izin penggunaan fasilitas **Masjid Ar-Rahman Politeknik Negeri Media Kreatif** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:',
+                pembuka: 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin penggunaan fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:',
                 isiInti: 'Kegiatan ini merupakan rangkaian persiapan pelaksanaan **QURMEDIA 2026**, yang meliputi penjagaan dan pengawasan hewan qurban sebelum pelaksanaan penyembelihan. Fasilitas masjid akan digunakan sebagai tempat penginapan panitia yang bertugas menjaga hewan qurban agar kegiatan dapat berjalan dengan aman, tertib, dan terkoordinasi dengan baik.',
                 penutup: 'Demikian surat perizinan ini kami sampaikan. Atas perhatian dan kerja sama, kami sampaikan terima kasih.',
                 ttd1Jabatan: 'Ketua Pelaksana\nQURMEDIA 2026',
@@ -1133,7 +1133,9 @@
             escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
             // Auto-bold key entities if not already wrapped in strong
             const autoBoldList = [
+                'Unit Kegiatan Mahasiswa LDK IMIP',
                 'UKM LDK IMIP',
+                'Masjid Ar-Rahman PoliMedia',
                 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif',
                 'QURMEDIA 2026'
             ];
@@ -1147,23 +1149,15 @@
 
         function formatSpzTujuan(text) {
             if (!text) return '';
-            const rawLines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+            // Remove 'Kepada ' if present as requested: 'Gak usah pake kepada'
+            let cleaned = text.replace(/^Kepada\s+/gm, '');
+            const rawLines = cleaned.split('\n').map(l => l.trim()).filter(l => l !== '');
             return rawLines.map((line, idx) => {
                 let formatted = formatSpzText(line);
                 if (!formatted.includes('<strong') && formatted.includes('Kepala Subbagian Umum')) {
                     formatted = formatted.replace('Kepala Subbagian Umum', '<strong style="font-weight: bold;">Kepala Subbagian Umum</strong>');
                 }
-                const isOnlyKepadaYth = /^Kepada\s+Yth\.?,?$/i.test(line);
-                if (isOnlyKepadaYth) {
-                    return `<p style="margin: 0; line-height: 1.45;">${formatted}</p>`;
-                }
-                if (idx === 0) {
-                    return `<p style="margin: 0 0 12pt 0; line-height: 1.45;">${formatted}</p>`;
-                }
-                if (idx === 1 && /^Kepada\s+Yth\.?,?$/i.test(rawLines[0])) {
-                    return `<p style="margin: 0 0 12pt 0; line-height: 1.45;">${formatted}</p>`;
-                }
-                return `<p style="margin: 0; padding-left: 28pt; line-height: 1.45;">${formatted}</p>`;
+                return `<p style="margin: 0; line-height: 1.35;">${formatted}</p>`;
             }).join('');
         }
 
@@ -1171,16 +1165,16 @@
         function renderSpzLetterHtml() {
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/V/2026';
             const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
-            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Fasilitas Masjid Ar-Rahman Polimedia';
+            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Kepada Yth, **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
             const waktu = document.getElementById('field_waktu').value.trim() || '18.00 s/d 06.00 WIB';
             const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630';
 
-            const pembuka = document.getElementById('field_pembuka').value.trim();
+            const pembuka = document.getElementById('field_pembuka').value.trim() || 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin penggunaan fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:';
             const isiInti = document.getElementById('field_isi_inti').value.trim();
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat perizinan ini kami sampaikan. Atas perhatian dan kerja sama, kami sampaikan terima kasih.';
 
@@ -1214,23 +1208,27 @@
                 <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
 
-            // Format Event Details Box (Accurate Indentation & Column Widths)
+            // Format Event Details Box (Accurate Indentation & Column Widths - Perfectly aligned with paragraph indent 1.25cm)
+            const formattedTempat = escapeHtml(tempat)
+                .replace(/,([^\s])/g, ', $1') // Ensure space after comma
+                .replace(/\n/g, '<br>');
+
             const eventBoxHtml = `
-                <table style="margin: 0 0 26pt 1.85cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5;">
+                <table style="margin: 0 0 20pt 1.25cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5;">
                     <tr>
-                        <td style="width: 125px; vertical-align: top; padding: 2.5pt 0;">Hari, Tanggal</td>
-                        <td style="width: 18px; vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(hariTanggal)}</td>
+                        <td style="width: 105px; vertical-align: top; padding: 2pt 0; white-space: nowrap;">Hari, Tanggal</td>
+                        <td style="width: 15px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(hariTanggal)}</td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top; padding: 2.5pt 0;">Pukul</td>
-                        <td style="vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(waktu)}</td>
+                        <td style="vertical-align: top; padding: 2pt 0; white-space: nowrap;">Pukul</td>
+                        <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(waktu)}</td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top; padding: 2.5pt 0;">Tempat</td>
-                        <td style="vertical-align: top; text-align: center; padding: 2.5pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2.5pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
+                        <td style="vertical-align: top; padding: 2pt 0; white-space: nowrap;">Tempat</td>
+                        <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${formattedTempat}</td>
                     </tr>
                 </table>
             `;
@@ -1522,7 +1520,7 @@
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0;">Perihal</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0;">Surat Perizinan Penggunaan Fasilitas Masjid Polimedia</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0;">Surat Perizinan Penggunaan Fasilitas Masjid PoliMedia</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0;">Tanggal</td>
@@ -1536,7 +1534,7 @@
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0;">Nomor Handphone</td>
-                                        <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0;">&nbsp;</td>
+                                        <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
                                         <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noHp)}</td>
                                     </tr>
                                 </table>
