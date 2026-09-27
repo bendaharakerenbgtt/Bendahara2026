@@ -129,7 +129,7 @@
             width: 100%;
             max-width: 794px;
             min-height: 1123px;
-            padding: 1.1cm 1.5cm 1.5cm 1.6cm;
+            padding: 0.5cm 1.5cm 1.5cm 1.6cm;
             box-sizing: border-box;
             position: relative;
             overflow: hidden;
@@ -163,7 +163,7 @@
 
         @media (max-width: 768px) {
             .spz-page-sheet {
-                padding: 1.2cm 1cm;
+                padding: 0.5cm 1cm 1.2cm 1cm;
                 font-size: 10pt;
                 min-height: auto;
             }
@@ -272,7 +272,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 20mm 20mm 20mm 25mm;
+                margin: 5mm 15mm 15mm 16mm;
             }
             body {
                 background: #FFFFFF !important;
@@ -765,7 +765,7 @@
                 lampiran: '1 Lembar',
                 tanggalSurat: 'Jakarta, 26 Mei 2026',
                 perihal: 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia',
-                tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
+                tujuan: '**Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
@@ -1149,10 +1149,15 @@
 
         function formatSpzTujuan(text) {
             if (!text) return '';
-            // Remove 'Kepada ' if present as requested: 'Gak usah pake kepada'
-            let cleaned = text.replace(/^Kepada\s+/gm, '');
-            const rawLines = cleaned.split('\n').map(l => l.trim()).filter(l => l !== '');
-            return rawLines.map((line, idx) => {
+            // Remove 'Kepada ' or 'Yth.' as requested: 'langsung kepala subb dst ythnya apus'
+            let rawLines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+            // Strip standalone 'Yth.' or 'Kepada Yth.' lines
+            rawLines = rawLines.filter(l => !/^(Kepada\s+)?(Yth\.?,?)$/i.test(l));
+            // Strip leading 'Kepada ' or 'Yth.' from first line
+            if (rawLines.length > 0) {
+                rawLines[0] = rawLines[0].replace(/^(Kepada\s+)?(Yth\.?,?\s*)/i, '').replace(/^Kepada\s+/i, '').trim();
+            }
+            return rawLines.filter(l => l !== '').map((line) => {
                 let formatted = formatSpzText(line);
                 if (!formatted.includes('<strong') && formatted.includes('Kepala Subbagian Umum')) {
                     formatted = formatted.replace('Kepala Subbagian Umum', '<strong style="font-weight: bold;">Kepala Subbagian Umum</strong>');
@@ -1167,7 +1172,7 @@
             const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || '**Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
@@ -2264,7 +2269,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 11mm 15mm 15mm 16mm;
+            margin: 5mm 15mm 15mm 16mm;
         }
         * {
             box-sizing: border-box;
@@ -2304,8 +2309,8 @@
             break-inside: avoid !important;
             box-sizing: border-box;
             position: relative !important;
-            min-height: 268mm !important;
-            height: 268mm !important;
+            min-height: 272mm !important;
+            height: 272mm !important;
         }
         .spz-page-sheet:last-child {
             page-break-after: auto !important;
