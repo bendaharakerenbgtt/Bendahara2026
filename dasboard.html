@@ -2302,7 +2302,8 @@
     }
 
     function calculateAndRenderStats(transactions) {
-        const approved = transactions || [];
+        // HANYA hitung transaksi yang telah disetujui admin (status_reimburse !== 'Belum')
+        const approved = (transactions || []).filter(t => t.status_reimburse !== "Belum");
 
         let totalSaldo = 0;
         let gopaySaldo = 0;
@@ -2342,7 +2343,7 @@
     function updateChartWithData(transactions) {
         if (!window.ldkChart) return;
         const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-        const approvedTx = (transactions || []).slice();
+        const approvedTx = (transactions || []).filter(t => t.status_reimburse !== "Belum");
         
         approvedTx.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
@@ -2417,7 +2418,8 @@
         const container = document.getElementById('recent-logs-container');
         if (!container) return;
 
-        const approved = (transactions || []).slice();
+        // Hanya tampilkan transaksi yang telah diverifikasi
+        const approved = (transactions || []).filter(t => t.status_reimburse !== "Belum");
         approved.sort((a, b) => {
             const dateDiff = new Date(b.tanggal) - new Date(a.tanggal);
             if (dateDiff !== 0) return dateDiff;
