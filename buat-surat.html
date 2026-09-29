@@ -598,6 +598,10 @@
                             <label class="text-[10px] text-neutral-400 block mb-1">No. WhatsApp / HP Ketua Pelaksana (Dicantumkan di Lembar Subbag Umum)</label>
                             <input type="text" id="spz_no_hp" value="085775628607" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="0857...">
                         </div>
+                        <div class="pt-2 border-t border-neutral-800/80">
+                            <label class="text-[10px] text-neutral-400 block mb-1">Batas Waktu Kegiatan Subbag Umum (Otomatis dari Jam Terakhir Halaman 1)</label>
+                            <input type="text" id="spz_batas_waktu" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="Otomatis mengikuti jam akhir halaman 1 (misal: 06.00 WIB)">
+                        </div>
 
                         <!-- SECTION: EDIT DAFTAR BARANG (NAMA BARANG & JUMLAH) -->
                         <div id="spz_barang_section" class="mt-2 pt-3 border-t border-neutral-800/80">
@@ -797,14 +801,14 @@
                 nomorSurat: '025/SPZ/E1/UKM IMIP/V/2026',
                 lampiran: '1 Lembar',
                 tanggalSurat: 'Jakarta, 26 Mei 2026',
-                perihal: 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia',
+                perihal: 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia',
                 tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
                 waktu: '18.00 s/d 06.00 WIB',
                 tempat: 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630',
-                pembuka: 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin penggunaan fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:',
+                pembuka: 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:',
                 isiInti: 'Kegiatan ini merupakan rangkaian persiapan pelaksanaan **QURMEDIA 2026**, yang meliputi penjagaan dan pengawasan hewan qurban sebelum pelaksanaan penyembelihan. Fasilitas masjid akan digunakan sebagai tempat penginapan panitia yang bertugas menjaga hewan qurban agar kegiatan dapat berjalan dengan aman, tertib, dan terkoordinasi dengan baik.',
                 penutup: 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.',
                 ttd1Jabatan: 'Ketua Pelaksana\nQURMEDIA 2026',
@@ -1291,11 +1295,30 @@
             }).join('');
         }
 
+        function extractJamTerakhirSpz(waktuStr) {
+            if (!waktuStr) return '16.00 WIB';
+            const str = waktuStr.trim();
+            const rangeMatch = str.match(/(?:s\/?d\.?|sampai|[-–—])\s*([0-9]{1,2}[:.][0-9]{2}(?:\s*WIB)?|[A-Za-z]+)/i);
+            if (rangeMatch && rangeMatch[1]) {
+                let jam = rangeMatch[1].trim();
+                if (/^[0-9]{1,2}[:.][0-9]{2}$/.test(jam)) jam += ' WIB';
+                if (/^selesai$/i.test(jam)) return 'Selesai';
+                return jam;
+            }
+            const allTimes = str.match(/[0-9]{1,2}[:.][0-9]{2}(?:\s*WIB)?/gi);
+            if (allTimes && allTimes.length > 0) {
+                let last = allTimes[allTimes.length - 1].trim();
+                if (!/WIB/i.test(last)) last += ' WIB';
+                return last;
+            }
+            return '16.00 WIB';
+        }
+
         // RENDER DEDICATED OFFICIAL SPZ MULTI-PAGE SYSTEM (MATCHING 025_SPZ QURMEDIA 2026.pdf)
         function renderSpzLetterHtml() {
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/V/2026';
             const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
-            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia';
+            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
             const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat';
 
@@ -1304,7 +1327,7 @@
             const waktu = document.getElementById('field_waktu').value.trim() || '18.00 s/d 06.00 WIB';
             const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630';
 
-            const pembuka = document.getElementById('field_pembuka').value.trim() || 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin penggunaan fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:';
+            const pembuka = document.getElementById('field_pembuka').value.trim() || 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:';
             const isiInti = document.getElementById('field_isi_inti').value.trim();
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.';
 
@@ -1318,6 +1341,19 @@
             const incPanitia = document.getElementById('spz_inc_lampiran_panitia') ? document.getElementById('spz_inc_lampiran_panitia').checked : true;
             const incSubbag = document.getElementById('spz_inc_subbag_umum') ? document.getElementById('spz_inc_subbag_umum').checked : true;
             const noHp = document.getElementById('spz_no_hp') ? document.getElementById('spz_no_hp').value.trim() : '085775628607';
+
+            const manualBatasWaktu = document.getElementById('spz_batas_waktu') ? document.getElementById('spz_batas_waktu').value.trim() : '';
+            const jamTerakhir = manualBatasWaktu || extractJamTerakhirSpz(waktu);
+            const formattedBatasWaktu = /^selesai$/i.test(jamTerakhir)
+                ? 'sampai Selesai.'
+                : `pukul ${escapeHtml(jamTerakhir)}.`;
+
+            let subbagPerihal = perihal;
+            if (/penggunaan/i.test(subbagPerihal)) {
+                subbagPerihal = subbagPerihal.replace(/penggunaan/gi, 'Peminjaman');
+            } else if (!/peminjaman/i.test(subbagPerihal)) {
+                subbagPerihal = subbagPerihal.replace(/perizinan/gi, 'Perizinan Peminjaman');
+            }
 
             const totalPages = 2 + (incPanitia ? 1 : 0) + (incSubbag ? 1 : 0);
             let currentPageNum = 1;
@@ -1676,7 +1712,7 @@
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0;">Perihal</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0;">Surat Perizinan Penggunaan Fasilitas Masjid PoliMedia</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(subbagPerihal)}</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0;">Tanggal</td>
@@ -1723,7 +1759,7 @@
                                     </tr>
                                     <tr>
                                         <td style="width: 28px; vertical-align: top; text-align: left; padding: 1.5pt 0;">6.</td>
-                                        <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Waktu kegiatan maksimal pukul 16.00 WIB.</td>
+                                        <td style="vertical-align: top; text-align: justify; padding: 1.5pt 0;">Waktu kegiatan maksimal ${formattedBatasWaktu}</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 28px; vertical-align: top; text-align: left; padding: 1.5pt 0;">7.</td>
