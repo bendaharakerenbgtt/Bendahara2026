@@ -776,7 +776,7 @@
                 lampiran: '1 Lembar',
                 tanggalSurat: 'Jakarta, 26 Mei 2026',
                 perihal: 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia',
-                tujuan: '**Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
+                tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
@@ -988,7 +988,14 @@
         }
 
         function generateKopHtmlSpz() {
-            return generateOfficialKopHtml();
+            const useKop = document.getElementById('field_use_kop').checked;
+            if (!useKop) return '';
+
+            return `
+                <div class="spz-kop-container" style="position: relative; margin-bottom: 8pt; width: 100%;">
+                    <img src="surat/assets/kop_spz_official.png" alt="Kop Surat Resmi UKM LDK IMIP" style="width: 100%; height: auto; display: block; object-fit: contain;">
+                </div>
+            `;
         }
 
         // ==========================================
@@ -1160,14 +1167,25 @@
 
         function formatSpzTujuan(text) {
             if (!text) return '';
-            // Remove 'Kepada ' or 'Yth.' as requested: 'langsung kepala subb dst ythnya apus'
             let rawLines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
-            // Strip standalone 'Yth.' or 'Kepada Yth.' lines
-            rawLines = rawLines.filter(l => !/^(Kepada\s+)?(Yth\.?,?)$/i.test(l));
-            // Strip leading 'Kepada ' or 'Yth.' from first line
+
+            // Format first line: ensure 'Yth. ' prefix and bold for Kepala Subbagian Umum
             if (rawLines.length > 0) {
-                rawLines[0] = rawLines[0].replace(/^(Kepada\s+)?(Yth\.?,?\s*)/i, '').replace(/^Kepada\s+/i, '').trim();
+                let first = rawLines[0];
+                first = first.replace(/^Kepada\s+Yth\.?,?\s*/i, 'Yth. ');
+                if (!/^Yth\.?/i.test(first)) {
+                    first = 'Yth. ' + first;
+                }
+                rawLines[0] = first;
             }
+
+            // Format second line: ensure ' Jakarta' suffix for Politeknik Negeri Media Kreatif
+            if (rawLines.length > 1) {
+                if (/Politeknik Negeri Media Kreatif$/i.test(rawLines[1])) {
+                    rawLines[1] = rawLines[1] + ' Jakarta';
+                }
+            }
+
             return rawLines.filter(l => l !== '').map((line) => {
                 let formatted = formatSpzText(line);
                 if (!formatted.includes('<strong') && formatted.includes('Kepala Subbagian Umum')) {
@@ -1183,7 +1201,7 @@
             const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || '**Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
@@ -1217,7 +1235,7 @@
 
             // Paragraph formatting with bold support and accurate indentation
             const pembukaParas = pembuka.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
+                <p style="margin: 0 0 10pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatSpzText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
 
             const intiParas = isiInti.split('\n\n').filter(p => p.trim() !== '').map(p => `
@@ -1230,7 +1248,7 @@
                 .replace(/\n/g, '<br>');
 
             const eventBoxHtml = `
-                <table style="margin: 0 0 20pt 1.25cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5;">
+                <table style="margin: 0 0 14pt 1.25cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5;">
                     <tr>
                         <td style="width: 105px; vertical-align: top; padding: 2pt 0; white-space: nowrap;">Hari, Tanggal</td>
                         <td style="width: 15px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
@@ -1265,12 +1283,12 @@
 
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
-                            <div style="text-align: right; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div style="text-align: right; margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
                             </div>
 
                             <!-- META SURAT -->
-                            <table style="border-collapse: collapse; margin-bottom: 28pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
+                            <table style="border-collapse: collapse; margin-bottom: 20pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
@@ -1289,17 +1307,17 @@
                             </table>
 
                             <!-- TUJUAN SURAT -->
-                            <div style="margin-bottom: 24pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div style="margin-bottom: 18pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${formatSpzTujuan(tujuan)}
                             </div>
 
                             <!-- SALAM PEMBUKA -->
-                            <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 <p style="margin: 0;">Dengan Hormat,</p>
                             </div>
 
                             <!-- PARAGRAF PEMBUKA -->
-                            <div style="margin-bottom: 26pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${pembukaParas}
                             </div>
 
