@@ -191,13 +191,13 @@
             text-size-adjust: 100% !important;
         }
 
-        /* SPZ Table Borders & Typography (Equalized 11pt Times New Roman, All Devices) */
+        /* SPZ Table Borders & Typography (Official 12pt Times New Roman, All Devices) */
         table.spz-border-table {
             border-collapse: collapse !important;
             border: 1px solid #000000 !important;
             width: 100% !important;
             font-family: 'Times New Roman', Times, serif !important;
-            font-size: 11pt !important;
+            font-size: 12pt !important;
         }
         table.spz-border-table th, 
         table.spz-border-table td {
@@ -205,7 +205,7 @@
             padding: 3.5pt 5pt !important;
             color: #000000 !important;
             font-family: 'Times New Roman', Times, serif !important;
-            font-size: 11pt !important;
+            font-size: 12pt !important;
             line-height: 1.35 !important;
         }
 
@@ -599,6 +599,25 @@
                             <input type="text" id="spz_no_hp" value="085775628607" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="0857...">
                         </div>
 
+                        <!-- SECTION: EDIT DAFTAR BARANG (NAMA BARANG & JUMLAH) -->
+                        <div id="spz_barang_section" class="mt-2 pt-3 border-t border-neutral-800/80">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-boxes-stacked text-orange-500"></i> Daftar Barang &amp; Jumlah
+                                    <span id="spz_barang_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Baris</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="resetSpzBarangDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kosongkan daftar barang">Kosongkan</button>
+                                    <button type="button" onclick="addSpzBarangRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="spz_barang_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+
                         <!-- SECTION: EDIT PANITIA KEGIATAN -->
                         <div id="spz_panitia_section" class="mt-2 pt-3 border-t border-neutral-800/80">
                             <div class="flex items-center justify-between mb-2">
@@ -874,6 +893,7 @@
             if (type === 'SPZ') {
                 if (spzBanner) spzBanner.classList.remove('hidden');
                 if (spzLampiranCard) spzLampiranCard.classList.remove('hidden');
+                if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
                 if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
                 if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
             } else {
@@ -1004,6 +1024,14 @@
         // ==========================================
         // DEDICATED DATA & MANAGERS FOR SPZ LAMPIRAN
         // ==========================================
+        const DEFAULT_SPZ_BARANG = [
+            { nama: '', jumlah: '' },
+            { nama: '', jumlah: '' },
+            { nama: '', jumlah: '' },
+            { nama: '', jumlah: '' },
+            { nama: '', jumlah: '' }
+        ];
+
         const DEFAULT_SPZ_PANITIA = [
             { nama: 'Muhammad Raihan Rionaldho', nim: '2421408023', prodi: 'Teknik Pemeliharaan Mesin', delegasi: 'UKM LDK IMIP' },
             { nama: 'Muhamad Hafiz Alfariz', nim: '2490444040', prodi: 'Teknik Grafika', delegasi: 'UKM LDK IMIP' },
@@ -1025,8 +1053,73 @@
             { nama: 'Pengecekan Akhir Hewan Qurban', waktu: '05.00 – 06.00 WIB', pj: 'Acara & Logistik' }
         ];
 
+        let spzBarangList = JSON.parse(JSON.stringify(DEFAULT_SPZ_BARANG));
         let spzPanitiaList = JSON.parse(JSON.stringify(DEFAULT_SPZ_PANITIA));
         let spzRundownList = JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN));
+
+        function renderSpzBarangEditor() {
+            const container = document.getElementById('spz_barang_editor_container');
+            if (!container) return;
+            const badge = document.getElementById('spz_barang_count_badge');
+            const filledCount = spzBarangList.filter(b => (b.nama && b.nama.trim() !== '') || (b.jumlah && b.jumlah.trim() !== '')).length;
+            if (badge) badge.innerText = `${spzBarangList.length} Baris${filledCount > 0 ? ` (${filledCount} Diisi)` : ' (Kosong)'}`;
+
+            container.innerHTML = spzBarangList.map((item, idx) => `
+                <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 flex flex-col gap-1.5 text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono font-bold text-[11px] text-orange-400">#${idx + 1}</span>
+                        <button type="button" onclick="removeSpzBarangRow(${idx})" class="text-neutral-500 hover:text-red-400 p-0.5 transition-colors" title="Hapus Baris Barang">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <div class="col-span-2">
+                            <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzBarangField(${idx}, 'nama', this.value)" placeholder="Nama Barang (opsional)" class="form-input text-xs py-1 px-2 w-full">
+                        </div>
+                        <div class="col-span-1">
+                            <input type="text" value="${escapeHtml(item.jumlah || '')}" oninput="updateSpzBarangField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1 px-2 font-mono text-center w-full">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addSpzBarangRow() {
+            spzBarangList.push({ nama: '', jumlah: '' });
+            renderSpzBarangEditor();
+            updatePreview();
+        }
+
+        function removeSpzBarangRow(idx) {
+            if (spzBarangList.length <= 1) {
+                spzBarangList = [{ nama: '', jumlah: '' }];
+                renderSpzBarangEditor();
+                updatePreview();
+                return;
+            }
+            spzBarangList.splice(idx, 1);
+            renderSpzBarangEditor();
+            updatePreview();
+        }
+
+        function updateSpzBarangField(idx, field, val) {
+            if (spzBarangList[idx]) {
+                spzBarangList[idx][field] = val;
+                updatePreview();
+            }
+        }
+
+        function resetSpzBarangDefault() {
+            spzBarangList = [
+                { nama: '', jumlah: '' },
+                { nama: '', jumlah: '' },
+                { nama: '', jumlah: '' },
+                { nama: '', jumlah: '' },
+                { nama: '', jumlah: '' }
+            ];
+            renderSpzBarangEditor();
+            updatePreview();
+        }
 
         function renderSpzPanitiaEditor() {
             const container = document.getElementById('spz_panitia_editor_container');
@@ -1451,30 +1544,38 @@
             `;
             currentPageNum++;
 
-            // === HALAMAN 3: LAMPIRAN PANITIA & RUNDOWN (JIKA AKTIF) ===
+            // === HALAMAN 3: LAMPIRAN BARANG & PANITIA (JIKA AKTIF) ===
             if (incPanitia) {
+                const barangRowsHtml = (spzBarangList.length > 0 ? spzBarangList : DEFAULT_SPZ_BARANG).map((b, idx) => `
+                    <tr>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${idx + 1}.</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(b.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(b.jumlah || '') || '&nbsp;'}</td>
+                    </tr>
+                `).join('');
+
                 const panitiaRowsHtml = spzPanitiaList.map((p, idx) => `
                     <tr>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3.5pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(p.nama || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(p.nim || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(p.prodi || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${idx + 1}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(p.nama || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important; white-space: nowrap !important;">${escapeHtml(p.nim || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(p.prodi || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important; white-space: nowrap !important;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
                     </tr>
                 `).join('');
 
                 const rundownRowsHtml = spzRundownList.map((r, idx) => `
                     <tr>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3.5pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(r.nama || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(r.waktu || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3.5pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; line-height: 1.35 !important;">${escapeHtml(r.pj || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${idx + 1}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(r.nama || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important; white-space: nowrap !important;">${escapeHtml(r.waktu || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(r.pj || '-')}</td>
                     </tr>
                 `).join('');
 
                 pagesHtml += `
                     <div class="spz-sheet-badge print:hidden">
-                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran Panitia & Rundown</span>
+                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran Barang & Panitia</span>
                         <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
@@ -1483,24 +1584,38 @@
 
                         <!-- KONTEN HALAMAN 3 -->
                         <div style="position: relative; z-index: 2;">
-                            ${spzKop}
-
                             <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                                 <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                                     <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
                                 </div>
 
                                 <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+
+                                <!-- TABEL DAFTAR BARANG & JUMLAH -->
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 14pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
+                                    <thead>
+                                        <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Nama Barang</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${barangRowsHtml}
+                                    </tbody>
+                                </table>
+
+                                <!-- TABEL PANITIA KEGIATAN -->
                                 <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Panitia Kegiatan</p>
 
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; border: 1px solid #000000 !important;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important;">
                                     <thead>
-                                        <tr style="background-color: #fafafa; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 32%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">Nama Lengkap</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">NIM</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">Program Studi</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">Delegasi</th>
+                                        <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Nama Lengkap</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important;">NIM</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Program Studi</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important;">Delegasi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1508,21 +1623,23 @@
                                     </tbody>
                                 </table>
 
+                                ${spzRundownList && spzRundownList.length > 0 ? `
                                 <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Susunan Kegiatan</p>
 
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important; border: 1px solid #000000 !important;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
                                     <thead>
-                                        <tr style="background-color: #fafafa; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">Nama Kegiatan</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">Waktu</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 11pt !important;">Penanggung Jawab</th>
+                                        <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Nama Kegiatan</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Waktu</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Penanggung Jawab</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         ${rundownRowsHtml}
                                     </tbody>
                                 </table>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -2384,12 +2501,12 @@
             border-collapse: collapse !important;
             width: 100% !important;
             font-family: 'Times New Roman', Times, serif !important;
-            font-size: 11pt !important;
+            font-size: 12pt !important;
         }
         table.spz-border-table th, table.spz-border-table td {
             border: 1px solid #000000 !important;
             font-family: 'Times New Roman', Times, serif !important;
-            font-size: 11pt !important;
+            font-size: 12pt !important;
             line-height: 1.35 !important;
         }
         @media print {
@@ -2648,6 +2765,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             syncThemeIcons();
             const now = new Date();
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
+            if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
             if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
             const urlParamType = new URLSearchParams(window.location.search).get('type');
             const hashType = window.location.hash ? window.location.hash.replace('#', '').toUpperCase() : '';
