@@ -844,7 +844,7 @@
                 lampiran: '1 Lembar',
                 tanggalSurat: 'Jakarta, 26 Mei 2026',
                 perihal: 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia',
-                tujuan: 'Kepada Yth, **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
+                tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
@@ -861,7 +861,7 @@
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
                 ttd3Jabatan: 'Dosen Pembimbing UKM IMIP',
-                ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag.,M.Pd.I',
+                ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013'
             },
             SUD: {
@@ -1313,14 +1313,8 @@
             if (rawLines.length === 0) return '';
 
             let firstLine = rawLines[0];
-            let prefix = 'Kepada Yth,&nbsp;';
-            let remainingFirst = firstLine;
-
-            const prefixMatch = firstLine.match(/^(Kepada\s+Yth\.?,?|Yth\.?,?)\s*(.*)/i);
-            if (prefixMatch) {
-                prefix = prefixMatch[1].trim() + '&nbsp;';
-                remainingFirst = prefixMatch[2].trim();
-            }
+            let remainingFirst = firstLine.replace(/^(Kepada\s+Yth\.?,?|Kepada\s*|Yth\.?,?)\s*/i, '');
+            let prefix = 'Yth.&nbsp;';
 
             if (!remainingFirst) remainingFirst = 'Kepala Subbagian Umum';
             let formattedFirst = formatSpzText(remainingFirst);
@@ -1371,7 +1365,7 @@
             const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Kepada Yth, **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
@@ -1547,12 +1541,12 @@
                                 <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
                                     <tr>
-                                        <td style="width: 42%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
-                                            Ketua UKM LDK IMIP<br>Periode 2026
+                                        <td style="width: 42%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            Ketua UKM LDK IMIP<br>Periode 2026<br><br><br><br><br>
                                         </td>
                                         <td style="width: 16%; vertical-align: top;"></td>
-                                        <td style="width: 42%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
-                                            Ketua Pelaksana<br>${escapeHtml(namaAcara)}
+                                        <td style="width: 42%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            Ketua Pelaksana<br>${escapeHtml(namaAcara)}<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1572,14 +1566,14 @@
                                 <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
                                     <tr>
-                                        <td style="width: 34%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
-                                            Dosen Pembimbing<br>UKM IMIP
+                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            Dosen Pembimbing<br>UKM IMIP<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 32%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
-                                            Ketua Umum MPM<br>PoliMedia Periode 2026
+                                        <td style="width: 32%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            Ketua Umum MPM<br>PoliMedia Periode 2026<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 34%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
-                                            Ketua BEM PoliMedia<br>Periode 2026
+                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            Ketua BEM PoliMedia<br>Periode 2026<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
@@ -1601,7 +1595,7 @@
                                 <!-- BARIS 3: MENYETUJUI WADIR III -->
                                 <div style="text-align: center; margin-bottom: 14pt;">
                                     <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold;">Menyetujui,</p>
-                                    <p style="margin: 0 0 54pt 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
+                                    <p style="margin: 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni<br><br><br><br><br></p>
                                     <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; white-space: nowrap;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
                                     <p style="margin: 0; font-size: 10pt; white-space: nowrap;">NIP. 197602012002122001</p>
                                 </div>
@@ -1838,7 +1832,7 @@
 
                                 <div style="margin-left: auto; width: 280px; text-align: center; margin-top: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                     <p style="margin: 0; line-height: 1.3;">${escapeHtml(tanggalSurat)}</p>
-                                    <p style="margin: 0 0 54pt 0; line-height: 1.3;">Kepala Subbagian Umum</p>
+                                    <p style="margin: 0; line-height: 1.3;">Kepala Subbagian Umum<br><br><br><br><br></p>
                                     <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.3;">Runny Wachyuni, S.Pd., M.M.</p>
                                     <p style="margin: 0; font-weight: bold; line-height: 1.3;">NIP. 198106172005012004</p>
                                 </div>
