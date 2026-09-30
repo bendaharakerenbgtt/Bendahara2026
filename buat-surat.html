@@ -450,16 +450,28 @@
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Nomor Otomatis
                                 </button>
                             </div>
-                            <input type="text" id="field_nomor_surat" oninput="updatePreview()" class="form-input font-mono text-xs" placeholder="001/SPM/LDK-IMIP/POLIMEDIA/IX/2026">
+                            <div class="flex items-center gap-1.5">
+                                <input type="text" id="field_nomor_urut" oninput="composeNomorSurat(); updatePreview();" class="form-input text-xs font-mono font-bold text-center w-20 py-2 bg-neutral-900 border-orange-500/40 text-orange-400 focus:border-orange-500" placeholder="025" value="025">
+                                <div class="text-xs font-mono text-neutral-400 bg-neutral-900/80 px-2.5 py-2 rounded-lg border border-neutral-800 select-none flex-1 truncate flex items-center">
+                                    <span>/</span><span id="no_surat_tipe_label">SPZ</span><span>/E1/UKM IMIP/</span><span id="no_surat_roman_label" class="text-orange-400 font-bold">V</span><span>/</span><span id="no_surat_year_label">2026</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="field_nomor_surat" value="025/SPZ/E1/UKM IMIP/V/2026">
                         </div>
 
                         <div class="grid grid-cols-2 gap-2.5">
                             <div>
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-[11px] font-bold text-neutral-300">Lampiran</label>
-                                    <span id="lampiran_spz_hint" class="text-[9px] text-orange-400 font-mono hidden">Angka saja (Auto Lembar)</span>
+                                    <span class="text-[9px] text-orange-400 font-mono">Angka saja</span>
                                 </div>
-                                <input type="text" id="field_lampiran" oninput="handleLampiranInput(this); updatePreview();" onblur="handleLampiranBlur(this);" class="form-input" placeholder="- atau 1 Berkas" value="-">
+                                <div class="relative flex items-center">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="field_lampiran_angka" oninput="handleLampiranNumberInput(this)" class="form-input text-xs font-bold pr-16" placeholder="1" value="1">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-neutral-400 pointer-events-none select-none">
+                                        Lembar
+                                    </span>
+                                </div>
+                                <input type="hidden" id="field_lampiran" value="1 Lembar">
                             </div>
                             <div>
                                 <div class="flex items-center justify-between mb-1">
@@ -469,7 +481,7 @@
                                     </button>
                                 </div>
                                 <div class="relative">
-                                    <input type="text" id="field_tanggal_surat" oninput="updatePreview()" class="form-input pr-8" placeholder="Jakarta, 26 Mei 2026">
+                                    <input type="text" id="field_tanggal_surat" oninput="handleTanggalSuratInput(); updatePreview();" class="form-input pr-8" placeholder="Jakarta, 26 Mei 2026">
                                     <input type="date" id="field_tanggal_picker" onchange="syncTanggalSuratFromPicker(this.value)" class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 opacity-0 cursor-pointer" title="Pilih Tanggal dari Kalender">
                                     <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none text-xs">
                                         <i class="fa-regular fa-calendar-days"></i>
@@ -1001,12 +1013,13 @@
 
         // AUTO-GENERATE NOMOR SURAT (AUTHENTIC CABINET FORMAT: XXX/TYPE/E1/UKM IMIP/MONTH/YEAR)
         function autoGenerateNoSurat() {
-            const now = new Date();
-            const romanMonth = getRomanMonth(now);
-            const year = now.getFullYear();
             const randomNum = String(Math.floor(Math.random() * 89) + 10).padStart(3, '0');
-            const noSurat = `${randomNum}/${currentSuratType}/E1/UKM IMIP/${romanMonth}/${year}`;
-            document.getElementById('field_nomor_surat').value = noSurat;
+            const urutEl = document.getElementById('field_nomor_urut');
+            if (urutEl) {
+                urutEl.value = randomNum;
+                urutEl.placeholder = randomNum;
+            }
+            composeNomorSurat();
             updatePreview();
         }
 
@@ -1043,7 +1056,6 @@
                 if (lampiranSpzHint) lampiranSpzHint.classList.remove('hidden');
                 if (spzTujuanBadge) spzTujuanBadge.classList.remove('hidden');
                 if (fieldTujuan) fieldTujuan.setAttribute('readonly', 'true');
-                if (fieldLampiran) fieldLampiran.placeholder = '1 (Cukup angka)';
                 if (fieldIsiInti) fieldIsiInti.placeholder = 'Deskripsikan kegiatan...';
                 if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
                 if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
@@ -1062,26 +1074,37 @@
                 if (lampiranSpzHint) lampiranSpzHint.classList.add('hidden');
                 if (spzTujuanBadge) spzTujuanBadge.classList.add('hidden');
                 if (fieldTujuan) fieldTujuan.removeAttribute('readonly');
-                if (fieldLampiran) fieldLampiran.placeholder = '- atau 1 Berkas';
                 if (fieldIsiInti) fieldIsiInti.placeholder = '';
             }
 
             // Load default data for selected template
             const tpl = SURAT_TEMPLATES[type];
-            if (tpl.nomorSurat) {
-                document.getElementById('field_nomor_surat').value = tpl.nomorSurat;
-            } else {
-                autoGenerateNoSurat();
-            }
-            if (tpl.lampiran) {
-                document.getElementById('field_lampiran').value = tpl.lampiran;
-            } else {
-                document.getElementById('field_lampiran').value = '-';
-            }
             if (tpl.tanggalSurat) {
                 document.getElementById('field_tanggal_surat').value = tpl.tanggalSurat;
             } else {
                 document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(new Date())}`;
+            }
+
+            // Sync date picker from tanggalSurat & update Roman month
+            handleTanggalSuratInput();
+
+            // Set Nomor Urut from template
+            const urutMatch = (tpl.nomorSurat || '').match(/^([0-9]+)/);
+            const initialUrut = urutMatch ? urutMatch[1] : '025';
+            if (document.getElementById('field_nomor_urut')) {
+                document.getElementById('field_nomor_urut').value = initialUrut;
+                document.getElementById('field_nomor_urut').placeholder = initialUrut;
+            }
+            composeNomorSurat();
+
+            // Lampiran handling (number only + fixed "Lembar")
+            const lampNum = tpl.lampiran ? tpl.lampiran.replace(/[^0-9]/g, '') : '1';
+            if (document.getElementById('field_lampiran_angka')) {
+                document.getElementById('field_lampiran_angka').value = lampNum || '1';
+                document.getElementById('field_lampiran_angka').placeholder = '1';
+            }
+            if (document.getElementById('field_lampiran')) {
+                document.getElementById('field_lampiran').value = `${lampNum || '1'} Lembar`;
             }
 
             if (tpl.incEvent !== undefined) {
@@ -1154,25 +1177,94 @@
             }
         }
 
+        function getLetterDateInfo() {
+            const pickerVal = document.getElementById('field_tanggal_picker') ? document.getElementById('field_tanggal_picker').value : '';
+            const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+            if (pickerVal && pickerVal.includes('-')) {
+                const parts = pickerVal.split('-');
+                const y = parseInt(parts[0]) || 2026;
+                const mIdx = (parseInt(parts[1]) || 1) - 1;
+                return {
+                    romanMonth: romans[mIdx] || 'I',
+                    year: y
+                };
+            }
+            const tglText = document.getElementById('field_tanggal_surat') ? document.getElementById('field_tanggal_surat').value : '';
+            const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
+            for (let i = 0; i < months.length; i++) {
+                if (tglText.toLowerCase().includes(months[i])) {
+                    const yMatch = tglText.match(/\b(20\d\d)\b/);
+                    return {
+                        romanMonth: romans[i],
+                        year: yMatch ? parseInt(yMatch[1]) : (new Date()).getFullYear()
+                    };
+                }
+            }
+            const now = new Date();
+            return {
+                romanMonth: getRomanMonth(now),
+                year: now.getFullYear()
+            };
+        }
+
+        function composeNomorSurat() {
+            const urutInput = document.getElementById('field_nomor_urut');
+            const urut = (urutInput ? urutInput.value.trim() : '') || (urutInput ? urutInput.placeholder : '025');
+            const dateInfo = getLetterDateInfo();
+            
+            const tipeLabel = document.getElementById('no_surat_tipe_label');
+            const romanLabel = document.getElementById('no_surat_roman_label');
+            const yearLabel = document.getElementById('no_surat_year_label');
+            if (tipeLabel) tipeLabel.innerText = currentSuratType;
+            if (romanLabel) romanLabel.innerText = dateInfo.romanMonth;
+            if (yearLabel) yearLabel.innerText = dateInfo.year;
+            
+            const fullNoSurat = `${urut}/${currentSuratType}/E1/UKM IMIP/${dateInfo.romanMonth}/${dateInfo.year}`;
+            const fieldNomorSurat = document.getElementById('field_nomor_surat');
+            if (fieldNomorSurat) {
+                fieldNomorSurat.value = fullNoSurat;
+            }
+            return fullNoSurat;
+        }
+
+        function handleLampiranNumberInput(el) {
+            el.value = el.value.replace(/[^0-9]/g, '');
+            const num = el.value.trim() || '1';
+            const hidden = document.getElementById('field_lampiran');
+            if (hidden) {
+                hidden.value = `${num} Lembar`;
+            }
+            updatePreview();
+        }
+
+        function handleTanggalSuratInput() {
+            const tglText = document.getElementById('field_tanggal_surat') ? document.getElementById('field_tanggal_surat').value : '';
+            const months = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
+            for (let i = 0; i < months.length; i++) {
+                if (tglText.toLowerCase().includes(months[i])) {
+                    const dMatch = tglText.match(/\b(\d{1,2})\b/);
+                    const yMatch = tglText.match(/\b(20\d\d)\b/);
+                    if (dMatch && yMatch) {
+                        const dd = String(parseInt(dMatch[1])).padStart(2, '0');
+                        const mm = String(i + 1).padStart(2, '0');
+                        const yyyy = yMatch[1];
+                        const picker = document.getElementById('field_tanggal_picker');
+                        if (picker) picker.value = `${yyyy}-${mm}-${dd}`;
+                    }
+                    break;
+                }
+            }
+            composeNomorSurat();
+        }
+
         function syncTanggalSuratFromPicker(val) {
             if (!val) return;
             const parts = val.split('-');
             if (parts.length !== 3) return;
             const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(d)}`;
+            composeNomorSurat();
             updatePreview();
-        }
-
-        function handleLampiranInput(el) {
-            // Keep input clean while typing, updatePreview formats it if numeric
-        }
-
-        function handleLampiranBlur(el) {
-            const val = el.value.trim();
-            if (currentSuratType === 'SPZ' && /^\d+$/.test(val)) {
-                el.value = `${val} Lembar`;
-                updatePreview();
-            }
         }
 
         function handleSpzFasilitasChange(val) {
