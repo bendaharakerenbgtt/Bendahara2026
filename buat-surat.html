@@ -293,6 +293,48 @@
                 color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6 {
+                display: none !important;
+            }
+            main {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .grid {
+                display: block !important;
+            }
+            #letterPreviewArea {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .spz-page-sheet {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 12pt !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                box-sizing: border-box;
+                position: relative !important;
+                min-height: 272mm !important;
+                height: 272mm !important;
+            }
+            .spz-page-sheet:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
             }
         }
     </style>
@@ -802,7 +844,7 @@
                 lampiran: '1 Lembar',
                 tanggalSurat: 'Jakarta, 26 Mei 2026',
                 perihal: 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia',
-                tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
+                tujuan: 'Kepada Yth, **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
@@ -1014,12 +1056,12 @@
             return generateOfficialKopHtml();
         }
 
-        function generateKopHtmlSpz() {
+        function generateKopHtmlSpz(marginBottom = '8pt') {
             const useKop = document.getElementById('field_use_kop').checked;
             if (!useKop) return '';
 
             return `
-                <div class="spz-kop-container" style="position: relative; margin-bottom: 8pt; width: 100%;">
+                <div class="spz-kop-container" style="position: relative; margin-bottom: ${marginBottom}; width: 100%;">
                     <img src="surat/assets/kop_spz_official.png" alt="Kop Surat Resmi UKM LDK IMIP" style="width: 100%; height: auto; display: block; object-fit: contain;">
                 </div>
             `;
@@ -1268,31 +1310,40 @@
         function formatSpzTujuan(text) {
             if (!text) return '';
             let rawLines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+            if (rawLines.length === 0) return '';
 
-            // Format first line: ensure 'Yth. ' prefix and bold for Kepala Subbagian Umum
-            if (rawLines.length > 0) {
-                let first = rawLines[0];
-                first = first.replace(/^Kepada\s+Yth\.?,?\s*/i, 'Yth. ');
-                if (!/^Yth\.?/i.test(first)) {
-                    first = 'Yth. ' + first;
-                }
-                rawLines[0] = first;
+            let firstLine = rawLines[0];
+            let prefix = 'Kepada Yth,&nbsp;';
+            let remainingFirst = firstLine;
+
+            const prefixMatch = firstLine.match(/^(Kepada\s+Yth\.?,?|Yth\.?,?)\s*(.*)/i);
+            if (prefixMatch) {
+                prefix = prefixMatch[1].trim() + '&nbsp;';
+                remainingFirst = prefixMatch[2].trim();
             }
 
-            // Format second line: ensure ' Jakarta' suffix for Politeknik Negeri Media Kreatif
-            if (rawLines.length > 1) {
-                if (/Politeknik Negeri Media Kreatif$/i.test(rawLines[1])) {
-                    rawLines[1] = rawLines[1] + ' Jakarta';
-                }
+            if (!remainingFirst) remainingFirst = 'Kepala Subbagian Umum';
+            let formattedFirst = formatSpzText(remainingFirst);
+            if (!formattedFirst.includes('<strong') && formattedFirst.includes('Kepala Subbagian Umum')) {
+                formattedFirst = formattedFirst.replace('Kepala Subbagian Umum', '<strong style="font-weight: bold;">Kepala Subbagian Umum</strong>');
             }
 
-            return rawLines.filter(l => l !== '').map((line) => {
+            const restLinesHtml = rawLines.slice(1).map(line => {
                 let formatted = formatSpzText(line);
-                if (!formatted.includes('<strong') && formatted.includes('Kepala Subbagian Umum')) {
-                    formatted = formatted.replace('Kepala Subbagian Umum', '<strong style="font-weight: bold;">Kepala Subbagian Umum</strong>');
-                }
                 return `<p style="margin: 0; line-height: 1.35;">${formatted}</p>`;
             }).join('');
+
+            return `
+                <table style="border-collapse: collapse; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35;">
+                    <tr>
+                        <td style="vertical-align: top; white-space: nowrap; padding: 0;">${prefix}</td>
+                        <td style="vertical-align: top; padding: 0;">
+                            <p style="margin: 0; line-height: 1.35;">${formattedFirst}</p>
+                            ${restLinesHtml}
+                        </td>
+                    </tr>
+                </table>
+            `;
         }
 
         function extractJamTerakhirSpz(waktuStr) {
@@ -1320,7 +1371,7 @@
             const lampiran = document.getElementById('field_lampiran').value.trim() || '1 Lembar';
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Kepada Yth, **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
@@ -1493,41 +1544,41 @@
 
                             <div style="font-family: 'Times New Roman', serif;">
                                 <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
-                                <p style="margin: 0 0 6pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 12pt; table-layout: fixed;">
+                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
+                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
                                     <tr>
-                                        <td style="width: 34%; vertical-align: top; padding-bottom: 42pt; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 42%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
                                             Ketua UKM LDK IMIP<br>Periode 2026
                                         </td>
-                                        <td style="width: 32%; vertical-align: top;"></td>
-                                        <td style="width: 34%; vertical-align: top; padding-bottom: 42pt; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 16%; vertical-align: top;"></td>
+                                        <td style="width: 42%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
                                             Ketua Pelaksana<br>${escapeHtml(namaAcara)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(ttd2Nama)}</strong><br>
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${escapeHtml(ttd2Nama)}</strong><br>
                                             <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd2Nim)}</span>
                                         </td>
                                         <td></td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(ttd1Nama)}</strong><br>
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${escapeHtml(ttd1Nama)}</strong><br>
                                             <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd1Nim)}</span>
                                         </td>
                                     </tr>
                                 </table>
 
                                 <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
-                                <p style="margin: 0 0 6pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 12pt; table-layout: fixed;">
+                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
+                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
                                     <tr>
-                                        <td style="width: 34%; vertical-align: top; padding-bottom: 42pt; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 34%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
                                             Dosen Pembimbing<br>UKM IMIP
                                         </td>
-                                        <td style="width: 32%; vertical-align: top; padding-bottom: 42pt; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 32%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
                                             Ketua Umum MPM<br>PoliMedia Periode 2026
                                         </td>
-                                        <td style="width: 34%; vertical-align: top; padding-bottom: 42pt; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 34%; vertical-align: top; padding-bottom: 58pt; line-height: 1.25; white-space: nowrap;">
                                             Ketua BEM PoliMedia<br>Periode 2026
                                         </td>
                                     </tr>
@@ -1550,7 +1601,7 @@
                                 <!-- BARIS 3: MENYETUJUI WADIR III -->
                                 <div style="text-align: center; margin-bottom: 14pt;">
                                     <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold;">Menyetujui,</p>
-                                    <p style="margin: 0 0 38pt 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
+                                    <p style="margin: 0 0 54pt 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
                                     <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; white-space: nowrap;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
                                     <p style="margin: 0; font-size: 10pt; white-space: nowrap;">NIP. 197602012002122001</p>
                                 </div>
@@ -1584,28 +1635,28 @@
             if (incPanitia) {
                 const barangRowsHtml = (spzBarangList.length > 0 ? spzBarangList : DEFAULT_SPZ_BARANG).map((b, idx) => `
                     <tr>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${idx + 1}.</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(b.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(b.jumlah || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}.</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(b.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(b.jumlah || '') || '&nbsp;'}</td>
                     </tr>
                 `).join('');
 
                 const panitiaRowsHtml = spzPanitiaList.map((p, idx) => `
                     <tr>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(p.nama || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important; white-space: nowrap !important;">${escapeHtml(p.nim || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(p.prodi || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important; white-space: nowrap !important;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.nama || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${escapeHtml(p.nim || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.prodi || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
                     </tr>
                 `).join('');
 
                 const rundownRowsHtml = spzRundownList.map((r, idx) => `
                     <tr>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(r.nama || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important; white-space: nowrap !important;">${escapeHtml(r.waktu || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 3pt 5pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.35 !important;">${escapeHtml(r.pj || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.nama || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(r.waktu || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.pj || '-')}</td>
                     </tr>
                 `).join('');
 
@@ -1616,24 +1667,26 @@
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
-                        ${getSpzWatermarkHtml('115mm')}
+                        ${getSpzWatermarkHtml('135mm')}
 
                         <!-- KONTEN HALAMAN 3 -->
                         <div style="position: relative; z-index: 2;">
-                            <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                                <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            ${generateKopHtmlSpz('0')}
+
+                            <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm; margin-top: -6pt;">
+                                <div style="margin-bottom: 2pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                                     <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
                                 </div>
 
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+                                <p style="margin: 0 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
 
                                 <!-- TABEL DAFTAR BARANG & JUMLAH -->
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 14pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
                                     <thead>
                                         <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Nama Barang</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Jumlah</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Nama Barang</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1642,16 +1695,16 @@
                                 </table>
 
                                 <!-- TABEL PANITIA KEGIATAN -->
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Panitia Kegiatan</p>
+                                <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Panitia Kegiatan</p>
 
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 16pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important;">
                                     <thead>
                                         <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Nama Lengkap</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important;">NIM</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Program Studi</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important;">Delegasi</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Nama Lengkap</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important;">NIM</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Program Studi</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important;">Delegasi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1660,15 +1713,15 @@
                                 </table>
 
                                 ${spzRundownList && spzRundownList.length > 0 ? `
-                                <p style="margin: 0 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Susunan Kegiatan</p>
+                                <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Susunan Kegiatan</p>
 
                                 <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
                                     <thead>
                                         <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 4pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Nama Kegiatan</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Waktu</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 3.5pt 5pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">Penanggung Jawab</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Nama Kegiatan</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Waktu</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Penanggung Jawab</th>
                                         </tr>
                                     </thead>
                                     <tbody>
