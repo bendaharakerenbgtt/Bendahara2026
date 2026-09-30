@@ -450,13 +450,13 @@
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Nomor Otomatis
                                 </button>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <input type="text" id="field_nomor_urut" oninput="composeNomorSurat(); updatePreview();" class="form-input text-xs font-mono font-bold text-center w-20 py-2 bg-neutral-900 border-orange-500/40 text-orange-400 focus:border-orange-500" placeholder="025" value="025">
-                                <div class="text-xs font-mono text-neutral-400 bg-neutral-900/80 px-2.5 py-2 rounded-lg border border-neutral-800 select-none flex-1 truncate flex items-center">
-                                    <span>/</span><span id="no_surat_tipe_label">SPZ</span><span>/E1/UKM IMIP/</span><span id="no_surat_roman_label" class="text-orange-400 font-bold">V</span><span>/</span><span id="no_surat_year_label">2026</span>
+                            <div class="flex items-center gap-1.5 w-full">
+                                <input type="text" id="field_nomor_urut" oninput="composeNomorSurat(); updatePreview();" class="text-xs font-mono font-bold text-center py-2 px-2 bg-neutral-900 border border-orange-500/50 text-orange-400 rounded-lg focus:outline-none focus:border-orange-500" style="width: 72px !important; min-width: 72px !important; max-width: 72px !important; flex-shrink: 0;" placeholder="025" value="025" maxlength="5">
+                                <div class="text-xs font-mono text-neutral-300 bg-neutral-900/90 px-2.5 py-2 rounded-lg border border-neutral-800 select-none flex-1 flex items-center overflow-x-auto whitespace-nowrap scrollbar-none">
+                                    <span class="text-neutral-500">/</span><span id="no_surat_tipe_label" class="font-bold text-white px-0.5">SPZ</span><span class="text-neutral-500">/E1/UKM IMIP/</span><span id="no_surat_roman_label" class="text-orange-400 font-bold px-0.5">IX</span><span class="text-neutral-500">/</span><span id="no_surat_year_label" class="font-bold text-white px-0.5">2026</span>
                                 </div>
                             </div>
-                            <input type="hidden" id="field_nomor_surat" value="025/SPZ/E1/UKM IMIP/V/2026">
+                            <input type="hidden" id="field_nomor_surat" value="025/SPZ/E1/UKM IMIP/IX/2026">
                         </div>
 
                         <div class="grid grid-cols-2 gap-2.5">
@@ -945,9 +945,9 @@
             SPZ: {
                 title: 'Surat Perizinan',
                 kode: 'SPZ',
-                nomorSurat: '025/SPZ/E1/UKM IMIP/V/2026',
+                nomorSurat: '025/SPZ/E1/UKM IMIP/IX/2026',
                 lampiran: '1',
-                tanggalSurat: 'Jakarta, 26 Mei 2026',
+                tanggalSurat: 'Jakarta, 30 September 2026',
                 perihal: 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia',
                 tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
@@ -1066,7 +1066,11 @@
                 if (document.getElementById('time_start_picker')) document.getElementById('time_start_picker').value = '18:00';
                 if (document.getElementById('time_end_picker')) document.getElementById('time_end_picker').value = '06:00';
                 if (document.getElementById('time_until_finish')) document.getElementById('time_until_finish').checked = false;
-                if (document.getElementById('field_tanggal_picker')) document.getElementById('field_tanggal_picker').value = '2026-05-26';
+                if (document.getElementById('field_tanggal_picker')) {
+                    const now = new Date();
+                    const nowIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                    document.getElementById('field_tanggal_picker').value = nowIso;
+                }
             } else {
                 if (spzBanner) spzBanner.classList.add('hidden');
                 if (spzLampiranCard) spzLampiranCard.classList.add('hidden');
@@ -1757,11 +1761,11 @@
 
         // RENDER DEDICATED OFFICIAL SPZ MULTI-PAGE SYSTEM (MATCHING 025_SPZ QURMEDIA 2026.pdf)
         function renderSpzLetterHtml() {
-            const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/V/2026';
+            const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/IX/2026';
             const rawLampiran = document.getElementById('field_lampiran').value.trim();
             const lampiran = /^\d+$/.test(rawLampiran) ? `${rawLampiran} Lembar` : (rawLampiran || '1 Lembar');
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia';
-            const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 26 Mei 2026';
+            const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 30 September 2026';
             const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
