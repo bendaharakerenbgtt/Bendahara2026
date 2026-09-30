@@ -518,14 +518,14 @@
                             <i class="fa-solid fa-user-tag text-orange-500"></i> Tujuan / Kepada Yth.
                         </span>
                         <span id="spz_tujuan_badge" class="hidden text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                            <i class="fa-solid fa-check-circle text-[9px]"></i> Otomatis SPZ (Sub. Tim Umum)
+                            <i class="fa-solid fa-check-circle text-[9px]"></i> Otomatis SPZ (Subbag Umum)
                         </span>
                     </div>
 
                     <!-- KHUSUS SPZ: TAMPILAN STATIS AUTO TANPA PLACEHOLDER / INPUT -->
                     <div id="spz_tujuan_static" class="hidden flex items-center justify-between p-3 rounded-lg bg-neutral-900/90 border border-neutral-800 text-xs">
                         <div class="flex flex-col gap-0.5">
-                            <span class="font-bold text-white">Yth. Sub. Tim Umum</span>
+                            <span class="font-bold text-white">Yth. Kepala Subbagian Umum</span>
                             <span class="text-neutral-400 text-[11px]">Politeknik Negeri Media Kreatif</span>
                             <span class="text-neutral-400 text-[11px]">Di Tempat</span>
                         </div>
@@ -962,7 +962,7 @@
                 lampiran: '1',
                 tanggalSurat: 'Jakarta, 30 September 2026',
                 perihal: 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia',
-                tujuan: 'Yth. **Sub. Tim Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
+                tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
                 namaAcara: 'QURMEDIA 2026',
                 hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
@@ -1076,7 +1076,7 @@
                 if (spzTujuanStatic) spzTujuanStatic.classList.remove('hidden');
                 if (containerFieldTujuan) containerFieldTujuan.classList.add('hidden');
                 if (fieldTujuan) {
-                    fieldTujuan.value = 'Yth. **Sub. Tim Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+                    fieldTujuan.value = 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
                     fieldTujuan.setAttribute('readonly', 'true');
                 }
                 if (fieldIsiInti) fieldIsiInti.placeholder = 'Deskripsikan kegiatan...';
@@ -1742,13 +1742,13 @@
             let remainingFirst = firstLine.replace(/^(Kepada\s+Yth\.?,?|Kepada\s*|Yth\.?,?)\s*/i, '');
             let prefix = 'Yth.&nbsp;';
 
-            if (!remainingFirst) remainingFirst = 'Sub. Tim Umum';
+            if (!remainingFirst) remainingFirst = 'Kepala Subbagian Umum';
             let formattedFirst = formatSpzText(remainingFirst);
             if (!formattedFirst.includes('<strong')) {
-                if (/sub\.?\s*tim\s*umum/i.test(formattedFirst)) {
-                    formattedFirst = `<strong style="font-weight: bold;">${formattedFirst}</strong>`;
-                } else if (/kepala\s*subbagian\s*umum/i.test(formattedFirst)) {
+                if (/kepala\s*subbagian\s*umum/i.test(formattedFirst)) {
                     formattedFirst = formattedFirst.replace(/Kepala Subbagian Umum/i, '<strong style="font-weight: bold;">Kepala Subbagian Umum</strong>');
+                } else if (/sub\.?\s*tim\s*umum/i.test(formattedFirst)) {
+                    formattedFirst = `<strong style="font-weight: bold;">${formattedFirst}</strong>`;
                 }
             }
 
@@ -1807,7 +1807,7 @@
             const lampiran = /^\d+$/.test(rawLampiran) ? `${rawLampiran} Lembar` : (rawLampiran || '1 Lembar');
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 30 September 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Sub. Tim Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
+            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
