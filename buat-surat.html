@@ -565,35 +565,32 @@
                         <div class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
-                                    <i class="fa-regular fa-calendar-check text-orange-400"></i> Hari & Tanggal Pelaksanaan
+                                    <i class="fa-regular fa-calendar-check text-orange-400"></i> Tanggal Pelaksanaan
                                 </label>
                                 <button type="button" id="btn_toggle_multi_date" onclick="toggleMultiDateMode()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1">
-                                    <i class="fa-solid fa-plus text-[9px]"></i> <span id="label_multi_date">Tambah Tanggal Selesai (Rentang Hari)</span>
+                                    <i id="icon_toggle_multi_date" class="fa-solid fa-plus text-[9px]"></i> <span id="label_multi_date">Tambah Waktu Pelaksanaan</span>
                                 </button>
                             </div>
-                            <div class="grid grid-cols-2 gap-2" id="event_date_pickers_row">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="event_date_pickers_row">
                                 <div>
-                                    <label class="text-[10px] text-neutral-400 block mb-1">Tanggal Mulai / Hari H</label>
+                                    <label class="text-[10px] text-neutral-400 block mb-1">Tanggal Pelaksanaan</label>
                                     <input type="date" id="event_date_start" onchange="syncEventDateFromPickers()" class="form-input text-xs" value="2026-05-27">
                                 </div>
-                                <div id="event_date_end_wrapper">
-                                    <label class="text-[10px] text-neutral-400 block mb-1">Tanggal Selesai (Opsional)</label>
+                                <div id="event_date_end_wrapper" class="hidden">
+                                    <label class="text-[10px] text-neutral-400 block mb-1">Sampai Tanggal (Selesai)</label>
                                     <input type="date" id="event_date_end" onchange="syncEventDateFromPickers()" class="form-input text-xs" value="2026-05-28">
                                 </div>
                             </div>
-                            <div>
-                                <label class="text-[10px] text-neutral-500 block mb-0.5">Teks di Surat:</label>
-                                <input type="text" id="field_hari_tanggal" oninput="updatePreview()" class="form-input text-xs font-medium" placeholder="Rabu, 27 Mei s/d Kamis, 28 Mei 2026">
-                            </div>
+                            <input type="hidden" id="field_hari_tanggal" value="Rabu, 27 Mei 2026">
                         </div>
 
-                        <!-- TIME CONTROLS WITH TIME PICKERS -->
+                        <!-- TIME CONTROLS WITH 24-HOUR SELECTORS (NO AM/PM) -->
                         <div class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
                                     <i class="fa-regular fa-clock text-orange-400"></i> Waktu / Pukul
                                 </label>
-                                <label class="flex items-center gap-1 text-[10px] text-neutral-400 cursor-pointer">
+                                <label class="flex items-center gap-1.5 text-[10px] text-neutral-400 cursor-pointer select-none">
                                     <input type="checkbox" id="time_until_finish" onchange="syncTimeFromPickers()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3 h-3">
                                     s.d. Selesai
                                 </label>
@@ -601,17 +598,32 @@
                             <div class="grid grid-cols-2 gap-2" id="time_pickers_row">
                                 <div>
                                     <label class="text-[10px] text-neutral-400 block mb-1">Jam Mulai</label>
-                                    <input type="time" id="time_start_picker" onchange="syncTimeFromPickers()" class="form-input text-xs" value="18:00">
+                                    <div class="flex items-center gap-1 bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-1.5">
+                                        <select id="time_start_h" onchange="syncTimeFromPickers()" class="bg-transparent text-xs font-mono font-bold text-orange-400 focus:outline-none cursor-pointer flex-1 text-center">
+                                            <!-- Populated dynamically: 00..23 -->
+                                        </select>
+                                        <span class="text-neutral-500 font-bold text-xs select-none">:</span>
+                                        <select id="time_start_m" onchange="syncTimeFromPickers()" class="bg-transparent text-xs font-mono font-bold text-neutral-200 focus:outline-none cursor-pointer flex-1 text-center">
+                                            <!-- Populated dynamically: 00..59 -->
+                                        </select>
+                                        <span class="text-[10px] font-mono text-neutral-400 font-bold ml-1 select-none">WIB</span>
+                                    </div>
                                 </div>
                                 <div id="time_end_wrapper">
                                     <label class="text-[10px] text-neutral-400 block mb-1">Jam Selesai</label>
-                                    <input type="time" id="time_end_picker" onchange="syncTimeFromPickers()" class="form-input text-xs" value="06:00">
+                                    <div class="flex items-center gap-1 bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-1.5">
+                                        <select id="time_end_h" onchange="syncTimeFromPickers()" class="bg-transparent text-xs font-mono font-bold text-orange-400 focus:outline-none cursor-pointer flex-1 text-center">
+                                            <!-- Populated dynamically: 00..23 -->
+                                        </select>
+                                        <span class="text-neutral-500 font-bold text-xs select-none">:</span>
+                                        <select id="time_end_m" onchange="syncTimeFromPickers()" class="bg-transparent text-xs font-mono font-bold text-neutral-200 focus:outline-none cursor-pointer flex-1 text-center">
+                                            <!-- Populated dynamically: 00..59 -->
+                                        </select>
+                                        <span class="text-[10px] font-mono text-neutral-400 font-bold ml-1 select-none">WIB</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label class="text-[10px] text-neutral-500 block mb-0.5">Teks di Surat:</label>
-                                <input type="text" id="field_waktu" oninput="updatePreview()" class="form-input text-xs font-medium" placeholder="18.00 s/d 06.00 WIB">
-                            </div>
+                            <input type="hidden" id="field_waktu" value="18.00 s/d 06.00 WIB">
                         </div>
 
                         <div>
@@ -1084,11 +1096,24 @@
                 if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
                 if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
                 if (document.getElementById('spz_input_fasilitas')) document.getElementById('spz_input_fasilitas').value = 'Masjid Ar-Rahman';
+                updateSpzAutoTempat('Masjid Ar-Rahman');
                 if (document.getElementById('event_date_start')) document.getElementById('event_date_start').value = '2026-05-27';
                 if (document.getElementById('event_date_end')) document.getElementById('event_date_end').value = '2026-05-28';
-                if (document.getElementById('time_start_picker')) document.getElementById('time_start_picker').value = '18:00';
-                if (document.getElementById('time_end_picker')) document.getElementById('time_end_picker').value = '06:00';
+                const endWrapper = document.getElementById('event_date_end_wrapper');
+                if (endWrapper) endWrapper.classList.add('hidden');
+                const labelMulti = document.getElementById('label_multi_date');
+                if (labelMulti) labelMulti.innerText = 'Tambah Waktu Pelaksanaan';
+                const iconMulti = document.getElementById('icon_toggle_multi_date');
+                if (iconMulti) { iconMulti.classList.remove('fa-minus'); iconMulti.classList.add('fa-plus'); }
+
+                populateTimeDropdowns();
+                if (document.getElementById('time_start_h')) document.getElementById('time_start_h').value = '18';
+                if (document.getElementById('time_start_m')) document.getElementById('time_start_m').value = '00';
+                if (document.getElementById('time_end_h')) document.getElementById('time_end_h').value = '06';
+                if (document.getElementById('time_end_m')) document.getElementById('time_end_m').value = '00';
                 if (document.getElementById('time_until_finish')) document.getElementById('time_until_finish').checked = false;
+                syncTimeFromPickers();
+                syncEventDateFromPickers();
                 if (document.getElementById('field_tanggal_picker')) {
                     const now = new Date();
                     const nowIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -1165,6 +1190,15 @@
             document.getElementById('field_ttd3_jabatan').value = tpl.ttd3Jabatan;
             document.getElementById('field_ttd3_nama').value = tpl.ttd3Nama;
             document.getElementById('field_ttd3_nim').value = tpl.ttd3Nim;
+
+            if (type === 'SPZ') {
+                syncEventDateFromPickers();
+                syncTimeFromPickers();
+                const fas = document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value : 'Masjid Ar-Rahman';
+                updateSpzAutoTempat(fas);
+            } else {
+                setTimePickersFromString(tpl.waktu);
+            }
 
             updateTtd3State();
             updatePreview();
@@ -1357,14 +1391,87 @@
             }
         }
 
+        function populateTimeDropdowns() {
+            const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+            const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
+            ['time_start_h', 'time_end_h'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.options.length === 0) {
+                    el.innerHTML = hours.map(h => `<option value="${h}">${h}</option>`).join('');
+                }
+            });
+            ['time_start_m', 'time_end_m'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.options.length === 0) {
+                    el.innerHTML = minutes.map(m => `<option value="${m}">${m}</option>`).join('');
+                }
+            });
+        }
+
+        function setTimePickersFromString(waktuStr) {
+            populateTimeDropdowns();
+            if (!waktuStr) return;
+            const untilFinish = /selesai/i.test(waktuStr);
+            const checkEl = document.getElementById('time_until_finish');
+            if (checkEl) checkEl.checked = untilFinish;
+
+            const timeMatches = waktuStr.match(/(\d{1,2})[.:](\d{2})/g);
+            if (timeMatches && timeMatches.length > 0) {
+                const sParts = timeMatches[0].split(/[.:]/);
+                const shEl = document.getElementById('time_start_h');
+                const smEl = document.getElementById('time_start_m');
+                if (shEl) shEl.value = String(parseInt(sParts[0])).padStart(2, '0');
+                if (smEl) smEl.value = String(parseInt(sParts[1])).padStart(2, '0');
+
+                if (timeMatches.length > 1) {
+                    const eParts = timeMatches[1].split(/[.:]/);
+                    const ehEl = document.getElementById('time_end_h');
+                    const emEl = document.getElementById('time_end_m');
+                    if (ehEl) ehEl.value = String(parseInt(eParts[0])).padStart(2, '0');
+                    if (emEl) emEl.value = String(parseInt(eParts[1])).padStart(2, '0');
+                }
+            }
+            syncTimeFromPickers();
+        }
+
+        function syncTimeFromPickers() {
+            populateTimeDropdowns();
+            const shEl = document.getElementById('time_start_h');
+            const smEl = document.getElementById('time_start_m');
+            const ehEl = document.getElementById('time_end_h');
+            const emEl = document.getElementById('time_end_m');
+            const untilFinish = document.getElementById('time_until_finish') ? document.getElementById('time_until_finish').checked : false;
+            const endWrapper = document.getElementById('time_end_wrapper');
+
+            const sH = shEl && shEl.value ? shEl.value : '18';
+            const sM = smEl && smEl.value ? smEl.value : '00';
+            const eH = ehEl && ehEl.value ? ehEl.value : '06';
+            const eM = emEl && emEl.value ? emEl.value : '00';
+
+            const sTime = `${sH}.${sM}`;
+            const eTime = `${eH}.${eM}`;
+
+            const fieldWaktu = document.getElementById('field_waktu');
+            if (untilFinish) {
+                if (endWrapper) endWrapper.classList.add('opacity-40', 'pointer-events-none');
+                if (fieldWaktu) fieldWaktu.value = `${sTime} WIB s.d. Selesai`;
+            } else {
+                if (endWrapper) endWrapper.classList.remove('opacity-40', 'pointer-events-none');
+                if (fieldWaktu) fieldWaktu.value = `${sTime} s/d ${eTime} WIB`;
+            }
+            updatePreview();
+        }
+
         function syncEventDateFromPickers() {
-            const startVal = document.getElementById('event_date_start').value;
-            const endVal = document.getElementById('event_date_end').value;
+            const startVal = document.getElementById('event_date_start') ? document.getElementById('event_date_start').value : '';
+            const endVal = document.getElementById('event_date_end') ? document.getElementById('event_date_end').value : '';
             const endWrapper = document.getElementById('event_date_end_wrapper');
             const multiActive = endWrapper && !endWrapper.classList.contains('hidden');
 
             if (!startVal) return;
             const sParts = startVal.split('-');
+            if (sParts.length !== 3) return;
             const sDate = new Date(parseInt(sParts[0]), parseInt(sParts[1]) - 1, parseInt(sParts[2]));
             const sDay = INDO_DAYS[sDate.getDay()];
             const sTgl = sDate.getDate();
@@ -1373,35 +1480,33 @@
 
             if (multiActive && endVal && endVal !== startVal) {
                 const eParts = endVal.split('-');
-                const eDate = new Date(parseInt(eParts[0]), parseInt(eParts[1]) - 1, parseInt(eParts[2]));
-                const eDay = INDO_DAYS[eDate.getDay()];
-                const eTgl = eDate.getDate();
-                const eBulan = INDO_MONTHS[eDate.getMonth()];
-                const eThn = eDate.getFullYear();
+                if (eParts.length === 3) {
+                    const eDate = new Date(parseInt(eParts[0]), parseInt(eParts[1]) - 1, parseInt(eParts[2]));
+                    const eDay = INDO_DAYS[eDate.getDay()];
+                    const eTgl = eDate.getDate();
+                    const eBulan = INDO_MONTHS[eDate.getMonth()];
+                    const eThn = eDate.getFullYear();
 
-                let resultStr = '';
-                if (sThn === eThn && sBulan === eBulan) {
-                    resultStr = `${sDay}, ${sTgl} ${sBulan} s/d ${eDay}, ${eTgl} ${eBulan} ${eThn}`;
-                } else if (sThn === eThn) {
-                    resultStr = `${sDay}, ${sTgl} ${sBulan} s/d ${eDay}, ${eTgl} ${eBulan} ${eThn}`;
-                } else {
-                    resultStr = `${sDay}, ${sTgl} ${sBulan} ${sThn} s/d ${eDay}, ${eTgl} ${eBulan} ${eThn}`;
+                    let resultStr = `${sDay}, ${sTgl} ${sBulan} s/d ${eDay}, ${eTgl} ${eBulan} ${eThn}`;
+                    document.getElementById('field_hari_tanggal').value = resultStr;
+                    updatePreview();
+                    return;
                 }
-                document.getElementById('field_hari_tanggal').value = resultStr;
-            } else {
-                document.getElementById('field_hari_tanggal').value = `${sDay}, ${sTgl} ${sBulan} ${sThn}`;
             }
+            document.getElementById('field_hari_tanggal').value = `${sDay}, ${sTgl} ${sBulan} ${sThn}`;
             updatePreview();
         }
 
         function toggleMultiDateMode() {
             const endWrapper = document.getElementById('event_date_end_wrapper');
             const label = document.getElementById('label_multi_date');
+            const icon = document.getElementById('icon_toggle_multi_date');
             if (endWrapper.classList.contains('hidden')) {
                 endWrapper.classList.remove('hidden');
-                label.innerText = 'Hapus Tanggal Selesai (1 Hari)';
+                if (label) label.innerText = 'Hapus Waktu Pelaksanaan';
+                if (icon) { icon.classList.remove('fa-plus'); icon.classList.add('fa-minus'); }
                 const startVal = document.getElementById('event_date_start').value;
-                if (startVal && !document.getElementById('event_date_end').value) {
+                if (startVal && (!document.getElementById('event_date_end').value || document.getElementById('event_date_end').value === startVal)) {
                     const sParts = startVal.split('-');
                     const nextDay = new Date(parseInt(sParts[0]), parseInt(sParts[1]) - 1, parseInt(sParts[2]) + 1);
                     const yyyy = nextDay.getFullYear();
@@ -1411,28 +1516,10 @@
                 }
             } else {
                 endWrapper.classList.add('hidden');
-                label.innerText = 'Tambah Tanggal Selesai (Rentang Hari)';
+                if (label) label.innerText = 'Tambah Waktu Pelaksanaan';
+                if (icon) { icon.classList.remove('fa-minus'); icon.classList.add('fa-plus'); }
             }
             syncEventDateFromPickers();
-        }
-
-        function syncTimeFromPickers() {
-            const startVal = document.getElementById('time_start_picker').value;
-            const endVal = document.getElementById('time_end_picker').value;
-            const untilFinish = document.getElementById('time_until_finish').checked;
-            const endWrapper = document.getElementById('time_end_wrapper');
-
-            if (untilFinish) {
-                endWrapper.classList.add('opacity-40', 'pointer-events-none');
-                const sTime = startVal ? startVal.replace(':', '.') : '08.00';
-                document.getElementById('field_waktu').value = `${sTime} WIB s.d. Selesai`;
-            } else {
-                endWrapper.classList.remove('opacity-40', 'pointer-events-none');
-                const sTime = startVal ? startVal.replace(':', '.') : '18.00';
-                const eTime = endVal ? endVal.replace(':', '.') : '06.00';
-                document.getElementById('field_waktu').value = `${sTime} s/d ${eTime} WIB`;
-            }
-            updatePreview();
         }
 
         function generateContohSpzIsiInti() {
@@ -3298,6 +3385,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         // INITIALIZE ON LOAD
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
+            populateTimeDropdowns();
             const now = new Date();
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
             if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
