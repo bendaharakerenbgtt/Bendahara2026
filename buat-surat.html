@@ -650,25 +650,81 @@
                     </div>
 
                     <div class="flex flex-col gap-3">
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="text-[11px] font-bold text-neutral-300">Paragraf Pembuka</label>
-                                <button type="button" onclick="syncSpzPembukaAuto()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Sinkronkan dengan Nama Acara & Fasilitas">
-                                    <i class="fa-solid fa-arrows-rotate"></i> Sinkronkan Teks
-                                </button>
+                        <!-- PARAGRAF PEMBUKA (SPZ SMART AUTO VIEW + FALLBACK MANUAL EDIT) -->
+                        <div id="spz_pembuka_section">
+                            <!-- SPZ AUTO VIEW -->
+                            <div id="spz_pembuka_auto_container" class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-file-lines text-orange-400"></i> Paragraf Pembuka
+                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                                            <i class="fa-solid fa-check text-[8px]"></i> Otomatis SPZ
+                                        </span>
+                                        <button type="button" id="btn_toggle_pembuka_manual" onclick="toggleSpzPembukaManual()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Sesuaikan / edit kalimat pembuka jika perlu">
+                                            <i id="icon_toggle_pembuka" class="fa-solid fa-pen-to-square text-[9px]"></i> <span id="label_toggle_pembuka">Edit Manual</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="spz_pembuka_display_box" class="text-xs text-neutral-300 leading-relaxed bg-black/40 p-2.5 rounded border border-neutral-800">
+                                    Melalui surat ini, kami <strong class="text-white">Unit Kegiatan Mahasiswa LDK IMIP</strong> bermaksud untuk mengajukan permohonan izin peminjaman fasilitas <strong id="spz_pembuka_tag_fasilitas" class="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/30">Masjid Ar-Rahman PoliMedia</strong> Jakarta untuk kegiatan <strong id="spz_pembuka_tag_acara" class="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/30">QURMEDIA 2026</strong> yang akan dilaksanakan pada:
+                                </div>
                             </div>
-                            <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs"></textarea>
+
+                            <!-- TEXTAREA PEMBUKA (NON-SPZ ATAU MODE EDIT MANUAL) -->
+                            <div id="container_field_pembuka" class="hidden">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[11px] font-bold text-neutral-300">Paragraf Pembuka</label>
+                                    <button type="button" onclick="syncSpzPembukaAuto()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Sinkronkan dengan Nama Acara & Fasilitas">
+                                        <i class="fa-solid fa-arrows-rotate"></i> Kembalikan ke Otomatis
+                                    </button>
+                                </div>
+                                <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs"></textarea>
+                            </div>
                         </div>
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="text-[11px] font-bold text-neutral-300">Isi Inti / Tambahan</label>
-                                <button type="button" onclick="generateContohSpzIsiInti()" class="text-[10px] font-bold text-orange-400 hover:text-orange-300 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/25 flex items-center gap-1 transition-all active:scale-95" title="Generate Teks Contoh Resmi">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Contoh SPZ
-                                </button>
+
+                        <!-- ISI INTI / TAMBAHAN DENGAN TOOLBAR BOLD & KETERANGAN DESKRIPSI -->
+                        <div class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-pen-nib text-orange-400"></i> Isi Inti / Tambahan
+                                    </label>
+                                    <span class="text-[10px] text-neutral-400 block font-normal mt-0.5">Deskripsikan kegiatan pelaksanaan surat</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                    <button type="button" onclick="formatSelectionBold('field_isi_inti')" class="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
+                                        <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                    </button>
+                                    <button type="button" onclick="boldNamaAcaraInIsi()" class="px-2 py-1 rounded bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-[10px] font-bold border border-orange-500/25 flex items-center gap-1 active:scale-95" title="Otomatis tebalkan nama kegiatan dalam isi">
+                                        <i class="fa-solid fa-highlighter text-[10px]"></i> Tebalkan Nama Kegiatan
+                                    </button>
+                                    <button type="button" onclick="generateContohSpzIsiInti()" class="px-2 py-1 rounded bg-orange-500/15 hover:bg-orange-500/25 text-orange-400 text-[10px] font-bold border border-orange-500/30 flex items-center gap-1 active:scale-95" title="Generate Teks Contoh Resmi SPZ">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Contoh SPZ
+                                    </button>
+                                </div>
                             </div>
                             <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan..."></textarea>
                         </div>
-                        <div>
+
+                        <!-- PARAGRAF PENUTUP (SPZ OTOMATIS TANPA PLACEHOLDER) -->
+                        <div id="spz_penutup_static" class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Paragraf Penutup
+                                </label>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                                    <i class="fa-solid fa-check text-[8px]"></i> Otomatis SPZ
+                                </span>
+                            </div>
+                            <div class="text-xs text-neutral-300 italic bg-black/40 p-2.5 rounded border border-neutral-800 leading-relaxed">
+                                &ldquo;Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.&rdquo;
+                            </div>
+                        </div>
+
+                        <!-- TEXTAREA PENUTUP (HANYA MUNCUL KETIKA NON-SPZ SEPERTI SPM, SBA, SUD) -->
+                        <div id="container_field_penutup" class="hidden">
                             <label class="text-[11px] font-bold text-neutral-300 block mb-1">Paragraf Penutup</label>
                             <textarea id="field_penutup" oninput="updatePreview()" rows="2" class="form-input text-xs"></textarea>
                         </div>
@@ -1077,6 +1133,10 @@
             const defaultPerihalContainer = document.getElementById('default_perihal_container');
             const spzTujuanStatic = document.getElementById('spz_tujuan_static');
             const containerFieldTujuan = document.getElementById('container_field_tujuan');
+            const spzPembukaAutoContainer = document.getElementById('spz_pembuka_auto_container');
+            const containerFieldPembuka = document.getElementById('container_field_pembuka');
+            const spzPenutupStatic = document.getElementById('spz_penutup_static');
+            const containerFieldPenutup = document.getElementById('container_field_penutup');
 
             if (type === 'SPZ') {
                 if (spzBanner) spzBanner.classList.remove('hidden');
@@ -1091,12 +1151,23 @@
                     fieldTujuan.value = 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
                     fieldTujuan.setAttribute('readonly', 'true');
                 }
+                isSpzPembukaManual = false;
+                if (spzPembukaAutoContainer) spzPembukaAutoContainer.classList.remove('hidden');
+                if (containerFieldPembuka) containerFieldPembuka.classList.add('hidden');
+                const labelTogglePembuka = document.getElementById('label_toggle_pembuka');
+                if (labelTogglePembuka) labelTogglePembuka.innerText = 'Edit Manual';
+                const iconTogglePembuka = document.getElementById('icon_toggle_pembuka');
+                if (iconTogglePembuka) iconTogglePembuka.className = 'fa-solid fa-pen-to-square text-[9px]';
+
+                if (spzPenutupStatic) spzPenutupStatic.classList.remove('hidden');
+                if (containerFieldPenutup) containerFieldPenutup.classList.add('hidden');
                 if (fieldIsiInti) fieldIsiInti.placeholder = 'Deskripsikan kegiatan...';
                 if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
                 if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
                 if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
                 if (document.getElementById('spz_input_fasilitas')) document.getElementById('spz_input_fasilitas').value = 'Masjid Ar-Rahman';
                 updateSpzAutoTempat('Masjid Ar-Rahman');
+                updateSpzAutoPembuka();
                 if (document.getElementById('event_date_start')) document.getElementById('event_date_start').value = '2026-05-27';
                 if (document.getElementById('event_date_end')) document.getElementById('event_date_end').value = '2026-05-28';
                 const endWrapper = document.getElementById('event_date_end_wrapper');
@@ -1129,6 +1200,10 @@
                 if (spzTujuanStatic) spzTujuanStatic.classList.add('hidden');
                 if (containerFieldTujuan) containerFieldTujuan.classList.remove('hidden');
                 if (fieldTujuan) fieldTujuan.removeAttribute('readonly');
+                if (spzPembukaAutoContainer) spzPembukaAutoContainer.classList.add('hidden');
+                if (containerFieldPembuka) containerFieldPembuka.classList.remove('hidden');
+                if (spzPenutupStatic) spzPenutupStatic.classList.add('hidden');
+                if (containerFieldPenutup) containerFieldPenutup.classList.remove('hidden');
                 if (fieldIsiInti) fieldIsiInti.placeholder = '';
             }
 
@@ -1196,6 +1271,7 @@
                 syncTimeFromPickers();
                 const fas = document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value : 'Masjid Ar-Rahman';
                 updateSpzAutoTempat(fas);
+                updateSpzAutoPembuka();
             } else {
                 setTimePickersFromString(tpl.waktu);
             }
@@ -1360,34 +1436,184 @@
             }
         }
 
+        let isSpzPembukaManual = false;
+
+        function toggleSpzPembukaManual() {
+            isSpzPembukaManual = !isSpzPembukaManual;
+            const autoCard = document.getElementById('spz_pembuka_auto_container');
+            const customWrapper = document.getElementById('container_field_pembuka');
+            const labelToggle = document.getElementById('label_toggle_pembuka');
+            const iconToggle = document.getElementById('icon_toggle_pembuka');
+
+            if (isSpzPembukaManual) {
+                if (autoCard) autoCard.classList.add('hidden');
+                if (customWrapper) customWrapper.classList.remove('hidden');
+                if (labelToggle) labelToggle.innerText = 'Kembalikan Otomatis';
+                if (iconToggle) { iconToggle.className = 'fa-solid fa-arrows-rotate text-[9px]'; }
+            } else {
+                syncSpzPembukaAuto();
+                if (autoCard) autoCard.classList.remove('hidden');
+                if (customWrapper) customWrapper.classList.add('hidden');
+                if (labelToggle) labelToggle.innerText = 'Edit Manual';
+                if (iconToggle) { iconToggle.className = 'fa-solid fa-pen-to-square text-[9px]'; }
+            }
+        }
+
         function updateSpzAutoPembuka() {
             if (currentSuratType !== 'SPZ') return;
             const fas = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '') || 'Masjid Ar-Rahman';
-            const acara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
+            const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '') || 'QURMEDIA 2026';
+
+            const fasTag = document.getElementById('spz_pembuka_tag_fasilitas');
+            if (fasTag) fasTag.innerText = `${fas} PoliMedia`;
+            const acaraTag = document.getElementById('spz_pembuka_tag_acara');
+            if (acaraTag) acaraTag.innerText = acara;
+
             const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fas} PoliMedia** Jakarta untuk kegiatan **${acara}** yang akan dilaksanakan pada:`;
             const pembukaEl = document.getElementById('field_pembuka');
             if (pembukaEl) {
                 pembukaEl.placeholder = autoText;
-                if (!pembukaEl.value.trim() || pembukaEl.value.includes('Unit Kegiatan Mahasiswa LDK IMIP')) {
+                if (!isSpzPembukaManual || !pembukaEl.value.trim() || pembukaEl.value.includes('Unit Kegiatan Mahasiswa LDK IMIP')) {
                     pembukaEl.value = autoText;
                 }
             }
         }
 
         function syncSpzPembukaAuto() {
+            isSpzPembukaManual = false;
+            const autoCard = document.getElementById('spz_pembuka_auto_container');
+            const customWrapper = document.getElementById('container_field_pembuka');
+            const labelToggle = document.getElementById('label_toggle_pembuka');
+            const iconToggle = document.getElementById('icon_toggle_pembuka');
+            if (autoCard) autoCard.classList.remove('hidden');
+            if (customWrapper) customWrapper.classList.add('hidden');
+            if (labelToggle) labelToggle.innerText = 'Edit Manual';
+            if (iconToggle) { iconToggle.className = 'fa-solid fa-pen-to-square text-[9px]'; }
+
             const fas = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '') || 'Masjid Ar-Rahman';
-            const acara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
+            const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '') || 'QURMEDIA 2026';
             const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fas} PoliMedia** Jakarta untuk kegiatan **${acara}** yang akan dilaksanakan pada:`;
+
+            const fasTag = document.getElementById('spz_pembuka_tag_fasilitas');
+            if (fasTag) fasTag.innerText = `${fas} PoliMedia`;
+            const acaraTag = document.getElementById('spz_pembuka_tag_acara');
+            if (acaraTag) acaraTag.innerText = acara;
+
             const pembukaEl = document.getElementById('field_pembuka');
             if (pembukaEl) {
                 pembukaEl.value = autoText;
-                updatePreview();
+                pembukaEl.placeholder = autoText;
             }
+            updatePreview();
         }
 
         function handleNamaAcaraChange(val) {
             if (currentSuratType === 'SPZ') {
                 updateSpzAutoPembuka();
+            }
+            updatePreview();
+        }
+
+        function formatSelectionBold(fieldId) {
+            const el = document.getElementById(fieldId);
+            if (!el) return;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const val = el.value;
+
+            if (start !== end) {
+                const sel = val.substring(start, end);
+                if (sel.startsWith('**') && sel.endsWith('**') && sel.length >= 4) {
+                    const unwrapped = sel.substring(2, sel.length - 2);
+                    el.value = val.substring(0, start) + unwrapped + val.substring(end);
+                    el.selectionStart = start;
+                    el.selectionEnd = start + unwrapped.length;
+                } else if (start >= 2 && end <= val.length - 2 && val.substring(start - 2, start) === '**' && val.substring(end, end + 2) === '**') {
+                    el.value = val.substring(0, start - 2) + sel + val.substring(end + 2);
+                    el.selectionStart = start - 2;
+                    el.selectionEnd = start - 2 + sel.length;
+                } else {
+                    const wrapped = `**${sel}**`;
+                    el.value = val.substring(0, start) + wrapped + val.substring(end);
+                    el.selectionStart = start;
+                    el.selectionEnd = start + wrapped.length;
+                }
+            } else {
+                const leftPart = val.substring(0, start);
+                const rightPart = val.substring(start);
+                const leftWordMatch = leftPart.match(/[a-zA-Z0-9_\u00C0-\u017F]+$/);
+                const rightWordMatch = rightPart.match(/^[a-zA-Z0-9_\u00C0-\u017F]+/);
+
+                if (leftWordMatch || rightWordMatch) {
+                    const wordStart = start - (leftWordMatch ? leftWordMatch[0].length : 0);
+                    const wordEnd = start + (rightWordMatch ? rightWordMatch[0].length : 0);
+                    const word = val.substring(wordStart, wordEnd);
+
+                    if (wordStart >= 2 && wordEnd <= val.length - 2 && val.substring(wordStart - 2, wordStart) === '**' && val.substring(wordEnd, wordEnd + 2) === '**') {
+                        el.value = val.substring(0, wordStart - 2) + word + val.substring(wordEnd + 2);
+                        el.selectionStart = wordStart - 2;
+                        el.selectionEnd = wordStart - 2 + word.length;
+                    } else {
+                        el.value = val.substring(0, wordStart) + `**${word}**` + val.substring(wordEnd);
+                        el.selectionStart = wordStart;
+                        el.selectionEnd = wordStart + word.length + 4;
+                    }
+                } else {
+                    el.value = val.substring(0, start) + '****' + val.substring(end);
+                    el.selectionStart = start + 2;
+                    el.selectionEnd = start + 2;
+                }
+            }
+            el.focus();
+            updatePreview();
+        }
+
+        function boldNamaAcaraInIsi() {
+            const el = document.getElementById('field_isi_inti');
+            const acaraEl = document.getElementById('field_nama_acara');
+            if (!el || !acaraEl) return;
+            const acara = acaraEl.value.trim() || 'QURMEDIA 2026';
+            if (!acara) return;
+
+            let val = el.value;
+            const escapedAcara = acara.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const wrappedRegex = new RegExp(`\\*\\*(${escapedAcara})\\*\\*`, 'i');
+            if (wrappedRegex.test(val)) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Sudah Tebal',
+                        text: `Nama kegiatan "${acara}" sudah ditebalkan di dalam teks.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+                return;
+            }
+
+            const plainRegex = new RegExp(`(${escapedAcara})`, 'i');
+            if (plainRegex.test(val)) {
+                el.value = val.replace(plainRegex, '**$1**');
+                updatePreview();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Nama Kegiatan Ditebalkan',
+                        text: `Teks "${acara}" berhasil ditebalkan.`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Nama Kegiatan Belum Ada',
+                        text: `Teks "${acara}" belum ditemukan di dalam isi narasi.`,
+                        timer: 1800,
+                        showConfirmButton: false
+                    });
+                }
             }
         }
 
@@ -1804,17 +2030,36 @@
             let escaped = escapeHtml(str);
             // Convert markdown **text** to strong
             escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
-            // Auto-bold key entities if not already wrapped in strong
+
+            // Dynamically collect key terms to auto-bold
+            const currentAcara = (document.getElementById('field_nama_acara')?.value || '').trim();
+            const currentFas = (document.getElementById('spz_input_fasilitas')?.value || '').trim();
+
             const autoBoldList = [
                 'Unit Kegiatan Mahasiswa LDK IMIP',
                 'UKM LDK IMIP',
-                'Masjid Ar-Rahman PoliMedia',
                 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif',
+                'Masjid Ar-Rahman PoliMedia',
                 'QURMEDIA 2026'
             ];
+
+            if (currentAcara && !autoBoldList.includes(currentAcara)) {
+                autoBoldList.push(currentAcara);
+            }
+            if (currentFas) {
+                const fasPol = `${currentFas} PoliMedia`;
+                if (!autoBoldList.includes(fasPol)) autoBoldList.push(fasPol);
+                if (!autoBoldList.includes(currentFas)) autoBoldList.push(currentFas);
+            }
+
+            // Sort longer phrases first
+            autoBoldList.sort((a, b) => b.length - a.length);
+
             autoBoldList.forEach(term => {
-                if (escaped.includes(term) && !escaped.includes(`>${term}<`) && !escaped.includes(`<strong>${term}</strong>`)) {
-                    escaped = escaped.split(term).join(`<strong style="font-weight: bold;">${term}</strong>`);
+                if (!term || term.length < 2) return;
+                const escTerm = escapeHtml(term);
+                if (escaped.includes(escTerm) && !escaped.includes(`>${escTerm}<`) && !escaped.includes(`<strong>${escTerm}</strong>`)) {
+                    escaped = escaped.split(escTerm).join(`<strong style="font-weight: bold;">${escTerm}</strong>`);
                 }
             });
             return escaped;
@@ -3386,6 +3631,15 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
             populateTimeDropdowns();
+            const isiEl = document.getElementById('field_isi_inti');
+            if (isiEl) {
+                isiEl.addEventListener('keydown', (e) => {
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+                        e.preventDefault();
+                        formatSelectionBold('field_isi_inti');
+                    }
+                });
+            }
             const now = new Date();
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
             if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
