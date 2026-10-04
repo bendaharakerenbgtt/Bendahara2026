@@ -198,9 +198,14 @@
             width: 100% !important;
             font-family: 'Times New Roman', Times, serif !important;
             font-size: 12pt !important;
+            background-color: transparent !important;
         }
+        table.spz-border-table thead,
+        table.spz-border-table tbody,
+        table.spz-border-table tr,
         table.spz-border-table th, 
         table.spz-border-table td {
+            background-color: transparent !important;
             border: 1px solid #000000 !important;
             padding: 3.5pt 5pt !important;
             color: #000000 !important;
@@ -1020,10 +1025,10 @@
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
                                         <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Susunan Kegiatan (Rundown)
-                                        <span id="spz_rundown_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Agenda</span>
+                                        <span id="spz_rundown_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">2 Agenda</span>
                                     </span>
                                     <div class="flex items-center gap-2">
-                                        <button type="button" onclick="resetSpzRundownDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke rundown default">Reset</button>
+                                        <button type="button" onclick="resetSpzRundownDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kosongkan susunan rundown">Kosongkan</button>
                                         <button type="button" onclick="addSpzRundownRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
                                             <i class="fa-solid fa-plus text-[8px]"></i> Tambah
                                         </button>
@@ -1205,7 +1210,7 @@
                 waktu: '18.00 s/d 06.00 WIB',
                 tempat: 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630',
                 pembuka: 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:',
-                isiInti: 'Kegiatan ini merupakan rangkaian persiapan pelaksanaan **QURMEDIA 2026**, yang meliputi penjagaan dan pengawasan hewan qurban sebelum pelaksanaan penyembelihan. Fasilitas masjid akan digunakan sebagai tempat penginapan panitia yang bertugas menjaga hewan qurban agar kegiatan dapat berjalan dengan aman, tertib, dan terkoordinasi dengan baik.',
+                isiInti: '',
                 penutup: 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.',
                 ttd1Jabatan: 'Ketua Pelaksana\nQURMEDIA 2026',
                 ttd1Nama: 'Sarah Muthmainnah Prayogo',
@@ -2096,11 +2101,8 @@
         ];
 
         const DEFAULT_SPZ_RUNDOWN = [
-            { nama: 'Pengecekan Kondisi Hewan Qurban', waktu: '18.00 – 19.00 WIB', pj: 'Logistik' },
-            { nama: 'Briefing dan Pembagian Jadwal Jaga', waktu: '19.00 – 19.30 WIB', pj: 'Koorlap' },
-            { nama: 'Penjagaan dan Pengawasan Hewan Qurban Sesi 1', waktu: '19.30 – 00.30 WIB', pj: 'Koorlap' },
-            { nama: 'Penjagaan dan Pengawasan Hewan Qurban sesi 2', waktu: '00.30 – 05.00 WIB', pj: 'Koorlap' },
-            { nama: 'Pengecekan Akhir Hewan Qurban', waktu: '05.00 – 06.00 WIB', pj: 'Acara & Logistik' }
+            { nama: '', waktu: '', pj: '' },
+            { nama: '', waktu: '', pj: '' }
         ];
 
         let spzBarangList = JSON.parse(JSON.stringify(DEFAULT_SPZ_BARANG));
@@ -2272,7 +2274,8 @@
             const container = document.getElementById('spz_rundown_editor_container');
             if (!container) return;
             const badge = document.getElementById('spz_rundown_count_badge');
-            if (badge) badge.innerText = `${spzRundownList.length} Agenda`;
+            const filledCount = spzRundownList.filter(r => (r.nama && r.nama.trim() !== '') || (r.waktu && r.waktu.trim() !== '') || (r.pj && r.pj.trim() !== '')).length;
+            if (badge) badge.innerText = `${spzRundownList.length} Agenda${filledCount > 0 ? ` (${filledCount} Diisi)` : ' (Kosong)'}`;
 
             container.innerHTML = spzRundownList.map((item, idx) => `
                 <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
@@ -2310,13 +2313,9 @@
 
         function removeSpzRundownRow(idx) {
             if (spzRundownList.length <= 1) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Tidak Bisa Dihapus',
-                    text: 'Minimal harus ada 1 susunan agenda kegiatan.',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                spzRundownList = [{ nama: '', waktu: '', pj: '' }];
+                renderSpzRundownEditor();
+                updatePreview();
                 return;
             }
             spzRundownList.splice(idx, 1);
@@ -2332,7 +2331,10 @@
         }
 
         function resetSpzRundownDefault() {
-            spzRundownList = JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN));
+            spzRundownList = [
+                { nama: '', waktu: '', pj: '' },
+                { nama: '', waktu: '', pj: '' }
+            ];
             renderSpzRundownEditor();
             updatePreview();
         }
@@ -2755,9 +2757,9 @@
                 const rundownRowsHtml = spzRundownList.map((r, idx) => `
                     <tr>
                         <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.nama || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(r.waktu || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.pj || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(r.waktu || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.pj || '') || '&nbsp;'}</td>
                     </tr>
                 `).join('');
 
@@ -2782,12 +2784,12 @@
                                 <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
 
                                 <!-- TABEL DAFTAR BARANG & JUMLAH -->
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed; background-color: transparent !important;">
                                     <thead>
-                                        <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Nama Barang</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Jumlah</th>
+                                        <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Barang</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2798,14 +2800,14 @@
                                 <!-- TABEL PANITIA KEGIATAN -->
                                 <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Panitia Kegiatan</p>
 
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; background-color: transparent !important;">
                                     <thead>
-                                        <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Nama Lengkap</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important;">NIM</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Program Studi</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important;">Delegasi</th>
+                                        <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Lengkap</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important; background-color: transparent !important;">NIM</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Program Studi</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important; background-color: transparent !important;">Delegasi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2816,13 +2818,13 @@
                                 ${spzRundownList && spzRundownList.length > 0 ? `
                                 <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Susunan Kegiatan</p>
 
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed; background-color: transparent !important;">
                                     <thead>
-                                        <tr style="background-color: #ffffff; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">No</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Nama Kegiatan</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Waktu</th>
-                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important;">Penanggung Jawab</th>
+                                        <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Kegiatan</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Waktu</th>
+                                            <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Penanggung Jawab</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -3709,12 +3711,18 @@
             width: 100% !important;
             font-family: 'Times New Roman', Times, serif !important;
             font-size: 12pt !important;
+            background-color: transparent !important;
         }
-        table.spz-border-table th, table.spz-border-table td {
+        table.spz-border-table thead,
+        table.spz-border-table tbody,
+        table.spz-border-table tr,
+        table.spz-border-table th, 
+        table.spz-border-table td {
             border: 1px solid #000000 !important;
             font-family: 'Times New Roman', Times, serif !important;
             font-size: 12pt !important;
             line-height: 1.35 !important;
+            background-color: transparent !important;
         }
         @media print {
             body {
