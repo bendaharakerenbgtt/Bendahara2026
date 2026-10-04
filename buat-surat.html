@@ -1001,10 +1001,10 @@
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
                                         <i class="fa-solid fa-users text-orange-500"></i> Panitia Kegiatan
-                                        <span id="spz_panitia_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">10 Orang</span>
+                                        <span id="spz_panitia_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">2 Orang</span>
                                     </span>
                                     <div class="flex items-center gap-2">
-                                        <button type="button" onclick="resetSpzPanitiaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke panitia default">Reset</button>
+                                        <button type="button" onclick="resetSpzPanitiaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kosongkan daftar panitia">Kosongkan</button>
                                         <button type="button" onclick="addSpzPanitiaRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
                                             <i class="fa-solid fa-plus text-[8px]"></i> Tambah
                                         </button>
@@ -2091,16 +2091,8 @@
         ];
 
         const DEFAULT_SPZ_PANITIA = [
-            { nama: 'Muhammad Raihan Rionaldho', nim: '2421408023', prodi: 'Teknik Pemeliharaan Mesin', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Muhamad Hafiz Alfariz', nim: '2490444040', prodi: 'Teknik Grafika', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Dimas Alfianoci Sadiyo', nim: '2490444030', prodi: 'Teknik Grafika', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Rifai Rasyidin', nim: '2490343137', prodi: 'Teknologi Rekayasa Multimedia', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Muhammad Iqbal Addin', nim: '2491471055', prodi: 'Fotografi', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Fadly Ahmad Chandi', nim: '2490345034', prodi: 'Animasi', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Muhammad Haris', nim: '2490343090', prodi: 'Teknologi Rekayasa Multimedia', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Muhamad Fitra Robbani', nim: '2591361059', prodi: 'Produksi Film dan Televisi', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Abdul Malik', nim: '2521408001', prodi: 'Teknik Pemeliharaan Mesin', delegasi: 'UKM LDK IMIP' },
-            { nama: 'Muhammad Doddy Bakar Nur Junior', nim: '2591361056', prodi: 'Produksi Film dan Televisi', delegasi: 'UKM LDK IMIP' }
+            { nama: '', nim: '', prodi: '', delegasi: 'UKM LDK IMIP' },
+            { nama: '', nim: '', prodi: '', delegasi: 'UKM LDK IMIP' }
         ];
 
         const DEFAULT_SPZ_RUNDOWN = [
@@ -2202,7 +2194,8 @@
             const container = document.getElementById('spz_panitia_editor_container');
             if (!container) return;
             const badge = document.getElementById('spz_panitia_count_badge');
-            if (badge) badge.innerText = `${spzPanitiaList.length} Orang`;
+            const filledCount = spzPanitiaList.filter(p => (p.nama && p.nama.trim() !== '') || (p.nim && p.nim.trim() !== '') || (p.prodi && p.prodi.trim() !== '')).length;
+            if (badge) badge.innerText = `${spzPanitiaList.length} Orang${filledCount > 0 ? ` (${filledCount} Diisi)` : ' (Kosong)'}`;
 
             container.innerHTML = spzPanitiaList.map((item, idx) => `
                 <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2.5 text-xs">
@@ -2252,13 +2245,9 @@
 
         function removeSpzPanitiaRow(idx) {
             if (spzPanitiaList.length <= 1) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Tidak Bisa Dihapus',
-                    text: 'Minimal harus ada 1 nama panitia kegiatan.',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                spzPanitiaList = [{ nama: '', nim: '', prodi: '', delegasi: 'UKM LDK IMIP' }];
+                renderSpzPanitiaEditor();
+                updatePreview();
                 return;
             }
             spzPanitiaList.splice(idx, 1);
@@ -2756,9 +2745,9 @@
                 const panitiaRowsHtml = spzPanitiaList.map((p, idx) => `
                     <tr>
                         <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.nama || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${escapeHtml(p.nim || '-')}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.prodi || '-')}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${escapeHtml(p.nim || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.prodi || '') || '&nbsp;'}</td>
                         <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
                     </tr>
                 `).join('');
