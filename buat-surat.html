@@ -766,8 +766,17 @@
                                 <input type="text" id="field_ttd1_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua Pelaksana">
                             </div>
                             <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">NIM</label>
-                                <input type="text" id="field_ttd1_nim" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="Contoh: NIM. 2590331052">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[10px] text-neutral-300 font-semibold">NIM</label>
+                                    <span class="text-[9px] text-orange-400 font-mono">Nomor saja</span>
+                                </div>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
+                                        NIM.
+                                    </span>
+                                    <input type="text" inputmode="numeric" id="field_ttd1_nim_angka" oninput="handleNimInput('field_ttd1_nim_angka', 'field_ttd1_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="2590331052" value="2590331052">
+                                </div>
+                                <input type="hidden" id="field_ttd1_nim" value="NIM. 2590331052">
                             </div>
                         </div>
 
@@ -797,8 +806,17 @@
                                 <input type="text" id="field_ttd2_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua Umum">
                             </div>
                             <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">NIM</label>
-                                <input type="text" id="field_ttd2_nim" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="Contoh: NIM. 2490444040">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[10px] text-neutral-300 font-semibold">NIM</label>
+                                    <span class="text-[9px] text-orange-400 font-mono">Nomor saja</span>
+                                </div>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
+                                        NIM.
+                                    </span>
+                                    <input type="text" inputmode="numeric" id="field_ttd2_nim_angka" oninput="handleNimInput('field_ttd2_nim_angka', 'field_ttd2_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="2490444040" value="2490444040">
+                                </div>
+                                <input type="hidden" id="field_ttd2_nim" value="NIM. 2490444040">
                             </div>
                         </div>
                     </div>
@@ -1288,7 +1306,12 @@
             document.getElementById('field_penutup').value = tpl.penutup;
 
             document.getElementById('field_ttd1_nama').value = tpl.ttd1Nama;
-            document.getElementById('field_ttd1_nim').value = tpl.ttd1Nim;
+            const ttd1NimVal = tpl.ttd1Nim || 'NIM. 2590331052';
+            const ttd1NimNum = ttd1NimVal.replace(/^NIM[\.\s]*/i, '').trim();
+            const nim1Input = document.getElementById('field_ttd1_nim_angka');
+            if (nim1Input) nim1Input.value = ttd1NimNum;
+            const nim1Hidden = document.getElementById('field_ttd1_nim');
+            if (nim1Hidden) nim1Hidden.value = ttd1NimVal;
 
             const periodeEl = document.getElementById('field_ttd2_periode');
             if (periodeEl) {
@@ -1299,7 +1322,12 @@
             syncTtd2Jabatan();
 
             document.getElementById('field_ttd2_nama').value = tpl.ttd2Nama;
-            document.getElementById('field_ttd2_nim').value = tpl.ttd2Nim;
+            const ttd2NimVal = tpl.ttd2Nim || 'NIM. 2490444040';
+            const ttd2NimNum = ttd2NimVal.replace(/^NIM[\.\s]*/i, '').trim();
+            const nim2Input = document.getElementById('field_ttd2_nim_angka');
+            if (nim2Input) nim2Input.value = ttd2NimNum;
+            const nim2Hidden = document.getElementById('field_ttd2_nim');
+            if (nim2Hidden) nim2Hidden.value = ttd2NimVal;
 
             const ttd3Check = document.getElementById('field_ttd3_active');
             ttd3Check.checked = tpl.ttd3Active;
@@ -1568,6 +1596,26 @@
             if (ttd2JabatanEl) {
                 ttd2JabatanEl.value = `Ketua UKM LDK IMIP\n${periodeVal}`;
             }
+        }
+
+        function handleNimInput(inputElId, hiddenElId) {
+            const inputEl = document.getElementById(inputElId);
+            const hiddenEl = document.getElementById(hiddenElId);
+            if (!inputEl || !hiddenEl) return;
+
+            let rawVal = inputEl.value;
+            if (/^NIM[\.\s]*/i.test(rawVal)) {
+                rawVal = rawVal.replace(/^NIM[\.\s]*/i, '').trim();
+                inputEl.value = rawVal;
+            }
+
+            const cleanNum = rawVal.trim();
+            if (cleanNum) {
+                hiddenEl.value = `NIM. ${cleanNum}`;
+            } else {
+                hiddenEl.value = '';
+            }
+            updatePreview();
         }
 
         function handleNamaAcaraChange(val) {
