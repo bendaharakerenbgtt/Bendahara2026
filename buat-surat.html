@@ -760,7 +760,7 @@
                                     <div class="text-[11px] font-bold text-neutral-200">Ketua Pelaksana</div>
                                     <div class="text-[10px] text-orange-400 font-mono flex items-center gap-1.5 mt-0.5">
                                         <i class="fa-solid fa-tag text-[9px] opacity-75"></i>
-                                        <span id="display_ttd1_acara" class="opacity-40 italic">Nama Kegiatan (Placeholder)</span>
+                                        <span id="display_ttd1_acara" class="opacity-40 italic">Nama Kegiatan 2026 (Placeholder)</span>
                                     </div>
                                 </div>
                                 <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
@@ -845,11 +845,11 @@
                             <div class="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
                                 <div>
                                     <div class="text-[11px] font-bold text-neutral-200">Dosen Pembimbing</div>
-                                    <div class="text-[10px] text-neutral-400 font-mono mt-0.5">UKM LDK IMIP PoliMedia</div>
+                                    <div class="text-[10px] text-neutral-400 font-mono mt-0.5">LDK IMIP</div>
                                 </div>
                                 <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
                             </div>
-                            <input type="hidden" id="field_ttd3_jabatan" value="Dosen Pembimbing UKM IMIP">
+                            <input type="hidden" id="field_ttd3_jabatan" value="Dosen Pembimbing&#10;LDK IMIP">
 
                             <!-- NIP / NIDN (Nomor Saja) -->
                             <div>
@@ -1165,7 +1165,7 @@
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
-                ttd3Jabatan: 'Dosen Pembimbing UKM LDK IMIP',
+                ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013'
             },
@@ -1192,7 +1192,7 @@
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
-                ttd3Jabatan: 'Dosen Pembimbing UKM IMIP',
+                ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013'
             },
@@ -1219,7 +1219,7 @@
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
-                ttd3Jabatan: 'Dosen Pembimbing UKM IMIP',
+                ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013'
             },
@@ -1246,7 +1246,7 @@
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: false,
-                ttd3Jabatan: 'Dosen Pembimbing UKM IMIP',
+                ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013'
             }
@@ -1458,7 +1458,7 @@
             const ttd3Check = document.getElementById('field_ttd3_active');
             if (ttd3Check) ttd3Check.checked = tpl.ttd3Active;
             const ttd3JabatanEl = document.getElementById('field_ttd3_jabatan');
-            if (ttd3JabatanEl) ttd3JabatanEl.value = tpl.ttd3Jabatan || 'Dosen Pembimbing UKM IMIP';
+            if (ttd3JabatanEl) ttd3JabatanEl.value = tpl.ttd3Jabatan || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3NamaEl = document.getElementById('field_ttd3_nama');
             if (ttd3NamaEl) ttd3NamaEl.value = tpl.ttd3Nama || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
 
@@ -1753,22 +1753,33 @@
             updatePreview();
         }
 
+        function formatProkerTtd1(rawAcara) {
+            if (!rawAcara) return '';
+            let clean = rawAcara.replace(/(?:UKM\s+)?LDK\s+IMIP/gi, '').trim();
+            clean = clean.replace(/\s+/g, ' ');
+            if (!/\b20\d{2}\b/.test(clean)) {
+                clean = clean ? `${clean} 2026` : '';
+            }
+            return clean;
+        }
+
         function syncTtd1Jabatan() {
             const acaraEl = document.getElementById('field_nama_acara');
             const acaraVal = (acaraEl ? acaraEl.value.trim() : '');
+            const prokerFormatted = formatProkerTtd1(acaraVal);
             const displayAcara = document.getElementById('display_ttd1_acara');
             if (displayAcara) {
-                if (acaraVal) {
-                    displayAcara.textContent = acaraVal;
+                if (prokerFormatted) {
+                    displayAcara.textContent = prokerFormatted;
                     displayAcara.classList.remove('opacity-40', 'italic');
                 } else {
-                    displayAcara.textContent = 'Nama Kegiatan (Placeholder)';
+                    displayAcara.textContent = 'Nama Kegiatan 2026 (Placeholder)';
                     displayAcara.classList.add('opacity-40', 'italic');
                 }
             }
             const ttd1JabatanEl = document.getElementById('field_ttd1_jabatan');
             if (ttd1JabatanEl) {
-                ttd1JabatanEl.value = acaraVal ? `Ketua Pelaksana\n${acaraVal}` : 'Ketua Pelaksana';
+                ttd1JabatanEl.value = prokerFormatted ? `Ketua Pelaksana\n${prokerFormatted}` : 'Ketua Pelaksana';
             }
         }
 
@@ -2525,13 +2536,23 @@
             const isiInti = document.getElementById('field_isi_inti').value.trim() || 'Deskripsikan Kegiatan.';
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.';
 
-            const ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim() || (namaAcara ? `Ketua Pelaksana\n${namaAcara}` : 'Ketua Pelaksana');
+            let ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim();
+            if (!ttd1Jabatan || ttd1Jabatan === 'Ketua Pelaksana') {
+                const formatted = formatProkerTtd1(namaAcara);
+                ttd1Jabatan = formatted ? `Ketua Pelaksana\n${formatted}` : 'Ketua Pelaksana';
+            } else {
+                const lines = ttd1Jabatan.split('\n');
+                if (lines.length > 1) {
+                    const cleanedSub = formatProkerTtd1(lines.slice(1).join(' '));
+                    ttd1Jabatan = cleanedSub ? `${lines[0]}\n${cleanedSub}` : lines[0];
+                }
+            }
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim();
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim();
             const ttd2Jabatan = (document.getElementById('field_ttd2_jabatan')?.value || '').trim() || 'Ketua UKM LDK IMIP\nPeriode 2026';
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
-            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM IMIP';
+            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = (document.getElementById('field_ttd3_nama') && document.getElementById('field_ttd3_nama').value.trim()) || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = (document.getElementById('field_ttd3_nim') && document.getElementById('field_ttd3_nim').value.trim()) || 'NIP. 198005072023211013';
 
@@ -2731,25 +2752,25 @@
                                 <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
                                     <colgroup>
-                                        <col style="width: 34%;">
-                                        <col style="width: 29%;">
-                                        <col style="width: 37%;">
+                                        <col style="width: 38%;">
+                                        <col style="width: 26%;">
+                                        <col style="width: 36%;">
                                     </colgroup>
                                     <tr>
-                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 38%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 29%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 26%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 37%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 36%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(ttd3Nama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd3Nim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd3Nama)}</strong><br>
+                                            <span style="font-size: 9.5pt; white-space: nowrap;">${escapeHtml(ttd3Nim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
                                             <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(mpmNama)}</strong><br>
@@ -3052,7 +3073,12 @@
             const isiInti = document.getElementById('field_isi_inti').value.trim();
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat undangan ini kami sampaikan. Atas perhatian Saudara, kami ucapkan terima kasih.';
 
-            const ttd1Jabatan = document.getElementById('field_ttd1_jabatan').value.trim() || 'Ketua Pelaksana\nDauroh Islami 2026';
+            let ttd1Jabatan = document.getElementById('field_ttd1_jabatan').value.trim() || 'Ketua Pelaksana\nDauroh Islami 2026';
+            const linesSud = ttd1Jabatan.split('\n');
+            if (linesSud.length > 1) {
+                const cleanedSub = formatProkerTtd1(linesSud.slice(1).join(' '));
+                ttd1Jabatan = cleanedSub ? `${linesSud[0]}\n${cleanedSub}` : linesSud[0];
+            }
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Fadly Ahmad Chandi';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2490345034';
 
@@ -3061,7 +3087,7 @@
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
             const ttd3Active = document.getElementById('field_ttd3_active').checked;
-            const ttd3Jabatan = document.getElementById('field_ttd3_jabatan').value.trim();
+            const ttd3Jabatan = document.getElementById('field_ttd3_jabatan').value.trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim();
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim();
 
@@ -3222,7 +3248,7 @@
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
-            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM LDK IMIP';
+            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
 
@@ -3432,7 +3458,7 @@
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Faridah Rihadatul ‘Aisy';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2470402026';
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
-            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM IMIP';
+            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
 
@@ -3565,7 +3591,7 @@
                                         </td>
                                         <td style="width: 33.3%; vertical-align: top;"></td>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.25;">
-                                            Ketua Pelaksana<br>${escapeHtml(namaAcara)}
+                                            Ketua Pelaksana<br>${escapeHtml(formatProkerTtd1(namaAcara) || 'Studi Banding 2026')}
                                         </td>
                                     </tr>
                                     <tr>
