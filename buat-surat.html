@@ -503,7 +503,7 @@
                             </div>
                             <div class="flex items-center gap-1.5 bg-neutral-900/90 p-2 rounded-lg border border-neutral-800 flex-wrap sm:flex-nowrap">
                                 <span class="text-xs text-neutral-300 font-medium whitespace-nowrap">Surat Perizinan Peminjaman Fasilitas</span>
-                                <input type="text" id="spz_input_fasilitas" oninput="handleSpzFasilitasChange(this.value)" class="text-xs font-semibold py-1 px-2.5 bg-neutral-900 border border-orange-500/50 rounded-lg focus:outline-none focus:border-orange-500 text-orange-400 flex-1 min-w-[130px]" placeholder="Masjid Ar-Rahman" value="Masjid Ar-Rahman">
+                                <input type="text" id="spz_input_fasilitas" oninput="handleSpzFasilitasChange(this.value)" class="text-xs font-semibold py-1 px-2.5 bg-neutral-900 border border-orange-500/50 rounded-lg focus:outline-none focus:border-orange-500 text-orange-400 flex-1 min-w-[130px]" placeholder="Masjid Ar-Rahman" value="">
                                 <span class="text-xs text-orange-400 font-bold whitespace-nowrap">PoliMedia</span>
                             </div>
                         </div>
@@ -570,7 +570,7 @@
                         <div class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
                             <div class="flex items-center justify-between">
                                 <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
-                                    <i class="fa-regular fa-calendar-check text-orange-400"></i> Tanggal Pelaksanaan
+                                     <i class="fa-regular fa-calendar-check text-orange-400"></i> Tanggal Pelaksanaan
                                 </label>
                                 <button type="button" id="btn_toggle_multi_date" onclick="toggleMultiDateMode()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1">
                                     <i id="icon_toggle_multi_date" class="fa-solid fa-plus text-[9px]"></i> <span id="label_multi_date">Tambah Waktu Pelaksanaan</span>
@@ -579,14 +579,14 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="event_date_pickers_row">
                                 <div>
                                     <label class="text-[10px] text-neutral-400 block mb-1">Tanggal Pelaksanaan</label>
-                                    <input type="date" id="event_date_start" onchange="syncEventDateFromPickers()" class="form-input text-xs" value="2026-05-27">
+                                    <input type="date" id="event_date_start" onchange="syncEventDateFromPickers()" class="form-input text-xs" value="">
                                 </div>
                                 <div id="event_date_end_wrapper" class="hidden">
                                     <label class="text-[10px] text-neutral-400 block mb-1">Sampai Tanggal (Selesai)</label>
-                                    <input type="date" id="event_date_end" onchange="syncEventDateFromPickers()" class="form-input text-xs" value="2026-05-28">
+                                    <input type="date" id="event_date_end" onchange="syncEventDateFromPickers()" class="form-input text-xs" value="">
                                 </div>
                             </div>
-                            <input type="hidden" id="field_hari_tanggal" value="Rabu, 27 Mei 2026">
+                            <input type="hidden" id="field_hari_tanggal" value="">
                         </div>
 
                         <!-- TIME CONTROLS WITH 24-HOUR SELECTORS (NO AM/PM) -->
@@ -628,7 +628,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" id="field_waktu" value="18.00 s/d 06.00 WIB">
+                            <input type="hidden" id="field_waktu" value="">
                         </div>
 
                         <div>
@@ -638,7 +638,7 @@
                                     <i class="fa-solid fa-rotate-left"></i> Saran Otomatis Fasilitas
                                 </button>
                             </div>
-                            <textarea id="field_tempat" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,&#10;Jl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,&#10;Jakarta Selatan 12630"></textarea>
+                            <textarea id="field_tempat" oninput="handleTempatManualInput(this.value)" rows="3" class="form-input text-xs" placeholder="Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,&#10;Jl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,&#10;Jakarta Selatan 12630"></textarea>
                         </div>
                     </div>
                 </div>
@@ -710,7 +710,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan..."></textarea>
+                            <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan...">Deskripsikan Kegiatan.</textarea>
                         </div>
 
                         <!-- PARAGRAF PENUTUP (SPZ OTOMATIS TANPA PLACEHOLDER) -->
@@ -760,12 +760,12 @@
                                     <div class="text-[11px] font-bold text-neutral-200">Ketua Pelaksana</div>
                                     <div class="text-[10px] text-orange-400 font-mono flex items-center gap-1.5 mt-0.5">
                                         <i class="fa-solid fa-tag text-[9px] opacity-75"></i>
-                                        <span id="display_ttd1_acara">QURMEDIA 2026</span>
+                                        <span id="display_ttd1_acara" class="opacity-40 italic">Nama Kegiatan (Placeholder)</span>
                                     </div>
                                 </div>
                                 <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
                             </div>
-                            <input type="hidden" id="field_ttd1_jabatan" value="Ketua Pelaksana&#10;QURMEDIA 2026">
+                            <input type="hidden" id="field_ttd1_jabatan" value="Ketua Pelaksana">
                             <div>
                                 <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
                                 <input type="text" id="field_ttd1_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua Pelaksana">
@@ -1202,17 +1202,17 @@
                 nomorSurat: '025/SPZ/E1/UKM IMIP/IX/2026',
                 lampiran: '1',
                 tanggalSurat: 'Jakarta, 30 September 2026',
-                perihal: 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia',
+                perihal: '',
                 tujuan: 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat',
                 incEvent: true,
-                namaAcara: 'QURMEDIA 2026',
-                hariTanggal: 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026',
-                waktu: '18.00 s/d 06.00 WIB',
-                tempat: 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630',
+                namaAcara: '',
+                hariTanggal: '',
+                waktu: '',
+                tempat: '',
                 pembuka: 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:',
-                isiInti: '',
+                isiInti: 'Deskripsikan Kegiatan.',
                 penutup: 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.',
-                ttd1Jabatan: 'Ketua Pelaksana\nQURMEDIA 2026',
+                ttd1Jabatan: 'Ketua Pelaksana',
                 ttd1Nama: 'Sarah Muthmainnah Prayogo',
                 ttd1Nim: 'NIM. 2590331052',
                 ttd2Jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
@@ -1334,15 +1334,20 @@
 
                 if (spzPenutupStatic) spzPenutupStatic.classList.remove('hidden');
                 if (containerFieldPenutup) containerFieldPenutup.classList.add('hidden');
-                if (fieldIsiInti) fieldIsiInti.placeholder = 'Deskripsikan kegiatan...';
+                if (fieldIsiInti) {
+                    fieldIsiInti.placeholder = 'Deskripsikan kegiatan...';
+                    fieldIsiInti.value = 'Deskripsikan Kegiatan.';
+                }
                 if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
                 if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
                 if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
-                if (document.getElementById('spz_input_fasilitas')) document.getElementById('spz_input_fasilitas').value = 'Masjid Ar-Rahman';
-                updateSpzAutoTempat('Masjid Ar-Rahman');
+                
+                if (document.getElementById('spz_input_fasilitas')) document.getElementById('spz_input_fasilitas').value = '';
+                isSpzTempatManuallyEdited = false;
+                updateSpzAutoTempat('');
                 updateSpzAutoPembuka();
-                if (document.getElementById('event_date_start')) document.getElementById('event_date_start').value = '2026-05-27';
-                if (document.getElementById('event_date_end')) document.getElementById('event_date_end').value = '2026-05-28';
+                if (document.getElementById('event_date_start')) document.getElementById('event_date_start').value = '';
+                if (document.getElementById('event_date_end')) document.getElementById('event_date_end').value = '';
                 const endWrapper = document.getElementById('event_date_end_wrapper');
                 if (endWrapper) endWrapper.classList.add('hidden');
                 const labelMulti = document.getElementById('label_multi_date');
@@ -1351,13 +1356,13 @@
                 if (iconMulti) { iconMulti.classList.remove('fa-minus'); iconMulti.classList.add('fa-plus'); }
 
                 populateTimeDropdowns();
-                if (document.getElementById('time_start_h')) document.getElementById('time_start_h').value = '18';
-                if (document.getElementById('time_start_m')) document.getElementById('time_start_m').value = '00';
-                if (document.getElementById('time_end_h')) document.getElementById('time_end_h').value = '06';
-                if (document.getElementById('time_end_m')) document.getElementById('time_end_m').value = '00';
+                if (document.getElementById('time_start_h')) document.getElementById('time_start_h').value = '';
+                if (document.getElementById('time_start_m')) document.getElementById('time_start_m').value = '';
+                if (document.getElementById('time_end_h')) document.getElementById('time_end_h').value = '';
+                if (document.getElementById('time_end_m')) document.getElementById('time_end_m').value = '';
                 if (document.getElementById('time_until_finish')) document.getElementById('time_until_finish').checked = false;
-                syncTimeFromPickers();
-                syncEventDateFromPickers();
+                if (document.getElementById('field_waktu')) document.getElementById('field_waktu').value = '';
+                if (document.getElementById('field_hari_tanggal')) document.getElementById('field_hari_tanggal').value = '';
                 if (document.getElementById('field_tanggal_picker')) {
                     const now = new Date();
                     const nowIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -1607,27 +1612,47 @@
             updatePreview();
         }
 
+        let isSpzTempatManuallyEdited = false;
+
+        function handleTempatManualInput(val) {
+            if (val && val.trim() !== '') {
+                isSpzTempatManuallyEdited = true;
+            } else {
+                isSpzTempatManuallyEdited = false;
+            }
+            updatePreview();
+        }
+
         function handleSpzFasilitasChange(val) {
-            const fas = val.trim() || 'Masjid Ar-Rahman';
-            document.getElementById('field_perihal').value = `Surat Perizinan Peminjaman Fasilitas ${fas} PoliMedia`;
+            const rawFas = val.trim();
+            if (rawFas) {
+                document.getElementById('field_perihal').value = `Surat Perizinan Peminjaman Fasilitas ${rawFas} PoliMedia`;
+            } else {
+                document.getElementById('field_perihal').value = '';
+            }
             updateSpzAutoPembuka();
-            updateSpzAutoTempat(fas);
+            updateSpzAutoTempat(rawFas);
             updatePreview();
         }
 
         function updateSpzAutoTempat(fas) {
-            const f = fas || (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '') || 'Masjid Ar-Rahman';
+            const f = (fas !== undefined ? fas : (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '')).trim();
             const tempatEl = document.getElementById('field_tempat');
             if (tempatEl) {
-                const saran = `${f} Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630`;
+                const saran = `${f || 'Masjid Ar-Rahman'} Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630`;
                 tempatEl.placeholder = saran;
-                if (!tempatEl.value.trim() || tempatEl.value.includes('Politeknik Negeri Media Kreatif Jakarta')) {
-                    tempatEl.value = saran;
+                if (!isSpzTempatManuallyEdited) {
+                    if (f) {
+                        tempatEl.value = `${f} Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630`;
+                    } else {
+                        tempatEl.value = '';
+                    }
                 }
             }
         }
 
         function resetSpzTempatDefault() {
+            isSpzTempatManuallyEdited = false;
             const f = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '') || 'Masjid Ar-Rahman';
             const tempatEl = document.getElementById('field_tempat');
             if (tempatEl) {
@@ -1661,15 +1686,25 @@
 
         function updateSpzAutoPembuka() {
             if (currentSuratType !== 'SPZ') return;
-            const fas = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '') || 'Masjid Ar-Rahman';
-            const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '') || 'QURMEDIA 2026';
+            const fas = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '');
+            const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '');
 
             const fasTag = document.getElementById('spz_pembuka_tag_fasilitas');
-            if (fasTag) fasTag.innerText = `${fas} PoliMedia`;
+            if (fasTag) {
+                fasTag.innerText = fas ? `${fas} PoliMedia` : 'Masjid Ar-Rahman PoliMedia';
+                if (!fas) fasTag.classList.add('opacity-50');
+                else fasTag.classList.remove('opacity-50');
+            }
             const acaraTag = document.getElementById('spz_pembuka_tag_acara');
-            if (acaraTag) acaraTag.innerText = acara;
+            if (acaraTag) {
+                acaraTag.innerText = acara || 'QURMEDIA 2026';
+                if (!acara) acaraTag.classList.add('opacity-50');
+                else acaraTag.classList.remove('opacity-50');
+            }
 
-            const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fas} PoliMedia** Jakarta untuk kegiatan **${acara}** yang akan dilaksanakan pada:`;
+            const fasForText = fas || 'Masjid Ar-Rahman';
+            const acaraForText = acara || 'QURMEDIA 2026';
+            const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fasForText} PoliMedia** Jakarta untuk kegiatan **${acaraForText}** yang akan dilaksanakan pada:`;
             const pembukaEl = document.getElementById('field_pembuka');
             if (pembukaEl) {
                 pembukaEl.placeholder = autoText;
@@ -1690,14 +1725,24 @@
             if (labelToggle) labelToggle.innerText = 'Edit Manual';
             if (iconToggle) { iconToggle.className = 'fa-solid fa-pen-to-square text-[9px]'; }
 
-            const fas = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '') || 'Masjid Ar-Rahman';
-            const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '') || 'QURMEDIA 2026';
-            const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fas} PoliMedia** Jakarta untuk kegiatan **${acara}** yang akan dilaksanakan pada:`;
+            const fas = (document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '');
+            const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '');
+            const fasForText = fas || 'Masjid Ar-Rahman';
+            const acaraForText = acara || 'QURMEDIA 2026';
+            const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fasForText} PoliMedia** Jakarta untuk kegiatan **${acaraForText}** yang akan dilaksanakan pada:`;
 
             const fasTag = document.getElementById('spz_pembuka_tag_fasilitas');
-            if (fasTag) fasTag.innerText = `${fas} PoliMedia`;
+            if (fasTag) {
+                fasTag.innerText = fas ? `${fas} PoliMedia` : 'Masjid Ar-Rahman PoliMedia';
+                if (!fas) fasTag.classList.add('opacity-50');
+                else fasTag.classList.remove('opacity-50');
+            }
             const acaraTag = document.getElementById('spz_pembuka_tag_acara');
-            if (acaraTag) acaraTag.innerText = acara;
+            if (acaraTag) {
+                acaraTag.innerText = acara || 'QURMEDIA 2026';
+                if (!acara) acaraTag.classList.add('opacity-50');
+                else acaraTag.classList.remove('opacity-50');
+            }
 
             const pembukaEl = document.getElementById('field_pembuka');
             if (pembukaEl) {
@@ -1709,14 +1754,20 @@
 
         function syncTtd1Jabatan() {
             const acaraEl = document.getElementById('field_nama_acara');
-            const acaraVal = (acaraEl ? acaraEl.value.trim() : '') || 'QURMEDIA 2026';
+            const acaraVal = (acaraEl ? acaraEl.value.trim() : '');
             const displayAcara = document.getElementById('display_ttd1_acara');
             if (displayAcara) {
-                displayAcara.textContent = acaraVal;
+                if (acaraVal) {
+                    displayAcara.textContent = acaraVal;
+                    displayAcara.classList.remove('opacity-40', 'italic');
+                } else {
+                    displayAcara.textContent = 'Nama Kegiatan (Placeholder)';
+                    displayAcara.classList.add('opacity-40', 'italic');
+                }
             }
             const ttd1JabatanEl = document.getElementById('field_ttd1_jabatan');
             if (ttd1JabatanEl) {
-                ttd1JabatanEl.value = `Ketua Pelaksana\n${acaraVal}`;
+                ttd1JabatanEl.value = acaraVal ? `Ketua Pelaksana\n${acaraVal}` : 'Ketua Pelaksana';
             }
         }
 
@@ -1899,19 +1950,19 @@
         }
 
         function populateTimeDropdowns() {
-            const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-            const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+            const hours = ['--', ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))];
+            const minutes = ['--', ...Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'))];
 
             ['time_start_h', 'time_end_h'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.options.length === 0) {
-                    el.innerHTML = hours.map(h => `<option value="${h}">${h}</option>`).join('');
+                    el.innerHTML = hours.map(h => `<option value="${h === '--' ? '' : h}">${h}</option>`).join('');
                 }
             });
             ['time_start_m', 'time_end_m'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el && el.options.length === 0) {
-                    el.innerHTML = minutes.map(m => `<option value="${m}">${m}</option>`).join('');
+                    el.innerHTML = minutes.map(m => `<option value="${m === '--' ? '' : m}">${m}</option>`).join('');
                 }
             });
         }
@@ -1951,21 +2002,22 @@
             const untilFinish = document.getElementById('time_until_finish') ? document.getElementById('time_until_finish').checked : false;
             const endWrapper = document.getElementById('time_end_wrapper');
 
-            const sH = shEl && shEl.value ? shEl.value : '18';
-            const sM = smEl && smEl.value ? smEl.value : '00';
-            const eH = ehEl && ehEl.value ? ehEl.value : '06';
-            const eM = emEl && emEl.value ? emEl.value : '00';
-
-            const sTime = `${sH}.${sM}`;
-            const eTime = `${eH}.${eM}`;
+            const sH = shEl ? shEl.value : '';
+            const sM = smEl ? smEl.value : '';
+            const eH = ehEl ? ehEl.value : '';
+            const eM = emEl ? emEl.value : '';
 
             const fieldWaktu = document.getElementById('field_waktu');
             if (untilFinish) {
                 if (endWrapper) endWrapper.classList.add('opacity-40', 'pointer-events-none');
-                if (fieldWaktu) fieldWaktu.value = `${sTime} WIB s.d. Selesai`;
+                if (fieldWaktu) fieldWaktu.value = (sH && sM) ? `${sH}.${sM} WIB s.d. Selesai` : 's.d. Selesai';
             } else {
                 if (endWrapper) endWrapper.classList.remove('opacity-40', 'pointer-events-none');
-                if (fieldWaktu) fieldWaktu.value = `${sTime} s/d ${eTime} WIB`;
+                if (sH && sM && eH && eM) {
+                    if (fieldWaktu) fieldWaktu.value = `${sH}.${sM} s/d ${eH}.${eM} WIB`;
+                } else {
+                    if (fieldWaktu) fieldWaktu.value = '';
+                }
             }
             updatePreview();
         }
@@ -1976,7 +2028,11 @@
             const endWrapper = document.getElementById('event_date_end_wrapper');
             const multiActive = endWrapper && !endWrapper.classList.contains('hidden');
 
-            if (!startVal) return;
+            if (!startVal) {
+                document.getElementById('field_hari_tanggal').value = '';
+                updatePreview();
+                return;
+            }
             const sParts = startVal.split('-');
             if (sParts.length !== 3) return;
             const sDate = new Date(parseInt(sParts[0]), parseInt(sParts[1]) - 1, parseInt(sParts[2]));
@@ -2451,20 +2507,24 @@
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/IX/2026';
             const rawLampiran = document.getElementById('field_lampiran').value.trim();
             const lampiran = /^\d+$/.test(rawLampiran) ? `${rawLampiran} Lembar` : (rawLampiran || '1 Lembar');
-            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Perizinan Peminjaman Fasilitas Masjid Ar-Rahman PoliMedia';
+            
+            const rawFasilitas = document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '';
+            const rawPerihal = document.getElementById('field_perihal').value.trim();
+            const perihal = rawPerihal || (rawFasilitas ? `Surat Perizinan Peminjaman Fasilitas ${rawFasilitas} PoliMedia` : 'Surat Perizinan Peminjaman Fasilitas PoliMedia');
+            
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 30 September 2026';
             const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. **Kepala Subbagian Umum**\nPoliteknik Negeri Media Kreatif\nDi Tempat';
 
-            const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'QURMEDIA 2026';
-            const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Rabu, 27 Mei s/d Kamis, 28 Mei 2026';
-            const waktu = document.getElementById('field_waktu').value.trim() || '18.00 s/d 06.00 WIB';
-            const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,\nJl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,\nJakarta Selatan 12630';
+            const namaAcara = document.getElementById('field_nama_acara').value.trim();
+            const hariTanggal = document.getElementById('field_hari_tanggal').value.trim();
+            const waktu = document.getElementById('field_waktu').value.trim();
+            const tempat = document.getElementById('field_tempat').value.trim();
 
             const pembuka = document.getElementById('field_pembuka').value.trim() || 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **Masjid Ar-Rahman PoliMedia** Jakarta untuk kegiatan **QURMEDIA 2026** yang akan dilaksanakan pada:';
-            const isiInti = document.getElementById('field_isi_inti').value.trim();
+            const isiInti = document.getElementById('field_isi_inti').value.trim() || 'Deskripsikan Kegiatan.';
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.';
 
-            const ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim() || `Ketua Pelaksana\n${namaAcara}`;
+            const ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim() || (namaAcara ? `Ketua Pelaksana\n${namaAcara}` : 'Ketua Pelaksana');
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Sarah Muthmainnah Prayogo';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2590331052';
             const ttd2Jabatan = (document.getElementById('field_ttd2_jabatan')?.value || '').trim() || 'Ketua UKM LDK IMIP\nPeriode 2026';
@@ -2521,21 +2581,21 @@
             `).join('');
 
             // Format Event Details Box (Accurate Indentation & Column Widths - Perfectly aligned with paragraph indent 1.25cm)
-            const formattedTempat = escapeHtml(tempat)
-                .replace(/,([^\s])/g, ', $1') // Ensure space after comma
-                .replace(/\n/g, '<br>');
+            const formattedTempat = tempat
+                ? escapeHtml(tempat).replace(/,([^\s])/g, ', $1').replace(/\n/g, '<br>')
+                : '-';
 
             const eventBoxHtml = `
                 <table style="margin: 0 0 14pt 1.25cm; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5;">
                     <tr>
                         <td style="width: 105px; vertical-align: top; padding: 2pt 0; white-space: nowrap;">Hari, Tanggal</td>
                         <td style="width: 15px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(hariTanggal)}</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(hariTanggal) || '-'}</td>
                     </tr>
                     <tr>
                         <td style="vertical-align: top; padding: 2pt 0; white-space: nowrap;">Pukul</td>
                         <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(waktu)}</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(waktu) || '-'}</td>
                     </tr>
                     <tr>
                         <td style="vertical-align: top; padding: 2pt 0; white-space: nowrap;">Tempat</td>
