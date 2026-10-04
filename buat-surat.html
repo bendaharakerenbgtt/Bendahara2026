@@ -965,84 +965,94 @@
                         </span>
                         <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400">Halaman 3 & 4</span>
                     </div>
-                    <div class="flex flex-col gap-2.5">
+                    <div class="flex flex-col gap-3">
+                        <!-- TOGGLE LAMPIRAN 1 (HALAMAN 3) -->
                         <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
                             <div class="flex flex-col pr-2">
-                                <span class="text-xs font-bold text-neutral-200">Lampiran 1: Panitia & Rundown Acara</span>
-                                <span class="text-[10px] text-neutral-400">Tabel delegasi panitia & susunan jadwal kegiatan</span>
+                                <span class="text-xs font-bold text-neutral-200">Lampiran 1: Daftar Barang, Panitia & Rundown Acara</span>
+                                <span class="text-[10px] text-neutral-400">Tabel perlengkapan barang, delegasi panitia & susunan jadwal (Halaman 3)</span>
                             </div>
                             <input type="checkbox" id="spz_inc_lampiran_panitia" checked onchange="toggleSpzAttachmentSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
-                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
+
+                        <!-- CONTAINER EDITOR LAMPIRAN 1 -->
+                        <div id="spz_lampiran_1_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <!-- 1. EDIT DAFTAR BARANG (NAMA BARANG & JUMLAH) -->
+                            <div id="spz_barang_section" class="pt-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-boxes-stacked text-orange-500"></i> Daftar Barang &amp; Jumlah
+                                        <span id="spz_barang_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">2 Baris</span>
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="resetSpzBarangDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kosongkan daftar barang">Kosongkan</button>
+                                        <button type="button" onclick="addSpzBarangRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                            <i class="fa-solid fa-plus text-[8px]"></i> Tambah
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="spz_barang_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                    <!-- Rendered via JS -->
+                                </div>
+                            </div>
+
+                            <!-- 2. EDIT PANITIA KEGIATAN -->
+                            <div id="spz_panitia_section" class="pt-3 border-t border-neutral-800/80">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-users text-orange-500"></i> Panitia Kegiatan
+                                        <span id="spz_panitia_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">10 Orang</span>
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="resetSpzPanitiaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke panitia default">Reset</button>
+                                        <button type="button" onclick="addSpzPanitiaRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                            <i class="fa-solid fa-plus text-[8px]"></i> Tambah
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="spz_panitia_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                    <!-- Rendered via JS -->
+                                </div>
+                            </div>
+
+                            <!-- 3. EDIT SUSUNAN KEGIATAN (RUNDOWN) -->
+                            <div id="spz_rundown_section" class="pt-3 border-t border-neutral-800/80">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Susunan Kegiatan (Rundown)
+                                        <span id="spz_rundown_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Agenda</span>
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="resetSpzRundownDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke rundown default">Reset</button>
+                                        <button type="button" onclick="addSpzRundownRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                            <i class="fa-solid fa-plus text-[8px]"></i> Tambah
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="spz_rundown_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                    <!-- Rendered via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TOGGLE LAMPIRAN 2 (HALAMAN 4) -->
+                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors mt-1">
                             <div class="flex flex-col pr-2">
                                 <span class="text-xs font-bold text-neutral-200">Lampiran 2: Lembar Persetujuan Subbag Umum</span>
-                                <span class="text-[10px] text-neutral-400">Format izin peminjaman sarpras & 11 poin tata tertib kampus</span>
+                                <span class="text-[10px] text-neutral-400">Format izin peminjaman sarpras & 11 poin tata tertib kampus (Halaman 4)</span>
                             </div>
-                            <input type="checkbox" id="spz_inc_subbag_umum" checked onchange="updatePreview()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                            <input type="checkbox" id="spz_inc_subbag_umum" checked onchange="toggleSpzSubbagSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
-                        <div class="pt-2 border-t border-neutral-800/80">
-                            <label class="text-[10px] text-neutral-400 block mb-1">No. WhatsApp / HP Ketua Pelaksana (Dicantumkan di Lembar Subbag Umum)</label>
-                            <input type="text" id="spz_no_hp" value="085775628607" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="0857...">
-                        </div>
-                        <div class="pt-2 border-t border-neutral-800/80">
-                            <label class="text-[10px] text-neutral-400 block mb-1">Batas Waktu Kegiatan Subbag Umum (Otomatis dari Jam Terakhir Halaman 1)</label>
-                            <input type="text" id="spz_batas_waktu" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="Otomatis mengikuti jam akhir halaman 1 (misal: 06.00 WIB)">
-                        </div>
 
-                        <!-- SECTION: EDIT DAFTAR BARANG (NAMA BARANG & JUMLAH) -->
-                        <div id="spz_barang_section" class="mt-2 pt-3 border-t border-neutral-800/80">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-boxes-stacked text-orange-500"></i> Daftar Barang &amp; Jumlah
-                                    <span id="spz_barang_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Baris</span>
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" onclick="resetSpzBarangDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kosongkan daftar barang">Kosongkan</button>
-                                    <button type="button" onclick="addSpzBarangRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
-                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah
-                                    </button>
-                                </div>
+                        <!-- CONTAINER FIELD LAMPIRAN 2 -->
+                        <div id="spz_lampiran_2_group" class="space-y-2.5 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-1">No. WhatsApp / HP Ketua Pelaksana (Dicantumkan di Lembar Subbag Umum)</label>
+                                <input type="text" id="spz_no_hp" value="085775628607" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="0857...">
                             </div>
-                            <div id="spz_barang_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                <!-- Rendered via JS -->
-                            </div>
-                        </div>
-
-                        <!-- SECTION: EDIT PANITIA KEGIATAN -->
-                        <div id="spz_panitia_section" class="mt-2 pt-3 border-t border-neutral-800/80">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-users text-orange-500"></i> Panitia Kegiatan
-                                    <span id="spz_panitia_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">10 Orang</span>
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" onclick="resetSpzPanitiaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke panitia default">Reset</button>
-                                    <button type="button" onclick="addSpzPanitiaRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
-                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="spz_panitia_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                <!-- Rendered via JS -->
-                            </div>
-                        </div>
-
-                        <!-- SECTION: EDIT SUSUNAN KEGIATAN (RUNDOWN) -->
-                        <div id="spz_rundown_section" class="mt-2 pt-3 border-t border-neutral-800/80">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Susunan Kegiatan (Rundown)
-                                    <span id="spz_rundown_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Agenda</span>
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" onclick="resetSpzRundownDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Kembalikan ke rundown default">Reset</button>
-                                    <button type="button" onclick="addSpzRundownRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
-                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="spz_rundown_editor_container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                <!-- Rendered via JS -->
+                            <div>
+                                <label class="text-[10px] text-neutral-400 block mb-1">Batas Waktu Kegiatan Subbag Umum (Otomatis dari Jam Terakhir Halaman 1)</label>
+                                <input type="text" id="spz_batas_waktu" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="Otomatis mengikuti jam akhir halaman 1 (misal: 06.00 WIB)">
                             </div>
                         </div>
 
@@ -2077,9 +2087,6 @@
         // ==========================================
         const DEFAULT_SPZ_BARANG = [
             { nama: '', jumlah: '' },
-            { nama: '', jumlah: '' },
-            { nama: '', jumlah: '' },
-            { nama: '', jumlah: '' },
             { nama: '', jumlah: '' }
         ];
 
@@ -2107,6 +2114,24 @@
         let spzBarangList = JSON.parse(JSON.stringify(DEFAULT_SPZ_BARANG));
         let spzPanitiaList = JSON.parse(JSON.stringify(DEFAULT_SPZ_PANITIA));
         let spzRundownList = JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN));
+
+        function toggleSpzAttachmentSections() {
+            const incPanitia = document.getElementById('spz_inc_lampiran_panitia') ? document.getElementById('spz_inc_lampiran_panitia').checked : true;
+            const l1Group = document.getElementById('spz_lampiran_1_group');
+            if (l1Group) {
+                l1Group.classList.toggle('hidden', !incPanitia);
+            }
+            updatePreview();
+        }
+
+        function toggleSpzSubbagSections() {
+            const incSubbag = document.getElementById('spz_inc_subbag_umum') ? document.getElementById('spz_inc_subbag_umum').checked : true;
+            const l2Group = document.getElementById('spz_lampiran_2_group');
+            if (l2Group) {
+                l2Group.classList.toggle('hidden', !incSubbag);
+            }
+            updatePreview();
+        }
 
         function renderSpzBarangEditor() {
             const container = document.getElementById('spz_barang_editor_container');
@@ -2162,9 +2187,6 @@
 
         function resetSpzBarangDefault() {
             spzBarangList = [
-                { nama: '', jumlah: '' },
-                { nama: '', jumlah: '' },
-                { nama: '', jumlah: '' },
                 { nama: '', jumlah: '' },
                 { nama: '', jumlah: '' }
             ];
@@ -2717,7 +2739,7 @@
 
                 pagesHtml += `
                     <div class="spz-sheet-badge print:hidden">
-                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran Barang & Panitia</span>
+                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran 1: Barang, Panitia & Rundown</span>
                         <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
