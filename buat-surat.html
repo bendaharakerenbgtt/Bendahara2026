@@ -541,7 +541,17 @@
                     <!-- DEFAULT UNTUK SURAT LAIN: TEXTAREA DENGAN PLACEHOLDER -->
                     <div id="container_field_tujuan" class="flex flex-col gap-2.5">
                         <div>
-                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Penerima Surat (Bisa multi-baris)</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-300 block">Penerima Surat (Bisa multi-baris)</label>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="formatSelectionBold('field_tujuan')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
+                                        <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                    </button>
+                                    <button type="button" onclick="formatSelectionItalic('field_tujuan')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
+                                        <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
+                                    </button>
+                                </div>
+                            </div>
                             <textarea id="field_tujuan" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Yth. Bapak/Ibu Pembantu Direktur III&#10;Politeknik Negeri Media Kreatif&#10;di Tempat"></textarea>
                         </div>
                     </div>
@@ -680,26 +690,37 @@
                             <div id="container_field_pembuka" class="hidden">
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-[11px] font-bold text-neutral-300">Paragraf Pembuka</label>
-                                    <button type="button" onclick="syncSpzPembukaAuto()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Sinkronkan dengan Nama Acara & Fasilitas">
-                                        <i class="fa-solid fa-arrows-rotate"></i> Kembalikan ke Otomatis
-                                    </button>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <button type="button" onclick="formatSelectionBold('field_pembuka')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
+                                            <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                        </button>
+                                        <button type="button" onclick="formatSelectionItalic('field_pembuka')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
+                                            <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
+                                        </button>
+                                        <button type="button" onclick="syncSpzPembukaAuto()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 ml-1" title="Sinkronkan dengan Nama Acara & Fasilitas">
+                                            <i class="fa-solid fa-arrows-rotate"></i> Kembalikan ke Otomatis
+                                        </button>
+                                    </div>
                                 </div>
                                 <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs"></textarea>
                             </div>
                         </div>
 
-                        <!-- ISI INTI / TAMBAHAN DENGAN TOOLBAR BOLD & KETERANGAN DESKRIPSI -->
+                        <!-- ISI INTI / TAMBAHAN DENGAN TOOLBAR BOLD & ITALIC & KETERANGAN DESKRIPSI -->
                         <div class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
                                         <i class="fa-solid fa-pen-nib text-orange-400"></i> Isi Inti / Tambahan
                                     </label>
-                                    <span class="text-[10px] text-neutral-400 block font-normal mt-0.5">Deskripsikan kegiatan pelaksanaan surat</span>
+                                    <span class="text-[10px] text-neutral-400 block font-normal mt-0.5">Deskripsikan kegiatan (Gunakan Tebal/Miring atau *miring* dan **tebal**)</span>
                                 </div>
                                 <div class="flex items-center gap-1.5 flex-wrap justify-end">
                                     <button type="button" onclick="formatSelectionBold('field_isi_inti')" class="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
                                         <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                    </button>
+                                    <button type="button" onclick="formatSelectionItalic('field_isi_inti')" class="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
+                                        <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
                                     </button>
                                     <button type="button" onclick="boldNamaAcaraInIsi()" class="px-2 py-1 rounded bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-[10px] font-bold border border-orange-500/25 flex items-center gap-1 active:scale-95" title="Otomatis tebalkan nama kegiatan dalam isi">
                                         <i class="fa-solid fa-highlighter text-[10px]"></i> Tebalkan Nama Kegiatan
@@ -729,7 +750,17 @@
 
                         <!-- TEXTAREA PENUTUP (HANYA MUNCUL KETIKA NON-SPZ SEPERTI SPM, SBA, SUD) -->
                         <div id="container_field_penutup" class="hidden">
-                            <label class="text-[11px] font-bold text-neutral-300 block mb-1">Paragraf Penutup</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-300 block">Paragraf Penutup</label>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="formatSelectionBold('field_penutup')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
+                                        <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                    </button>
+                                    <button type="button" onclick="formatSelectionItalic('field_penutup')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
+                                        <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
+                                    </button>
+                                </div>
+                            </div>
                             <textarea id="field_penutup" oninput="updatePreview()" rows="2" class="form-input text-xs"></textarea>
                         </div>
                     </div>
@@ -1857,9 +1888,27 @@
             updatePreview();
         }
 
-        function formatSelectionBold(fieldId) {
-            const el = document.getElementById(fieldId);
-            if (!el) return;
+        function formatInlineRichText(str) {
+            if (!str) return '';
+            let escaped = escapeHtml(str);
+            // Bold + Italic: ***text***
+            escaped = escaped.replace(/\*\*\*(.+?)\*\*\*/g, '<strong style="font-weight: bold;"><em style="font-style: italic;">$1</em></strong>');
+            // Bold: **text** or __text__ or HTML <b>/<strong>
+            escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
+            escaped = escaped.replace(/__(.+?)__/g, '<strong style="font-weight: bold;">$1</strong>');
+            escaped = escaped.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<strong style="font-weight: bold;">$1</strong>');
+            escaped = escaped.replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/gi, '<strong style="font-weight: bold;">$1</strong>');
+            // Italic: *text* or _text_ or HTML <i>/<em>
+            escaped = escaped.replace(/\*([^\*]+?)\*/g, '<em style="font-style: italic;">$1</em>');
+            escaped = escaped.replace(/_([^_]+?)_/g, '<em style="font-style: italic;">$1</em>');
+            escaped = escaped.replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gi, '<em style="font-style: italic;">$1</em>');
+            escaped = escaped.replace(/&lt;em&gt;(.*?)&lt;\/em&gt;/gi, '<em style="font-style: italic;">$1</em>');
+            return escaped;
+        }
+
+        function formatSelectionBold(target) {
+            const el = (typeof target === 'string') ? document.getElementById(target) : target;
+            if (!el || typeof el.selectionStart !== 'number') return;
             const start = el.selectionStart;
             const end = el.selectionEnd;
             const val = el.value;
@@ -1905,6 +1954,60 @@
                     el.value = val.substring(0, start) + '****' + val.substring(end);
                     el.selectionStart = start + 2;
                     el.selectionEnd = start + 2;
+                }
+            }
+            el.focus();
+            updatePreview();
+        }
+
+        function formatSelectionItalic(target) {
+            const el = (typeof target === 'string') ? document.getElementById(target) : target;
+            if (!el || typeof el.selectionStart !== 'number') return;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const val = el.value;
+
+            if (start !== end) {
+                const sel = val.substring(start, end);
+                if (sel.startsWith('*') && sel.endsWith('*') && !sel.startsWith('**') && !sel.endsWith('**') && sel.length >= 2) {
+                    const unwrapped = sel.substring(1, sel.length - 1);
+                    el.value = val.substring(0, start) + unwrapped + val.substring(end);
+                    el.selectionStart = start;
+                    el.selectionEnd = start + unwrapped.length;
+                } else if (start >= 1 && end <= val.length - 1 && val.charAt(start - 1) === '*' && val.charAt(end) === '*' && (start < 2 || val.charAt(start - 2) !== '*') && (end > val.length - 2 || val.charAt(end + 1) !== '*')) {
+                    el.value = val.substring(0, start - 1) + sel + val.substring(end + 1);
+                    el.selectionStart = start - 1;
+                    el.selectionEnd = start - 1 + sel.length;
+                } else {
+                    const wrapped = `*${sel}*`;
+                    el.value = val.substring(0, start) + wrapped + val.substring(end);
+                    el.selectionStart = start;
+                    el.selectionEnd = start + wrapped.length;
+                }
+            } else {
+                const leftPart = val.substring(0, start);
+                const rightPart = val.substring(start);
+                const leftWordMatch = leftPart.match(/[a-zA-Z0-9_\u00C0-\u017F]+$/);
+                const rightWordMatch = rightPart.match(/^[a-zA-Z0-9_\u00C0-\u017F]+/);
+
+                if (leftWordMatch || rightWordMatch) {
+                    const wordStart = start - (leftWordMatch ? leftWordMatch[0].length : 0);
+                    const wordEnd = start + (rightWordMatch ? rightWordMatch[0].length : 0);
+                    const word = val.substring(wordStart, wordEnd);
+
+                    if (wordStart >= 1 && wordEnd <= val.length - 1 && val.charAt(wordStart - 1) === '*' && val.charAt(wordEnd) === '*' && (wordStart < 2 || val.charAt(wordStart - 2) !== '*') && (wordEnd > val.length - 2 || val.charAt(wordEnd + 1) !== '*')) {
+                        el.value = val.substring(0, wordStart - 1) + word + val.substring(wordEnd + 1);
+                        el.selectionStart = wordStart - 1;
+                        el.selectionEnd = wordStart - 1 + word.length;
+                    } else {
+                        el.value = val.substring(0, wordStart) + `*${word}*` + val.substring(wordEnd);
+                        el.selectionStart = wordStart;
+                        el.selectionEnd = wordStart + word.length + 2;
+                    }
+                } else {
+                    el.value = val.substring(0, start) + '**' + val.substring(end);
+                    el.selectionStart = start + 1;
+                    el.selectionEnd = start + 1;
                 }
             }
             el.focus();
@@ -2408,9 +2511,7 @@
 
         function formatSpzText(str) {
             if (!str) return '';
-            let escaped = escapeHtml(str);
-            // Convert markdown **text** to strong
-            escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
+            let escaped = formatInlineRichText(str);
 
             // Dynamically collect key terms to auto-bold
             const currentAcara = (document.getElementById('field_nama_acara')?.value || '').trim();
@@ -2603,7 +2704,7 @@
 
             // Format Event Details Box (Accurate Indentation & Column Widths - Perfectly aligned with paragraph indent 1.25cm)
             const formattedTempat = tempat
-                ? escapeHtml(tempat).replace(/,([^\s])/g, ', $1').replace(/\n/g, '<br>')
+                ? formatInlineRichText(tempat).replace(/,([^\s])/g, ', $1').replace(/\n/g, '<br>')
                 : '-';
 
             const eventBoxHtml = `
@@ -2611,12 +2712,12 @@
                     <tr>
                         <td style="width: 105px; vertical-align: top; padding: 2pt 0; white-space: nowrap;">Hari, Tanggal</td>
                         <td style="width: 15px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(hariTanggal) || '-'}</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${formatInlineRichText(hariTanggal) || '-'}</td>
                     </tr>
                     <tr>
                         <td style="vertical-align: top; padding: 2pt 0; white-space: nowrap;">Pukul</td>
                         <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${escapeHtml(waktu) || '-'}</td>
+                        <td style="vertical-align: top; padding: 2pt 0; padding-left: 8pt;">${formatInlineRichText(waktu) || '-'}</td>
                     </tr>
                     <tr>
                         <td style="vertical-align: top; padding: 2pt 0; white-space: nowrap;">Tempat</td>
@@ -2651,17 +2752,17 @@
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(perihal)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
                                 </tr>
                             </table>
 
@@ -2820,27 +2921,27 @@
                 const barangRowsHtml = (spzBarangList.length > 0 ? spzBarangList : DEFAULT_SPZ_BARANG).map((b, idx) => `
                     <tr>
                         <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}.</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(b.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(b.jumlah || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(b.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(b.jumlah || '') || '&nbsp;'}</td>
                     </tr>
                 `).join('');
 
                 const panitiaRowsHtml = spzPanitiaList.map((p, idx) => `
                     <tr>
                         <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${escapeHtml(p.nim || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(p.prodi || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(p.delegasi || 'UKM LDK IMIP')}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(p.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${formatInlineRichText(p.nim || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(p.prodi || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${formatInlineRichText(p.delegasi || 'UKM LDK IMIP')}</td>
                     </tr>
                 `).join('');
 
                 const rundownRowsHtml = spzRundownList.map((r, idx) => `
                     <tr>
                         <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${escapeHtml(r.waktu || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${escapeHtml(r.pj || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(r.nama || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${formatInlineRichText(r.waktu || '') || '&nbsp;'}</td>
+                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(r.pj || '') || '&nbsp;'}</td>
                     </tr>
                 `).join('');
 
@@ -2936,7 +3037,7 @@
                             ${spzKop}
 
                             <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5;">
+                                <p style="margin: 16pt 0 14pt 0; text-align: justify; text-indent: 1.25cm; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.5;">
                                     Dengan dikeluarkannya surat ini, Kepala Subbagian Umum Politeknik Negeri Media Kreatif menyetujui untuk memfasilitasi pengajuan peminjaman pada:
                                 </p>
 
@@ -2944,27 +3045,27 @@
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">Nomor Surat</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${escapeHtml(noSurat)}</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${formatInlineRichText(noSurat)}</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">Perihal</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${escapeHtml(subbagPerihal)}</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${formatInlineRichText(subbagPerihal)}</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">Tanggal</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${escapeHtml(hariTanggal)}</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${formatInlineRichText(hariTanggal)}</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">Ketua Pelaksana</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${escapeHtml(ttd1Nama) || '-'}</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${formatInlineRichText(ttd1Nama) || '-'}</td>
                                     </tr>
                                     <tr>
                                         <td style="width: 165px; vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">Nomor Handphone</td>
                                         <td style="width: 18px; vertical-align: top; text-align: center; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">:</td>
-                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${escapeHtml(noHp) || '-'}</td>
+                                        <td style="vertical-align: top; padding: 1.5pt 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt;">${formatInlineRichText(noHp) || '-'}</td>
                                     </tr>
                                 </table>
 
@@ -3038,10 +3139,7 @@
         // TEXT FORMATTING HELPERS
         function formatOfficialText(text) {
             if (!text) return '';
-            let escaped = escapeHtml(text);
-            escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
-            escaped = escaped.replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>');
-            return escaped;
+            return formatInlineRichText(text);
         }
 
         function formatOfficialTujuan(text) {
@@ -3100,19 +3198,19 @@
                         <tr>
                             <td style="width: 120px; vertical-align: top; padding: 2pt 0;">Hari, Tanggal</td>
                             <td style="width: 18px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(hariTanggal)}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(hariTanggal)}</td>
                         </tr>` : ''}
                         ${waktu ? `
                         <tr>
                             <td style="vertical-align: top; padding: 2pt 0;">Pukul</td>
                             <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(waktu)}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(waktu)}</td>
                         </tr>` : ''}
                         ${tempat ? `
                         <tr>
                             <td style="vertical-align: top; padding: 2pt 0;">Tempat</td>
                             <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(tempat).replace(/\n/g, '<br>')}</td>
                         </tr>` : ''}
                     </table>
                 `;
@@ -3164,17 +3262,17 @@
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(perihal)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
                                 </tr>
                             </table>
 
@@ -3269,19 +3367,19 @@
                         <tr>
                             <td style="width: 120px; vertical-align: top; padding: 2pt 0;">Hari, Tanggal</td>
                             <td style="width: 18px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(hariTanggal)}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(hariTanggal)}</td>
                         </tr>` : ''}
                         ${waktu ? `
                         <tr>
                             <td style="vertical-align: top; padding: 2pt 0;">Pukul</td>
                             <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(waktu)}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(waktu)}</td>
                         </tr>` : ''}
                         ${tempat ? `
                         <tr>
                             <td style="vertical-align: top; padding: 2pt 0;">Tempat</td>
                             <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(tempat).replace(/\n/g, '<br>')}</td>
                         </tr>` : ''}
                     </table>
                 `;
@@ -3318,17 +3416,17 @@
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(perihal)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
                                 </tr>
                             </table>
 
@@ -3479,19 +3577,19 @@
                         <tr>
                             <td style="width: 120px; vertical-align: top; padding: 2pt 0;">Hari, tanggal</td>
                             <td style="width: 18px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(hariTanggal)}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(hariTanggal)}</td>
                         </tr>` : ''}
                         ${waktu ? `
                         <tr>
                             <td style="vertical-align: top; padding: 2pt 0;">Pukul</td>
                             <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(waktu)}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(waktu)}</td>
                         </tr>` : ''}
                         ${tempat ? `
                         <tr>
                             <td style="vertical-align: top; padding: 2pt 0;">Tempat</td>
                             <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${escapeHtml(tempat).replace(/\n/g, '<br>')}</td>
+                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(tempat).replace(/\n/g, '<br>')}</td>
                         </tr>` : ''}
                     </table>
                 `;
@@ -3528,17 +3626,17 @@
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(noSurat)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(perihal)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${escapeHtml(lampiran)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
                                 </tr>
                             </table>
 
@@ -4068,15 +4166,21 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
             populateTimeDropdowns();
-            const isiEl = document.getElementById('field_isi_inti');
-            if (isiEl) {
-                isiEl.addEventListener('keydown', (e) => {
-                    if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+                    const active = document.activeElement;
+                    if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && (!active.type || active.type === 'text')))) {
                         e.preventDefault();
-                        formatSelectionBold('field_isi_inti');
+                        formatSelectionBold(active);
                     }
-                });
-            }
+                } else if ((e.ctrlKey || e.metaKey) && (e.key === 'i' || e.key === 'I')) {
+                    const active = document.activeElement;
+                    if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && (!active.type || active.type === 'text')))) {
+                        e.preventDefault();
+                        formatSelectionItalic(active);
+                    }
+                }
+            });
             const now = new Date();
             document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
             if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
