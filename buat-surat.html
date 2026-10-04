@@ -119,6 +119,22 @@
             }
         }
 
+        /* Universal rich text font styles (Bold & Italic guaranteed) */
+        .spz-page-sheet em, .spz-page-sheet i,
+        .a4-preview-sheet em, .a4-preview-sheet i,
+        #rendered_surat_paper em, #rendered_surat_paper i,
+        em, i {
+            font-style: italic !important;
+            display: inline !important;
+        }
+        .spz-page-sheet strong, .spz-page-sheet b,
+        .a4-preview-sheet strong, .a4-preview-sheet b,
+        #rendered_surat_paper strong, #rendered_surat_paper b,
+        strong, b {
+            font-weight: bold !important;
+            display: inline !important;
+        }
+
         /* SPZ Authentic A4 Multi-Page System */
         .spz-page-sheet {
             background-color: #FFFFFF !important;
@@ -486,7 +502,7 @@
                                     </button>
                                 </div>
                                 <div class="relative">
-                                    <input type="text" id="field_tanggal_surat" oninput="handleTanggalSuratInput(); updatePreview();" class="form-input pr-8" placeholder="Jakarta, 26 Mei 2026">
+                                    <input type="text" id="field_tanggal_surat" oninput="handleTanggalSuratInput(); updatePreview();" class="form-input pr-8" placeholder="Jakarta, 30 September 2026">
                                     <input type="date" id="field_tanggal_picker" onchange="syncTanggalSuratFromPicker(this.value)" class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 opacity-0 cursor-pointer" title="Pilih Tanggal dari Kalender">
                                     <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none text-xs">
                                         <i class="fa-regular fa-calendar-days"></i>
@@ -515,7 +531,7 @@
                     </div>
                 </div>
 
-                <!-- CARD: PENERIMA / TUJUAN -->
+                <!-- CARD 2: PENERIMA / TUJUAN -->
                 <div class="glass-card p-4 sm:p-5" id="card_tujuan">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
                         <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
@@ -552,12 +568,63 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="field_tujuan" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Yth. Bapak/Ibu Pembantu Direktur III&#10;Politeknik Negeri Media Kreatif&#10;di Tempat"></textarea>
+                            <textarea id="field_tujuan" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Yth. Kepala Subbagian Umum&#10;Politeknik Negeri Media Kreatif&#10;Di Tempat"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD: DETAIL KEGIATAN (WAKTU & TEMPAT) -->
+                <!-- CARD 3: PARAGRAF PEMBUKA (SEBELUM RINCIAN ACARA SESUAI SUSUNAN SURAT) -->
+                <div class="glass-card p-4 sm:p-5" id="card_pembuka">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-orange-500"></i> Paragraf Pembuka
+                        </span>
+                        <span class="text-[10px] text-neutral-400 font-mono">Pengantar Acara</span>
+                    </div>
+
+                    <div id="spz_pembuka_section">
+                        <!-- SPZ AUTO VIEW -->
+                        <div id="spz_pembuka_auto_container" class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-lines text-orange-400"></i> Pembuka Resmi Otomatis
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                                        <i class="fa-solid fa-check text-[8px]"></i> Otomatis SPZ
+                                    </span>
+                                    <button type="button" id="btn_toggle_pembuka_manual" onclick="toggleSpzPembukaManual()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Sesuaikan / edit kalimat pembuka jika perlu">
+                                        <i id="icon_toggle_pembuka" class="fa-solid fa-pen-to-square text-[9px]"></i> <span id="label_toggle_pembuka">Edit Manual</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="spz_pembuka_display_box" class="text-xs text-neutral-300 leading-relaxed bg-black/40 p-2.5 rounded border border-neutral-800">
+                                Melalui surat ini, kami <strong class="text-white">Unit Kegiatan Mahasiswa LDK IMIP</strong> bermaksud untuk mengajukan permohonan izin peminjaman fasilitas <strong id="spz_pembuka_tag_fasilitas" class="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/30">Masjid Ar-Rahman</strong> Jakarta untuk kegiatan <strong id="spz_pembuka_tag_acara" class="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/30">QURMEDIA 2026</strong> yang akan dilaksanakan pada:
+                            </div>
+                        </div>
+
+                        <!-- TEXTAREA PEMBUKA (NON-SPZ ATAU MODE EDIT MANUAL) -->
+                        <div id="container_field_pembuka" class="hidden">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-300">Teks Paragraf Pembuka</label>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="formatSelectionBold('field_pembuka')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
+                                        <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                    </button>
+                                    <button type="button" onclick="formatSelectionItalic('field_pembuka')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
+                                        <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
+                                    </button>
+                                    <button type="button" onclick="syncSpzPembukaAuto()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 ml-1" title="Sinkronkan dengan Nama Acara & Fasilitas">
+                                        <i class="fa-solid fa-arrows-rotate"></i> Kembalikan ke Otomatis
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Melalui surat ini, kami Unit Kegiatan Mahasiswa LDK IMIP bermaksud untuk mengajukan permohonan izin peminjaman fasilitas Masjid Ar-Rahman Jakarta untuk kegiatan QURMEDIA 2026 yang akan dilaksanakan pada:"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 4: DETAIL KEGIATAN (WAKTU & TEMPAT - SETELAH PEMBUKA SESUAI PRATINJAU) -->
                 <div class="glass-card p-4 sm:p-5" id="card_detail_kegiatan">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
                         <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
@@ -652,11 +719,11 @@
                     </div>
                 </div>
 
-                <!-- CARD: KONTEN TEKS SURAT -->
-                <div class="glass-card p-4 sm:p-5">
+                <!-- CARD 5: ISI INTI & NARASI KEGIATAN -->
+                <div class="glass-card p-4 sm:p-5" id="card_isi_inti">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
                         <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
-                            <i class="fa-solid fa-align-left text-orange-500"></i> Isi & Narasi Surat
+                            <i class="fa-solid fa-pen-nib text-orange-500"></i> Isi Inti / Deskripsi Kegiatan
                         </span>
                         <button type="button" onclick="resetToCurrentTemplate()" class="text-[10px] text-neutral-400 hover:text-white font-mono flex items-center gap-1">
                             <i class="fa-solid fa-rotate-left"></i> Reset Template
@@ -664,56 +731,13 @@
                     </div>
 
                     <div class="flex flex-col gap-3">
-                        <!-- PARAGRAF PEMBUKA (SPZ SMART AUTO VIEW + FALLBACK MANUAL EDIT) -->
-                        <div id="spz_pembuka_section">
-                            <!-- SPZ AUTO VIEW -->
-                            <div id="spz_pembuka_auto_container" class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
-                                <div class="flex items-center justify-between">
-                                    <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-file-lines text-orange-400"></i> Paragraf Pembuka
-                                    </label>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-500/30 flex items-center gap-1">
-                                            <i class="fa-solid fa-check text-[8px]"></i> Otomatis SPZ
-                                        </span>
-                                        <button type="button" id="btn_toggle_pembuka_manual" onclick="toggleSpzPembukaManual()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Sesuaikan / edit kalimat pembuka jika perlu">
-                                            <i id="icon_toggle_pembuka" class="fa-solid fa-pen-to-square text-[9px]"></i> <span id="label_toggle_pembuka">Edit Manual</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div id="spz_pembuka_display_box" class="text-xs text-neutral-300 leading-relaxed bg-black/40 p-2.5 rounded border border-neutral-800">
-                                    Melalui surat ini, kami <strong class="text-white">Unit Kegiatan Mahasiswa LDK IMIP</strong> bermaksud untuk mengajukan permohonan izin peminjaman fasilitas <strong id="spz_pembuka_tag_fasilitas" class="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/30">Masjid Ar-Rahman</strong> Jakarta untuk kegiatan <strong id="spz_pembuka_tag_acara" class="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/30">QURMEDIA 2026</strong> yang akan dilaksanakan pada:
-                                </div>
-                            </div>
-
-                            <!-- TEXTAREA PEMBUKA (NON-SPZ ATAU MODE EDIT MANUAL) -->
-                            <div id="container_field_pembuka" class="hidden">
-                                <div class="flex items-center justify-between mb-1">
-                                    <label class="text-[11px] font-bold text-neutral-300">Paragraf Pembuka</label>
-                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                        <button type="button" onclick="formatSelectionBold('field_pembuka')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
-                                            <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
-                                        </button>
-                                        <button type="button" onclick="formatSelectionItalic('field_pembuka')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
-                                            <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
-                                        </button>
-                                        <button type="button" onclick="syncSpzPembukaAuto()" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 ml-1" title="Sinkronkan dengan Nama Acara & Fasilitas">
-                                            <i class="fa-solid fa-arrows-rotate"></i> Kembalikan ke Otomatis
-                                        </button>
-                                    </div>
-                                </div>
-                                <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- ISI INTI / TAMBAHAN DENGAN TOOLBAR BOLD & ITALIC & KETERANGAN DESKRIPSI -->
                         <div class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-pen-nib text-orange-400"></i> Isi Inti / Tambahan
+                                        <i class="fa-solid fa-align-left text-orange-400"></i> Deskripsi Kegiatan
                                     </label>
-                                    <span class="text-[10px] text-neutral-400 block font-normal mt-0.5">Deskripsikan kegiatan (Gunakan Tebal/Miring atau *miring* dan **tebal**)</span>
+                                    <span class="text-[10px] text-neutral-400 block font-normal mt-0.5">Mendukung format *miring*, _miring_, **tebal**, atau tombol toolbar</span>
                                 </div>
                                 <div class="flex items-center gap-1.5 flex-wrap justify-end">
                                     <button type="button" onclick="formatSelectionBold('field_isi_inti')" class="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
@@ -730,39 +754,49 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan...">Deskripsikan Kegiatan.</textarea>
+                            <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan (misal: Kegiatan ini merupakan rangkaian persiapan pelaksanaan QURMEDIA 2026...)">Deskripsikan Kegiatan.</textarea>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- PARAGRAF PENUTUP (SPZ OTOMATIS TANPA PLACEHOLDER) -->
-                        <div id="spz_penutup_static" class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-1.5">
-                            <div class="flex items-center justify-between">
-                                <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Paragraf Penutup
-                                </label>
-                                <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-500/30 flex items-center gap-1">
-                                    <i class="fa-solid fa-check text-[8px]"></i> Otomatis SPZ
-                                </span>
-                            </div>
-                            <div class="text-xs text-neutral-300 italic bg-black/40 p-2.5 rounded border border-neutral-800 leading-relaxed">
-                                &ldquo;Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.&rdquo;
-                            </div>
-                        </div>
+                <!-- CARD 6: PARAGRAF PENUTUP -->
+                <div class="glass-card p-4 sm:p-5" id="card_penutup">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-flag-checkered text-orange-500"></i> Paragraf Penutup
+                        </span>
+                        <span class="text-[10px] text-neutral-400 font-mono">Penutup Surat</span>
+                    </div>
 
-                        <!-- TEXTAREA PENUTUP (HANYA MUNCUL KETIKA NON-SPZ SEPERTI SPM, SBA, SUD) -->
-                        <div id="container_field_penutup" class="hidden">
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="text-[11px] font-bold text-neutral-300 block">Paragraf Penutup</label>
-                                <div class="flex items-center gap-1.5">
-                                    <button type="button" onclick="formatSelectionBold('field_penutup')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
-                                        <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
-                                    </button>
-                                    <button type="button" onclick="formatSelectionItalic('field_penutup')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
-                                        <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <textarea id="field_penutup" oninput="updatePreview()" rows="2" class="form-input text-xs"></textarea>
+                    <!-- PARAGRAF PENUTUP (SPZ OTOMATIS) -->
+                    <div id="spz_penutup_static" class="p-2.5 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i> Penutup Resmi Otomatis
+                            </label>
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono text-[9px] font-bold border border-emerald-500/30 flex items-center gap-1">
+                                <i class="fa-solid fa-check text-[8px]"></i> Otomatis SPZ
+                            </span>
                         </div>
+                        <div class="text-xs text-neutral-300 italic bg-black/40 p-2.5 rounded border border-neutral-800 leading-relaxed">
+                            &ldquo;Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.&rdquo;
+                        </div>
+                    </div>
+
+                    <!-- TEXTAREA PENUTUP (HANYA MUNCUL KETIKA NON-SPZ SEPERTI SPM, SBA, SUD) -->
+                    <div id="container_field_penutup" class="hidden">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-[11px] font-bold text-neutral-300 block">Teks Paragraf Penutup</label>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="formatSelectionBold('field_penutup')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-black border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Tebalkan teks yang diblok (Ctrl+B)">
+                                    <i class="fa-solid fa-bold text-orange-400 text-xs"></i> <span class="text-[10px]">Tebal</span>
+                                </button>
+                                <button type="button" onclick="formatSelectionItalic('field_penutup')" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-serif italic border border-neutral-700 flex items-center gap-1 active:scale-95 shadow-sm" title="Miringkan teks yang diblok (Ctrl+I)">
+                                    <i class="fa-solid fa-italic text-orange-400 text-xs"></i> <span class="text-[10px] not-italic">Miring</span>
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="field_penutup" oninput="updatePreview()" rows="2" class="form-input text-xs" placeholder="Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih."></textarea>
                     </div>
                 </div>
 
@@ -1891,18 +1925,22 @@
         function formatInlineRichText(str) {
             if (!str) return '';
             let escaped = escapeHtml(str);
-            // Bold + Italic: ***text***
-            escaped = escaped.replace(/\*\*\*(.+?)\*\*\*/g, '<strong style="font-weight: bold;"><em style="font-style: italic;">$1</em></strong>');
+            // Bold + Italic: ***text*** or ___text___
+            escaped = escaped.replace(/\*\*\*(.+?)\*\*\*/g, '<strong style="font-weight: bold;"><em style="font-style: italic !important;">$1</em></strong>');
+            escaped = escaped.replace(/___(.+?)___/g, '<strong style="font-weight: bold;"><em style="font-style: italic !important;">$1</em></strong>');
+            // Mixed bold+italic: **_text_** or _**text**_
+            escaped = escaped.replace(/\*\*_(.+?)_\*\*/g, '<strong style="font-weight: bold;"><em style="font-style: italic !important;">$1</em></strong>');
+            escaped = escaped.replace(/_\*\*(.+?)\*\*_/g, '<strong style="font-weight: bold;"><em style="font-style: italic !important;">$1</em></strong>');
             // Bold: **text** or __text__ or HTML <b>/<strong>
             escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
             escaped = escaped.replace(/__(.+?)__/g, '<strong style="font-weight: bold;">$1</strong>');
             escaped = escaped.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<strong style="font-weight: bold;">$1</strong>');
             escaped = escaped.replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/gi, '<strong style="font-weight: bold;">$1</strong>');
             // Italic: *text* or _text_ or HTML <i>/<em>
-            escaped = escaped.replace(/\*([^\*]+?)\*/g, '<em style="font-style: italic;">$1</em>');
-            escaped = escaped.replace(/_([^_]+?)_/g, '<em style="font-style: italic;">$1</em>');
-            escaped = escaped.replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gi, '<em style="font-style: italic;">$1</em>');
-            escaped = escaped.replace(/&lt;em&gt;(.*?)&lt;\/em&gt;/gi, '<em style="font-style: italic;">$1</em>');
+            escaped = escaped.replace(/\*([^\*\n]+?)\*/g, '<em style="font-style: italic !important;">$1</em>');
+            escaped = escaped.replace(/_([^_\n]+?)_/g, '<em style="font-style: italic !important;">$1</em>');
+            escaped = escaped.replace(/&lt;i&gt;(.*?)&lt;\/i&gt;/gi, '<em style="font-style: italic !important;">$1</em>');
+            escaped = escaped.replace(/&lt;em&gt;(.*?)&lt;\/em&gt;/gi, '<em style="font-style: italic !important;">$1</em>');
             return escaped;
         }
 
@@ -1920,7 +1958,16 @@
                     el.value = val.substring(0, start) + unwrapped + val.substring(end);
                     el.selectionStart = start;
                     el.selectionEnd = start + unwrapped.length;
+                } else if (sel.startsWith('__') && sel.endsWith('__') && sel.length >= 4) {
+                    const unwrapped = sel.substring(2, sel.length - 2);
+                    el.value = val.substring(0, start) + unwrapped + val.substring(end);
+                    el.selectionStart = start;
+                    el.selectionEnd = start + unwrapped.length;
                 } else if (start >= 2 && end <= val.length - 2 && val.substring(start - 2, start) === '**' && val.substring(end, end + 2) === '**') {
+                    el.value = val.substring(0, start - 2) + sel + val.substring(end + 2);
+                    el.selectionStart = start - 2;
+                    el.selectionEnd = start - 2 + sel.length;
+                } else if (start >= 2 && end <= val.length - 2 && val.substring(start - 2, start) === '__' && val.substring(end, end + 2) === '__') {
                     el.value = val.substring(0, start - 2) + sel + val.substring(end + 2);
                     el.selectionStart = start - 2;
                     el.selectionEnd = start - 2 + sel.length;
@@ -1951,9 +1998,9 @@
                         el.selectionEnd = wordStart + word.length + 4;
                     }
                 } else {
-                    el.value = val.substring(0, start) + '****' + val.substring(end);
+                    el.value = val.substring(0, start) + '**tebal**' + val.substring(end);
                     el.selectionStart = start + 2;
-                    el.selectionEnd = start + 2;
+                    el.selectionEnd = start + 7;
                 }
             }
             el.focus();
@@ -1974,7 +2021,16 @@
                     el.value = val.substring(0, start) + unwrapped + val.substring(end);
                     el.selectionStart = start;
                     el.selectionEnd = start + unwrapped.length;
+                } else if (sel.startsWith('_') && sel.endsWith('_') && !sel.startsWith('__') && !sel.endsWith('__') && sel.length >= 2) {
+                    const unwrapped = sel.substring(1, sel.length - 1);
+                    el.value = val.substring(0, start) + unwrapped + val.substring(end);
+                    el.selectionStart = start;
+                    el.selectionEnd = start + unwrapped.length;
                 } else if (start >= 1 && end <= val.length - 1 && val.charAt(start - 1) === '*' && val.charAt(end) === '*' && (start < 2 || val.charAt(start - 2) !== '*') && (end > val.length - 2 || val.charAt(end + 1) !== '*')) {
+                    el.value = val.substring(0, start - 1) + sel + val.substring(end + 1);
+                    el.selectionStart = start - 1;
+                    el.selectionEnd = start - 1 + sel.length;
+                } else if (start >= 1 && end <= val.length - 1 && val.charAt(start - 1) === '_' && val.charAt(end) === '_' && (start < 2 || val.charAt(start - 2) !== '_') && (end > val.length - 2 || val.charAt(end + 1) !== '_')) {
                     el.value = val.substring(0, start - 1) + sel + val.substring(end + 1);
                     el.selectionStart = start - 1;
                     el.selectionEnd = start - 1 + sel.length;
@@ -1999,15 +2055,19 @@
                         el.value = val.substring(0, wordStart - 1) + word + val.substring(wordEnd + 1);
                         el.selectionStart = wordStart - 1;
                         el.selectionEnd = wordStart - 1 + word.length;
+                    } else if (wordStart >= 1 && wordEnd <= val.length - 1 && val.charAt(wordStart - 1) === '_' && val.charAt(wordEnd) === '_' && (wordStart < 2 || val.charAt(wordStart - 2) !== '_') && (wordEnd > val.length - 2 || val.charAt(wordEnd + 1) !== '_')) {
+                        el.value = val.substring(0, wordStart - 1) + word + val.substring(wordEnd + 1);
+                        el.selectionStart = wordStart - 1;
+                        el.selectionEnd = wordStart - 1 + word.length;
                     } else {
                         el.value = val.substring(0, wordStart) + `*${word}*` + val.substring(wordEnd);
                         el.selectionStart = wordStart;
                         el.selectionEnd = wordStart + word.length + 2;
                     }
                 } else {
-                    el.value = val.substring(0, start) + '**' + val.substring(end);
+                    el.value = val.substring(0, start) + '*miring*' + val.substring(end);
                     el.selectionStart = start + 1;
-                    el.selectionEnd = start + 1;
+                    el.selectionEnd = start + 7;
                 }
             }
             el.focus();
@@ -2810,11 +2870,11 @@
 
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 9mm;">
                             <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                                <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
+                                <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
                             </div>
 
                             <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                ${escapeHtml(penutup).replace(/\n/g, '<br>')}
+                                ${formatSpzText(penutup).replace(/\n/g, '<br>')}
                             </p>
 
                             <div style="font-family: 'Times New Roman', serif;">
