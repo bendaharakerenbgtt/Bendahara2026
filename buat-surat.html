@@ -2141,19 +2141,23 @@
             if (badge) badge.innerText = `${spzBarangList.length} Baris${filledCount > 0 ? ` (${filledCount} Diisi)` : ' (Kosong)'}`;
 
             container.innerHTML = spzBarangList.map((item, idx) => `
-                <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 flex flex-col gap-1.5 text-xs">
-                    <div class="flex items-center justify-between">
-                        <span class="font-mono font-bold text-[11px] text-orange-400">#${idx + 1}</span>
-                        <button type="button" onclick="removeSpzBarangRow(${idx})" class="text-neutral-500 hover:text-red-400 p-0.5 transition-colors" title="Hapus Baris Barang">
+                <div class="p-2.5 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
+                    <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
+                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-box text-[10px]"></i> Barang #${idx + 1}
+                        </span>
+                        <button type="button" onclick="removeSpzBarangRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Baris Barang">
                             <i class="fa-solid fa-trash text-[11px]"></i>
                         </button>
                     </div>
-                    <div class="grid grid-cols-3 gap-1.5">
+                    <div class="grid grid-cols-3 gap-2">
                         <div class="col-span-2">
-                            <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzBarangField(${idx}, 'nama', this.value)" placeholder="Nama Barang (opsional)" class="form-input text-xs py-1 px-2 w-full">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Nama Barang</label>
+                            <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzBarangField(${idx}, 'nama', this.value)" placeholder="Nama Barang (opsional)" class="form-input text-xs py-1.5 px-2.5 w-full">
                         </div>
                         <div class="col-span-1">
-                            <input type="text" value="${escapeHtml(item.jumlah || '')}" oninput="updateSpzBarangField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1 px-2 font-mono text-center w-full">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Jumlah</label>
+                            <input type="text" value="${escapeHtml(item.jumlah || '')}" oninput="updateSpzBarangField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1.5 px-2.5 font-mono text-center w-full">
                         </div>
                     </div>
                 </div>
@@ -2201,20 +2205,40 @@
             if (badge) badge.innerText = `${spzPanitiaList.length} Orang`;
 
             container.innerHTML = spzPanitiaList.map((item, idx) => `
-                <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 flex flex-col gap-1.5 text-xs">
-                    <div class="flex items-center justify-between">
-                        <span class="font-mono font-bold text-[11px] text-orange-400">#${idx + 1}</span>
-                        <button type="button" onclick="removeSpzPanitiaRow(${idx})" class="text-neutral-500 hover:text-red-400 p-0.5 transition-colors" title="Hapus Panitia">
+                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2.5 text-xs">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-neutral-800/60">
+                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-tag text-[10px]"></i> Panitia #${idx + 1}
+                        </span>
+                        <button type="button" onclick="removeSpzPanitiaRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Panitia">
                             <i class="fa-solid fa-trash text-[11px]"></i>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                        <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzPanitiaField(${idx}, 'nama', this.value)" placeholder="Nama Lengkap" class="form-input text-xs py-1 px-2">
-                        <input type="text" value="${escapeHtml(item.nim || '')}" oninput="updateSpzPanitiaField(${idx}, 'nim', this.value)" placeholder="NIM" class="form-input text-xs py-1 px-2 font-mono">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Nama Lengkap</label>
+                            <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzPanitiaField(${idx}, 'nama', this.value)" placeholder="Nama Lengkap" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[10px] text-neutral-400 font-semibold">NIM</label>
+                                <span class="text-[9px] text-neutral-500 font-mono">Nomor saja</span>
+                            </div>
+                            <input type="text" inputmode="numeric" value="${escapeHtml(item.nim || '')}" oninput="updateSpzPanitiaField(${idx}, 'nim', this.value.replace(/[^0-9]/g, ''))" placeholder="Nomor NIM" class="form-input text-xs py-1.5 px-2.5 font-mono w-full">
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                        <input type="text" value="${escapeHtml(item.prodi || '')}" oninput="updateSpzPanitiaField(${idx}, 'prodi', this.value)" placeholder="Program Studi" class="form-input text-xs py-1 px-2">
-                        <input type="text" value="${escapeHtml(item.delegasi || 'UKM LDK IMIP')}" oninput="updateSpzPanitiaField(${idx}, 'delegasi', this.value)" placeholder="Delegasi" class="form-input text-xs py-1 px-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Program Studi</label>
+                            <input type="text" value="${escapeHtml(item.prodi || '')}" oninput="updateSpzPanitiaField(${idx}, 'prodi', this.value)" placeholder="Program Studi" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[10px] text-neutral-400 font-semibold">Delegasi</label>
+                                <span class="text-[9px] text-orange-400/90 font-mono font-medium">Auto (Bisa diedit)</span>
+                            </div>
+                            <input type="text" value="${escapeHtml(item.delegasi !== undefined && item.delegasi !== '' ? item.delegasi : 'UKM LDK IMIP')}" oninput="updateSpzPanitiaField(${idx}, 'delegasi', this.value)" placeholder="UKM LDK IMIP" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -2262,17 +2286,28 @@
             if (badge) badge.innerText = `${spzRundownList.length} Agenda`;
 
             container.innerHTML = spzRundownList.map((item, idx) => `
-                <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 flex flex-col gap-1.5 text-xs">
-                    <div class="flex items-center justify-between">
-                        <span class="font-mono font-bold text-[11px] text-orange-400">Agenda #${idx + 1}</span>
-                        <button type="button" onclick="removeSpzRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-0.5 transition-colors" title="Hapus Agenda">
+                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
+                    <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
+                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
+                            <i class="fa-regular fa-calendar-check text-[10px]"></i> Agenda #${idx + 1}
+                        </span>
+                        <button type="button" onclick="removeSpzRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Agenda">
                             <i class="fa-solid fa-trash text-[11px]"></i>
                         </button>
                     </div>
-                    <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzRundownField(${idx}, 'nama', this.value)" placeholder="Nama Kegiatan" class="form-input text-xs py-1 px-2">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                        <input type="text" value="${escapeHtml(item.waktu || '')}" oninput="updateSpzRundownField(${idx}, 'waktu', this.value)" placeholder="Waktu (e.g. 18.00 – 19.00 WIB)" class="form-input text-xs py-1 px-2 font-mono">
-                        <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSpzRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1 px-2">
+                    <div>
+                        <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Nama Kegiatan</label>
+                        <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzRundownField(${idx}, 'nama', this.value)" placeholder="Nama Kegiatan" class="form-input text-xs py-1.5 px-2.5 w-full">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Waktu</label>
+                            <input type="text" value="${escapeHtml(item.waktu || '')}" oninput="updateSpzRundownField(${idx}, 'waktu', this.value)" placeholder="Contoh: 18.00 – 19.00 WIB" class="form-input text-xs py-1.5 px-2.5 font-mono w-full">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Penanggung Jawab</label>
+                            <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSpzRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
                     </div>
                 </div>
             `).join('');
