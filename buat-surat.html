@@ -822,31 +822,136 @@
                     </div>
 
                     <!-- Mengetahui / Pihak 3 (Dosen Pembimbing) -->
-                    <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 flex flex-col gap-2.5">
+                    <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2.5">
                         <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
                             <div class="flex items-center gap-2">
-                                <span class="text-[11px] font-black text-neutral-200 uppercase font-mono flex items-center gap-1.5">
+                                <span class="text-[11px] font-black text-orange-400 uppercase font-mono flex items-center gap-1.5">
                                     <i class="fa-solid fa-graduation-cap text-orange-400 text-xs"></i> Mengetahui: Dosen Pembimbing
                                 </span>
                                 <span class="text-[9px] text-neutral-400 font-mono">Pihak 3</span>
                             </div>
-                            <label class="flex items-center gap-1.5 text-[10px] text-neutral-400 cursor-pointer select-none">
+                            <label class="flex items-center gap-1.5 text-[10px] text-neutral-400 cursor-pointer select-none" title="Centang untuk menyertakan tanda tangan Dosen Pembimbing di surat">
                                 <input type="checkbox" id="field_ttd3_active" onchange="updateTtd3State(); updatePreview();" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3 h-3">
                                 Tampilkan di Surat
                             </label>
                         </div>
-                        <div id="ttd3_container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 opacity-50 pointer-events-none transition-opacity">
+                        <div id="ttd3_container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 transition-opacity">
+                            <!-- Jabatan Otomatis -->
+                            <div class="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
+                                <div>
+                                    <div class="text-[11px] font-bold text-neutral-200">Dosen Pembimbing</div>
+                                    <div class="text-[10px] text-neutral-400 font-mono mt-0.5">UKM LDK IMIP PoliMedia</div>
+                                </div>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
+                            </div>
+                            <input type="hidden" id="field_ttd3_jabatan" value="Dosen Pembimbing UKM IMIP">
+
+                            <!-- NIP / NIDN (Nomor Saja) -->
                             <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Jabatan</label>
-                                <input type="text" id="field_ttd3_jabatan" oninput="updatePreview()" class="form-input text-xs" placeholder="Contoh: Dosen Pembimbing UKM IMIP">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[10px] text-neutral-300 font-semibold">NIP / NIDN</label>
+                                    <span class="text-[9px] text-orange-400 font-mono">Nomor saja</span>
+                                </div>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
+                                        NIP.
+                                    </span>
+                                    <input type="text" inputmode="numeric" id="field_ttd3_nim_angka" oninput="handleNipInput('field_ttd3_nim_angka', 'field_ttd3_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="198005072023211013" value="198005072023211013">
+                                </div>
+                                <input type="hidden" id="field_ttd3_nim" value="NIP. 198005072023211013">
+                            </div>
+
+                            <!-- Nama Lengkap & Gelar (Otomatis & Tidak Bisa Diedit) -->
+                            <div class="sm:col-span-2 p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
+                                <div>
+                                    <label class="text-[10px] text-neutral-400 block mb-0.5 font-semibold">Nama Lengkap & Gelar</label>
+                                    <div class="text-xs font-bold text-neutral-100 font-mono">Dr. H. Zainul Hakim, S.Ag., M.Pd.I.</div>
+                                </div>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
+                            </div>
+                            <input type="hidden" id="field_ttd3_nama" value="Dr. H. Zainul Hakim, S.Ag., M.Pd.I.">
+                        </div>
+                    </div>
+
+                    <!-- Pihak Mengetahui Ormawa Kampus: Ketua Umum MPM & Ketua BEM PoliMedia -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                        <!-- Ketua Umum MPM PoliMedia -->
+                        <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2.5">
+                            <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
+                                <span class="text-[11px] font-black text-orange-400 uppercase font-mono flex items-center gap-1.5">
+                                    <i class="fa-solid fa-landmark text-[10px]"></i> Ketua Umum MPM
+                                </span>
+                                <span class="text-[9px] text-neutral-400 font-mono">Mengetahui (Tengah)</span>
+                            </div>
+                            <!-- Jabatan Otomatis -->
+                            <div class="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
+                                <div>
+                                    <div class="text-[11px] font-bold text-neutral-200">Ketua Umum MPM PoliMedia</div>
+                                    <div class="text-[10px] text-neutral-400 font-mono mt-0.5">Majelis Permusyawaratan Mahasiswa</div>
+                                </div>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
+                            </div>
+                            <input type="hidden" id="field_ttd_mpm_jabatan" value="Ketua Umum MPM&#10;PoliMedia Periode 2026">
+                            <div>
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Periode</label>
+                                <input type="text" id="field_ttd_mpm_periode" value="Periode 2026" placeholder="Periode 2026" oninput="syncMpmJabatan(); updatePreview();" class="form-input text-xs font-mono">
                             </div>
                             <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">NIP / NIDN</label>
-                                <input type="text" id="field_ttd3_nim" oninput="updatePreview()" class="form-input text-xs font-mono" placeholder="Contoh: NIP. 198005072023211013">
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
+                                <input type="text" id="field_ttd_mpm_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua MPM" value="Sheyla Aulya">
                             </div>
-                            <div class="sm:col-span-2">
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap & Gelar</label>
-                                <input type="text" id="field_ttd3_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap beserta gelar (contoh: Dr. H. Zainul Hakim, S.Ag., M.Pd.I.)">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[10px] text-neutral-300 font-semibold">NIM</label>
+                                    <span class="text-[9px] text-orange-400 font-mono">Nomor saja</span>
+                                </div>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
+                                        NIM.
+                                    </span>
+                                    <input type="text" inputmode="numeric" id="field_ttd_mpm_nim_angka" oninput="handleNimInput('field_ttd_mpm_nim_angka', 'field_ttd_mpm_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="2491345088" value="2491345088">
+                                </div>
+                                <input type="hidden" id="field_ttd_mpm_nim" value="NIM. 2491345088">
+                            </div>
+                        </div>
+
+                        <!-- Ketua BEM PoliMedia -->
+                        <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2.5">
+                            <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
+                                <span class="text-[11px] font-black text-orange-400 uppercase font-mono flex items-center gap-1.5">
+                                    <i class="fa-solid fa-users-gear text-[10px]"></i> Ketua BEM PoliMedia
+                                </span>
+                                <span class="text-[9px] text-neutral-400 font-mono">Mengetahui (Kanan)</span>
+                            </div>
+                            <!-- Jabatan Otomatis -->
+                            <div class="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
+                                <div>
+                                    <div class="text-[11px] font-bold text-neutral-200">Ketua BEM PoliMedia</div>
+                                    <div class="text-[10px] text-neutral-400 font-mono mt-0.5">Badan Eksekutif Mahasiswa</div>
+                                </div>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
+                            </div>
+                            <input type="hidden" id="field_ttd_bem_jabatan" value="Ketua BEM PoliMedia&#10;Periode 2026">
+                            <div>
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Periode</label>
+                                <input type="text" id="field_ttd_bem_periode" value="Periode 2026" placeholder="Periode 2026" oninput="syncBemJabatan(); updatePreview();" class="form-input text-xs font-mono">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
+                                <input type="text" id="field_ttd_bem_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua BEM" value="Ujang Rahman">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-[10px] text-neutral-300 font-semibold">NIM</label>
+                                    <span class="text-[9px] text-orange-400 font-mono">Nomor saja</span>
+                                </div>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
+                                        NIM.
+                                    </span>
+                                    <input type="text" inputmode="numeric" id="field_ttd_bem_nim_angka" oninput="handleNimInput('field_ttd_bem_nim_angka', 'field_ttd_bem_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="2490343155" value="2490343155">
+                                </div>
+                                <input type="hidden" id="field_ttd_bem_nim" value="NIM. 2490343155">
                             </div>
                         </div>
                     </div>
@@ -1330,10 +1435,21 @@
             if (nim2Hidden) nim2Hidden.value = ttd2NimVal;
 
             const ttd3Check = document.getElementById('field_ttd3_active');
-            ttd3Check.checked = tpl.ttd3Active;
-            document.getElementById('field_ttd3_jabatan').value = tpl.ttd3Jabatan;
-            document.getElementById('field_ttd3_nama').value = tpl.ttd3Nama;
-            document.getElementById('field_ttd3_nim').value = tpl.ttd3Nim;
+            if (ttd3Check) ttd3Check.checked = tpl.ttd3Active;
+            const ttd3JabatanEl = document.getElementById('field_ttd3_jabatan');
+            if (ttd3JabatanEl) ttd3JabatanEl.value = tpl.ttd3Jabatan || 'Dosen Pembimbing UKM IMIP';
+            const ttd3NamaEl = document.getElementById('field_ttd3_nama');
+            if (ttd3NamaEl) ttd3NamaEl.value = tpl.ttd3Nama || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
+
+            const ttd3NimVal = tpl.ttd3Nim || 'NIP. 198005072023211013';
+            const ttd3NimNum = ttd3NimVal.replace(/^NIP[\.\s]*/i, '').trim();
+            const nipInput = document.getElementById('field_ttd3_nim_angka');
+            if (nipInput) nipInput.value = ttd3NimNum;
+            const nipHidden = document.getElementById('field_ttd3_nim');
+            if (nipHidden) nipHidden.value = ttd3NimVal;
+
+            syncMpmJabatan();
+            syncBemJabatan();
 
             if (type === 'SPZ') {
                 syncEventDateFromPickers();
@@ -1616,6 +1732,44 @@
                 hiddenEl.value = '';
             }
             updatePreview();
+        }
+
+        function handleNipInput(inputElId, hiddenElId) {
+            const inputEl = document.getElementById(inputElId);
+            const hiddenEl = document.getElementById(hiddenElId);
+            if (!inputEl || !hiddenEl) return;
+
+            let rawVal = inputEl.value;
+            if (/^NIP[\.\s]*/i.test(rawVal)) {
+                rawVal = rawVal.replace(/^NIP[\.\s]*/i, '').trim();
+                inputEl.value = rawVal;
+            }
+
+            const cleanNum = rawVal.trim();
+            if (cleanNum) {
+                hiddenEl.value = `NIP. ${cleanNum}`;
+            } else {
+                hiddenEl.value = '';
+            }
+            updatePreview();
+        }
+
+        function syncMpmJabatan() {
+            const pEl = document.getElementById('field_ttd_mpm_periode');
+            const pVal = (pEl ? pEl.value.trim() : '') || 'Periode 2026';
+            const jabEl = document.getElementById('field_ttd_mpm_jabatan');
+            if (jabEl) {
+                jabEl.value = `Ketua Umum MPM\nPoliMedia ${pVal}`;
+            }
+        }
+
+        function syncBemJabatan() {
+            const pEl = document.getElementById('field_ttd_bem_periode');
+            const pVal = (pEl ? pEl.value.trim() : '') || 'Periode 2026';
+            const jabEl = document.getElementById('field_ttd_bem_jabatan');
+            if (jabEl) {
+                jabEl.value = `Ketua BEM PoliMedia\n${pVal}`;
+            }
         }
 
         function handleNamaAcaraChange(val) {
@@ -2272,6 +2426,14 @@
             const ttd3Nama = (document.getElementById('field_ttd3_nama') && document.getElementById('field_ttd3_nama').value.trim()) || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = (document.getElementById('field_ttd3_nim') && document.getElementById('field_ttd3_nim').value.trim()) || 'NIP. 198005072023211013';
 
+            const mpmJabatan = (document.getElementById('field_ttd_mpm_jabatan')?.value || '').trim() || 'Ketua Umum MPM\nPoliMedia Periode 2026';
+            const mpmNama = (document.getElementById('field_ttd_mpm_nama')?.value || '').trim() || 'Sheyla Aulya';
+            const mpmNim = (document.getElementById('field_ttd_mpm_nim')?.value || '').trim() || 'NIM. 2491345088';
+
+            const bemJabatan = (document.getElementById('field_ttd_bem_jabatan')?.value || '').trim() || 'Ketua BEM PoliMedia\nPeriode 2026';
+            const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
+            const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
+
             const incPanitia = document.getElementById('spz_inc_lampiran_panitia') ? document.getElementById('spz_inc_lampiran_panitia').checked : true;
             const incSubbag = document.getElementById('spz_inc_subbag_umum') ? document.getElementById('spz_inc_subbag_umum').checked : true;
             const noHp = document.getElementById('spz_no_hp') ? document.getElementById('spz_no_hp').value.trim() : '085775628607';
@@ -2469,10 +2631,10 @@
                                             ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
                                         </td>
                                         <td style="width: 29%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            Ketua Umum MPM<br>PoliMedia Periode 2026<br><br><br><br><br>
+                                            ${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
                                         </td>
                                         <td style="width: 37%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            Ketua BEM PoliMedia<br>Periode 2026<br><br><br><br><br>
+                                            ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
@@ -2481,12 +2643,12 @@
                                             <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd3Nim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">Sheyla Aulya</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">NIM. 2491345088</span>
+                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(mpmNama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(mpmNim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">Ujang Rahman</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">NIM. 2490343155</span>
+                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(bemNama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(bemNim)}</span>
                                         </td>
                                     </tr>
                                 </table>
@@ -2951,8 +3113,17 @@
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
+            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM LDK IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
+
+            const mpmJabatan = (document.getElementById('field_ttd_mpm_jabatan')?.value || '').trim() || 'Ketua Umum MPM\nPoliMedia Periode 2026';
+            const mpmNama = (document.getElementById('field_ttd_mpm_nama')?.value || '').trim() || 'Sheyla Aulya';
+            const mpmNim = (document.getElementById('field_ttd_mpm_nim')?.value || '').trim() || 'NIM. 2491345088';
+
+            const bemJabatan = (document.getElementById('field_ttd_bem_jabatan')?.value || '').trim() || 'Ketua BEM PoliMedia\nPeriode 2026';
+            const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
+            const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
 
             const kopHtml = generateOfficialKopHtml();
 
@@ -3084,10 +3255,10 @@
                                     <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
                                         <tr>
                                             <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                                Dosen Pembimbing<br>UKM LDK IMIP
+                                                ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}
                                             </td>
                                             <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                                Ketua BEM PoliMedia<br>Periode 2026
+                                                ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}
                                             </td>
                                         </tr>
                                         <tr>
@@ -3096,8 +3267,8 @@
                                                 <p style="margin: 0;">${escapeHtml(ttd3Nim)}</p>
                                             </td>
                                             <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">Ujang Rahman</p>
-                                                <p style="margin: 0;">NIM. 2490343155</p>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(bemNama)}</p>
+                                                <p style="margin: 0;">${escapeHtml(bemNim)}</p>
                                             </td>
                                         </tr>
                                     </table>
@@ -3106,10 +3277,10 @@
                                 <!-- TIER 3: MENYETUJUI (KETUA MPM) -->
                                 <div style="text-align: center; margin-bottom: 14pt;">
                                     <p style="margin: 0 0 2pt 0; line-height: 1.25;">Menyetujui,</p>
-                                    <p style="margin: 0; line-height: 1.25;">Ketua Umum MPM<br>PoliMedia Periode 2026</p>
+                                    <p style="margin: 0; line-height: 1.25;">${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}</p>
                                     <div style="height: 44pt;"></div>
-                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">Sheyla Aulya</p>
-                                    <p style="margin: 0; line-height: 1.25;">NIM. 2491345088</p>
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${escapeHtml(mpmNama)}</p>
+                                    <p style="margin: 0; line-height: 1.25;">${escapeHtml(mpmNim)}</p>
                                 </div>
 
                                 <!-- TIER 4: TEMBUSAN -->
@@ -3152,9 +3323,17 @@
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Faridah Rihadatul ‘Aisy';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2470402026';
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
-            const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
+            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
+
+            const mpmJabatan = (document.getElementById('field_ttd_mpm_jabatan')?.value || '').trim() || 'Ketua Umum MPM\nPoliMedia Periode 2026';
+            const mpmNama = (document.getElementById('field_ttd_mpm_nama')?.value || '').trim() || 'Sheyla Aulya';
+            const mpmNim = (document.getElementById('field_ttd_mpm_nim')?.value || '').trim() || 'NIM. 2491345088';
+
+            const bemJabatan = (document.getElementById('field_ttd_bem_jabatan')?.value || '').trim() || 'Ketua BEM PoliMedia\nPeriode 2026';
+            const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
+            const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
 
             const kopHtml = generateOfficialKopHtml();
 
@@ -3298,13 +3477,13 @@
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 16pt;">
                                     <tr>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            Dosen Pembimbing<br>UKM IMIP
+                                            ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}
                                         </td>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            Ketua Umum MPM<br>PoliMedia Periode 2026
+                                            ${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}
                                         </td>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            Ketua BEM PoliMedia<br>Periode 2026
+                                            ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}
                                         </td>
                                     </tr>
                                     <tr>
@@ -3313,12 +3492,12 @@
                                             <span style="font-size: 12pt;">${escapeHtml(ttd3Nim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">Sheyla Aulya</strong><br>
-                                            <span style="font-size: 12pt;">NIM. 2491345088</span>
+                                            <strong style="text-decoration: underline;">${escapeHtml(mpmNama)}</strong><br>
+                                            <span style="font-size: 12pt;">${escapeHtml(mpmNim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">Ujang Rahman</strong><br>
-                                            <span style="font-size: 12pt;">NIM. 2490343155</span>
+                                            <strong style="text-decoration: underline;">${escapeHtml(bemNama)}</strong><br>
+                                            <span style="font-size: 12pt;">${escapeHtml(bemNim)}</span>
                                         </td>
                                     </tr>
                                 </table>
