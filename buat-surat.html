@@ -749,10 +749,18 @@
                                 </span>
                                 <span class="text-[9px] text-neutral-400 font-mono">Pihak 1 (Kanan Surat)</span>
                             </div>
-                            <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Jabatan & Keterangan</label>
-                                <textarea id="field_ttd1_jabatan" oninput="updatePreview()" rows="2" class="form-input text-xs resize-none" placeholder="Baris 1: Jabatan (e.g. Ketua Pelaksana)&#10;Baris 2: Nama Acara (e.g. QURMEDIA 2026)"></textarea>
+                            <!-- Jabatan & Kegiatan Otomatis -->
+                            <div class="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
+                                <div>
+                                    <div class="text-[11px] font-bold text-neutral-200">Ketua Pelaksana</div>
+                                    <div class="text-[10px] text-orange-400 font-mono flex items-center gap-1.5 mt-0.5">
+                                        <i class="fa-solid fa-tag text-[9px] opacity-75"></i>
+                                        <span id="display_ttd1_acara">QURMEDIA 2026</span>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
                             </div>
+                            <input type="hidden" id="field_ttd1_jabatan" value="Ketua Pelaksana&#10;QURMEDIA 2026">
                             <div>
                                 <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
                                 <input type="text" id="field_ttd1_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua Pelaksana">
@@ -771,9 +779,18 @@
                                 </span>
                                 <span class="text-[9px] text-neutral-400 font-mono">Pihak 2 (Kiri Surat)</span>
                             </div>
+                            <!-- Jabatan Otomatis & Input Periode -->
+                            <div class="p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
+                                <div>
+                                    <div class="text-[11px] font-bold text-neutral-200">Ketua UKM LDK IMIP</div>
+                                    <div class="text-[10px] text-neutral-400 font-mono mt-0.5">Lembaga Dakwah Kampus IMIP</div>
+                                </div>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
+                            </div>
+                            <input type="hidden" id="field_ttd2_jabatan" value="Ketua UKM LDK IMIP&#10;Periode 2026">
                             <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Jabatan & Periode</label>
-                                <textarea id="field_ttd2_jabatan" oninput="updatePreview()" rows="2" class="form-input text-xs resize-none" placeholder="Baris 1: Jabatan (e.g. Ketua UKM LDK IMIP)&#10;Baris 2: Periode (e.g. Periode 2026)"></textarea>
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Periode</label>
+                                <input type="text" id="field_ttd2_periode" value="Periode 2026" placeholder="Periode 2026" oninput="syncTtd2Jabatan(); updatePreview();" class="form-input text-xs font-mono">
                             </div>
                             <div>
                                 <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
@@ -1270,11 +1287,17 @@
             document.getElementById('field_isi_inti').value = tpl.isiInti;
             document.getElementById('field_penutup').value = tpl.penutup;
 
-            document.getElementById('field_ttd1_jabatan').value = tpl.ttd1Jabatan;
             document.getElementById('field_ttd1_nama').value = tpl.ttd1Nama;
             document.getElementById('field_ttd1_nim').value = tpl.ttd1Nim;
 
-            document.getElementById('field_ttd2_jabatan').value = tpl.ttd2Jabatan;
+            const periodeEl = document.getElementById('field_ttd2_periode');
+            if (periodeEl) {
+                const matchPeriode = (tpl.ttd2Jabatan || '').match(/Periode\s+\d+/i);
+                periodeEl.value = matchPeriode ? matchPeriode[0] : (tpl.ttd2Jabatan ? tpl.ttd2Jabatan.split('\n')[1] || 'Periode 2026' : 'Periode 2026');
+            }
+            syncTtd1Jabatan();
+            syncTtd2Jabatan();
+
             document.getElementById('field_ttd2_nama').value = tpl.ttd2Nama;
             document.getElementById('field_ttd2_nim').value = tpl.ttd2Nim;
 
@@ -1525,12 +1548,30 @@
             updatePreview();
         }
 
-        function handleNamaAcaraChange(val) {
-            const acara = (val || '').trim() || 'QURMEDIA 2026';
-            const ttd1El = document.getElementById('field_ttd1_jabatan');
-            if (ttd1El && (!ttd1El.value.trim() || ttd1El.value.startsWith('Ketua Pelaksana'))) {
-                ttd1El.value = `Ketua Pelaksana\n${acara}`;
+        function syncTtd1Jabatan() {
+            const acaraEl = document.getElementById('field_nama_acara');
+            const acaraVal = (acaraEl ? acaraEl.value.trim() : '') || 'QURMEDIA 2026';
+            const displayAcara = document.getElementById('display_ttd1_acara');
+            if (displayAcara) {
+                displayAcara.textContent = acaraVal;
             }
+            const ttd1JabatanEl = document.getElementById('field_ttd1_jabatan');
+            if (ttd1JabatanEl) {
+                ttd1JabatanEl.value = `Ketua Pelaksana\n${acaraVal}`;
+            }
+        }
+
+        function syncTtd2Jabatan() {
+            const periodeEl = document.getElementById('field_ttd2_periode');
+            const periodeVal = (periodeEl ? periodeEl.value.trim() : '') || 'Periode 2026';
+            const ttd2JabatanEl = document.getElementById('field_ttd2_jabatan');
+            if (ttd2JabatanEl) {
+                ttd2JabatanEl.value = `Ketua UKM LDK IMIP\n${periodeVal}`;
+            }
+        }
+
+        function handleNamaAcaraChange(val) {
+            syncTtd1Jabatan();
             if (currentSuratType === 'SPZ') {
                 updateSpzAutoPembuka();
             }
