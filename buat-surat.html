@@ -1868,6 +1868,235 @@
                     </div>
                 </div>
 
+                <!-- CARD: HASIL KEGIATAN / RUNDOWN (KHUSUS SBA - HALAMAN 2) -->
+                <div id="card_sba_rundown" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-orange-500"></i> 1. Hasil Kegiatan: Rundown Acara
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 2</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> Susunan Rangkaian Kegiatan
+                                <span id="sba_rundown_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">14 Baris</span>
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="resetSbaRundownDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline" title="Reset ke susunan default STUBAN 2026">Reset STUBAN</button>
+                                <button type="button" onclick="addSbaRundownRow()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                    <i class="fa-solid fa-plus text-[8px]"></i> Tambah Baris
+                                </button>
+                            </div>
+                        </div>
+                        <div id="sba_rundown_editor_container" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                            <!-- Rendered via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: OUTPUT, HAMBATAN & EVALUASI (KHUSUS SBA - HALAMAN 3) -->
+                <div id="card_sba_output_evaluasi" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-comments text-orange-500"></i> 2. Output, Hambatan &amp; Evaluasi
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 3</span>
+                    </div>
+                    <div class="space-y-3.5">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-200">2. Output Kegiatan</label>
+                                <span class="text-[9px] text-neutral-400 font-mono">Draf insight &amp; capaian</span>
+                            </div>
+                            <textarea id="sba_output_kegiatan" rows="4" oninput="updatePreview()" class="form-input text-xs w-full" placeholder="Uraikan output capaian kegiatan..."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-200">Hambatan Pelaksanaan</label>
+                                <span class="text-[9px] text-neutral-400 font-mono">Poin-poin hambatan (baris baru / bullet •)</span>
+                            </div>
+                            <textarea id="sba_hambatan_kegiatan" rows="4" oninput="updatePreview()" class="form-input text-xs w-full font-sans" placeholder="Tuliskan tiap hambatan pada baris baru (bisa dengan bullet •)..."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-[11px] font-bold text-neutral-200">Evaluasi &amp; Solusi Perbaikan</label>
+                                <span class="text-[9px] text-neutral-400 font-mono">Rencana perbaikan (baris baru / bullet •)</span>
+                            </div>
+                            <textarea id="sba_evaluasi_kegiatan" rows="4" oninput="updatePreview()" class="form-input text-xs w-full font-sans" placeholder="Tuliskan tiap evaluasi pada baris baru (bisa dengan bullet •)..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: KEUANGAN AGENDA KERJA (KHUSUS SBA - HALAMAN 4) -->
+                <div id="card_sba_keuangan" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-orange-500"></i> Keuangan Agenda Kerja
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 4</span>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- TOGGLE KEUANGAN -->
+                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
+                            <div class="flex flex-col pr-2">
+                                <span class="text-xs font-bold text-neutral-200">Sertakan Laporan Keuangan Agenda Kerja</span>
+                                <span class="text-[10px] text-neutral-400">Rincian pemasukan, belanja bahan divisi &amp; rekapitulasi kas (Halaman 4 &amp; 5)</span>
+                            </div>
+                            <input type="checkbox" id="sba_inc_keuangan" checked onchange="toggleSbaKeuanganSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                        </label>
+
+                        <div id="sba_keuangan_group" class="space-y-4 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <!-- 1. PEMASUKAN -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> 1. Pemasukan
+                                        <span id="sba_pemasukan_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-emerald-400 font-bold">2 Sumber</span>
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="resetSbaPemasukanDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset</button>
+                                        <button type="button" onclick="addSbaPemasukanRow()" class="px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 flex items-center gap-1 transition-colors">
+                                            <i class="fa-solid fa-plus text-[8px]"></i> Tambah Pemasukan
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="sba_pemasukan_editor_container" class="space-y-2">
+                                    <!-- Rendered via JS -->
+                                </div>
+                                <div class="mt-2 p-2 rounded-lg bg-neutral-900/60 border border-neutral-800 flex items-center justify-between text-xs">
+                                    <span class="font-bold text-neutral-300">Total Pemasukan:</span>
+                                    <span id="sba_pemasukan_total_badge" class="font-mono font-bold text-emerald-400">Rp337.000,00</span>
+                                </div>
+                            </div>
+
+                            <!-- 2. PENGELUARAN (BELANJA BAHAN PER DIVISI) -->
+                            <div class="pt-3 border-t border-neutral-800/80">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-cart-shopping text-orange-400"></i> 2. Pengeluaran: 2.1 Belanja Bahan
+                                    </span>
+                                    <button type="button" onclick="addSbaDivisi()" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors">
+                                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah Divisi
+                                    </button>
+                                </div>
+                                <div id="sba_pengeluaran_editor_container" class="space-y-3">
+                                    <!-- Rendered via JS -->
+                                </div>
+                                <div class="mt-2 p-2 rounded-lg bg-neutral-900/60 border border-neutral-800 flex items-center justify-between text-xs">
+                                    <span class="font-bold text-neutral-300">Total Belanja Bahan:</span>
+                                    <span id="sba_pengeluaran_total_badge" class="font-mono font-bold text-orange-400">Rp280.100,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: REKAPITULASI KEUANGAN (KHUSUS SBA - HALAMAN 5) -->
+                <div id="card_sba_rekapitulasi" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced text-orange-500"></i> 3. Rekapitulasi Keuangan
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 5</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-neutral-900/70 border border-neutral-800 space-y-2.5 text-xs">
+                        <p class="text-[11px] text-neutral-400 leading-relaxed">
+                            Rangkuman saldo kas di bawah ini dihitung otomatis dari data Pemasukan dan Pengeluaran Halaman 4:
+                        </p>
+                        <div class="space-y-1.5 font-mono">
+                            <div class="flex justify-between items-center py-1.5 px-2.5 rounded bg-neutral-950 border border-neutral-800/80">
+                                <span class="text-neutral-300">1. Pemasukan</span>
+                                <span id="sba_rekap_pemasukan_text" class="text-emerald-400 font-bold">Rp337.000,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1.5 px-2.5 rounded bg-neutral-950 border border-neutral-800/80">
+                                <span class="text-neutral-300">2. Pengeluaran</span>
+                                <span id="sba_rekap_pengeluaran_text" class="text-orange-400 font-bold">Rp280.100,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 px-2.5 rounded bg-neutral-950 border border-emerald-500/40 text-sm">
+                                <span class="font-bold text-white">TOTAL (Saldo Sisa):</span>
+                                <span id="sba_rekap_total_text" class="text-emerald-400 font-black">Rp56.900,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: LAMPIRAN NOTA KEUANGAN (KHUSUS SBA - HALAMAN 7) -->
+                <div id="card_sba_lampiran_nota" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-receipt text-orange-500"></i> Lampiran: Nota Keuangan
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 7</span>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
+                            <div class="flex flex-col pr-2">
+                                <span class="text-xs font-bold text-neutral-200">Sertakan Lampiran Nota Keuangan</span>
+                                <span class="text-[10px] text-neutral-400">Tampilkan lembar foto struk belanja dan nota pertanggungjawaban</span>
+                            </div>
+                            <input type="checkbox" id="sba_inc_nota" checked onchange="toggleSbaNotaSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                        </label>
+
+                        <div id="sba_nota_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-images text-orange-500"></i> Galeri Foto Nota
+                                    <span id="sba_nota_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">7 Foto</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="resetSbaNotaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset STUBAN</button>
+                                    <label class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors cursor-pointer">
+                                        <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> Unggah Nota
+                                        <input type="file" id="sba_nota_file_input" accept="image/*" multiple onchange="handleSbaNotaUpload(event)" class="hidden">
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="sba_nota_gallery_container" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto pr-1">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: LAMPIRAN DOKUMENTASI (KHUSUS SBA - HALAMAN 8) -->
+                <div id="card_sba_lampiran_dok" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-camera text-orange-500"></i> Lampiran: Dokumentasi Kegiatan
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 8</span>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
+                            <div class="flex flex-col pr-2">
+                                <span class="text-xs font-bold text-neutral-200">Sertakan Lampiran Dokumentasi</span>
+                                <span class="text-[10px] text-neutral-400">Tampilkan lembar foto dokumentasi kegiatan acara</span>
+                            </div>
+                            <input type="checkbox" id="sba_inc_dok" checked onchange="toggleSbaDokSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                        </label>
+
+                        <div id="sba_dok_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-image text-orange-500"></i> Galeri Foto Dokumentasi
+                                    <span id="sba_dok_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Foto</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="resetSbaDokDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset STUBAN</button>
+                                    <label class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors cursor-pointer">
+                                        <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> Unggah Foto
+                                        <input type="file" id="sba_dok_file_input" accept="image/*" multiple onchange="handleSbaDokUpload(event)" class="hidden">
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="sba_dok_gallery_container" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- STEPPER NAVIGATION & ACTION BUTTONS (2 TIER LAYOUT) -->
                 <div class="space-y-3 pt-5 border-t border-neutral-800/80 mt-4" id="page_nav_buttons_container">
                     <!-- Baris 1: Navigasi Antar Halaman (Prev & Next) -->
@@ -2085,12 +2314,12 @@
                 lampiran: '2 Halaman',
                 tanggalSurat: 'Jakarta, 2 Juli 2026',
                 perihal: 'Surat Berita Acara Studi Banding',
-                tujuan: 'Yth. Majelis Permusyawaratan Mahasiswa\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
+                tujuan: '',
                 incEvent: true,
                 namaAcara: 'Studi Banding 2026',
                 hariTanggal: 'Minggu, 28 Juni 2026',
                 waktu: '08.00 s/d 13.10 WIB',
-                tempat: 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur 13220',
+                tempat: 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220',
                 pembuka: 'Melalui surat ini kami sampaikan bahwa Unit Kegiatan Mahasiswa LDK IMIP Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan Studi Banding 2026 pada:',
                 isiInti: 'Studi Banding antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.',
                 penutup: 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.',
@@ -2101,8 +2330,8 @@
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
-                ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
-                ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                ttd3Jabatan: 'Dosen Pembimbing\nUKM IMIP',
+                ttd3Nama: 'Zainul Hakim, S.Ag.,M.Pd.I',
                 ttd3Nim: 'NIP. 198005072023211013'
             },
             SPZ: {
@@ -2298,6 +2527,19 @@
                 if (fieldIsiInti) fieldIsiInti.placeholder = '';
             }
 
+            // Toggle SBA specific UI elements
+            const cardTujuan = document.getElementById('card_tujuan');
+            if (type === 'SBA') {
+                if (cardTujuan) cardTujuan.classList.add('hidden');
+                showSbaCards();
+                initSbaEditors();
+            } else {
+                hideSbaCards();
+                if (type !== 'SPZ' && cardTujuan) {
+                    cardTujuan.classList.remove('hidden');
+                }
+            }
+
             // Load default data for selected template
             const tpl = SURAT_TEMPLATES[type];
             if (tpl.tanggalSurat) {
@@ -2318,14 +2560,23 @@
             }
             composeNomorSurat();
 
-            // Lampiran handling (number only + fixed "Lembar")
-            const lampNum = tpl.lampiran ? tpl.lampiran.replace(/[^0-9]/g, '') : '1';
-            if (document.getElementById('field_lampiran_angka')) {
-                document.getElementById('field_lampiran_angka').value = lampNum || '1';
-                document.getElementById('field_lampiran_angka').placeholder = '1';
-            }
-            if (document.getElementById('field_lampiran')) {
-                document.getElementById('field_lampiran').value = `${lampNum || '1'} Lembar`;
+            // Lampiran handling
+            if (type === 'SBA') {
+                if (document.getElementById('field_lampiran_angka')) {
+                    document.getElementById('field_lampiran_angka').value = '2';
+                }
+                if (document.getElementById('field_lampiran')) {
+                    document.getElementById('field_lampiran').value = tpl.lampiran || '2 Halaman';
+                }
+            } else {
+                const lampNum = tpl.lampiran ? tpl.lampiran.replace(/[^0-9]/g, '') : '1';
+                if (document.getElementById('field_lampiran_angka')) {
+                    document.getElementById('field_lampiran_angka').value = lampNum || '1';
+                    document.getElementById('field_lampiran_angka').placeholder = '1';
+                }
+                if (document.getElementById('field_lampiran')) {
+                    document.getElementById('field_lampiran').value = `${lampNum || '1'} Lembar`;
+                }
             }
 
             if (tpl.incEvent !== undefined) {
@@ -3556,6 +3807,676 @@
             return '16.00 WIB';
         }
 
+        // ==========================================
+        // DEDICATED DATA & MANAGERS FOR SBA (SURAT BERITA ACARA)
+        // ==========================================
+        const DEFAULT_SBA_RUNDOWN = [
+            { no: '1.', rangkaian: '*Briefing*, persiapan,\nabsensi', waktu: '08.00 - 08.30 WIB', pj: 'Seluruh Panitia' },
+            { no: '2.', rangkaian: 'Pembukaan MC', waktu: '08.30 - 09.00 WIB', pj: 'MC IMIP & MAF' },
+            { no: '3.', rangkaian: 'Pembacaan Tilawah', waktu: '09.00 - 09.10 WIB', pj: 'Panitia' },
+            { no: '4.', rangkaian: 'Sambutan Ketua\nPelaksana LDK IMIP', waktu: '09.10 - 09.15 WIB', pj: 'Ketua Pelaksana LDK\nIMIP' },
+            { no: '5.', rangkaian: 'Sambutan Ketua\nPelaksana MAF PGSD\nUNJ', waktu: '09.15 - 09.20 WIB', pj: 'Ketua Pelaksana MAF\nPGSD UNJ' },
+            { no: '6.', rangkaian: 'Sambutan Ketua Umum\nLDK IMIP', waktu: '09.20 - 09.25 WIB', pj: 'Ketua Umum LDK\nIMIP' },
+            { no: '7.', rangkaian: 'Sambutan Ketua Umum\nMAF PGSD UNJ', waktu: '09.25 - 09.30 WIB', pj: 'Ketua Umum MAF\nPGSD UNJ' },
+            { no: '8.', rangkaian: 'Presentasi Perkenalan\nLDK IMIP', waktu: '09.30 - 09.55 WIB', pj: 'Ketua Umum LDK\nIMIP' },
+            { no: '9.', rangkaian: 'Presentasi Perkenalan\nMAF PGSD UNJ', waktu: '09.55 - 10.20 WIB', pj: 'Ketua Umum MAF\nPGSD UNJ' },
+            { no: '10.', rangkaian: '*Games*', waktu: '10.20 - 10.40 WIB', pj: 'Seluruh Panitia' },
+            { no: '11.', rangkaian: '*Forum Group Discussion*', waktu: '10.40 - 12.10 WIB', pj: 'Seluruh Panitia' },
+            { no: '12.', rangkaian: 'Ishoma', waktu: '12.10 - 12.50 WIB', pj: 'Seluruh Panitia' },
+            { no: '13.', rangkaian: 'Penutup', waktu: '12.50 - 12.55 WIB', pj: 'MC IMIP & MAF' },
+            { no: '14.', rangkaian: 'Sesi Dokumentasi', waktu: '12.55 - 13.10 WIB', pj: 'HPD' }
+        ];
+
+        const DEFAULT_SBA_PEMASUKAN = [
+            { no: '1.', sumber: 'Kas LDK IMIP', jumlah: 250000 },
+            { no: '2.', sumber: 'Dana Donasi', jumlah: 87000 }
+        ];
+
+        const DEFAULT_SBA_PENGELUARAN_DIVISI = [
+            {
+                divisiKode: 'A.',
+                divisiNama: 'Divisi acara',
+                items: [
+                    { uraian: '*Cue Card*', unit: '2 lembar', hargaSatuan: 2500, jumlah: 5000 },
+                    { uraian: '*Rundown*', unit: '2 lembar', hargaSatuan: 500, jumlah: 1000 }
+                ]
+            },
+            {
+                divisiKode: 'B.',
+                divisiNama: 'Divisi HPD',
+                items: [
+                    { uraian: 'Sertifikat', unit: '1 lembar', hargaSatuan: 10000, jumlah: 10000 },
+                    { uraian: '*Banner*', unit: '1 pieces', hargaSatuan: 67500, jumlah: 67500 }
+                ]
+            },
+            {
+                divisiKode: 'C.',
+                divisiNama: 'Divisi Logistik',
+                items: [
+                    { uraian: '*Snack*', unit: '8 buah', hargaSatuan: 17250, jumlah: 138000 },
+                    { uraian: '*Tissue*', unit: '2 pack', hargaSatuan: 6300, jumlah: 12600 },
+                    { uraian: 'Air mineral', unit: '2 dus', hargaSatuan: 23000, jumlah: 46000 }
+                ]
+            }
+        ];
+
+        const DEFAULT_SBA_NOTAS = [
+            'surat/assets/sba_nota_1.png',
+            'surat/assets/sba_nota_2.png',
+            'surat/assets/sba_nota_3.png',
+            'surat/assets/sba_nota_4.png',
+            'surat/assets/sba_nota_5.png',
+            'surat/assets/sba_nota_6.png',
+            'surat/assets/sba_nota_7.png'
+        ];
+
+        const DEFAULT_SBA_DOKS = [
+            'surat/assets/sba_dok_1.png',
+            'surat/assets/sba_dok_2.png',
+            'surat/assets/sba_dok_3.png',
+            'surat/assets/sba_dok_4.png',
+            'surat/assets/sba_dok_5.png'
+        ];
+
+        const DEFAULT_SBA_OUTPUT = 'Kegiatan studi banding melalui forum *Focus Group Discussion* (*FGD*) antara LDK IMIP dan MAF PGSD UNJ ini berhasil menjadi wadah kolaboratif untuk saling berbagi *insight* mengenai program kerja organisasi. Seluruh gagasan dan ide yang didiskusikan dalam forum ini dirumuskan menjadi sebuah draf *insight* resmi, yang tidak hanya berfungsi sebagai bahan evaluasi kabinet saat ini, tetapi juga diproyeksikan sebagai kompas strategis dan referensi inovasi bagi kepengurusan pada kabinet selanjutnya.';
+
+        const DEFAULT_SBA_HAMBATAN = `• Koordinasi antar-panitia kurang transparan dan pembagian tugas di hari H kurang jelas.
+• Manajemen waktu kurang disiplin, sehingga keberangkatan molor dan durasi acara selesai terlalu cepat.
+• Kesiapan logistik dan kendala lapangan (kamera belum dicas, konvoi terpencar, lokasi bergeser) kurang terantisipasi.`;
+
+        const DEFAULT_SBA_EVALUASI = `• Buat satu grup koordinasi utama untuk seluruh panitia agar komunikasi terpusat dan tidak terpecah lewat personal chat.
+• Perketat fungsi *time keeper* dan matangkan susunan rundown agar estimasi waktu setiap sesi lebih akurat.
+• Lakukan pengecekan ulang seluruh logistik pada H-1 serta siapkan rencana cadangan untuk kondisi di luar prediksi.`;
+
+        let sbaRundownList = JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN));
+        let sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
+        let sbaPengeluaranDivisi = JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_DIVISI));
+        let sbaNotaList = [...DEFAULT_SBA_NOTAS];
+        let sbaDokList = [...DEFAULT_SBA_DOKS];
+
+        function isSbaKeuanganActive() {
+            const el = document.getElementById('sba_inc_keuangan');
+            return el ? el.checked : true;
+        }
+
+        function isSbaNotaActive() {
+            const el = document.getElementById('sba_inc_nota');
+            return el ? el.checked : true;
+        }
+
+        function isSbaDokActive() {
+            const el = document.getElementById('sba_inc_dok');
+            return el ? el.checked : true;
+        }
+
+        function toggleSbaKeuanganSections() {
+            const incKeu = isSbaKeuanganActive();
+            const group = document.getElementById('sba_keuangan_group');
+            if (group) group.classList.toggle('hidden', !incKeu);
+            if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            updatePreview();
+        }
+
+        function toggleSbaNotaSections() {
+            const incNota = isSbaNotaActive();
+            const group = document.getElementById('sba_nota_group');
+            if (group) group.classList.toggle('hidden', !incNota);
+            if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            updatePreview();
+        }
+
+        function toggleSbaDokSections() {
+            const incDok = isSbaDokActive();
+            const group = document.getElementById('sba_dok_group');
+            if (group) group.classList.toggle('hidden', !incDok);
+            if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            updatePreview();
+        }
+
+        function formatSbaRupiah(amount) {
+            const val = Number(amount) || 0;
+            return 'Rp' + val.toLocaleString('id-ID') + ',00';
+        }
+
+        function getSbaTotalPemasukan() {
+            return sbaPemasukanList.reduce((acc, cur) => acc + (Number(cur.jumlah) || 0), 0);
+        }
+
+        function getSbaTotalPengeluaran() {
+            let total = 0;
+            sbaPengeluaranDivisi.forEach(div => {
+                (div.items || []).forEach(item => {
+                    total += (Number(item.jumlah) || 0);
+                });
+            });
+            return total;
+        }
+
+        function getSbaSaldoSisa() {
+            return getSbaTotalPemasukan() - getSbaTotalPengeluaran();
+        }
+
+        function updateSbaRekapitulasiDisplay() {
+            const pem = getSbaTotalPemasukan();
+            const peng = getSbaTotalPengeluaran();
+            const saldo = pem - peng;
+
+            const elPemBadge = document.getElementById('sba_pemasukan_total_badge');
+            if (elPemBadge) elPemBadge.innerText = formatSbaRupiah(pem);
+
+            const elPengBadge = document.getElementById('sba_pengeluaran_total_badge');
+            if (elPengBadge) elPengBadge.innerText = formatSbaRupiah(peng);
+
+            const elRekapPem = document.getElementById('sba_rekap_pemasukan_text');
+            if (elRekapPem) elRekapPem.innerText = formatSbaRupiah(pem);
+
+            const elRekapPeng = document.getElementById('sba_rekap_pengeluaran_text');
+            if (elRekapPeng) elRekapPeng.innerText = formatSbaRupiah(peng);
+
+            const elRekapTotal = document.getElementById('sba_rekap_total_text');
+            if (elRekapTotal) elRekapTotal.innerText = formatSbaRupiah(saldo);
+        }
+
+        function showSbaCards() {
+            ['card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('hidden');
+            });
+        }
+
+        function hideSbaCards() {
+            ['card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        function getSbaPagesStructure() {
+            const incKeu = isSbaKeuanganActive();
+            const incNota = isSbaNotaActive();
+            const incDok = isSbaDokActive();
+
+            const pages = [];
+            let cur = 1;
+            pages.push({ id: cur++, key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' });
+            pages.push({ id: cur++, key: 'rundown', label: 'Rundown Acara', icon: 'fa-list-check', desc: '1. Hasil Kegiatan (Rundown)' });
+            pages.push({ id: cur++, key: 'output_eval', label: 'Output & Evaluasi', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' });
+
+            if (incKeu) {
+                pages.push({ id: cur++, key: 'keuangan', label: 'Keuangan', icon: 'fa-coins', desc: 'Keuangan: Pemasukan & Belanja Bahan' });
+                pages.push({ id: cur++, key: 'rekapitulasi', label: 'Rekapitulasi Kas', icon: 'fa-scale-balanced', desc: '3. Rekapitulasi Kas Keuangan' });
+            }
+
+            pages.push({ id: cur++, key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Penutup & Lembar Pengesahan' });
+
+            if (incNota) {
+                pages.push({ id: cur++, key: 'nota', label: 'Lampiran Nota', icon: 'fa-receipt', desc: 'Lampiran Nota & Bukti Keuangan' });
+            }
+
+            if (incDok) {
+                pages.push({ id: cur++, key: 'dok', label: 'Dokumentasi', icon: 'fa-camera', desc: 'Lampiran Foto Dokumentasi' });
+            }
+
+            return pages;
+        }
+
+        // RUNDOWN EDITOR
+        function renderSbaRundownEditor() {
+            const container = document.getElementById('sba_rundown_editor_container');
+            if (!container) return;
+            const badge = document.getElementById('sba_rundown_count_badge');
+            if (badge) badge.innerText = `${sbaRundownList.length} Baris`;
+
+            container.innerHTML = sbaRundownList.map((item, idx) => `
+                <div class="p-2.5 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
+                    <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
+                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-ol text-[10px]"></i> Baris #${idx + 1}
+                        </span>
+                        <button type="button" onclick="removeSbaRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Baris Rundown">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-6">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Rangkaian Kegiatan</label>
+                            <textarea rows="2" oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value)" placeholder="Rangkaian kegiatan..." class="form-input text-xs py-1.5 px-2.5 w-full">${escapeHtml(item.rangkaian || '')}</textarea>
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Waktu</label>
+                            <input type="text" value="${escapeHtml(item.waktu || '')}" oninput="updateSbaRundownField(${idx}, 'waktu', this.value)" placeholder="08.00 - 08.30 WIB" class="form-input text-xs py-1.5 px-2.5 font-mono text-center w-full">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Penanggung Jawab</label>
+                            <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSbaRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addSbaRundownRow() {
+            sbaRundownList.push({ no: `${sbaRundownList.length + 1}.`, rangkaian: '', waktu: '', pj: '' });
+            renderSbaRundownEditor();
+            updatePreview();
+        }
+
+        function removeSbaRundownRow(idx) {
+            if (sbaRundownList.length <= 1) {
+                sbaRundownList = [{ no: '1.', rangkaian: '', waktu: '', pj: '' }];
+            } else {
+                sbaRundownList.splice(idx, 1);
+            }
+            sbaRundownList.forEach((r, i) => r.no = `${i + 1}.`);
+            renderSbaRundownEditor();
+            updatePreview();
+        }
+
+        function updateSbaRundownField(idx, field, val) {
+            if (sbaRundownList[idx]) {
+                sbaRundownList[idx][field] = val;
+                updatePreview();
+            }
+        }
+
+        function resetSbaRundownDefault() {
+            sbaRundownList = JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN));
+            renderSbaRundownEditor();
+            updatePreview();
+        }
+
+        // PEMASUKAN EDITOR
+        function renderSbaPemasukanEditor() {
+            const container = document.getElementById('sba_pemasukan_editor_container');
+            if (!container) return;
+            const badge = document.getElementById('sba_pemasukan_count_badge');
+            if (badge) badge.innerText = `${sbaPemasukanList.length} Sumber`;
+
+            container.innerHTML = sbaPemasukanList.map((item, idx) => `
+                <div class="p-2 rounded-xl bg-neutral-900/90 border border-neutral-800 flex items-center gap-2 text-xs">
+                    <span class="font-mono text-neutral-400 text-[10px] w-5 text-center">${idx + 1}.</span>
+                    <input type="text" value="${escapeHtml(item.sumber || '')}" oninput="updateSbaPemasukanField(${idx}, 'sumber', this.value)" placeholder="Sumber Pemasukan (misal: Kas LDK IMIP)" class="form-input text-xs py-1.5 px-2.5 flex-1">
+                    <div class="relative w-36">
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-neutral-500 font-mono">Rp</span>
+                        <input type="number" value="${item.jumlah || 0}" oninput="updateSbaPemasukanField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1.5 pl-7 pr-2 font-mono text-right w-full">
+                    </div>
+                    <button type="button" onclick="removeSbaPemasukanRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1.5 rounded hover:bg-neutral-800 transition-colors">
+                        <i class="fa-solid fa-trash text-[11px]"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            updateSbaRekapitulasiDisplay();
+        }
+
+        function addSbaPemasukanRow() {
+            sbaPemasukanList.push({ no: `${sbaPemasukanList.length + 1}.`, sumber: '', jumlah: 0 });
+            renderSbaPemasukanEditor();
+            updatePreview();
+        }
+
+        function removeSbaPemasukanRow(idx) {
+            if (sbaPemasukanList.length <= 1) {
+                sbaPemasukanList = [{ no: '1.', sumber: '', jumlah: 0 }];
+            } else {
+                sbaPemasukanList.splice(idx, 1);
+            }
+            sbaPemasukanList.forEach((p, i) => p.no = `${i + 1}.`);
+            renderSbaPemasukanEditor();
+            updatePreview();
+        }
+
+        function updateSbaPemasukanField(idx, field, val) {
+            if (sbaPemasukanList[idx]) {
+                sbaPemasukanList[idx][field] = (field === 'jumlah') ? (Number(val) || 0) : val;
+                updateSbaRekapitulasiDisplay();
+                updatePreview();
+            }
+        }
+
+        function resetSbaPemasukanDefault() {
+            sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
+            renderSbaPemasukanEditor();
+            updatePreview();
+        }
+
+        // PENGELUARAN EDITOR (DIVISI & ITEMS)
+        function renderSbaPengeluaranEditor() {
+            const container = document.getElementById('sba_pengeluaran_editor_container');
+            if (!container) return;
+
+            container.innerHTML = sbaPengeluaranDivisi.map((div, divIdx) => {
+                const divTotal = (div.items || []).reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
+                return `
+                    <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 space-y-2.5">
+                        <div class="flex items-center justify-between border-b border-neutral-800/80 pb-2">
+                            <div class="flex items-center gap-2 flex-1">
+                                <span class="font-mono font-bold text-orange-400 text-xs">${div.divisiKode || String.fromCharCode(65 + divIdx) + '.'}</span>
+                                <input type="text" value="${escapeHtml(div.divisiNama || '')}" oninput="updateSbaDivisiNama(${divIdx}, this.value)" placeholder="Nama Divisi (misal: Divisi acara)" class="form-input text-xs py-1 px-2 font-bold w-44">
+                                <span class="text-[10px] font-mono text-neutral-400">Subtotal: <strong class="text-orange-400">${formatSbaRupiah(divTotal)}</strong></span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addSbaDivisiItem(${divIdx})" class="px-2 py-0.5 rounded bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-[10px] font-bold border border-orange-500/20 flex items-center gap-1">
+                                    <i class="fa-solid fa-plus text-[8px]"></i> Item
+                                </button>
+                                <button type="button" onclick="removeSbaDivisi(${divIdx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800">
+                                    <i class="fa-solid fa-trash text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5 pl-2">
+                            ${(div.items || []).map((it, itIdx) => `
+                                <div class="grid grid-cols-12 gap-1.5 items-center text-xs">
+                                    <div class="col-span-5">
+                                        <input type="text" value="${escapeHtml(it.uraian || '')}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'uraian', this.value)" placeholder="Uraian belanja (misal: Cue Card)" class="form-input text-xs py-1 px-2 w-full">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <input type="text" value="${escapeHtml(it.unit || '')}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'unit', this.value)" placeholder="2 lembar" class="form-input text-xs py-1 px-1.5 font-mono text-center w-full">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <input type="number" value="${it.hargaSatuan || 0}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'hargaSatuan', this.value)" placeholder="Harga Satuan" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <input type="number" value="${it.jumlah || 0}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full font-bold text-orange-400">
+                                    </div>
+                                    <div class="col-span-1 text-center">
+                                        <button type="button" onclick="removeSbaDivisiItem(${divIdx}, ${itIdx})" class="text-neutral-500 hover:text-red-400 p-1">
+                                            <i class="fa-solid fa-xmark text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateSbaRekapitulasiDisplay();
+        }
+
+        function addSbaDivisi() {
+            const nextCode = String.fromCharCode(65 + sbaPengeluaranDivisi.length) + '.';
+            sbaPengeluaranDivisi.push({
+                divisiKode: nextCode,
+                divisiNama: 'Divisi baru',
+                items: [{ uraian: '', unit: '', hargaSatuan: 0, jumlah: 0 }]
+            });
+            renderSbaPengeluaranEditor();
+            updatePreview();
+        }
+
+        function removeSbaDivisi(divIdx) {
+            if (sbaPengeluaranDivisi.length <= 1) {
+                sbaPengeluaranDivisi = [{ divisiKode: 'A.', divisiNama: 'Divisi acara', items: [] }];
+            } else {
+                sbaPengeluaranDivisi.splice(divIdx, 1);
+            }
+            sbaPengeluaranDivisi.forEach((d, i) => d.divisiKode = String.fromCharCode(65 + i) + '.');
+            renderSbaPengeluaranEditor();
+            updatePreview();
+        }
+
+        function updateSbaDivisiNama(divIdx, val) {
+            if (sbaPengeluaranDivisi[divIdx]) {
+                sbaPengeluaranDivisi[divIdx].divisiNama = val;
+                updatePreview();
+            }
+        }
+
+        function addSbaDivisiItem(divIdx) {
+            if (sbaPengeluaranDivisi[divIdx]) {
+                sbaPengeluaranDivisi[divIdx].items.push({ uraian: '', unit: '', hargaSatuan: 0, jumlah: 0 });
+                renderSbaPengeluaranEditor();
+                updatePreview();
+            }
+        }
+
+        function removeSbaDivisiItem(divIdx, itIdx) {
+            if (sbaPengeluaranDivisi[divIdx] && sbaPengeluaranDivisi[divIdx].items) {
+                sbaPengeluaranDivisi[divIdx].items.splice(itIdx, 1);
+                renderSbaPengeluaranEditor();
+                updatePreview();
+            }
+        }
+
+        function updateSbaDivisiItemField(divIdx, itIdx, field, val) {
+            if (sbaPengeluaranDivisi[divIdx] && sbaPengeluaranDivisi[divIdx].items[itIdx]) {
+                const item = sbaPengeluaranDivisi[divIdx].items[itIdx];
+                if (field === 'hargaSatuan') {
+                    item.hargaSatuan = Number(val) || 0;
+                    const unitNum = parseInt((item.unit || '').replace(/[^0-9]/g, ''), 10) || 1;
+                    if (!item.isJumlahManuallySet) {
+                        item.jumlah = unitNum * item.hargaSatuan;
+                    }
+                } else if (field === 'jumlah') {
+                    item.jumlah = Number(val) || 0;
+                    item.isJumlahManuallySet = true;
+                } else if (field === 'unit') {
+                    item.unit = val;
+                    const unitNum = parseInt(val.replace(/[^0-9]/g, ''), 10);
+                    if (unitNum && item.hargaSatuan && !item.isJumlahManuallySet) {
+                        item.jumlah = unitNum * item.hargaSatuan;
+                    }
+                } else {
+                    item[field] = val;
+                }
+                renderSbaPengeluaranEditor();
+                updatePreview();
+            }
+        }
+
+        function resetSbaPengeluaranDefault() {
+            sbaPengeluaranDivisi = JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_DIVISI));
+            renderSbaPengeluaranEditor();
+            updatePreview();
+        }
+
+        // NOTA GALLERY
+        function renderSbaNotaGallery() {
+            const container = document.getElementById('sba_nota_gallery_container');
+            if (!container) return;
+            const badge = document.getElementById('sba_nota_count_badge');
+            if (badge) badge.innerText = `${sbaNotaList.length} Foto`;
+
+            container.innerHTML = sbaNotaList.map((src, idx) => `
+                <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[3/4] flex items-center justify-center">
+                    <img src="${src}" alt="Nota #${idx + 1}" class="w-full h-full object-contain p-1">
+                    <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-white">#${idx + 1}</span>
+                    <button type="button" onclick="removeSbaNotaItem(${idx})" class="absolute top-1 right-1 p-1 rounded-lg bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Hapus Nota">
+                        <i class="fa-solid fa-trash text-[10px]"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function handleSbaNotaUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sbaNotaList.push(e.target.result);
+                    renderSbaNotaGallery();
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function removeSbaNotaItem(idx) {
+            sbaNotaList.splice(idx, 1);
+            renderSbaNotaGallery();
+            updatePreview();
+        }
+
+        function resetSbaNotaDefault() {
+            sbaNotaList = [...DEFAULT_SBA_NOTAS];
+            renderSbaNotaGallery();
+            updatePreview();
+        }
+
+        // DOKUMENTASI GALLERY
+        function renderSbaDokGallery() {
+            const container = document.getElementById('sba_dok_gallery_container');
+            if (!container) return;
+            const badge = document.getElementById('sba_dok_count_badge');
+            if (badge) badge.innerText = `${sbaDokList.length} Foto`;
+
+            container.innerHTML = sbaDokList.map((src, idx) => `
+                <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[4/3] flex items-center justify-center">
+                    <img src="${src}" alt="Dokumentasi #${idx + 1}" class="w-full h-full object-cover">
+                    <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-white">#${idx + 1}</span>
+                    <button type="button" onclick="removeSbaDokItem(${idx})" class="absolute top-1 right-1 p-1 rounded-lg bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Hapus Foto">
+                        <i class="fa-solid fa-trash text-[10px]"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function handleSbaDokUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sbaDokList.push(e.target.result);
+                    renderSbaDokGallery();
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function removeSbaDokItem(idx) {
+            sbaDokList.splice(idx, 1);
+            renderSbaDokGallery();
+            updatePreview();
+        }
+
+        function resetSbaDokDefault() {
+            sbaDokList = [...DEFAULT_SBA_DOKS];
+            renderSbaDokGallery();
+            updatePreview();
+        }
+
+        function initSbaEditors() {
+            const elOutput = document.getElementById('sba_output_kegiatan');
+            if (elOutput && !elOutput.value) elOutput.value = DEFAULT_SBA_OUTPUT;
+
+            const elHambatan = document.getElementById('sba_hambatan_kegiatan');
+            if (elHambatan && !elHambatan.value) elHambatan.value = DEFAULT_SBA_HAMBATAN;
+
+            const elEvaluasi = document.getElementById('sba_evaluasi_kegiatan');
+            if (elEvaluasi && !elEvaluasi.value) elEvaluasi.value = DEFAULT_SBA_EVALUASI;
+
+            renderSbaRundownEditor();
+            renderSbaPemasukanEditor();
+            renderSbaPengeluaranEditor();
+            renderSbaNotaGallery();
+            renderSbaDokGallery();
+            updateSbaRekapitulasiDisplay();
+        }
+
+        function renderSbaNotaGridHtml() {
+            if (!sbaNotaList || sbaNotaList.length === 0) {
+                return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran nota keuangan.</p>';
+            }
+            const row1 = sbaNotaList.slice(0, 3);
+            const row2 = sbaNotaList.slice(3, 7);
+            const remaining = sbaNotaList.slice(7);
+
+            return `
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6pt;">
+                    <!-- Baris 1: Max 3 Nota -->
+                    <div style="display: grid; grid-template-columns: repeat(${row1.length}, 1fr); gap: 10px; align-items: center; justify-items: center;">
+                        ${row1.map(src => `
+                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: #fff;">
+                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 50mm; object-fit: contain; display: block;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    <!-- Baris 2: Max 4 Nota -->
+                    ${row2.length > 0 ? `
+                    <div style="display: grid; grid-template-columns: repeat(${row2.length}, 1fr); gap: 8px; align-items: center; justify-items: center;">
+                        ${row2.map(src => `
+                            <div style="width: 100%; height: 52mm; display: flex; align-items: center; justify-content: center; background: #fff;">
+                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 52mm; object-fit: contain; display: block;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    <!-- Baris Tambahan (Jika ada lebih dari 7) -->
+                    ${remaining.length > 0 ? `
+                    <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 4)}, 1fr); gap: 8px; align-items: center; justify-items: center;">
+                        ${remaining.map(src => `
+                            <div style="width: 100%; height: 48mm; display: flex; align-items: center; justify-content: center; background: #fff;">
+                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 48mm; object-fit: contain; display: block;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderSbaDokGridHtml() {
+            if (!sbaDokList || sbaDokList.length === 0) {
+                return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran dokumentasi.</p>';
+            }
+            const row1 = sbaDokList.slice(0, 2);
+            const row2 = sbaDokList.slice(2, 4);
+            const row3 = sbaDokList.slice(4, 5);
+            const remaining = sbaDokList.slice(5);
+
+            return `
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6pt;">
+                    <!-- Baris 1: 2 Foto -->
+                    ${row1.length > 0 ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px; align-items: center;">
+                        ${row1.map(src => `
+                            <div style="width: 100%; height: 47mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
+                                <img src="${src}" alt="Dokumentasi" style="width: 100%; height: 47mm; object-fit: cover; display: block;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    <!-- Baris 2: 2 Foto -->
+                    ${row2.length > 0 ? `
+                    <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: center;">
+                        ${row2.map(src => `
+                            <div style="width: 100%; height: 47mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
+                                <img src="${src}" alt="Dokumentasi" style="width: 100%; height: 47mm; object-fit: cover; display: block;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                    <!-- Baris 3: 1 Foto Kiri/Tengah -->
+                    ${row3.length > 0 ? `
+                    <div style="display: flex; justify-content: flex-start;">
+                        <div style="width: 55%; height: 48mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
+                            <img src="${row3[0]}" alt="Dokumentasi" style="width: 100%; height: 48mm; object-fit: cover; display: block;">
+                        </div>
+                    </div>
+                    ` : ''}
+                    <!-- Baris Tambahan jika ada -->
+                    ${remaining.length > 0 ? `
+                    <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 3)}, 1fr); gap: 10px; align-items: center;">
+                        ${remaining.map(src => `
+                            <div style="width: 100%; height: 45mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
+                                <img src="${src}" alt="Dokumentasi" style="width: 100%; height: 45mm; object-fit: cover; display: block;">
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
         // RENDER DEDICATED OFFICIAL SPZ MULTI-PAGE SYSTEM (MATCHING 025_SPZ QURMEDIA 2026.pdf)
         function renderSpzLetterHtml() {
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/IX/2026';
@@ -4481,43 +5402,39 @@
         }
 
         // ==========================================
-        // DEDICATED RENDERER: SURAT BERITA ACARA (SBA) - 2 HALAMAN A4
+        // DEDICATED RENDERER: SURAT BERITA ACARA (SBA) - MULTI-PAGE SYSTEM
+        // BERPATOKAN LENGKAP PADA: 034_SBA STUBAN 2026.pdf (8 HALAMAN)
         // ==========================================
         function renderSbaLetterHtml() {
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '034/SBA/E1/UKM IMIP/VII/2026';
             const lampiran = document.getElementById('field_lampiran').value.trim() || '2 Halaman';
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Berita Acara Studi Banding';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 2 Juli 2026';
-            const tujuan = document.getElementById('field_tujuan').value.trim() || 'Yth. Majelis Permusyawaratan Mahasiswa\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat';
 
             const incEvent = document.getElementById('field_include_event_details').checked;
             const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'Studi Banding 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Minggu, 28 Juni 2026';
             const waktu = document.getElementById('field_waktu').value.trim() || '08.00 s/d 13.10 WIB';
-            const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur 13220';
+            const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220';
 
-            const pembuka = document.getElementById('field_pembuka').value.trim();
-            const isiInti = document.getElementById('field_isi_inti').value.trim();
+            const pembuka = document.getElementById('field_pembuka').value.trim() || 'Melalui surat ini kami sampaikan bahwa Unit Kegiatan Mahasiswa LDK IMIP Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan Studi Banding 2026 pada:';
+            const isiInti = document.getElementById('field_isi_inti').value.trim() || 'Studi Banding antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.';
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.';
 
             let ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim();
             if (!ttd1Jabatan || ttd1Jabatan === 'Ketua Pelaksana') {
                 const formatted = formatProkerTtd1(namaAcara);
                 ttd1Jabatan = formatted ? `Ketua Pelaksana\n${formatted}` : 'Ketua Pelaksana\nStudi Banding 2026';
-            } else {
-                const lines = ttd1Jabatan.split('\n');
-                if (lines.length > 1) {
-                    const cleanedSub = formatProkerTtd1(lines.slice(1).join(' '));
-                    ttd1Jabatan = cleanedSub ? `${lines[0]}\n${cleanedSub}` : lines[0];
-                }
             }
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Faridah Rihadatul ‘Aisy';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2470402026';
+
             const ttd2Jabatan = (document.getElementById('field_ttd2_jabatan')?.value || '').trim() || 'Ketua UKM LDK IMIP\nPeriode 2026';
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
-            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nLDK IMIP';
-            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
+
+            const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM IMIP';
+            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Zainul Hakim, S.Ag.,M.Pd.I';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
 
             const mpmJabatan = (document.getElementById('field_ttd_mpm_jabatan')?.value || '').trim() || 'Ketua Umum MPM\nPoliMedia Periode 2026';
@@ -4529,199 +5446,435 @@
             const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
 
             const kopHtml = generateOfficialKopHtml();
+            const sbaPages = getSbaPagesStructure();
+            const totalPages = sbaPages.length;
 
-            let eventBoxHtml = '';
-            if (incEvent && (hariTanggal || waktu || tempat)) {
-                eventBoxHtml = `
-                    <table style="width: calc(100% - 1.25cm); margin-left: 1.25cm; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
-                        ${hariTanggal ? `
-                        <tr>
-                            <td style="width: 120px; vertical-align: top; padding: 2pt 0;">Hari, tanggal</td>
-                            <td style="width: 18px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(hariTanggal)}</td>
-                        </tr>` : ''}
-                        ${waktu ? `
-                        <tr>
-                            <td style="vertical-align: top; padding: 2pt 0;">Pukul</td>
-                            <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(waktu)}</td>
-                        </tr>` : ''}
-                        ${tempat ? `
-                        <tr>
-                            <td style="vertical-align: top; padding: 2pt 0;">Tempat</td>
-                            <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
-                            <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(tempat).replace(/\n/g, '<br>')}</td>
-                        </tr>` : ''}
-                    </table>
-                `;
-            }
+            const htmlSheets = [];
 
-            const pembukaParas = pembuka.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatOfficialText(p).replace(/\n/g, '<br>')}</p>
-            `).join('');
+            sbaPages.forEach(p => {
+                const pageNum = p.id;
+                const key = p.key;
 
-            const intiParas = isiInti ? isiInti.split('\n\n').filter(p => p.trim() !== '').map(p => `
-                <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatOfficialText(p).replace(/\n/g, '<br>')}</p>
-            `).join('') : '';
+                let pageContentHtml = '';
 
-            return `
-                <!-- HALAMAN 1 DARI 2 -->
-                <div class="spz-sheet-badge print:hidden">
-                    <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman 1 &bull; Berita Acara Kegiatan</span>
-                    <span class="text-[10px] font-mono text-orange-400 font-bold">1 / 2</span>
-                </div>
-                <div class="spz-page-sheet" data-page="1">
-                    ${getOfficialWatermarkHtml('145mm')}
-
-                    <div style="position: relative; z-index: 2;">
-                        ${kopHtml}
-
-                        <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                            <!-- TANGGAL SURAT -->
-                            <div style="text-align: right; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
-                            </div>
-
-                            <!-- META SURAT -->
-                            <table style="border-collapse: collapse; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
+                if (key === 'pokok') {
+                    // HALAMAN 1: POKOK BERITA ACARA
+                    let eventBoxHtml = '';
+                    if (incEvent && (hariTanggal || waktu || tempat)) {
+                        eventBoxHtml = `
+                            <table style="width: calc(100% - 1.25cm); margin-left: 1.25cm; border-collapse: collapse; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
+                                ${hariTanggal ? `
                                 <tr>
-                                    <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
-                                    <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
+                                    <td style="width: 120px; vertical-align: top; padding: 2pt 0;">Hari, tanggal</td>
+                                    <td style="width: 18px; vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
+                                    <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(hariTanggal)}</td>
+                                </tr>` : ''}
+                                ${waktu ? `
+                                <tr>
+                                    <td style="vertical-align: top; padding: 2pt 0;">Pukul</td>
+                                    <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
+                                    <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(waktu)}</td>
+                                </tr>` : ''}
+                                ${tempat ? `
+                                <tr>
+                                    <td style="vertical-align: top; padding: 2pt 0;">Tempat</td>
+                                    <td style="vertical-align: top; text-align: center; padding: 2pt 0;">:</td>
+                                    <td style="vertical-align: top; padding: 2pt 0;">${formatInlineRichText(tempat).replace(/\n/g, '<br>')}</td>
+                                </tr>` : ''}
+                            </table>
+                        `;
+                    }
+
+                    const pembukaParas = pembuka.split('\n\n').filter(s => s.trim() !== '').map(s => `
+                        <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatOfficialText(s).replace(/\n/g, '<br>')}</p>
+                    `).join('');
+
+                    const intiParas = isiInti ? isiInti.split('\n\n').filter(s => s.trim() !== '').map(s => `
+                        <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-size: 12pt;">${formatOfficialText(s).replace(/\n/g, '<br>')}</p>
+                    `).join('') : '';
+
+                    pageContentHtml = `
+                        <!-- TANGGAL SURAT -->
+                        <div style="text-align: right; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
+                        </div>
+
+                        <!-- META SURAT -->
+                        <table style="border-collapse: collapse; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45;">
+                            <tr>
+                                <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
+                                <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
+                            </tr>
+                        </table>
+
+                        <!-- JUDUL BERITA ACARA -->
+                        <div style="text-align: center; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.35;">
+                            <p style="margin: 0;">BERITA ACARA</p>
+                            <p style="margin: 0;">${formatInlineRichText(namaAcara.toUpperCase())}</p>
+                            <p style="margin: 0;">UNIT KEGIATAN MAHASISWA LDK IMIP</p>
+                        </div>
+
+                        <!-- ISI SURAT -->
+                        ${pembukaParas}
+                        ${eventBoxHtml}
+                        ${intiParas}
+                    `;
+                } else if (key === 'rundown') {
+                    // HALAMAN 2: HASIL KEGIATAN (RUNDOWN ACARA)
+                    const rowsHtml = sbaRundownList.map((item, idx) => `
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4pt 3pt; text-align: center; vertical-align: middle;">${item.no || `${idx + 1}.`}</td>
+                            <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.rangkaian).replace(/\n/g, '<br>')}</td>
+                            <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.waktu)}</td>
+                            <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.pj).replace(/\n/g, '<br>')}</td>
+                        </tr>
+                    `).join('');
+
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <!-- SUBJUDUL -->
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hasil dan <em>Output</em> Kegiatan Agenda Kerja</p>
+                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Hasil Kegiatan</p>
+
+                        <!-- TABEL RUNDOWN -->
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 12pt;">
+                            <thead>
+                                <tr style="text-align: center; font-weight: bold;">
+                                    <th style="border: 1px solid #000; padding: 4pt 3pt; width: 38px;">No</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt;">Rangkaian Kegiatan</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 4pt; width: 140px;">Waktu</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt; width: 150px;">Penanggung Jawab</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    `;
+                } else if (key === 'output_eval') {
+                    // HALAMAN 3: OUTPUT, HAMBATAN & EVALUASI
+                    const outputText = (document.getElementById('sba_output_kegiatan')?.value || DEFAULT_SBA_OUTPUT).trim();
+                    const hambatanText = (document.getElementById('sba_hambatan_kegiatan')?.value || DEFAULT_SBA_HAMBATAN).trim();
+                    const evaluasiText = (document.getElementById('sba_evaluasi_kegiatan')?.value || DEFAULT_SBA_EVALUASI).trim();
+
+                    const renderBulletItems = (raw) => {
+                        const lines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+                        return lines.map(line => {
+                            const cleaned = line.replace(/^[•\-\*]\s*/, '').trim();
+                            return `
+                                <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45; margin-bottom: 4pt;">
+                                    <tr>
+                                        <td style="width: 16px; vertical-align: top; padding: 1pt 0; text-align: left;">&bull;</td>
+                                        <td style="vertical-align: top; text-align: justify; padding: 1pt 0;">${formatInlineRichText(cleaned)}</td>
+                                    </tr>
+                                </table>
+                            `;
+                        }).join('');
+                    };
+
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <!-- 2. OUTPUT KEGIATAN -->
+                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">2. <em>Output</em> kegiatan</p>
+                        <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            ${formatInlineRichText(outputText).replace(/\n/g, '<br>')}
+                        </p>
+
+                        <!-- PENGANTAR HAMBATAN & EVALUASI -->
+                        <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            Adapun Hambatan dan Evaluasi dari kegiatan yang sudah dilaksanakan antara lain:
+                        </p>
+
+                        <!-- HAMBATAN -->
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hambatan:</p>
+                        <div style="margin-bottom: 12pt;">
+                            ${renderBulletItems(hambatanText)}
+                        </div>
+
+                        <!-- EVALUASI -->
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Evaluasi :</p>
+                        <div>
+                            ${renderBulletItems(evaluasiText)}
+                        </div>
+                    `;
+                } else if (key === 'keuangan') {
+                    // HALAMAN 4: KEUANGAN (PEMASUKAN & BELANJA BAHAN)
+                    const totalPemasukan = getSbaTotalPemasukan();
+                    const totalPengeluaran = getSbaTotalPengeluaran();
+
+                    const pemasukanRowsHtml = sbaPemasukanList.map((item, idx) => `
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${item.no || `${idx + 1}.`}</td>
+                            <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">${formatInlineRichText(item.sumber)}</td>
+                            <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(item.jumlah)}</td>
+                        </tr>
+                    `).join('');
+
+                    let pengeluaranRowsHtml = '';
+                    sbaPengeluaranDivisi.forEach((div, divIdx) => {
+                        const divTotal = (div.items || []).reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
+                        pengeluaranRowsHtml += `
+                            <tr style="font-weight: bold;">
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${div.divisiKode || String.fromCharCode(65 + divIdx) + '.'}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">${formatInlineRichText(div.divisiNama)}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt;"></td>
+                                <td style="border: 1px solid #000; padding: 4pt 6pt;"></td>
+                                <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(divTotal)}</td>
+                            </tr>
+                        `;
+                        (div.items || []).forEach(it => {
+                            pengeluaranRowsHtml += `
+                                <tr>
+                                    <td style="border: 1px solid #000; padding: 3pt 4pt;"></td>
+                                    <td style="border: 1px solid #000; padding: 3pt 8pt; font-style: italic; vertical-align: middle;">${formatInlineRichText(it.uraian)}</td>
+                                    <td style="border: 1px solid #000; padding: 3pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(it.unit)}</td>
+                                    <td style="border: 1px solid #000; padding: 3pt 6pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(it.hargaSatuan)}</td>
+                                    <td style="border: 1px solid #000; padding: 3pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(it.jumlah)}</td>
+                                </tr>
+                            `;
+                        });
+                    });
+
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan Agenda Kerja</p>
+                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Pemasukan</p>
+
+                        <!-- TABEL PEMASUKAN -->
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.3; margin-bottom: 16pt;">
+                            <thead>
+                                <tr style="text-align: center; font-weight: bold;">
+                                    <th style="border: 1px solid #000; padding: 4pt 3pt; width: 45px;">No</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt;">Pemasukan</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt; width: 170px;">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pemasukanRowsHtml}
+                                <tr style="font-weight: bold;">
+                                    <td colspan="2" style="border: 1px solid #000; padding: 4pt 8pt; text-align: center;">Total</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right;">${formatSbaRupiah(totalPemasukan)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">2. Pengeluaran</p>
+                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">2.1 Belanja Bahan</p>
+
+                        <!-- TABEL BELANJA BAHAN -->
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.3; margin-bottom: 10pt;">
+                            <thead>
+                                <tr style="text-align: center; font-weight: bold;">
+                                    <th style="border: 1px solid #000; padding: 4pt 3pt; width: 40px;">No</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt;">Uraian</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 4pt; width: 90px;">Unit</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt; width: 110px;">Harga Satuan</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt; width: 130px;">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pengeluaranRowsHtml}
+                                <tr style="font-weight: bold;">
+                                    <td colspan="4" style="border: 1px solid #000; padding: 4pt 8pt; text-align: center;">TOTAL</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right;">${formatSbaRupiah(totalPengeluaran)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                } else if (key === 'rekapitulasi') {
+                    // HALAMAN 5: REKAPITULASI KEUANGAN
+                    const totalPemasukan = getSbaTotalPemasukan();
+                    const totalPengeluaran = getSbaTotalPengeluaran();
+                    const saldoSisa = totalPemasukan - totalPengeluaran;
+
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">3. Rekapitulasi Keuangan</p>
+
+                        <!-- TABEL REKAPITULASI -->
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35; margin-bottom: 16pt;">
+                            <thead>
+                                <tr style="text-align: center; font-weight: bold;">
+                                    <th style="border: 1px solid #000; padding: 4pt 3pt; width: 45px;">No</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt;">Keterangan</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt; width: 170px;">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">1.</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">Pemasukan</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(totalPemasukan)}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
-                                    <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">2.</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">Pengeluaran</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(totalPengeluaran)}</td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td colspan="2" style="border: 1px solid #000; padding: 4pt 8pt; text-align: center;">TOTAL</td>
+                                    <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right;">${formatSbaRupiah(saldoSisa)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                } else if (key === 'pengesahan') {
+                    // HALAMAN 6: LEMBAR PENGESAHAN (PENUTUP & 5 TTD RESMI)
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <!-- PARAGRAF PENUTUP -->
+                        <p style="margin: 0 0 16pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            ${formatInlineRichText(penutup).replace(/\n/g, '<br>')}
+                        </p>
+
+                        <!-- PENGESAHAN IDENTIK DENGAN 034_SBA STUBAN 2026.pdf HALAMAN 6 -->
+                        <div style="font-family: 'Times New Roman', serif;">
+                            <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
+                            <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
+                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 20pt;">
+                                <tr>
+                                    <td style="width: 48%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
+                                        ${formatTtdJabatan(ttd2Jabatan)}
+                                    </td>
+                                    <td style="width: 4%;"></td>
+                                    <td style="width: 48%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
+                                        ${formatTtdJabatan(ttd1Jabatan)}
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
-                                    <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
+                                    <td style="vertical-align: top; line-height: 1.25;">
+                                        <strong style="text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                        <span style="font-size: 12pt;">${formatInlineRichText(ttd2Nim)}</span>
+                                    </td>
+                                    <td></td>
+                                    <td style="vertical-align: top; line-height: 1.25;">
+                                        <strong style="text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</strong><br>
+                                        <span style="font-size: 12pt;">${formatInlineRichText(ttd1Nim)}</span>
+                                    </td>
                                 </tr>
                             </table>
 
-                            <!-- JUDUL BERITA ACARA -->
-                            <div style="text-align: center; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.35;">
-                                <p style="margin: 0;">BERITA ACARA</p>
-                                <p style="margin: 0;">${formatInlineRichText(namaAcara.toUpperCase())}</p>
-                                <p style="margin: 0;">UNIT KEGIATAN MAHASISWA LDK IMIP</p>
-                            </div>
+                            <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
+                            <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
+                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 24pt;">
+                                <tr>
+                                    <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
+                                        ${formatTtdJabatan(ttd3Jabatan)}
+                                    </td>
+                                    <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
+                                        ${formatTtdJabatan(mpmJabatan)}
+                                    </td>
+                                    <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
+                                        ${formatTtdJabatan(bemJabatan)}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="vertical-align: top; line-height: 1.25;">
+                                        <strong style="text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</strong><br>
+                                        <span style="font-size: 12pt;">${formatInlineRichText(ttd3Nim)}</span>
+                                    </td>
+                                    <td style="vertical-align: top; line-height: 1.25;">
+                                        <strong style="text-decoration: underline;">${formatInlineRichText(mpmNama)}</strong><br>
+                                        <span style="font-size: 12pt;">${formatInlineRichText(mpmNim)}</span>
+                                    </td>
+                                    <td style="vertical-align: top; line-height: 1.25;">
+                                        <strong style="text-decoration: underline;">${formatInlineRichText(bemNama)}</strong><br>
+                                        <span style="font-size: 12pt;">${formatInlineRichText(bemNim)}</span>
+                                    </td>
+                                </tr>
+                            </table>
 
-                            <!-- ISI SURAT -->
-                            ${pembukaParas}
-                            ${eventBoxHtml}
-                            ${intiParas}
+                            <!-- BARIS 3: TEMBUSAN -->
+                            <div style="font-size: 12pt; line-height: 1.35; text-align: left; margin-top: 10pt;">
+                                <p style="margin: 0 0 3pt 0; font-weight: bold; font-size: 12pt;">Tembusan :</p>
+                                <table style="margin-left: 20pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35;">
+                                    <tr>
+                                        <td style="width: 20px; vertical-align: top; padding: 1pt 0;">1.</td>
+                                        <td style="vertical-align: top; padding: 1pt 0;">Arsip</td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
+                    `;
+                } else if (key === 'nota') {
+                    // HALAMAN 7: LAMPIRAN NOTA KEUANGAN
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <p style="margin: 0 0 2pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+                        <p style="margin: 0 0 14pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Nota Keuangan</p>
+
+                        ${renderSbaNotaGridHtml()}
+                    `;
+                } else if (key === 'dok') {
+                    // HALAMAN 8: LAMPIRAN DOKUMENTASI
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <p style="margin: 0 0 2pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+                        <p style="margin: 0 0 14pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Dokumentasi</p>
+
+                        ${renderSbaDokGridHtml()}
+                    `;
+                }
+
+                // Push complete A4 sheet
+                htmlSheets.push(`
+                    <div class="spz-sheet-badge print:hidden">
+                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${pageNum} &bull; ${p.label}</span>
+                        <span class="text-[10px] font-mono text-orange-400 font-bold">${pageNum} / ${totalPages}</span>
                     </div>
-                </div>
+                    <div class="spz-page-sheet" data-page="${pageNum}">
+                        ${getOfficialWatermarkHtml(pageNum === 1 ? '145mm' : '135mm')}
 
-                <!-- HALAMAN 2 DARI 2 -->
-                <div class="spz-sheet-badge print:hidden">
-                    <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman 2 &bull; Pengesahan Berita Acara</span>
-                    <span class="text-[10px] font-mono text-orange-400 font-bold">2 / 2</span>
-                </div>
-                <div class="spz-page-sheet" data-page="2">
-                    ${getOfficialWatermarkHtml('128mm')}
-
-                    <div style="position: relative; z-index: 2;">
-                        ${kopHtml}
-
-                        <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                            <!-- NOMOR SURAT BRACKET -->
-                            <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                                <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
-                            </div>
-
-                            <!-- PARAGRAF PENUTUP -->
-                            <p style="margin: 0 0 16pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                ${formatInlineRichText(penutup).replace(/\n/g, '<br>')}
-                            </p>
-
-                            <!-- PENGESAHAN SBA RESMI (IDENTIK LEVEL DENGAN SPZ/SBA MASTER) -->
-                            <div style="font-family: 'Times New Roman', serif;">
-                                <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
-                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 16pt;">
-                                    <tr>
-                                        <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.25;">
-                                            ${formatTtdJabatan(ttd2Jabatan)}
-                                        </td>
-                                        <td style="width: 33.3%; vertical-align: top;"></td>
-                                        <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.25;">
-                                            ${formatTtdJabatan(ttd1Jabatan)}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</strong><br>
-                                            <span style="font-size: 12pt;">${formatInlineRichText(ttd2Nim)}</span>
-                                        </td>
-                                        <td></td>
-                                        <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</strong><br>
-                                            <span style="font-size: 12pt;">${formatInlineRichText(ttd1Nim)}</span>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
-                                <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 16pt;">
-                                    <tr>
-                                        <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            ${formatTtdJabatan(ttd3Jabatan)}
-                                        </td>
-                                        <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            ${formatTtdJabatan(mpmJabatan)}
-                                        </td>
-                                        <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            ${formatTtdJabatan(bemJabatan)}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</strong><br>
-                                            <span style="font-size: 12pt;">${formatInlineRichText(ttd3Nim)}</span>
-                                        </td>
-                                        <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${formatInlineRichText(mpmNama)}</strong><br>
-                                            <span style="font-size: 12pt;">${formatInlineRichText(mpmNim)}</span>
-                                        </td>
-                                        <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${formatInlineRichText(bemNama)}</strong><br>
-                                            <span style="font-size: 12pt;">${formatInlineRichText(bemNim)}</span>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <!-- BARIS 3: MENYETUJUI WADIR III (JIKA ADA DANA) -->
-                                <div style="text-align: center; margin-bottom: 16pt;">
-                                    <p style="margin: 0 0 3pt 0; font-size: 12pt; font-weight: bold;">Menyetujui,</p>
-                                    <p style="margin: 0 0 48pt 0; font-size: 12pt; line-height: 1.25;">Wakil Direktur<br>Bidang Kemahasiswaan dan Alumni</p>
-                                    <p style="margin: 0; font-size: 12pt; font-weight: bold; text-decoration: underline;">Dr. Dayu Sri Herti, S.Pd., M.Sn.</p>
-                                    <p style="margin: 0; font-size: 12pt;">NIP. 197602012002122001</p>
-                                </div>
-
-                                <!-- BARIS 4: TEMBUSAN -->
-                                <div style="font-size: 12pt; line-height: 1.35; text-align: left;">
-                                    <p style="margin: 0 0 3pt 0; font-weight: bold; font-size: 12pt;">Tembusan :</p>
-                                    <table style="margin-left: 28pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35;">
-                                        <tr>
-                                            <td style="width: 20px; vertical-align: top; padding: 1pt 0;">1.</td>
-                                            <td style="vertical-align: top; padding: 1pt 0;">Wadir Direktur Bidang Kemahasiswaan dan Alumni</td>
-                                        </tr>
-                                        <tr>
-                                            <td style="width: 20px; vertical-align: top; padding: 1pt 0;">2.</td>
-                                            <td style="vertical-align: top; padding: 1pt 0;">Arsip</td>
-                                        </tr>
-                                    </table>
-                                </div>
+                        <div style="position: relative; z-index: 2;">
+                            ${kopHtml}
+                            <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
+                                ${pageContentHtml}
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `);
+            });
+
+            return htmlSheets.join('\n');
         }
 
         // RENDER SURAT FULL HTML (DISPATCHER: SPZ, SUD, SPM, SBA)
@@ -5156,7 +6309,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
         function getTotalPagesForCurrentType() {
             if (currentSuratType === 'SUD') return 1;
-            if (currentSuratType === 'SPM' || currentSuratType === 'SBA') return 2;
+            if (currentSuratType === 'SPM') return 2;
+            if (currentSuratType === 'SBA') return getSbaPagesStructure().length;
             if (currentSuratType === 'SPZ') {
                 let pages = 2;
                 if (isSpzLampiran1Active()) pages++;
@@ -5175,8 +6329,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 tabs.push({ id: 1, label: 'Hal 1: Permohonan', icon: 'fa-file-lines', badge: 'Lembar 1', desc: 'Kop, Tujuan & Rincian Acara' });
                 tabs.push({ id: 2, label: 'Hal 2: Pengesahan', icon: 'fa-signature', badge: 'Lembar 2', desc: 'Penutup & Pengesahan Surat' });
             } else if (currentSuratType === 'SBA') {
-                tabs.push({ id: 1, label: 'Hal 1: Berita Acara', icon: 'fa-clipboard-check', badge: 'Lembar 1', desc: 'Kop & Rincian Berita Acara' });
-                tabs.push({ id: 2, label: 'Hal 2: Pengesahan', icon: 'fa-signature', badge: 'Lembar 2', desc: 'Penutup & Tanda Tangan' });
+                const sbaPages = getSbaPagesStructure();
+                sbaPages.forEach(p => {
+                    tabs.push({ id: p.id, label: `Hal ${p.id}: ${p.label}`, icon: p.icon, badge: `Lembar ${p.id}`, desc: p.desc });
+                });
             } else if (currentSuratType === 'SPZ') {
                 tabs.push({ id: 1, label: 'Hal 1: Isi Surat', icon: 'fa-file-lines', badge: 'Lembar 1', desc: 'Kop, Fasilitas & Rincian Acara' });
                 tabs.push({ id: 2, label: 'Hal 2: Pengesahan', icon: 'fa-signature', badge: 'Lembar 2', desc: 'Penutup & 6 Tanda Tangan' });
@@ -5281,16 +6437,25 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         function getCardsForActivePage(page) {
             const hasL1 = (currentSuratType === 'SPZ' && isSpzLampiran1Active());
             const hasL2 = (currentSuratType === 'SPZ' && isSpzLampiran2Active());
+            const hasKeu = (currentSuratType === 'SBA' && isSbaKeuanganActive());
+            const hasNota = (currentSuratType === 'SBA' && isSbaNotaActive());
+            const hasDok = (currentSuratType === 'SBA' && isSbaDokActive());
 
             if (page === 'all') {
                 return {
                     card_kop_nomor: true,
-                    card_tujuan: true,
+                    card_tujuan: (currentSuratType !== 'SBA'),
                     card_pembuka: true,
                     card_detail_kegiatan: true,
                     card_isi_inti: true,
+                    card_sba_rundown: (currentSuratType === 'SBA'),
+                    card_sba_output_evaluasi: (currentSuratType === 'SBA'),
+                    card_sba_keuangan: hasKeu,
+                    card_sba_rekapitulasi: hasKeu,
                     card_penutup: true,
                     card_penandatangan: true,
+                    card_sba_lampiran_nota: hasNota,
+                    card_sba_lampiran_dok: hasDok,
                     card_spz_lampiran_1: hasL1,
                     card_spz_lampiran_2: hasL2
                 };
@@ -5305,12 +6470,18 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_isi_inti: true,
                     card_penutup: true,
                     card_penandatangan: true,
+                    card_sba_rundown: false,
+                    card_sba_output_evaluasi: false,
+                    card_sba_keuangan: false,
+                    card_sba_rekapitulasi: false,
+                    card_sba_lampiran_nota: false,
+                    card_sba_lampiran_dok: false,
                     card_spz_lampiran_1: false,
                     card_spz_lampiran_2: false
                 };
             }
 
-            if (currentSuratType === 'SPM' || currentSuratType === 'SBA') {
+            if (currentSuratType === 'SPM') {
                 if (page === 1) {
                     return {
                         card_kop_nomor: true,
@@ -5320,6 +6491,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_isi_inti: true,
                         card_penutup: false,
                         card_penandatangan: false,
+                        card_sba_rundown: false,
+                        card_sba_output_evaluasi: false,
+                        card_sba_keuangan: false,
+                        card_sba_rekapitulasi: false,
+                        card_sba_lampiran_nota: false,
+                        card_sba_lampiran_dok: false,
                         card_spz_lampiran_1: false,
                         card_spz_lampiran_2: false
                     };
@@ -5332,10 +6509,40 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_isi_inti: false,
                         card_penutup: true,
                         card_penandatangan: true,
+                        card_sba_rundown: false,
+                        card_sba_output_evaluasi: false,
+                        card_sba_keuangan: false,
+                        card_sba_rekapitulasi: false,
+                        card_sba_lampiran_nota: false,
+                        card_sba_lampiran_dok: false,
                         card_spz_lampiran_1: false,
                         card_spz_lampiran_2: false
                     };
                 }
+            }
+
+            if (currentSuratType === 'SBA') {
+                const sbaPages = getSbaPagesStructure();
+                const curPageObj = sbaPages.find(p => p.id === page);
+                const key = curPageObj ? curPageObj.key : 'pokok';
+
+                return {
+                    card_kop_nomor: (key === 'pokok'),
+                    card_tujuan: false,
+                    card_pembuka: (key === 'pokok'),
+                    card_detail_kegiatan: (key === 'pokok'),
+                    card_isi_inti: (key === 'pokok'),
+                    card_sba_rundown: (key === 'rundown'),
+                    card_sba_output_evaluasi: (key === 'output_eval'),
+                    card_sba_keuangan: (key === 'keuangan'),
+                    card_sba_rekapitulasi: (key === 'rekapitulasi'),
+                    card_penutup: (key === 'pengesahan'),
+                    card_penandatangan: (key === 'pengesahan'),
+                    card_sba_lampiran_nota: (key === 'nota'),
+                    card_sba_lampiran_dok: (key === 'dok'),
+                    card_spz_lampiran_1: false,
+                    card_spz_lampiran_2: false
+                };
             }
 
             if (currentSuratType === 'SPZ') {
@@ -5479,7 +6686,37 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 let titleTxt = `Formulir Pengisian: Halaman ${currentActivePage}`;
                 let descTxt = 'Isi data formulir di bawah ini untuk memperbarui lembar halaman di atas.';
 
-                if (currentActivePage === 1) {
+                if (currentSuratType === 'SBA') {
+                    const sbaPages = getSbaPagesStructure();
+                    const curPageObj = sbaPages.find(p => p.id === currentActivePage);
+                    const key = curPageObj ? curPageObj.key : 'pokok';
+
+                    if (key === 'pokok') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: Identitas & Pokok Berita Acara`;
+                        descTxt = 'Lengkapi nomor surat, perihal, rincian hari, waktu, tempat, dan deskripsi acara.';
+                    } else if (key === 'rundown') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: 1. Hasil Kegiatan (Rundown Acara)`;
+                        descTxt = 'Kelola susunan rangkaian kegiatan, alokasi waktu, dan penanggung jawab.';
+                    } else if (key === 'output_eval') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: 2. Output, Hambatan & Evaluasi`;
+                        descTxt = 'Isi rincian capaian output, poin hambatan di lapangan, dan solusi evaluasi.';
+                    } else if (key === 'keuangan') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: Keuangan (Pemasukan & Belanja Bahan)`;
+                        descTxt = 'Kelola sumber kas/donasi pemasukan serta belanja bahan kepanitiaan per divisi.';
+                    } else if (key === 'rekapitulasi') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: 3. Rekapitulasi Kas Keuangan`;
+                        descTxt = 'Tinjau rekapitulasi total pemasukan, total pengeluaran belanja, dan saldo kas sisa.';
+                    } else if (key === 'pengesahan') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: Penutup & Lembar Pengesahan`;
+                        descTxt = 'Lengkapi kalimat penutup dan data nama/NIM penanggung jawab serta pejabat pengesah.';
+                    } else if (key === 'nota') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: Lampiran Nota Keuangan`;
+                        descTxt = 'Unggah atau kelola galeri foto nota dan bukti struk belanja kegiatan.';
+                    } else if (key === 'dok') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: Lampiran Dokumentasi Kegiatan`;
+                        descTxt = 'Unggah atau kelola galeri foto dokumentasi pelaksanaan kegiatan.';
+                    }
+                } else if (currentActivePage === 1) {
                     titleTxt = `Formulir Halaman 1: Identitas & Isi Surat (${currentSuratType})`;
                     descTxt = 'Lengkapi nomor surat, penerima/tujuan, pembuka, dan rincian kegiatan.';
                 } else if (currentActivePage === 2) {
@@ -5692,12 +6929,14 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 'field_ttd_bem_jabatan', 'field_ttd_bem_nama', 'field_ttd_bem_nim', 'field_ttd_bem_nim_angka', 'field_ttd_bem_periode',
                 'field_ttd_mpm_jabatan', 'field_ttd_mpm_nama', 'field_ttd_mpm_nim', 'field_ttd_mpm_nim_angka', 'field_ttd_mpm_periode',
                 'spz_no_hp', 'spz_batas_waktu',
-                'event_date_start', 'event_date_end', 'time_start_h', 'time_start_m', 'time_end_h', 'time_end_m'
+                'event_date_start', 'event_date_end', 'time_start_h', 'time_start_m', 'time_end_h', 'time_end_m',
+                'sba_output_kegiatan', 'sba_hambatan_kegiatan', 'sba_evaluasi_kegiatan'
             ];
 
             const checkboxIds = [
                 'field_include_event_details', 'field_ttd3_active', 'field_use_kop',
-                'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish'
+                'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish',
+                'sba_inc_keuangan', 'sba_inc_nota', 'sba_inc_dok'
             ];
 
             const data = {};
@@ -5726,6 +6965,23 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
             if (typeof isSpzTempatManuallyEdited !== 'undefined') {
                 data.isSpzTempatManuallyEdited = isSpzTempatManuallyEdited;
+            }
+
+            // SBA dynamic arrays
+            if (typeof sbaRundownList !== 'undefined') {
+                data.sbaRundownList = JSON.parse(JSON.stringify(sbaRundownList));
+            }
+            if (typeof sbaPemasukanList !== 'undefined') {
+                data.sbaPemasukanList = JSON.parse(JSON.stringify(sbaPemasukanList));
+            }
+            if (typeof sbaPengeluaranDivisi !== 'undefined') {
+                data.sbaPengeluaranDivisi = JSON.parse(JSON.stringify(sbaPengeluaranDivisi));
+            }
+            if (typeof sbaNotaList !== 'undefined') {
+                data.sbaNotaList = JSON.parse(JSON.stringify(sbaNotaList));
+            }
+            if (typeof sbaDokList !== 'undefined') {
+                data.sbaDokList = JSON.parse(JSON.stringify(sbaDokList));
             }
 
             return data;
@@ -5763,7 +7019,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             // 3. Masukkan data input yang tersimpan
             const d = doc.formData || {};
             for (const key in d) {
-                if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited') {
+                if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited' ||
+                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaNotaList' || key === 'sbaDokList') {
                     continue;
                 }
                 const el = document.getElementById(key);
@@ -5795,6 +7052,31 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
                 if (typeof toggleSpzAttachmentSections === 'function') toggleSpzAttachmentSections();
                 if (typeof toggleSpzSubbagSections === 'function') toggleSpzSubbagSections();
+            }
+
+            // 5. Restore SBA dynamic lists
+            if (doc.type === 'SBA') {
+                if (d.sbaRundownList && Array.isArray(d.sbaRundownList)) {
+                    sbaRundownList = JSON.parse(JSON.stringify(d.sbaRundownList));
+                }
+                if (d.sbaPemasukanList && Array.isArray(d.sbaPemasukanList)) {
+                    sbaPemasukanList = JSON.parse(JSON.stringify(d.sbaPemasukanList));
+                }
+                if (d.sbaPengeluaranDivisi && Array.isArray(d.sbaPengeluaranDivisi)) {
+                    sbaPengeluaranDivisi = JSON.parse(JSON.stringify(d.sbaPengeluaranDivisi));
+                }
+                if (d.sbaNotaList && Array.isArray(d.sbaNotaList)) {
+                    sbaNotaList = JSON.parse(JSON.stringify(d.sbaNotaList));
+                }
+                if (d.sbaDokList && Array.isArray(d.sbaDokList)) {
+                    sbaDokList = JSON.parse(JSON.stringify(d.sbaDokList));
+                }
+                if (typeof initSbaEditors === 'function') {
+                    initSbaEditors();
+                }
+                if (typeof toggleSbaKeuanganSections === 'function') toggleSbaKeuanganSections();
+                if (typeof toggleSbaNotaSections === 'function') toggleSbaNotaSections();
+                if (typeof toggleSbaDokSections === 'function') toggleSbaDokSections();
             }
 
             if (typeof toggleEventDetails === 'function') toggleEventDetails();
