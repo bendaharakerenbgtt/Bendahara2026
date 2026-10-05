@@ -1354,27 +1354,37 @@
                     </div>
                 </div>
 
-                <!-- STEPPER NAVIGATION BUTTONS -->
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-neutral-800 mt-2" id="page_nav_buttons_container">
-                    <button type="button" id="btn_step_prev" onclick="goToPrevPage()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:pointer-events-none">
-                        <i class="fa-solid fa-arrow-left"></i> Halaman Sebelumnya
-                    </button>
+                <!-- STEPPER NAVIGATION & ACTION BUTTONS (2 TIER LAYOUT) -->
+                <div class="space-y-3 pt-5 border-t border-neutral-800/80 mt-4" id="page_nav_buttons_container">
+                    <!-- Baris 1: Navigasi Antar Halaman (Prev & Next) -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button type="button" id="btn_step_prev" onclick="goToPrevPage()" class="py-2.5 px-3 rounded-xl font-bold text-xs text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:pointer-events-none truncate shadow-xs">
+                            <i class="fa-solid fa-arrow-left text-xs shrink-0"></i>
+                            <span class="truncate">Halaman Sebelumnya</span>
+                        </button>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
-                        <button type="button" onclick="quickPrintSurat()" class="flex-1 sm:flex-none py-2.5 px-4 rounded-xl font-black text-xs text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
-                            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
-                        </button>
-                        <button type="button" onclick="exportSuratWord()" class="flex-1 sm:flex-none py-2.5 px-4 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
-                            <i class="fa-solid fa-file-word"></i> Unduh Word (.doc)
-                        </button>
-                        <button type="button" onclick="copySuratText()" class="p-2.5 rounded-xl text-neutral-300 bg-neutral-900 border border-neutral-800 hover:text-white transition-colors" title="Salin Teks Surat">
-                            <i class="fa-solid fa-copy text-xs"></i>
+                        <button type="button" id="btn_step_next" onclick="goToNextPage()" class="py-2.5 px-3 rounded-xl font-black text-xs text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md flex items-center justify-center gap-2 transition-all truncate active:scale-95">
+                            <span id="btn_step_next_text" class="truncate">Lanjut ke Halaman 2</span>
+                            <i class="fa-solid fa-arrow-right text-xs shrink-0"></i>
                         </button>
                     </div>
 
-                    <button type="button" id="btn_step_next" onclick="goToNextPage()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl font-black text-xs text-white bg-orange-500 hover:bg-orange-600 shadow-md flex items-center justify-center gap-2 transition-all">
-                        <span id="btn_step_next_text">Lanjut ke Halaman 2</span> <i class="fa-solid fa-arrow-right"></i>
-                    </button>
+                    <!-- Baris 2: Tombol Output (Cetak PDF, Word, Salin Teks) -->
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="quickPrintSurat()" class="flex-1 py-2.5 px-3 rounded-xl font-black text-xs text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all truncate">
+                            <i class="fa-solid fa-print text-xs shrink-0"></i>
+                            <span class="truncate">Cetak / Simpan PDF</span>
+                        </button>
+
+                        <button type="button" onclick="exportSuratWord()" class="flex-1 py-2.5 px-3 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center justify-center gap-2 active:scale-95 transition-all truncate">
+                            <i class="fa-solid fa-file-word text-xs shrink-0"></i>
+                            <span class="truncate">Unduh Word (.doc)</span>
+                        </button>
+
+                        <button type="button" onclick="copySuratText()" class="w-10 h-10 rounded-xl text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-xs" title="Salin Teks Surat">
+                            <i class="fa-solid fa-copy text-xs"></i>
+                        </button>
+                    </div>
                 </div>
 
             </div>
