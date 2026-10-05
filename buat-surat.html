@@ -4718,8 +4718,7 @@
         // QUICK PRINT TO PDF (UNIFIED A4 PAGINATION ACROSS ALL LETTER TYPES)
         function quickPrintSurat() {
             const rawBody = renderSuratFullHtml();
-            const noSurat = document.getElementById('field_nomor_surat').value.trim() || 'Surat_LDK_IMIP';
-            const cleanTitle = `Surat_${currentSuratType}_${noSurat.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+            const cleanTitle = getActiveDocumentFileName();
 
             const fullPrintHtml = `<!DOCTYPE html>
 <html lang="id">
@@ -4940,8 +4939,8 @@
         // EXPORT TO MICROSOFT WORD (.DOC)
         function exportSuratWord() {
             let rawBody = renderSuratFullHtml();
-            const noSurat = document.getElementById('field_nomor_surat').value.trim() || 'LDK_IMIP';
-            const cleanTitle = `Surat_${currentSuratType}_${noSurat.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+            const cleanTitle = getActiveDocumentFileName();
+            const fileName = getActiveDocumentFileName('doc');
 
             // Strip sheet preview badges
             rawBody = rawBody.replace(/<div class="spz-sheet-badge[\s\S]*?<\/div>/gi, '');
@@ -5008,7 +5007,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${cleanTitle}.doc`;
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -5019,7 +5018,7 @@
                 title: 'Surat Berhasil Diunduh!',
                 html: `
                     <div class="text-xs text-neutral-300 text-left space-y-2 mt-2">
-                        <div>📄 Berkas: <b>${cleanTitle}.doc</b></div>
+                        <div>📄 Berkas: <b>${fileName}</b></div>
                         <div class="p-2.5 bg-blue-950/40 border border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-200">
                             💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
                             📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b> (jangan pakai Google Dokumen bawaan HP karena Google Dokumen HP menolak format .doc berbasis web). Atau gunakan tombol <b>Cetak / Simpan PDF</b> agar langsung tampil rapi di HP.
@@ -5561,6 +5560,35 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (!activeDocumentId) return null;
             const docs = getSavedDocuments();
             return docs.find(d => d.id === activeDocumentId) || null;
+        }
+
+        // Mengambil nama berkas yang bersih sesuai nama dokumen yang diatur pengguna
+        function getActiveDocumentFileName(extension = '') {
+            // 1. Ambil dari input nama dokumen aktif di top bar editor yang sedang diedit pengguna
+            const titleInput = document.getElementById('active_doc_title');
+            let rawTitle = (titleInput && titleInput.value.trim()) || '';
+
+            // 2. Jika input belum terisi, coba ambil dari data dokumen aktif tersimpan
+            if (!rawTitle) {
+                const activeDoc = getActiveDocument();
+                if (activeDoc && activeDoc.title) {
+                    rawTitle = activeDoc.title.trim();
+                }
+            }
+
+            // 3. Fallback jika nama dokumen belum ada sama sekali
+            if (!rawTitle) {
+                const noSuratInput = document.getElementById('field_nomor_surat');
+                const noVal = (noSuratInput && noSuratInput.value.trim()) || '';
+                const type = (typeof currentSuratType !== 'undefined' && currentSuratType) ? currentSuratType : 'Surat';
+                rawTitle = noVal ? `Surat ${type} ${noVal}` : `Surat ${type}`;
+            }
+
+            // Bersihkan karakter ilegal untuk nama file OS (Windows/Linux/Mac/Android/iOS): \ / : * ? " < > |
+            let clean = rawTitle.replace(/[\\/:*?"<>|\r\n\t]+/g, '_').replace(/\s+/g, ' ').trim();
+            if (!clean) clean = 'Dokumen Surat';
+
+            return extension ? `${clean}.${extension.replace(/^\./, '')}` : clean;
         }
 
         // Menetapkan ID dokumen aktif
@@ -6237,6 +6265,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (!doc) return;
 
             if (doc.id === activeDocumentId) {
+                const titleInput = document.getElementById('active_doc_title');
+                if (titleInput && titleInput.value.trim()) {
+                    doc.title = titleInput.value.trim();
+                }
                 doc.formData = collectCurrentFormData();
                 doc.updatedAt = new Date().toISOString();
                 saveDocumentsList(docs);
@@ -6253,9 +6285,17 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const blob = new Blob([jsonStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            const cleanTitle = (doc.title || 'Surat_LDK_IMIP').replace(/[^a-zA-Z0-9_-]/g, '_');
+
+            let rawTitle = (doc.id === activeDocumentId ? getActiveDocumentFileName() : doc.title) || '';
+            if (!rawTitle) {
+                rawTitle = `Surat ${doc.type || 'LDK IMIP'}`;
+            }
+            let cleanTitle = rawTitle.replace(/[\\/:*?"<>|\r\n\t]+/g, '_').replace(/\s+/g, ' ').trim();
+            if (!cleanTitle) cleanTitle = 'Dokumen Surat';
+            const fileName = `${cleanTitle}.json`;
+
             a.href = url;
-            a.download = `${cleanTitle}.json`;
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -6266,7 +6306,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: `File JSON "${cleanTitle}.json" berhasil diunduh!`,
+                    title: `File JSON "${fileName}" berhasil diunduh!`,
                     showConfirmButton: false,
                     timer: 2000
                 });
