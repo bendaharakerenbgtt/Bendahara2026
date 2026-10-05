@@ -592,7 +592,7 @@
 
 
         <!-- WORKSPACE TOOLBAR & PAGE STEPPER -->
-        <div id="page_stepper_card" class="glass-card p-3 sm:p-4 mb-6">
+        <div id="page_stepper_card" class="glass-card relative z-20 p-3 sm:p-4 mb-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
@@ -609,12 +609,65 @@
                 
                 <!-- LAYOUT MODE TOGGLE -->
                 <div class="flex items-center gap-1.5 bg-neutral-900/90 p-1 rounded-xl border border-neutral-800 shrink-0">
-                    <button type="button" id="btn_mode_stacked" onclick="setLayoutMode('stacked')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 bg-orange-500 text-white shadow-sm" title="Pratinjau di atas, formulir di bawah (Rekomendasi)">
-                        <i class="fa-solid fa-table-cells-row-lock"></i> Tumpuk (Preview Atas)
-                    </button>
-                    <button type="button" id="btn_mode_side" onclick="setLayoutMode('side')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5 active:scale-95" title="Formulir di kiri, pratinjau di kanan">
-                        <i class="fa-solid fa-table-columns"></i> Berdampingan
-                    </button>
+                    <!-- Tumpuk Mode Button + Tooltip -->
+                    <div class="relative group">
+                        <button type="button" id="btn_mode_stacked" onclick="setLayoutMode('stacked')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 bg-orange-500 text-white shadow-sm" title="Mode Tumpuk: Tata letak asli (real layout) lembar A4 di atas formulir">
+                            <i class="fa-solid fa-table-cells-row-lock text-xs"></i>
+                            <span>Tumpuk (Preview Atas)</span>
+                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                        </button>
+                        
+                        <!-- Tooltip Penjelasan Tumpuk (Real Layout) -->
+                        <div class="absolute right-0 top-full mt-2.5 w-72 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <!-- Arrow pointer -->
+                            <div class="absolute -top-1.5 right-6 w-3 h-3 bg-neutral-900 border-t border-l border-neutral-700 rotate-45"></div>
+                            
+                            <div class="relative z-10 flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-file-invoice text-orange-400 text-xs"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-white text-xs">Tumpuk (Real Layout)</p>
+                                    <p class="leading-relaxed text-neutral-300 text-[11px]">
+                                        Menampilkan kertas A4 tepat di atas formulir dengan ukuran dan tata letak asli (<em>real layout</em>).
+                                    </p>
+                                    <p class="leading-relaxed text-neutral-400 text-[10.5px] pt-1 border-t border-neutral-800">
+                                        💡 Sangat akurat untuk melihat posisi persis KOP, tanda tangan, margin, dan kerapihan cetak sebelum di-print/PDF.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Berdampingan Mode Button + Tooltip -->
+                    <div class="relative group">
+                        <button type="button" id="btn_mode_side" onclick="setLayoutMode('side')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5 active:scale-95" title="Mode Berdampingan: Formulir di kiri dan preview di kanan untuk kemudahan mengisi">
+                            <i class="fa-solid fa-table-columns text-xs"></i>
+                            <span>Berdampingan</span>
+                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                        </button>
+                        
+                        <!-- Tooltip Penjelasan Berdampingan (Split View) -->
+                        <div class="absolute right-0 top-full mt-2.5 w-72 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <!-- Arrow pointer -->
+                            <div class="absolute -top-1.5 right-6 w-3 h-3 bg-neutral-900 border-t border-l border-neutral-700 rotate-45"></div>
+                            
+                            <div class="relative z-10 flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-table-columns text-blue-400 text-xs"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-white text-xs">Berdampingan (Split View)</p>
+                                    <p class="leading-relaxed text-neutral-300 text-[11px]">
+                                        Menampilkan formulir isian di kiri dan pratinjau surat di kanan secara sejajar.
+                                    </p>
+                                    <p class="leading-relaxed text-neutral-400 text-[10.5px] pt-1 border-t border-neutral-800">
+                                        💡 Tampilan santai dan nyaman untuk mengetik di layar laptop lebar, karena ketikan langsung terpantau <em>live</em> di samping formulir.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
