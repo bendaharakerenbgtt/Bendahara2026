@@ -303,6 +303,15 @@
             box-shadow: 0 4px 14px rgba(255, 115, 0, 0.35);
         }
 
+        /* Document Filter Tab Badge */
+        .doc-filter-btn.active {
+            background: linear-gradient(135deg, #FF7300, #FF9500);
+            color: #FFFFFF !important;
+            font-weight: 700;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(255, 115, 0, 0.35);
+        }
+
         /* Step visibility */
         .hidden-by-step {
             display: none !important;
@@ -322,8 +331,14 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner, #workspace_form_section, #page_stepper_tabs, .workspace-toolbar, #form_step_banner, #page_stepper_card, #preview_toolbar_top {
+            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner, #workspace_form_section, #page_stepper_tabs, .workspace-toolbar, #form_step_banner, #page_stepper_card, #preview_toolbar_top, #view_folder_dokumen, #editor_top_doc_bar, #modal_create_new_doc, #nav_btn_folder, #nav_btn_editor {
                 display: none !important;
+            }
+            #view_editor_dokumen {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             #preview_sheet_outer_box {
                 border: none !important;
@@ -440,6 +455,15 @@
             </div>
         </div>
 
+        <div class="flex items-center gap-1.5 bg-neutral-900/90 border border-neutral-800 p-1 rounded-xl">
+            <button type="button" id="nav_btn_folder" onclick="switchToFolderView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-folder-open text-xs"></i> <span class="hidden sm:inline">Folder Surat</span>
+            </button>
+            <button type="button" id="nav_btn_editor" onclick="switchToEditorView()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-pen-nib text-xs"></i> <span class="hidden sm:inline">Editor Dokumen</span>
+            </button>
+        </div>
+
         <div class="flex items-center gap-2">
             <button type="button" onclick="quickPrintSurat()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-lg shadow-sm transition-all active:scale-95">
                 <i class="fa-solid fa-print text-xs"></i> Cetak / PDF
@@ -456,8 +480,132 @@
     <!-- MAIN CONTAINER -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6">
         
-        <!-- HEADER HERO TITLE -->
-        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- ========================================== -->
+        <!-- VIEW 1: FOLDER & ARSIP DOKUMEN SURAT       -->
+        <!-- ========================================== -->
+        <div id="view_folder_dokumen" class="space-y-6">
+            <!-- HERO HEADER FOLDER -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-neutral-800/80">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black font-mono uppercase bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                            <i class="fa-solid fa-folder-tree mr-1"></i> ARSIP & DRAF RESMI
+                        </span>
+                        <span class="text-[10px] text-neutral-400 font-mono">Tersimpan di Browser (Aman & Privat)</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">
+                        Folder Dokumen <span class="bg-gradient-to-r from-[#FF7300] to-[#FFA500] bg-clip-text text-transparent">Surat Tersimpan</span>
+                    </h2>
+                    <p class="text-xs text-neutral-400 mt-0.5 max-w-xl">
+                        Buka kembali surat yang pernah dibuat untuk melanjutkan edit, gandakan format, ekspor draf ke JSON, atau cetak langsung ke PDF.
+                    </p>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="document.getElementById('import_json_input').click()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs">
+                        <i class="fa-solid fa-file-import text-blue-400"></i> Impor JSON
+                    </button>
+                    <button type="button" onclick="exportAllDocumentsJson()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs">
+                        <i class="fa-solid fa-file-export text-emerald-400"></i> Backup Semua
+                    </button>
+                    <button type="button" onclick="openCreateNewDocModal()" class="px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md flex items-center gap-2 active:scale-95 transition-all">
+                        <i class="fa-solid fa-plus"></i> Buat Surat Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- SEARCH & FILTER TOOLBAR -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-2xl bg-neutral-900/80 border border-neutral-800">
+                <!-- Search input -->
+                <div class="relative flex-1 max-w-md">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
+                    <input type="text" id="doc_search_input" oninput="filterDocumentsList()" placeholder="Cari nama surat, perihal, atau nomor..." class="w-full pl-9 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-orange-500 transition-colors">
+                </div>
+
+                <!-- Filter tabs by letter type -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                    <button type="button" onclick="filterDocsByType('ALL')" id="filter_doc_ALL" class="doc-filter-btn active px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
+                        Semua (<span id="count_filter_all">0</span>)
+                    </button>
+                    <button type="button" onclick="filterDocsByType('SPZ')" id="filter_doc_SPZ" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
+                        SPZ (<span id="count_filter_spz">0</span>)
+                    </button>
+                    <button type="button" onclick="filterDocsByType('SPM')" id="filter_doc_SPM" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
+                        SPM (<span id="count_filter_spm">0</span>)
+                    </button>
+                    <button type="button" onclick="filterDocsByType('SBA')" id="filter_doc_SBA" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
+                        SBA (<span id="count_filter_sba">0</span>)
+                    </button>
+                    <button type="button" onclick="filterDocsByType('SUD')" id="filter_doc_SUD" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
+                        SUD (<span id="count_filter_sud">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <!-- DOCUMENTS GRID CONTAINER -->
+            <div id="documents_cards_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Di-render dinamis via JavaScript -->
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div id="documents_empty_state" class="hidden text-center py-16 px-4 rounded-2xl bg-neutral-900/40 border border-dashed border-neutral-800">
+                <div class="w-16 h-16 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-folder-open text-orange-400/80"></i>
+                </div>
+                <h4 class="text-sm font-bold text-white mb-1">Tidak Ada Dokumen Surat Ditemukan</h4>
+                <p class="text-xs text-neutral-400 max-w-sm mx-auto mb-4">
+                    Dokumen dengan kata kunci ini tidak ada, atau Anda belum membuat surat dalam kategori ini.
+                </p>
+                <button type="button" onclick="openCreateNewDocModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 transition-all shadow-sm">
+                    <i class="fa-solid fa-plus"></i> Buat Dokumen Baru
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: EDITOR DOKUMEN SURAT (GOOGLE DOCS) -->
+        <!-- ========================================== -->
+        <div id="view_editor_dokumen" class="space-y-6 hidden">
+
+            <!-- GOOGLE DOCS TOP BAR DOKUMEN -->
+            <div id="editor_top_doc_bar" class="p-3 sm:p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
+                <!-- Left: Tombol Kembali ke Folder + Nama Dokumen Editable Inline -->
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <button type="button" onclick="switchToFolderView()" class="w-9 h-9 rounded-xl bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/80 flex items-center justify-center text-neutral-300 hover:text-white transition-all shrink-0" title="Kembali ke Folder Arsip Surat">
+                        <i class="fa-solid fa-folder-open text-xs text-orange-400"></i>
+                    </button>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="active_doc_title" oninput="handleActiveDocTitleChange(this.value)" class="bg-neutral-950/60 hover:bg-neutral-950 focus:bg-neutral-950 border border-transparent hover:border-neutral-700 focus:border-orange-500 rounded-lg px-2.5 py-1 text-sm sm:text-base font-black text-white focus:outline-none transition-all truncate w-full max-w-md" value="SPZ Permohonan Peminjaman Fasilitas" title="Klik untuk mengubah nama dokumen (gaya Google Docs)">
+                            <span id="active_doc_badge" class="px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">SPZ</span>
+                        </div>
+                        <div class="flex items-center gap-2 mt-0.5 px-2.5">
+                            <span id="doc_auto_save_status" class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                                <i class="fa-solid fa-cloud-arrow-up text-[10px]"></i> Tersimpan otomatis di browser
+                            </span>
+                            <span class="text-neutral-600 text-[10px]">•</span>
+                            <span id="doc_last_modified_text" class="text-[10px] text-neutral-400 font-mono">Baru saja</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Aksi Draf -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="exportCurrentDocJson()" class="px-3 py-1.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-800/90 hover:bg-neutral-700 border border-neutral-700 hover:text-white transition-all flex items-center gap-1.5" title="Unduh File JSON Draf Dokumen Ini">
+                        <i class="fa-solid fa-download text-xs text-amber-400"></i> <span class="hidden sm:inline">Backup JSON</span>
+                    </button>
+                    <button type="button" onclick="duplicateCurrentDocument()" class="px-3 py-1.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-800/90 hover:bg-neutral-700 border border-neutral-700 hover:text-white transition-all flex items-center gap-1.5" title="Duplikat Dokumen Ini">
+                        <i class="fa-solid fa-copy text-xs text-blue-400"></i> <span class="hidden sm:inline">Duplikat</span>
+                    </button>
+                    <button type="button" onclick="openCreateNewDocModal()" class="px-3.5 py-1.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-sm transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus text-xs"></i> <span class="hidden sm:inline">Surat Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HEADER HERO TITLE -->
+            <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <span class="text-[10px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">PERSURATAN RESMI</span>
                 <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5">
@@ -1312,6 +1460,8 @@
             </div>
 
         </div>
+        <!-- END VIEW 2: EDITOR DOKUMEN SURAT -->
+        </div>
     </main>
 
     <!-- FOOTER -->
@@ -1342,6 +1492,93 @@
             <span class="nav-label" id="mobileThemeLabel">Mode</span>
         </button>
     </nav>
+
+    <!-- MODAL BUAT SURAT BARU -->
+    <div id="modal_create_new_doc" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+            <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF7300] to-[#FF9500] flex items-center justify-center text-white text-lg shadow-md">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white">Buat Dokumen Surat Baru</h3>
+                        <p class="text-xs text-neutral-400">Pilih format surat resmi dan tentukan judul dokumen</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCreateNewDocModal()" class="w-8 h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <form id="form_create_new_doc" onsubmit="handleCreateNewDocSubmit(event)" class="space-y-4">
+                <!-- Pilihan Jenis Surat (Radio Cards) -->
+                <div>
+                    <label class="text-xs font-bold text-neutral-300 block mb-2">1. Format Jenis Surat Resmi</label>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <label class="relative flex flex-col p-3 rounded-xl border-2 border-orange-500 bg-orange-500/10 cursor-pointer transition-all doc-type-choice" data-type="SPZ">
+                            <input type="radio" name="new_doc_type" value="SPZ" class="sr-only" checked onchange="updateNewDocTypeSelection()">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-black text-orange-400">SPZ</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-orange-500/20 text-orange-300">Resmi Kampus</span>
+                            </div>
+                            <span class="text-[11px] font-semibold text-white">Surat Perizinan</span>
+                            <span class="text-[9px] text-neutral-400 mt-0.5">Peminjaman fasilitas, barang, & kepanitiaan 4 lembar</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 rounded-xl border border-neutral-800 bg-neutral-950/60 hover:border-neutral-700 cursor-pointer transition-all doc-type-choice" data-type="SPM">
+                            <input type="radio" name="new_doc_type" value="SPM" class="sr-only" onchange="updateNewDocTypeSelection()">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-black text-blue-400">SPM</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/20 text-blue-300">Permohonan</span>
+                            </div>
+                            <span class="text-[11px] font-semibold text-white">Surat Permohonan</span>
+                            <span class="text-[9px] text-neutral-400 mt-0.5">Permohonan dana, pemunduran acara, dispensasi</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 rounded-xl border border-neutral-800 bg-neutral-950/60 hover:border-neutral-700 cursor-pointer transition-all doc-type-choice" data-type="SBA">
+                            <input type="radio" name="new_doc_type" value="SBA" class="sr-only" onchange="updateNewDocTypeSelection()">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-black text-emerald-400">SBA</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300">Berita Acara</span>
+                            </div>
+                            <span class="text-[11px] font-semibold text-white">Berita Acara</span>
+                            <span class="text-[9px] text-neutral-400 mt-0.5">Dokumentasi hasil kegiatan, rapat, studi banding</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 rounded-xl border border-neutral-800 bg-neutral-950/60 hover:border-neutral-700 cursor-pointer transition-all doc-type-choice" data-type="SUD">
+                            <input type="radio" name="new_doc_type" value="SUD" class="sr-only" onchange="updateNewDocTypeSelection()">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-black text-purple-400">SUD</span>
+                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300">Undangan</span>
+                            </div>
+                            <span class="text-[11px] font-semibold text-white">Surat Undangan</span>
+                            <span class="text-[9px] text-neutral-400 mt-0.5">Undangan pemateri, delegasi, alumni, pimpinan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Nama / Judul Dokumen -->
+                <div>
+                    <label class="text-xs font-bold text-neutral-300 block mb-1">2. Judul / Nama Dokumen</label>
+                    <input type="text" id="new_doc_title_input" required class="w-full px-3.5 py-2.5 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-orange-500 transition-colors" placeholder="Contoh: SPZ Mabit Muharrik 2026">
+                    <p class="text-[10px] text-neutral-400 mt-1">Nama dokumen disimpan di folder dan bisa Anda ganti kapan saja di editor.</p>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-neutral-800">
+                    <button type="button" onclick="closeCreateNewDocModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-neutral-400 hover:text-white bg-neutral-800/80 hover:bg-neutral-800 transition-all">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md transition-all active:scale-95 flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-right"></i> Buat & Buka Editor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- HIDDEN INPUT IMPORT FILE JSON -->
+    <input type="file" id="import_json_input" accept=".json,application/json" class="hidden" onchange="handleImportJsonFile(event)">
 
     <!-- HIDDEN PRINT IFRAME -->
     <iframe id="surat_print_frame" style="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;"></iframe>
@@ -4059,6 +4296,9 @@
             if (typeof applyActivePageVisibility === 'function') {
                 applyActivePageVisibility();
             }
+            if (typeof triggerAutoSave === 'function') {
+                triggerAutoSave();
+            }
         }
 
         // QUICK PRINT TO PDF (UNIFIED A4 PAGINATION ACROSS ALL LETTER TYPES)
@@ -4864,6 +5104,906 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (mobLabel) mobLabel.innerText = isLight ? 'Gelap' : 'Terang';
         }
 
+        // =========================================================
+        // DOCUMENT MANAGER & DRAFTS STORAGE SYSTEM (GOOGLE DOCS)
+        // =========================================================
+        const DOCS_STORAGE_KEY = 'dana_imip_surat_documents_v1';
+        const ACTIVE_DOC_ID_KEY = 'dana_imip_surat_active_doc_id_v1';
+        let activeDocumentId = null;
+        let currentDocFilter = 'ALL';
+        let autoSaveTimer = null;
+        let isProgrammaticLoading = false;
+
+        // Ambil daftar dokumen tersimpan dari LocalStorage
+        function getSavedDocuments() {
+            try {
+                const data = localStorage.getItem(DOCS_STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error("Gagal membaca dokumen dari localStorage:", e);
+                return [];
+            }
+        }
+
+        // Simpan daftar dokumen ke LocalStorage
+        function saveDocumentsList(list) {
+            try {
+                localStorage.setItem(DOCS_STORAGE_KEY, JSON.stringify(list));
+            } catch (e) {
+                console.error("Gagal menyimpan dokumen ke localStorage:", e);
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Memori Penuh',
+                        text: 'Penyimpanan lokal browser mendekati batas. Pertimbangkan untuk membackup dokumen ke file JSON dan menghapus draf lama.',
+                        confirmButtonColor: '#FF7300'
+                    });
+                }
+            }
+        }
+
+        // Mengambil dokumen yang sedang aktif
+        function getActiveDocument() {
+            if (!activeDocumentId) return null;
+            const docs = getSavedDocuments();
+            return docs.find(d => d.id === activeDocumentId) || null;
+        }
+
+        // Menetapkan ID dokumen aktif
+        function setActiveDocumentId(id) {
+            activeDocumentId = id;
+            try {
+                if (id) localStorage.setItem(ACTIVE_DOC_ID_KEY, id);
+                else localStorage.removeItem(ACTIVE_DOC_ID_KEY);
+            } catch (e) {}
+        }
+
+        // Format waktu ramah pengguna (relative time)
+        function formatRelativeTime(isoString) {
+            if (!isoString) return 'Baru saja';
+            try {
+                const date = new Date(isoString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffSec = Math.floor(diffMs / 1000);
+                const diffMin = Math.floor(diffSec / 60);
+                const diffHour = Math.floor(diffMin / 60);
+                const diffDay = Math.floor(diffHour / 24);
+
+                if (diffSec < 30) return 'Baru saja';
+                if (diffMin < 60) return `${diffMin} menit yang lalu`;
+                if (diffHour < 24) return `${diffHour} jam yang lalu`;
+                if (diffDay === 1) return 'Kemarin';
+                if (diffDay < 7) return `${diffDay} hari yang lalu`;
+                return `${date.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][date.getMonth()]} ${date.getFullYear()}`;
+            } catch (e) {
+                return 'Baru saja';
+            }
+        }
+
+        // Kumpulkan seluruh data form aktif ke objek JSON
+        function collectCurrentFormData() {
+            const fieldIds = [
+                'field_nomor_surat', 'field_nomor_urut', 'field_lampiran', 'field_lampiran_angka',
+                'field_tanggal_surat', 'field_tanggal_picker', 'field_perihal', 'spz_input_fasilitas',
+                'field_tujuan', 'field_nama_acara', 'field_hari_tanggal', 'field_waktu', 'field_tempat',
+                'field_pembuka', 'field_isi_inti', 'field_penutup',
+                'field_ttd1_jabatan', 'field_ttd1_nama', 'field_ttd1_nim', 'field_ttd1_nim_angka',
+                'field_ttd2_jabatan', 'field_ttd2_nama', 'field_ttd2_nim', 'field_ttd2_nim_angka', 'field_ttd2_periode',
+                'field_ttd3_jabatan', 'field_ttd3_nama', 'field_ttd3_nim', 'field_ttd3_nim_angka',
+                'field_ttd_bem_jabatan', 'field_ttd_bem_nama', 'field_ttd_bem_nim', 'field_ttd_bem_nim_angka', 'field_ttd_bem_periode',
+                'field_ttd_mpm_jabatan', 'field_ttd_mpm_nama', 'field_ttd_mpm_nim', 'field_ttd_mpm_nim_angka', 'field_ttd_mpm_periode',
+                'spz_no_hp', 'spz_batas_waktu',
+                'event_date_start', 'event_date_end', 'time_start_h', 'time_start_m', 'time_end_h', 'time_end_m'
+            ];
+
+            const checkboxIds = [
+                'field_include_event_details', 'field_ttd3_active', 'field_use_kop',
+                'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish'
+            ];
+
+            const data = {};
+            fieldIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+
+            checkboxIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.checked;
+            });
+
+            // SPZ dynamic arrays
+            if (typeof spzBarangList !== 'undefined') {
+                data.spzBarangList = JSON.parse(JSON.stringify(spzBarangList));
+            }
+            if (typeof spzPanitiaList !== 'undefined') {
+                data.spzPanitiaList = JSON.parse(JSON.stringify(spzPanitiaList));
+            }
+            if (typeof spzRundownList !== 'undefined') {
+                data.spzRundownList = JSON.parse(JSON.stringify(spzRundownList));
+            }
+            if (typeof isSpzPembukaManual !== 'undefined') {
+                data.isSpzPembukaManual = isSpzPembukaManual;
+            }
+            if (typeof isSpzTempatManuallyEdited !== 'undefined') {
+                data.isSpzTempatManuallyEdited = isSpzTempatManuallyEdited;
+            }
+
+            return data;
+        }
+
+        // Muat data dokumen ke elemen formulir
+        function loadFormDataIntoInputs(doc) {
+            if (!doc) return;
+            isProgrammaticLoading = true;
+
+            // 1. Pilih jenis surat terlebih dahulu
+            selectSuratType(doc.type || 'SPM');
+
+            // 2. Set judul dokumen di bar editor
+            const titleInput = document.getElementById('active_doc_title');
+            if (titleInput) titleInput.value = doc.title || 'Dokumen Tanpa Judul';
+
+            const badge = document.getElementById('active_doc_badge');
+            if (badge) {
+                badge.innerText = doc.type || 'SPM';
+                badge.className = `px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase shrink-0 ${
+                    doc.type === 'SPZ' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+                    doc.type === 'SPM' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                    doc.type === 'SBA' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                    'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                }`;
+            }
+
+            const lastModEl = document.getElementById('doc_last_modified_text');
+            if (lastModEl) {
+                lastModEl.innerText = formatRelativeTime(doc.updatedAt);
+            }
+
+            // 3. Masukkan data input yang tersimpan
+            const d = doc.formData || {};
+            for (const key in d) {
+                if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited') {
+                    continue;
+                }
+                const el = document.getElementById(key);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = Boolean(d[key]);
+                    } else {
+                        el.value = d[key] !== undefined && d[key] !== null ? d[key] : '';
+                    }
+                }
+            }
+
+            // 4. Restore SPZ dynamic lists
+            if (doc.type === 'SPZ') {
+                if (d.spzBarangList && Array.isArray(d.spzBarangList)) {
+                    spzBarangList = JSON.parse(JSON.stringify(d.spzBarangList));
+                    if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
+                }
+                if (d.spzPanitiaList && Array.isArray(d.spzPanitiaList)) {
+                    spzPanitiaList = JSON.parse(JSON.stringify(d.spzPanitiaList));
+                    if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
+                }
+                if (d.spzRundownList && Array.isArray(d.spzRundownList)) {
+                    spzRundownList = JSON.parse(JSON.stringify(d.spzRundownList));
+                    if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
+                }
+                if (d.isSpzPembukaManual !== undefined) isSpzPembukaManual = d.isSpzPembukaManual;
+                if (d.isSpzTempatManuallyEdited !== undefined) isSpzTempatManuallyEdited = d.isSpzTempatManuallyEdited;
+
+                if (typeof toggleSpzAttachmentSections === 'function') toggleSpzAttachmentSections();
+                if (typeof toggleSpzSubbagSections === 'function') toggleSpzSubbagSections();
+            }
+
+            if (typeof toggleEventDetails === 'function') toggleEventDetails();
+            if (typeof toggleTtd3 === 'function') toggleTtd3();
+
+            isProgrammaticLoading = false;
+            updatePreview();
+        }
+
+        // Pemicu Simpan Otomatis (Debounced Auto-Save)
+        function triggerAutoSave() {
+            if (isProgrammaticLoading || !activeDocumentId) return;
+
+            const statusEl = document.getElementById('doc_auto_save_status');
+            if (statusEl) {
+                statusEl.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-amber-400 text-[10px] mr-1"></i><span class="text-amber-400">Menyimpan...</span>';
+            }
+
+            if (autoSaveTimer) clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                const docs = getSavedDocuments();
+                const idx = docs.findIndex(d => d.id === activeDocumentId);
+                if (idx !== -1) {
+                    docs[idx].formData = collectCurrentFormData();
+                    docs[idx].updatedAt = new Date().toISOString();
+                    saveDocumentsList(docs);
+
+                    if (statusEl) {
+                        statusEl.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-emerald-400 text-[10px] mr-1"></i><span class="text-emerald-400">Tersimpan otomatis di browser</span>';
+                    }
+                    const lastModEl = document.getElementById('doc_last_modified_text');
+                    if (lastModEl) {
+                        lastModEl.innerText = 'Baru saja';
+                    }
+                }
+            }, 350);
+        }
+
+        // Edit judul dokumen aktif inline
+        function handleActiveDocTitleChange(newTitle) {
+            if (!activeDocumentId) return;
+            const cleanTitle = newTitle.trim() || 'Dokumen Tanpa Judul';
+            const docs = getSavedDocuments();
+            const idx = docs.findIndex(d => d.id === activeDocumentId);
+            if (idx !== -1) {
+                docs[idx].title = cleanTitle;
+                docs[idx].updatedAt = new Date().toISOString();
+                saveDocumentsList(docs);
+            }
+            triggerAutoSave();
+        }
+
+        // Beralih ke Tampilan Folder
+        function switchToFolderView() {
+            const folderView = document.getElementById('view_folder_dokumen');
+            const editorView = document.getElementById('view_editor_dokumen');
+            const btnFolder = document.getElementById('nav_btn_folder');
+            const btnEditor = document.getElementById('nav_btn_editor');
+
+            if (folderView) folderView.classList.remove('hidden');
+            if (editorView) editorView.classList.add('hidden');
+
+            if (btnFolder) {
+                btnFolder.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5';
+            }
+            if (btnEditor) {
+                btnEditor.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5';
+            }
+
+            renderDocumentsGrid();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Beralih ke Tampilan Editor
+        function switchToEditorView() {
+            const folderView = document.getElementById('view_folder_dokumen');
+            const editorView = document.getElementById('view_editor_dokumen');
+            const btnFolder = document.getElementById('nav_btn_folder');
+            const btnEditor = document.getElementById('nav_btn_editor');
+
+            if (folderView) folderView.classList.add('hidden');
+            if (editorView) editorView.classList.remove('hidden');
+
+            if (btnFolder) {
+                btnFolder.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5';
+            }
+            if (btnEditor) {
+                btnEditor.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5';
+            }
+
+            const docs = getSavedDocuments();
+            if (!activeDocumentId && docs.length > 0) {
+                openDocument(docs[0].id);
+            } else if (docs.length === 0) {
+                openCreateNewDocModal();
+            } else {
+                updatePreview();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Filter dokumen berdasarkan tipe surat
+        function filterDocsByType(type) {
+            currentDocFilter = type;
+            ['ALL', 'SPZ', 'SPM', 'SBA', 'SUD'].forEach(t => {
+                const btn = document.getElementById(`filter_doc_${t}`);
+                if (btn) {
+                    if (t === type) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+            renderDocumentsGrid();
+        }
+
+        function filterDocumentsList() {
+            renderDocumentsGrid();
+        }
+
+        // Render Kartu Dokumen pada Grid Folder
+        function renderDocumentsGrid() {
+            const grid = document.getElementById('documents_cards_grid');
+            const emptyState = document.getElementById('documents_empty_state');
+            if (!grid) return;
+
+            const allDocs = getSavedDocuments();
+            const searchInput = document.getElementById('doc_search_input');
+            const query = (searchInput ? searchInput.value.toLowerCase().trim() : '');
+
+            // Update badge counts
+            const countAll = allDocs.length;
+            const countSpz = allDocs.filter(d => d.type === 'SPZ').length;
+            const countSpm = allDocs.filter(d => d.type === 'SPM').length;
+            const countSba = allDocs.filter(d => d.type === 'SBA').length;
+            const countSud = allDocs.filter(d => d.type === 'SUD').length;
+
+            if (document.getElementById('count_filter_all')) document.getElementById('count_filter_all').innerText = countAll;
+            if (document.getElementById('count_filter_spz')) document.getElementById('count_filter_spz').innerText = countSpz;
+            if (document.getElementById('count_filter_spm')) document.getElementById('count_filter_spm').innerText = countSpm;
+            if (document.getElementById('count_filter_sba')) document.getElementById('count_filter_sba').innerText = countSba;
+            if (document.getElementById('count_filter_sud')) document.getElementById('count_filter_sud').innerText = countSud;
+
+            let filtered = allDocs;
+            if (currentDocFilter !== 'ALL') {
+                filtered = filtered.filter(d => d.type === currentDocFilter);
+            }
+            if (query) {
+                filtered = filtered.filter(d => {
+                    const title = (d.title || '').toLowerCase();
+                    const noSurat = (d.formData && d.formData.field_nomor_surat ? d.formData.field_nomor_surat : '').toLowerCase();
+                    const perihal = (d.formData && d.formData.field_perihal ? d.formData.field_perihal : '').toLowerCase();
+                    const acara = (d.formData && d.formData.field_nama_acara ? d.formData.field_nama_acara : '').toLowerCase();
+                    return title.includes(query) || noSurat.includes(query) || perihal.includes(query) || acara.includes(query);
+                });
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            }
+
+            if (emptyState) emptyState.classList.add('hidden');
+
+            const typeStyles = {
+                SPZ: { badge: 'bg-orange-500/20 text-orange-400 border-orange-500/30', border: 'border-orange-500/30 hover:border-orange-500/60', icon: 'fa-shield-halved', label: 'Perizinan' },
+                SPM: { badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30', border: 'border-blue-500/30 hover:border-blue-500/60', icon: 'fa-file-lines', label: 'Permohonan' },
+                SBA: { badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', border: 'border-emerald-500/30 hover:border-emerald-500/60', icon: 'fa-scroll', label: 'Berita Acara' },
+                SUD: { badge: 'bg-purple-500/20 text-purple-400 border-purple-500/30', border: 'border-purple-500/30 hover:border-purple-500/60', icon: 'fa-envelope-open-text', label: 'Undangan' }
+            };
+
+            grid.innerHTML = filtered.map(doc => {
+                const style = typeStyles[doc.type] || typeStyles.SPM;
+                const fd = doc.formData || {};
+                const noSurat = fd.field_nomor_surat || 'Nomor belum diatur';
+                const perihal = fd.field_perihal || (doc.type === 'SPZ' && fd.spz_input_fasilitas ? `Peminjaman Fasilitas: ${fd.spz_input_fasilitas}` : 'Perihal belum diisi');
+                const acara = fd.field_nama_acara ? `Agenda: ${fd.field_nama_acara}` : '';
+                const relativeTime = formatRelativeTime(doc.updatedAt);
+                const isCurrent = doc.id === activeDocumentId;
+
+                return `
+                <div class="relative group rounded-2xl bg-neutral-900/90 border ${isCurrent ? 'border-orange-500 ring-1 ring-orange-500/50' : 'border-neutral-800 hover:border-neutral-700'} p-4.5 sm:p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5">
+                    <div>
+                        <!-- Header Bar Kartu -->
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black font-mono uppercase border ${style.badge} flex items-center gap-1">
+                                    <i class="fa-solid ${style.icon} text-[9px]"></i> ${doc.type}
+                                </span>
+                                ${isCurrent ? '<span class="px-2 py-0.5 rounded-md text-[9px] font-bold font-mono uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">Sedang Dibuka</span>' : ''}
+                            </div>
+                            <span class="text-[10px] text-neutral-400 font-mono">
+                                <i class="fa-regular fa-clock mr-1 text-[9px]"></i>${relativeTime}
+                            </span>
+                        </div>
+
+                        <!-- Judul Dokumen -->
+                        <h3 class="text-sm sm:text-base font-extrabold text-white group-hover:text-orange-400 transition-colors line-clamp-1 cursor-pointer" onclick="openDocument('${doc.id}')" title="${escapeHtml(doc.title)}">
+                            ${escapeHtml(doc.title)}
+                        </h3>
+
+                        <!-- Info Nomor & Perihal -->
+                        <div class="mt-2 space-y-1">
+                            <p class="text-[11px] font-mono text-neutral-400 truncate flex items-center gap-1.5">
+                                <i class="fa-solid fa-hashtag text-[9px] text-neutral-400"></i> ${escapeHtml(noSurat)}
+                            </p>
+                            <p class="text-[11px] text-neutral-400 line-clamp-2">
+                                ${escapeHtml(perihal)}
+                            </p>
+                            ${acara ? `<p class="text-[10px] font-medium text-orange-400/90 truncate"><i class="fa-regular fa-calendar-check text-[9px] mr-1"></i>${escapeHtml(acara)}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Footer Action Buttons -->
+                    <div class="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2">
+                        <button type="button" onclick="openDocument('${doc.id}')" class="flex-1 py-2 px-3 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                            <i class="fa-solid fa-pen-to-square text-[11px]"></i> Buka / Edit
+                        </button>
+
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" onclick="printDocumentDirectly('${doc.id}')" class="w-8 h-8 rounded-xl text-neutral-400 hover:text-white bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/80 flex items-center justify-center transition-colors" title="Cetak Langsung ke PDF">
+                                <i class="fa-solid fa-print text-xs"></i>
+                            </button>
+                            <button type="button" onclick="exportDocumentDirectly('${doc.id}')" class="w-8 h-8 rounded-xl text-neutral-400 hover:text-amber-400 bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/80 flex items-center justify-center transition-colors" title="Ekspor File JSON">
+                                <i class="fa-solid fa-download text-xs"></i>
+                            </button>
+                            <button type="button" onclick="duplicateDocument('${doc.id}')" class="w-8 h-8 rounded-xl text-neutral-400 hover:text-blue-400 bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/80 flex items-center justify-center transition-colors" title="Duplikat Dokumen">
+                                <i class="fa-solid fa-copy text-xs"></i>
+                            </button>
+                            <button type="button" onclick="deleteDocument('${doc.id}')" class="w-8 h-8 rounded-xl text-neutral-400 hover:text-red-400 bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/80 flex items-center justify-center transition-colors" title="Hapus Dokumen">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Buka dokumen ke Editor
+        function openDocument(docId) {
+            const docs = getSavedDocuments();
+            const doc = docs.find(d => d.id === docId);
+            if (!doc) return;
+
+            setActiveDocumentId(docId);
+            loadFormDataIntoInputs(doc);
+            switchToEditorView();
+        }
+
+        // Modal Buat Dokumen Baru
+        function openCreateNewDocModal() {
+            const modal = document.getElementById('modal_create_new_doc');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            const titleInput = document.getElementById('new_doc_title_input');
+            if (titleInput) {
+                titleInput.value = '';
+                setTimeout(() => titleInput.focus(), 50);
+            }
+            updateNewDocTypeSelection();
+        }
+
+        function closeCreateNewDocModal() {
+            const modal = document.getElementById('modal_create_new_doc');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function updateNewDocTypeSelection() {
+            const selected = document.querySelector('input[name="new_doc_type"]:checked');
+            const val = selected ? selected.value : 'SPZ';
+            document.querySelectorAll('.doc-type-choice').forEach(card => {
+                const type = card.getAttribute('data-type');
+                if (type === val) {
+                    card.classList.add('border-2', 'border-orange-500', 'bg-orange-500/10');
+                    card.classList.remove('border-neutral-800', 'bg-neutral-950/60');
+                } else {
+                    card.classList.remove('border-2', 'border-orange-500', 'bg-orange-500/10');
+                    card.classList.add('border-neutral-800', 'bg-neutral-950/60');
+                }
+            });
+            const titleInput = document.getElementById('new_doc_title_input');
+            if (titleInput && !titleInput.value.trim()) {
+                const defaultTitles = {
+                    SPZ: 'SPZ Permohonan Peminjaman Fasilitas 2026',
+                    SPM: 'SPM Permohonan Dana & Acara 2026',
+                    SBA: 'SBA Berita Acara Kegiatan 2026',
+                    SUD: 'SUD Undangan Resmi Ormawa 2026'
+                };
+                titleInput.placeholder = defaultTitles[val] || 'Surat LDK IMIP 2026';
+            }
+        }
+
+        function handleCreateNewDocSubmit(e) {
+            e.preventDefault();
+            const selectedType = document.querySelector('input[name="new_doc_type"]:checked')?.value || 'SPZ';
+            const titleInput = document.getElementById('new_doc_title_input');
+            const title = (titleInput && titleInput.value.trim()) || `Surat ${selectedType} Baru`;
+
+            createNewDocument(selectedType, title);
+            closeCreateNewDocModal();
+        }
+
+        // Buat Dokumen Baru
+        function createNewDocument(type, title) {
+            const newId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+            
+            isProgrammaticLoading = true;
+            selectSuratType(type);
+            isProgrammaticLoading = false;
+
+            const initialFormData = collectCurrentFormData();
+            const newDoc = {
+                id: newId,
+                title: title,
+                type: type,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                formData: initialFormData
+            };
+
+            const docs = getSavedDocuments();
+            docs.unshift(newDoc);
+            saveDocumentsList(docs);
+
+            openDocument(newId);
+
+            if (window.Swal) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: `Dokumen "${title}" siap dibuat!`,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            }
+        }
+
+        // Duplikat Dokumen Saat Ini
+        function duplicateCurrentDocument() {
+            if (!activeDocumentId) return;
+            duplicateDocument(activeDocumentId);
+        }
+
+        // Duplikat Dokumen Tertentu
+        function duplicateDocument(docId) {
+            const docs = getSavedDocuments();
+            const orig = docs.find(d => d.id === docId);
+            if (!orig) return;
+
+            const newId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+            const copyTitle = `${orig.title} (Salinan)`;
+            const copyDoc = {
+                ...JSON.parse(JSON.stringify(orig)),
+                id: newId,
+                title: copyTitle,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            docs.unshift(copyDoc);
+            saveDocumentsList(docs);
+            renderDocumentsGrid();
+
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Dokumen Berhasil Diduplikasi!',
+                    text: `Salinan dibuat dengan nama "${copyTitle}". Ingin langsung membuka dokumen salinan?`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Buka Salinan',
+                    cancelButtonText: 'Tetap di Folder',
+                    confirmButtonColor: '#FF7300',
+                    cancelButtonColor: '#262626'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        openDocument(newId);
+                    }
+                });
+            }
+        }
+
+        // Hapus Dokumen
+        function deleteDocument(docId) {
+            const docs = getSavedDocuments();
+            const target = docs.find(d => d.id === docId);
+            if (!target) return;
+
+            const confirmAction = () => {
+                const updated = docs.filter(d => d.id !== docId);
+                saveDocumentsList(updated);
+
+                if (activeDocumentId === docId) {
+                    if (updated.length > 0) {
+                        setActiveDocumentId(updated[0].id);
+                        loadFormDataIntoInputs(updated[0]);
+                    } else {
+                        setActiveDocumentId(null);
+                    }
+                }
+                renderDocumentsGrid();
+            };
+
+            if (window.Swal) {
+                Swal.fire({
+                    title: 'Hapus Dokumen?',
+                    text: `Dokumen "${target.title}" akan dihapus dari browser. Tindakan ini tidak dapat dibatalkan.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#EF4444',
+                    cancelButtonColor: '#262626',
+                    confirmButtonText: 'Ya, Hapus Dokumen',
+                    cancelButtonText: 'Batal'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        confirmAction();
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: 'Dokumen berhasil dihapus',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
+            } else {
+                if (confirm(`Hapus dokumen "${target.title}"?`)) {
+                    confirmAction();
+                }
+            }
+        }
+
+        // Ekspor Dokumen Aktif ke JSON
+        function exportCurrentDocJson() {
+            if (!activeDocumentId) {
+                const docs = getSavedDocuments();
+                if (docs.length > 0) activeDocumentId = docs[0].id;
+                else return;
+            }
+            exportDocumentDirectly(activeDocumentId);
+        }
+
+        // Ekspor Dokumen Tertentu ke JSON
+        function exportDocumentDirectly(docId) {
+            const docs = getSavedDocuments();
+            const doc = docs.find(d => d.id === docId);
+            if (!doc) return;
+
+            if (doc.id === activeDocumentId) {
+                doc.formData = collectCurrentFormData();
+                doc.updatedAt = new Date().toISOString();
+                saveDocumentsList(docs);
+            }
+
+            const exportPayload = {
+                app: 'LDK IMIP Persuratan 2026',
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                document: doc
+            };
+
+            const jsonStr = JSON.stringify(exportPayload, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const cleanTitle = (doc.title || 'Surat_LDK_IMIP').replace(/[^a-zA-Z0-9_-]/g, '_');
+            a.href = url;
+            a.download = `${cleanTitle}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (window.Swal) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: `File JSON "${cleanTitle}.json" berhasil diunduh!`,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        }
+
+        // Ekspor Seluruh Arsip Dokumen ke Satu File Backup JSON
+        function exportAllDocumentsJson() {
+            const docs = getSavedDocuments();
+            if (docs.length === 0) {
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Folder Masih Kosong',
+                        text: 'Belum ada dokumen yang tersimpan untuk dicadangkan.',
+                        confirmButtonColor: '#FF7300'
+                    });
+                }
+                return;
+            }
+
+            const exportPayload = {
+                app: 'LDK IMIP Persuratan 2026',
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                totalDocuments: docs.length,
+                documents: docs
+            };
+
+            const jsonStr = JSON.stringify(exportPayload, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const now = new Date();
+            const dateTag = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+            a.href = url;
+            a.download = `Backup_Semua_Surat_LDK_IMIP_${dateTag}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Backup Berhasil!',
+                    text: `Berhasil mencadangkan ${docs.length} dokumen surat ke file JSON. Anda dapat mengimpornya kembali di perangkat lain kapan saja.`,
+                    confirmButtonColor: '#FF7300'
+                });
+            }
+        }
+
+        // Tangani Impor File JSON
+        function handleImportJsonFile(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    let importedDocs = [];
+
+                    if (parsed.documents && Array.isArray(parsed.documents)) {
+                        importedDocs = parsed.documents;
+                    } else if (parsed.document && typeof parsed.document === 'object') {
+                        importedDocs = [parsed.document];
+                    } else if (Array.isArray(parsed)) {
+                        importedDocs = parsed;
+                    } else if (parsed.id && parsed.formData) {
+                        importedDocs = [parsed];
+                    }
+
+                    if (importedDocs.length === 0) {
+                        throw new Error("Format JSON tidak valid atau tidak memiliki data dokumen.");
+                    }
+
+                    const existingDocs = getSavedDocuments();
+                    let addedCount = 0;
+
+                    importedDocs.forEach(item => {
+                        if (!item.id || !item.type) return;
+                        let finalId = item.id;
+                        if (existingDocs.some(d => d.id === finalId)) {
+                            finalId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+                        }
+                        const newEntry = {
+                            ...item,
+                            id: finalId,
+                            title: item.title || `Surat Impor ${item.type}`,
+                            updatedAt: new Date().toISOString()
+                        };
+                        existingDocs.unshift(newEntry);
+                        addedCount++;
+                    });
+
+                    saveDocumentsList(existingDocs);
+                    renderDocumentsGrid();
+                    event.target.value = '';
+
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Impor Berhasil!',
+                            text: `Berhasil mengimpor ${addedCount} dokumen surat ke dalam folder Anda.`,
+                            confirmButtonColor: '#FF7300'
+                        });
+                    }
+                } catch (err) {
+                    console.error("Kesalahan parsing JSON impor:", err);
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Mengimpor File',
+                            text: 'File JSON tidak valid atau struktur data tidak sesuai dengan format surat LDK IMIP.',
+                            confirmButtonColor: '#FF7300'
+                        });
+                    }
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Cetak Dokumen Tertentu Langsung dari Folder
+        function printDocumentDirectly(docId) {
+            const docs = getSavedDocuments();
+            const doc = docs.find(d => d.id === docId);
+            if (!doc) return;
+
+            openDocument(docId);
+            setTimeout(() => {
+                quickPrintSurat();
+            }, 300);
+        }
+
+        // Seed Dokumen Default jika Storage Kosong
+        function seedInitialDocumentsIfEmpty() {
+            const existing = getSavedDocuments();
+            if (existing.length === 0) {
+                const now = new Date();
+                const nowIso = now.toISOString();
+
+                // 1. Seed SPZ Resmi 2026
+                const spzDoc = {
+                    id: 'doc_seed_spz_2026',
+                    title: 'SPZ Permohonan Peminjaman Fasilitas',
+                    type: 'SPZ',
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    formData: {
+                        field_nomor_surat: '042/SPZ/E1/UKM IMIP/IX/2026',
+                        field_nomor_urut: '042',
+                        field_lampiran: '3 Lembar',
+                        field_lampiran_angka: '3',
+                        field_tanggal_surat: `Jakarta, ${formatIndoDate(now)}`,
+                        spz_input_fasilitas: 'Gedung Serbaguna & Sound System',
+                        field_nama_acara: 'Mabit Muharrik LDK IMIP 2026',
+                        field_hari_tanggal: 'Sabtu - Ahad, 24 - 25 Oktober 2026',
+                        field_waktu: '16.00 WIB s/d 06.00 WIB',
+                        field_tempat: 'Gedung Serbaguna & Ruang Teater Kampus Polimedia',
+                        field_isi_inti: 'Kegiatan Malam Bina Iman dan Taqwa (Mabit) dalam rangka pembinaan ruhiyah dan karakter kader Muharrik LDK IMIP 2026.',
+                        field_ttd1_jabatan: 'Ketua Pelaksana\nMabit Muharrik 2026',
+                        field_ttd1_nama: 'Fadly Ahmad Chandi',
+                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
+                        field_ttd2_nama: 'Hafiz Alfariz',
+                        field_ttd2_nim: 'NIM. 2490444040',
+                        field_ttd3_active: true,
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_nim: 'NIP. 198005072023211013',
+                        field_use_kop: true,
+                        spz_no_hp: '085775628607',
+                        spz_batas_waktu: '06.00 WIB',
+                        spz_inc_lampiran_panitia: true,
+                        spz_inc_subbag_umum: true,
+                        spzBarangList: JSON.parse(JSON.stringify(DEFAULT_SPZ_BARANG)),
+                        spzPanitiaList: JSON.parse(JSON.stringify(DEFAULT_SPZ_PANITIA)),
+                        spzRundownList: JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN))
+                    }
+                };
+
+                // 2. Seed SPM Resmi 2026
+                const spmDoc = {
+                    id: 'doc_seed_spm_2026',
+                    title: 'SPM Pemunduran Open House 2026',
+                    type: 'SPM',
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    formData: {
+                        field_nomor_surat: '042/SPM/E1/UKM IMIP/IX/2026',
+                        field_nomor_urut: '042',
+                        field_lampiran: '-',
+                        field_tanggal_surat: 'Jakarta, 08 September 2026',
+                        field_perihal: 'Surat Permohonan Pemunduran Open House',
+                        field_tujuan: 'Yth. Majelis Permusyawaratan Mahasiswa\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
+                        field_nama_acara: 'Open House LDK IMIP 2026',
+                        field_hari_tanggal: 'Jum’at, 18 September 2026',
+                        field_waktu: '13.30 WIB s.d. Selesai',
+                        field_tempat: 'Auditorium Hall Polimedia Jakarta',
+                        field_pembuka: SURAT_TEMPLATES.SPM.pembuka,
+                        field_isi_inti: SURAT_TEMPLATES.SPM.isiInti,
+                        field_penutup: SURAT_TEMPLATES.SPM.penutup,
+                        field_ttd1_jabatan: 'Ketua Pelaksana\nOpen House 2026',
+                        field_ttd1_nama: 'Fadly Ahmad Chandi',
+                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
+                        field_ttd2_nama: 'Hafiz Alfariz',
+                        field_ttd2_nim: 'NIM. 2490444040',
+                        field_ttd3_active: true,
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_nim: 'NIP. 198005072023211013',
+                        field_use_kop: true
+                    }
+                };
+
+                saveDocumentsList([spzDoc, spmDoc]);
+                setActiveDocumentId('doc_seed_spz_2026');
+            }
+        }
+
         // INITIALIZE ON LOAD
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
@@ -4886,16 +6026,40 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     quickPrintSurat();
                 }
             });
-            const now = new Date();
-            document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
-            if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
-            if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
-            const urlParamType = new URLSearchParams(window.location.search).get('type');
-            const hashType = window.location.hash ? window.location.hash.replace('#', '').toUpperCase() : '';
-            const initialType = (urlParamType ? urlParamType.toUpperCase() : '') || hashType || 'SPM';
-            selectSuratType(['SPM', 'SBA', 'SPZ', 'SUD'].includes(initialType) ? initialType : 'SPM');
+
+            // Inisialisasi Sistem Folder Dokumen & Draf
+            seedInitialDocumentsIfEmpty();
+            const savedDocs = getSavedDocuments();
+            const lastActiveId = localStorage.getItem(ACTIVE_DOC_ID_KEY);
+            const targetDoc = savedDocs.find(d => d.id === lastActiveId) || savedDocs[0];
+
+            if (targetDoc) {
+                setActiveDocumentId(targetDoc.id);
+                loadFormDataIntoInputs(targetDoc);
+            } else {
+                const now = new Date();
+                document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
+                selectSuratType('SPZ');
+            }
+
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+
+            // Cek URL params untuk menentukan tampilan awal
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlDocId = urlParams.get('doc');
+            const urlNew = urlParams.get('new');
+            const urlType = urlParams.get('type');
+
+            if (urlDocId && savedDocs.some(d => d.id === urlDocId)) {
+                openDocument(urlDocId);
+            } else if (urlNew || urlType) {
+                const initType = (urlType ? urlType.toUpperCase() : 'SPZ');
+                createNewDocument(['SPM','SBA','SPZ','SUD'].includes(initType) ? initType : 'SPZ', `Surat ${initType} Baru`);
+            } else {
+                // Default sesuai permintaan pengguna: buka Folder Dokumen terlebih dahulu
+                switchToFolderView();
+            }
         });
     </script>
 </body>
