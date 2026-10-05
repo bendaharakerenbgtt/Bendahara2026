@@ -1817,14 +1817,44 @@
             updatePreview();
         }
 
+        function stripBoldMarkdown(str) {
+            if (!str) return '';
+            let res = String(str);
+            // Jika ada bold+italic (***teks*** atau ___teks___), pertahankan format italic (*teks* atau _teks_)
+            res = res.replace(/\*\*\*(.+?)\*\*\*/g, '*$1*');
+            res = res.replace(/___(.+?)___/g, '_$1_');
+            res = res.replace(/\*\*_(.+?)_\*\*/g, '_$1_');
+            res = res.replace(/_\*\*(.+?)\*\*_/g, '_$1_');
+            // Hapus format bold (**teks** atau __teks__) agar tidak terbawa tebal
+            res = res.replace(/\*\*(.+?)\*\*/g, '$1');
+            res = res.replace(/__(.+?)__/g, '$1');
+            res = res.replace(/<\/?(strong|b)(?:\s+[^>]*)?>/gi, '');
+            return res;
+        }
+
         function formatProkerTtd1(rawAcara) {
             if (!rawAcara) return '';
-            let clean = rawAcara.replace(/(?:UKM\s+)?LDK\s+IMIP/gi, '').trim();
+            // Format bold TIDAK DIBAWA ke tanda tangan, tetapi format italic DIPERBOLEHKAN
+            let clean = stripBoldMarkdown(rawAcara);
+            clean = clean.replace(/(?:UKM\s+)?LDK\s+IMIP/gi, '').trim();
             clean = clean.replace(/\s+/g, ' ');
-            if (!/\b20\d{2}\b/.test(clean)) {
-                clean = clean ? `${clean} 2026` : '';
+            if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(clean)) {
+                if (clean.startsWith('_') && clean.endsWith('_') && clean.length > 2) {
+                    clean = `${clean.slice(0, -1)} 2026_`;
+                } else if (clean.startsWith('*') && clean.endsWith('*') && clean.length > 2) {
+                    clean = `${clean.slice(0, -1)} 2026*`;
+                } else {
+                    clean = clean ? `${clean} 2026` : '';
+                }
             }
             return clean;
+        }
+
+        function formatTtdJabatan(text) {
+            if (!text) return '';
+            // Di tanda tangan: bold TIDAK DIBAWA, tetapi italic DIPERBOLEHKAN di mana saja
+            const clean = stripBoldMarkdown(text);
+            return formatInlineRichText(clean).replace(/\n/g, '<br>');
         }
 
         function syncTtd1Jabatan() {
@@ -1834,7 +1864,7 @@
             const displayAcara = document.getElementById('display_ttd1_acara');
             if (displayAcara) {
                 if (prokerFormatted) {
-                    displayAcara.textContent = prokerFormatted;
+                    displayAcara.innerHTML = formatInlineRichText(prokerFormatted);
                     displayAcara.classList.remove('opacity-40', 'italic');
                 } else {
                     displayAcara.textContent = 'Nama Kegiatan 2026 (Placeholder)';
@@ -2732,7 +2762,7 @@
             const jamTerakhir = manualBatasWaktu || extractJamTerakhirSpz(waktu);
             const formattedBatasWaktu = /^selesai$/i.test(jamTerakhir)
                 ? 'sampai Selesai.'
-                : `pukul ${escapeHtml(jamTerakhir)}.`;
+                : `pukul ${formatInlineRichText(jamTerakhir)}.`;
 
             let subbagPerihal = perihal;
             if (/penggunaan/i.test(subbagPerihal)) {
@@ -2804,7 +2834,7 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
                             <div style="text-align: right; margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                                <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
                             </div>
 
                             <!-- META SURAT -->
@@ -2888,22 +2918,22 @@
                                     </colgroup>
                                     <tr>
                                         <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            ${escapeHtml(ttd2Jabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
+                                            ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
                                         </td>
                                         <td style="width: 32%; vertical-align: top;"></td>
                                         <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            ${escapeHtml(ttd1Jabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
+                                            ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${escapeHtml(ttd2Nama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd2Nim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
                                         </td>
                                         <td></td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${escapeHtml(ttd1Nama) || '&nbsp;'}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(ttd1Nim) || '&nbsp;'}</span>
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
                                         </td>
                                     </tr>
                                 </table>
@@ -2918,27 +2948,27 @@
                                     </colgroup>
                                     <tr>
                                         <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
+                                            ${formatTtdJabatan(ttd3Jabatan)}<br><br><br><br><br>
                                         </td>
                                         <td style="width: 32%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            ${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
+                                            ${formatTtdJabatan(mpmJabatan)}<br><br><br><br><br>
                                         </td>
                                         <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                            ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}<br><br><br><br><br>
+                                            ${formatTtdJabatan(bemJabatan)}<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 9.8pt; white-space: nowrap; letter-spacing: -0.2px;">${escapeHtml(ttd3Nama)}</strong><br>
-                                            <span style="font-size: 9.5pt; white-space: nowrap;">${escapeHtml(ttd3Nim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 9.8pt; white-space: nowrap; letter-spacing: -0.2px;">${formatInlineRichText(ttd3Nama)}</strong><br>
+                                            <span style="font-size: 9.5pt; white-space: nowrap;">${formatInlineRichText(ttd3Nim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(mpmNama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(mpmNim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${formatInlineRichText(mpmNama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(mpmNim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${escapeHtml(bemNama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${escapeHtml(bemNim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${formatInlineRichText(bemNama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(bemNim)}</span>
                                         </td>
                                     </tr>
                                 </table>
@@ -3020,7 +3050,7 @@
 
                             <div class="spz-body-container" style="padding-left: 9mm; padding-right: 9mm;">
                                 <div style="margin-bottom: 8pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                                    <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
+                                    <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
                                 </div>
 
                                 <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
@@ -3182,7 +3212,7 @@
                                 </table>
 
                                 <div style="margin-left: auto; width: 280px; text-align: center; margin-top: 10pt; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.35;">
-                                    <p style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.35;">${escapeHtml(tanggalSurat)}</p>
+                                    <p style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.35;">${formatInlineRichText(tanggalSurat)}</p>
                                     <p style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.35;">Kepala Subbagian Umum<br><br><br><br><br></p>
                                     <p style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; font-weight: bold; text-decoration: underline; line-height: 1.35;">Runny Wachyuni, S.Pd., M.M.</p>
                                     <p style="margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; font-weight: bold; line-height: 1.35;">NIP. 198106172005012004</p>
@@ -3230,11 +3260,17 @@
             const isiInti = document.getElementById('field_isi_inti').value.trim();
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat undangan ini kami sampaikan. Atas perhatian Saudara, kami ucapkan terima kasih.';
 
-            let ttd1Jabatan = document.getElementById('field_ttd1_jabatan').value.trim() || 'Ketua Pelaksana\nDauroh Islami 2026';
-            const linesSud = ttd1Jabatan.split('\n');
-            if (linesSud.length > 1) {
-                const cleanedSub = formatProkerTtd1(linesSud.slice(1).join(' '));
-                ttd1Jabatan = cleanedSub ? `${linesSud[0]}\n${cleanedSub}` : linesSud[0];
+            const namaAcara = (document.getElementById('field_nama_acara')?.value || '').trim();
+            let ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim();
+            if (!ttd1Jabatan || ttd1Jabatan === 'Ketua Pelaksana') {
+                const formatted = formatProkerTtd1(namaAcara);
+                ttd1Jabatan = formatted ? `Ketua Pelaksana\n${formatted}` : 'Ketua Pelaksana\nDauroh Islami 2026';
+            } else {
+                const linesSud = ttd1Jabatan.split('\n');
+                if (linesSud.length > 1) {
+                    const cleanedSub = formatProkerTtd1(linesSud.slice(1).join(' '));
+                    ttd1Jabatan = cleanedSub ? `${linesSud[0]}\n${cleanedSub}` : linesSud[0];
+                }
             }
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Fadly Ahmad Chandi';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2490345034';
@@ -3293,9 +3329,9 @@
                 ttd3Html = `
                     <div style="margin-top: 14pt; text-align: center; font-family: 'Times New Roman', serif; font-size: 12pt;">
                         <p style="margin: 0 0 2pt 0;">Mengetahui,</p>
-                        <p style="margin: 0 0 46pt 0; font-weight: normal; line-height: 1.25;">${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}</p>
-                        <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${escapeHtml(ttd3Nama)}</p>
-                        <p style="margin: 0; line-height: 1.25;">${escapeHtml(ttd3Nim)}</p>
+                        <p style="margin: 0 0 46pt 0; font-weight: normal; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
+                        <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
+                        <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
                     </div>
                 `;
             }
@@ -3314,7 +3350,7 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
                             <div style="text-align: right; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                                <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
                             </div>
 
                             <!-- META SURAT -->
@@ -3358,20 +3394,20 @@
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
                                     <tr>
                                         <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
-                                            ${escapeHtml(ttd2Jabatan).replace(/\n/g, '<br>')}
+                                            ${formatTtdJabatan(ttd2Jabatan)}
                                         </td>
                                         <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
-                                            ${escapeHtml(ttd1Jabatan).replace(/\n/g, '<br>')}
+                                            ${formatTtdJabatan(ttd1Jabatan)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top;">
-                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd2Nama)}</p>
-                                            <p style="margin: 0;">${escapeHtml(ttd2Nim)}</p>
+                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</p>
+                                            <p style="margin: 0;">${formatInlineRichText(ttd2Nim)}</p>
                                         </td>
                                         <td style="vertical-align: top;">
-                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd1Nama)}</p>
-                                            <p style="margin: 0;">${escapeHtml(ttd1Nim)}</p>
+                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</p>
+                                            <p style="margin: 0;">${formatInlineRichText(ttd1Nim)}</p>
                                         </td>
                                     </tr>
                                 </table>
@@ -3468,7 +3504,7 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
                             <div style="text-align: right; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                                <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
                             </div>
 
                             <!-- META SURAT -->
@@ -3522,12 +3558,12 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- NOMOR SURAT BRACKET -->
                             <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                                <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
+                                <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
                             </div>
 
                             <!-- PARAGRAF PENUTUP -->
                             <p style="margin: 0 0 16pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                ${escapeHtml(penutup).replace(/\n/g, '<br>')}
+                                ${formatInlineRichText(penutup).replace(/\n/g, '<br>')}
                             </p>
 
                             <!-- PENGESAHAN SPM 3 TIER SESUAI MASTER -->
@@ -3537,8 +3573,8 @@
                                     <p style="margin: 0 0 2pt 0; line-height: 1.25;">Penanggung Jawab,</p>
                                     <p style="margin: 0; line-height: 1.25;">Ketua UKM LDK IMIP<br>Periode 2026</p>
                                     <div style="height: 44pt;"></div>
-                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${escapeHtml(ttd2Nama)}</p>
-                                    <p style="margin: 0; line-height: 1.25;">${escapeHtml(ttd2Nim)}</p>
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
+                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                 </div>
 
                                 <!-- TIER 2: MENGETAHUI (DOSEN & BEM) -->
@@ -3547,20 +3583,20 @@
                                     <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
                                         <tr>
                                             <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                                ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}
+                                                ${formatTtdJabatan(ttd3Jabatan)}
                                             </td>
                                             <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                                ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}
+                                                ${formatTtdJabatan(bemJabatan)}
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(ttd3Nama)}</p>
-                                                <p style="margin: 0;">${escapeHtml(ttd3Nim)}</p>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</p>
+                                                <p style="margin: 0;">${formatInlineRichText(ttd3Nim)}</p>
                                             </td>
                                             <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${escapeHtml(bemNama)}</p>
-                                                <p style="margin: 0;">${escapeHtml(bemNim)}</p>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(bemNama)}</p>
+                                                <p style="margin: 0;">${formatInlineRichText(bemNim)}</p>
                                             </td>
                                         </tr>
                                     </table>
@@ -3569,10 +3605,10 @@
                                 <!-- TIER 3: MENYETUJUI (KETUA MPM) -->
                                 <div style="text-align: center; margin-bottom: 14pt;">
                                     <p style="margin: 0 0 2pt 0; line-height: 1.25;">Menyetujui,</p>
-                                    <p style="margin: 0; line-height: 1.25;">${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}</p>
+                                    <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(mpmJabatan)}</p>
                                     <div style="height: 44pt;"></div>
-                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${escapeHtml(mpmNama)}</p>
-                                    <p style="margin: 0; line-height: 1.25;">${escapeHtml(mpmNim)}</p>
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(mpmNama)}</p>
+                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(mpmNim)}</p>
                                 </div>
 
                                 <!-- TIER 4: TEMBUSAN -->
@@ -3612,9 +3648,22 @@
             const isiInti = document.getElementById('field_isi_inti').value.trim();
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.';
 
+            let ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim();
+            if (!ttd1Jabatan || ttd1Jabatan === 'Ketua Pelaksana') {
+                const formatted = formatProkerTtd1(namaAcara);
+                ttd1Jabatan = formatted ? `Ketua Pelaksana\n${formatted}` : 'Ketua Pelaksana\nStudi Banding 2026';
+            } else {
+                const lines = ttd1Jabatan.split('\n');
+                if (lines.length > 1) {
+                    const cleanedSub = formatProkerTtd1(lines.slice(1).join(' '));
+                    ttd1Jabatan = cleanedSub ? `${lines[0]}\n${cleanedSub}` : lines[0];
+                }
+            }
             const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim() || 'Faridah Rihadatul ‘Aisy';
             const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim() || 'NIM. 2470402026';
+            const ttd2Jabatan = (document.getElementById('field_ttd2_jabatan')?.value || '').trim() || 'Ketua UKM LDK IMIP\nPeriode 2026';
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
+            const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
             const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
@@ -3678,7 +3727,7 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
                             <div style="text-align: right; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0;">${escapeHtml(tanggalSurat)}</p>
+                                <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
                             </div>
 
                             <!-- META SURAT -->
@@ -3703,7 +3752,7 @@
                             <!-- JUDUL BERITA ACARA -->
                             <div style="text-align: center; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.35;">
                                 <p style="margin: 0;">BERITA ACARA</p>
-                                <p style="margin: 0;">${escapeHtml(namaAcara.toUpperCase())}</p>
+                                <p style="margin: 0;">${formatInlineRichText(namaAcara.toUpperCase())}</p>
                                 <p style="margin: 0;">UNIT KEGIATAN MAHASISWA LDK IMIP</p>
                             </div>
 
@@ -3729,12 +3778,12 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- NOMOR SURAT BRACKET -->
                             <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                                <p style="margin: 0;">[${escapeHtml(noSurat)}]</p>
+                                <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
                             </div>
 
                             <!-- PARAGRAF PENUTUP -->
                             <p style="margin: 0 0 16pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                ${escapeHtml(penutup).replace(/\n/g, '<br>')}
+                                ${formatInlineRichText(penutup).replace(/\n/g, '<br>')}
                             </p>
 
                             <!-- PENGESAHAN SBA RESMI (IDENTIK LEVEL DENGAN SPZ/SBA MASTER) -->
@@ -3744,22 +3793,22 @@
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 16pt;">
                                     <tr>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.25;">
-                                            Ketua UKM LDK IMIP<br>Periode 2026
+                                            ${formatTtdJabatan(ttd2Jabatan)}
                                         </td>
                                         <td style="width: 33.3%; vertical-align: top;"></td>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 48pt; line-height: 1.25;">
-                                            Ketua Pelaksana<br>${escapeHtml(formatProkerTtd1(namaAcara) || 'Studi Banding 2026')}
+                                            ${formatTtdJabatan(ttd1Jabatan)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${escapeHtml(ttd2Nama)}</strong><br>
-                                            <span style="font-size: 12pt;">${escapeHtml(ttd2Nim)}</span>
+                                            <strong style="text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                            <span style="font-size: 12pt;">${formatInlineRichText(ttd2Nim)}</span>
                                         </td>
                                         <td></td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${escapeHtml(ttd1Nama)}</strong><br>
-                                            <span style="font-size: 12pt;">${escapeHtml(ttd1Nim)}</span>
+                                            <strong style="text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</strong><br>
+                                            <span style="font-size: 12pt;">${formatInlineRichText(ttd1Nim)}</span>
                                         </td>
                                     </tr>
                                 </table>
@@ -3769,27 +3818,27 @@
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; margin-bottom: 16pt;">
                                     <tr>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            ${escapeHtml(ttd3Jabatan).replace(/\n/g, '<br>')}
+                                            ${formatTtdJabatan(ttd3Jabatan)}
                                         </td>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            ${escapeHtml(mpmJabatan).replace(/\n/g, '<br>')}
+                                            ${formatTtdJabatan(mpmJabatan)}
                                         </td>
                                         <td style="width: 33.3%; vertical-align: top; padding-bottom: 50pt; line-height: 1.25;">
-                                            ${escapeHtml(bemJabatan).replace(/\n/g, '<br>')}
+                                            ${formatTtdJabatan(bemJabatan)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${escapeHtml(ttd3Nama)}</strong><br>
-                                            <span style="font-size: 12pt;">${escapeHtml(ttd3Nim)}</span>
+                                            <strong style="text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</strong><br>
+                                            <span style="font-size: 12pt;">${formatInlineRichText(ttd3Nim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${escapeHtml(mpmNama)}</strong><br>
-                                            <span style="font-size: 12pt;">${escapeHtml(mpmNim)}</span>
+                                            <strong style="text-decoration: underline;">${formatInlineRichText(mpmNama)}</strong><br>
+                                            <span style="font-size: 12pt;">${formatInlineRichText(mpmNim)}</span>
                                         </td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline;">${escapeHtml(bemNama)}</strong><br>
-                                            <span style="font-size: 12pt;">${escapeHtml(bemNim)}</span>
+                                            <strong style="text-decoration: underline;">${formatInlineRichText(bemNama)}</strong><br>
+                                            <span style="font-size: 12pt;">${formatInlineRichText(bemNim)}</span>
                                         </td>
                                     </tr>
                                 </table>
