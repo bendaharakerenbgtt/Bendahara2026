@@ -441,9 +441,9 @@
     <!-- TOP HEADER NAVBAR -->
     <header class="sticky top-0 z-40 backdrop-blur-xl bg-neutral-950/70 border-b border-neutral-900 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <a href="dasboard.html" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-colors" title="Kembali ke Beranda">
+            <button type="button" id="header_back_btn" onclick="handleHeaderBackClick()" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 transition-colors" title="Kembali ke Dashboard">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
-            </a>
+            </button>
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-xs">
                     <i class="fa-solid fa-envelope-open-text text-sm"></i>
@@ -455,6 +455,18 @@
                     <p class="text-[9px] text-neutral-400 font-mono">Format Resmi Ormawa 2026</p>
                 </div>
             </div>
+        </div>
+
+        <!-- TAB NAVIGASI: FOLDER SURAT vs EDITOR DOKUMEN -->
+        <div class="flex items-center gap-1 bg-neutral-900/90 border border-neutral-800 p-1 rounded-xl shadow-xs">
+            <button type="button" id="nav_btn_folder" onclick="switchToFolderView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-folder-open text-xs"></i>
+                <span class="hidden sm:inline">Folder Surat</span>
+            </button>
+            <button type="button" id="nav_btn_editor" onclick="switchToEditorView()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-pen-nib text-xs"></i>
+                <span class="hidden sm:inline">Editor Dokumen</span>
+            </button>
         </div>
 
         <div class="flex items-center gap-2">
@@ -541,8 +553,9 @@
             <div id="editor_top_doc_bar" class="p-3 sm:p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
                 <!-- Left: Tombol Kembali ke Folder + Nama Dokumen Editable Inline -->
                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                    <button type="button" onclick="switchToFolderView()" class="w-9 h-9 rounded-xl bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/80 flex items-center justify-center text-neutral-300 hover:text-white transition-all shrink-0" title="Kembali ke Folder Arsip Surat">
-                        <i class="fa-solid fa-folder-open text-xs text-orange-400"></i>
+                    <button type="button" onclick="switchToFolderView()" class="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 hover:border-neutral-600 flex items-center gap-2 text-neutral-200 hover:text-white transition-all shrink-0 shadow-xs" title="Kembali ke Folder Surat">
+                        <i class="fa-solid fa-arrow-left text-xs text-orange-400"></i>
+                        <span class="text-xs font-bold hidden sm:inline">Folder Surat</span>
                     </button>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
@@ -5255,12 +5268,25 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             triggerAutoSave();
         }
 
-        // Beralih ke Tampilan Folder
-        function switchToFolderView() {
+        // Tangani Tombol Kembali di Header Navbar
+        function handleHeaderBackClick() {
+            const editorView = document.getElementById('view_editor_dokumen');
+            if (editorView && !editorView.classList.contains('hidden')) {
+                // Jika sedang di Editor Dokumen, kembali ke Folder Dokumen Surat
+                switchToFolderView();
+            } else {
+                // Jika sedang di Folder Dokumen Surat, kembali ke Dashboard Utama
+                window.location.href = 'dasboard.html';
+            }
+        }
+
+        // Beralih ke Tampilan Folder Surat
+        function switchToFolderView(pushHistory = true) {
             const folderView = document.getElementById('view_folder_dokumen');
             const editorView = document.getElementById('view_editor_dokumen');
             const btnFolder = document.getElementById('nav_btn_folder');
             const btnEditor = document.getElementById('nav_btn_editor');
+            const headerBackBtn = document.getElementById('header_back_btn');
 
             if (folderView) folderView.classList.remove('hidden');
             if (editorView) editorView.classList.add('hidden');
@@ -5272,16 +5298,27 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 btnEditor.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5';
             }
 
+            if (headerBackBtn) {
+                headerBackBtn.title = 'Kembali ke Dashboard';
+            }
+
+            if (pushHistory && window.location.hash !== '#folder') {
+                try {
+                    history.pushState({ view: 'folder' }, '', '#folder');
+                } catch(e) {}
+            }
+
             renderDocumentsGrid();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Beralih ke Tampilan Editor
-        function switchToEditorView() {
+        // Beralih ke Tampilan Editor Dokumen
+        function switchToEditorView(pushHistory = true) {
             const folderView = document.getElementById('view_folder_dokumen');
             const editorView = document.getElementById('view_editor_dokumen');
             const btnFolder = document.getElementById('nav_btn_folder');
             const btnEditor = document.getElementById('nav_btn_editor');
+            const headerBackBtn = document.getElementById('header_back_btn');
 
             if (folderView) folderView.classList.add('hidden');
             if (editorView) editorView.classList.remove('hidden');
@@ -5291,6 +5328,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
             if (btnEditor) {
                 btnEditor.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5';
+            }
+
+            if (headerBackBtn) {
+                headerBackBtn.title = 'Kembali ke Folder Surat';
+            }
+
+            if (pushHistory && window.location.hash !== '#editor') {
+                try {
+                    history.pushState({ view: 'editor' }, '', '#editor');
+                } catch(e) {}
             }
 
             const docs = getSavedDocuments();
@@ -5303,6 +5350,15 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        // Tangani navigasi browser (tombol back/forward fisik/browser)
+        window.addEventListener('popstate', (e) => {
+            if (window.location.hash === '#editor') {
+                switchToEditorView(false);
+            } else {
+                switchToFolderView(false);
+            }
+        });
 
         // Filter dokumen berdasarkan tipe surat
         function filterDocsByType(type) {
