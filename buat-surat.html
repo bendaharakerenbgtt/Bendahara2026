@@ -307,7 +307,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 5mm 15mm 15mm 16mm;
+                margin: 0 !important;
             }
             body {
                 background: #FFFFFF !important;
@@ -317,7 +317,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6 {
+            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner {
                 display: none !important;
             }
             main {
@@ -328,10 +328,23 @@
             .grid {
                 display: block !important;
             }
-            #letterPreviewArea {
+            .lg\:col-span-7 {
+                width: 100% !important;
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .overflow-x-auto {
+                overflow: visible !important;
+                border: none !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+            #rendered_surat_paper {
                 width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                display: block !important;
             }
             .spz-page-sheet {
                 background-color: #FFFFFF !important;
@@ -341,21 +354,48 @@
                 box-shadow: none !important;
                 border: none !important;
                 margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                max-width: none !important;
+                padding: 5mm 15mm 15mm 16mm !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
                 page-break-after: always !important;
                 break-after: page !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
-                box-sizing: border-box;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
                 position: relative !important;
-                min-height: 272mm !important;
-                height: 272mm !important;
             }
             .spz-page-sheet:last-child {
                 page-break-after: auto !important;
                 break-after: auto !important;
+            }
+            .spz-watermark-layer {
+                position: absolute !important;
+                left: 105mm !important;
+                top: 148.5mm !important;
+                transform: translate(-50%, -50%) !important;
+                width: 345px !important;
+                height: 345px !important;
+                max-width: 345px !important;
+                max-height: 345px !important;
+                pointer-events: none !important;
+                z-index: 1 !important;
+                user-select: none !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .spz-watermark-layer img {
+                width: 345px !important;
+                height: 345px !important;
+                max-width: 345px !important;
+                max-height: 345px !important;
+                object-fit: contain !important;
+                display: block !important;
+                opacity: 0.95 !important;
             }
         }
     </style>
@@ -3922,18 +3962,21 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 5mm 15mm 15mm 16mm;
+            margin: 0 !important;
         }
         * {
             box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
-        body {
+        html, body {
+            width: 210mm;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #FFFFFF !important;
+            color: #000000 !important;
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
-            color: #000000;
-            background: #FFFFFF;
-            margin: 0;
-            padding: 0;
             line-height: 1.45;
         }
         .kop-separator {
@@ -3953,17 +3996,17 @@
             box-shadow: none !important;
             border: none !important;
             margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: none !important;
+            padding: 5mm 15mm 15mm 16mm !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             page-break-after: always !important;
             break-after: page !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            box-sizing: border-box;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
             position: relative !important;
-            min-height: 272mm !important;
-            height: 272mm !important;
         }
         .spz-page-sheet:last-child {
             page-break-after: auto !important;
@@ -3971,7 +4014,8 @@
         }
         .spz-watermark-layer {
             position: absolute !important;
-            left: 50% !important;
+            left: 105mm !important;
+            top: 148.5mm !important;
             transform: translate(-50%, -50%) !important;
             width: 345px !important;
             height: 345px !important;
@@ -4053,18 +4097,20 @@
             }
 
             let iframe = document.getElementById('surat_print_frame');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.id = 'surat_print_frame';
-                iframe.style.position = 'fixed';
-                iframe.style.right = '0';
-                iframe.style.bottom = '0';
-                iframe.style.width = '0';
-                iframe.style.height = '0';
-                iframe.style.border = '0';
-                iframe.style.visibility = 'hidden';
-                document.body.appendChild(iframe);
+            if (iframe) {
+                iframe.remove();
             }
+            iframe = document.createElement('iframe');
+            iframe.id = 'surat_print_frame';
+            iframe.style.position = 'fixed';
+            iframe.style.left = '-9999px';
+            iframe.style.top = '0';
+            iframe.style.width = '210mm';
+            iframe.style.height = '297mm';
+            iframe.style.border = '0';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            document.body.appendChild(iframe);
 
             try {
                 const doc = iframe.contentWindow.document;
@@ -4073,10 +4119,36 @@
                 doc.title = cleanTitle;
                 doc.close();
 
-                setTimeout(() => {
+                const triggerPrint = () => {
                     iframe.contentWindow.focus();
                     iframe.contentWindow.print();
-                }, 350);
+                };
+
+                const imgs = Array.from(doc.images || []);
+                if (imgs.length > 0) {
+                    let loaded = 0;
+                    let fired = false;
+                    const onFinish = () => {
+                        if (fired) return;
+                        fired = true;
+                        setTimeout(triggerPrint, 150);
+                    };
+                    const checkAll = () => {
+                        loaded++;
+                        if (loaded >= imgs.length) onFinish();
+                    };
+                    imgs.forEach(img => {
+                        if (img.complete) {
+                            checkAll();
+                        } else {
+                            img.onload = checkAll;
+                            img.onerror = checkAll;
+                        }
+                    });
+                    setTimeout(onFinish, 600);
+                } else {
+                    setTimeout(triggerPrint, 250);
+                }
             } catch (err) {
                 const printWin = window.open('', '_blank');
                 if (!printWin) {
@@ -4288,6 +4360,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         e.preventDefault();
                         formatSelectionItalic(active);
                     }
+                } else if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+                    e.preventDefault();
+                    quickPrintSurat();
                 }
             });
             const now = new Date();
