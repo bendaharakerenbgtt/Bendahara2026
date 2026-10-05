@@ -701,9 +701,6 @@
                         <button type="button" onclick="quickPrintSurat()" class="text-xs px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/25 flex items-center gap-1.5 font-bold transition-all" title="Cetak Surat / Simpan PDF">
                             <i class="fa-solid fa-print"></i> Cetak
                         </button>
-                        <button type="button" onclick="copySuratText()" class="text-xs px-2.5 py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800 flex items-center gap-1.5 font-mono transition-all" title="Salin Teks Surat">
-                            <i class="fa-solid fa-copy"></i> Salin
-                        </button>
                     </div>
                 </div>
 
@@ -1444,21 +1441,65 @@
                         </button>
                     </div>
 
-                    <!-- Baris 2: Tombol Output (Cetak PDF, Word, Salin Teks) -->
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="quickPrintSurat()" class="flex-1 py-2.5 px-3 rounded-xl font-black text-xs text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all truncate">
-                            <i class="fa-solid fa-print text-xs shrink-0"></i>
-                            <span class="truncate">Cetak / Simpan PDF</span>
-                        </button>
+                    <!-- Baris 2: Tombol Output (Cetak PDF & Word) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Tombol Cetak / Simpan PDF + Tooltip -->
+                        <div class="relative group">
+                            <button type="button" onclick="quickPrintSurat()" class="w-full py-2.5 px-3 rounded-xl font-black text-xs text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all truncate" title="Cetak Surat / Simpan ke PDF (Direkomendasikan untuk Semua Perangkat)">
+                                <i class="fa-solid fa-print text-xs shrink-0"></i>
+                                <span class="truncate">Cetak / Simpan PDF</span>
+                                <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
+                            </button>
 
-                        <button type="button" onclick="exportSuratWord()" class="flex-1 py-2.5 px-3 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center justify-center gap-2 active:scale-95 transition-all truncate">
-                            <i class="fa-solid fa-file-word text-xs shrink-0"></i>
-                            <span class="truncate">Unduh Word (.doc)</span>
-                        </button>
+                            <!-- Tooltip Penjelasan PDF -->
+                            <div class="absolute left-0 bottom-full mb-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <!-- Arrow pointer -->
+                                <div class="absolute -bottom-1.5 left-8 w-3 h-3 bg-neutral-900 border-b border-r border-neutral-700 rotate-45"></div>
+                                <div class="relative z-10 flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-file-pdf text-orange-400 text-xs"></i>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <p class="font-bold text-white text-xs">Format PDF (Rekomendasi Utama)</p>
+                                        <p class="leading-relaxed text-neutral-300 text-[11px]">
+                                            Format standar resmi siap cetak. <strong>Bisa langsung dibuka di semua perangkat (HP Android, iPhone, Tablet, maupun Laptop)</strong> tanpa merubah tata letak atau font.
+                                        </p>
+                                        <p class="leading-relaxed text-neutral-400 text-[10.5px] pt-1 border-t border-neutral-800">
+                                            💡 Sangat disarankan untuk dibagikan via WhatsApp, email kampus, atau dicetak langsung.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <button type="button" onclick="copySuratText()" class="w-10 h-10 rounded-xl text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-xs" title="Salin Teks Surat">
-                            <i class="fa-solid fa-copy text-xs"></i>
-                        </button>
+                        <!-- Tombol Unduh Word (.doc) + Tooltip -->
+                        <div class="relative group">
+                            <button type="button" onclick="exportSuratWord()" class="w-full py-2.5 px-3 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center justify-center gap-2 active:scale-95 transition-all truncate" title="Unduh Dokumen Word (.doc) untuk Laptop/PC">
+                                <i class="fa-solid fa-file-word text-xs shrink-0"></i>
+                                <span class="truncate">Unduh Word (.doc)</span>
+                                <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
+                            </button>
+
+                            <!-- Tooltip Penjelasan Word -->
+                            <div class="absolute right-0 bottom-full mb-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <!-- Arrow pointer -->
+                                <div class="absolute -bottom-1.5 right-8 w-3 h-3 bg-neutral-900 border-b border-r border-neutral-700 rotate-45"></div>
+                                <div class="relative z-10 flex items-start gap-2.5">
+                                    <div class="w-6 h-6 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-file-word text-blue-400 text-xs"></i>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <p class="font-bold text-white text-xs">Format Word (.doc)</p>
+                                        <p class="leading-relaxed text-neutral-300 text-[11px]">
+                                            Berkas dokumen Microsoft Word untuk diedit ulang atau dimodifikasi lebih lanjut di <strong>Laptop/PC</strong>.
+                                        </p>
+                                        <p class="leading-relaxed text-amber-300/90 text-[10.5px] pt-1 border-t border-neutral-800">
+                                            ⚠️ <strong>Catatan untuk HP:</strong> File .doc ini umumnya tidak dapat dibuka langsung di aplikasi bawaan HP. Jika ingin dibuka atau dibagikan lewat HP, silakan gunakan <strong>Cetak / Simpan PDF</strong>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
