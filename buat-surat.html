@@ -1869,14 +1869,14 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 pb-2.5 border-b border-neutral-800">
                         <div class="flex items-center gap-2.5">
                             <span class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-orange-500/30">
-                                <i class="fa-solid fa-link"></i>
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
                             </span>
                             <div>
                                 <h4 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-2">
-                                    Konek Data Proker (Auto RAB &amp; Nota)
+                                    Export RAB &amp; Nota dari Kegiatan
                                     <span id="sba_badge_jenis_kegiatan" class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold uppercase">Agenda Kerja</span>
                                 </h4>
-                                <p class="text-[10px] text-neutral-400">Pilih program kerja atau agenda kerja dari database untuk otomatis mengisi RAB Keuangan &amp; Lampiran Nota SBA.</p>
+                                <p class="text-[10px] text-neutral-400">Pilih kegiatan untuk langsung otomatis memasukkan rincian RAB Keuangan dan Lampiran Nota sesuai format SBA.</p>
                             </div>
                         </div>
                         <button type="button" onclick="loadSbaProkerDatabase(true)" id="btn_sba_sync_db" class="px-2.5 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-800 text-neutral-300 hover:text-white text-xs flex items-center gap-1.5 transition-all self-start sm:self-auto border border-neutral-700/80 active:scale-95 shadow-xs" title="Perbarui Data dari Database Google Sheets">
@@ -1885,17 +1885,47 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                    <!-- Tombol Aksi Utama: Export RAB & Export Nota -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+                        <button type="button" onclick="bukaModalPilihExportRab()" class="p-2.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/40 text-blue-300 hover:text-white flex items-center justify-between transition-all group shadow-xs">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </span>
+                                <div class="text-left">
+                                    <span class="font-bold text-xs block text-neutral-100 group-hover:text-blue-300">Pilih &amp; Export RAB</span>
+                                    <span class="text-[9.5px] text-neutral-400">Pilih kegiatan untuk auto-isi RAB Keuangan</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono bg-blue-500/20 px-2 py-1 rounded text-blue-300">Pilih &rarr;</span>
+                        </button>
+
+                        <button type="button" onclick="bukaModalPilihExportNota()" class="p-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 hover:text-white flex items-center justify-between transition-all group shadow-xs">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </span>
+                                <div class="text-left">
+                                    <span class="font-bold text-xs block text-neutral-100 group-hover:text-amber-300">Pilih &amp; Export Nota</span>
+                                    <span class="text-[9.5px] text-neutral-400">Pilih kegiatan untuk auto-tarik bukti nota</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono bg-amber-500/20 px-2 py-1 rounded text-amber-300">Pilih &rarr;</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Select Dropdown -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end pt-2.5 border-t border-neutral-800/70">
                         <div class="sm:col-span-8">
-                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Pilih Kegiatan (Agenda Kerja / Program Kerja):</label>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Atau Pilih Langsung Kegiatan:</label>
                             <select id="sba_proker_select" onchange="onSbaProkerSelectChange(this.value)" class="form-input text-xs py-2 px-3 w-full bg-neutral-900 border-neutral-700 rounded-xl focus:border-orange-500 text-neutral-200">
                                 <option value="">-- Memuat daftar kegiatan dari database... --</option>
                             </select>
                         </div>
                         <div class="sm:col-span-4 flex items-center gap-2">
                             <button type="button" onclick="applySelectedSbaProkerData()" id="btn_apply_sba_proker" class="w-full py-2 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 active:scale-95 transition-all">
-                                <i class="fa-solid fa-file-import text-[11px]"></i>
-                                <span>Terapkan RAB &amp; Nota</span>
+                                <i class="fa-solid fa-bolt text-[11px]"></i>
+                                <span>Terapkan Keduanya</span>
                             </button>
                         </div>
                     </div>
@@ -2019,6 +2049,23 @@
                             <input type="checkbox" id="sba_inc_keuangan" checked onchange="toggleSbaKeuanganSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
 
+                        <!-- TOMBOL EXPORT RAB KEGIATAN -->
+                        <div class="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                </span>
+                                <div>
+                                    <span class="text-blue-400 font-bold block text-xs">Fitur Export RAB Kegiatan:</span>
+                                    <span class="text-[10px] text-neutral-300">Tarik data RAB langsung dari program kerja / agenda kerja</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="bukaModalPilihExportRab()" class="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 shrink-0">
+                                <i class="fa-solid fa-file-import text-[10px]"></i>
+                                <span>Pilih Kegiatan (Export RAB)</span>
+                            </button>
+                        </div>
+
                         <div id="sba_keuangan_group" class="space-y-4 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
                             <!-- 1. PEMASUKAN -->
                             <div>
@@ -2111,6 +2158,23 @@
                             <input type="checkbox" id="sba_inc_nota" checked onchange="toggleSbaNotaSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
 
+                        <!-- TOMBOL EXPORT NOTA KEGIATAN -->
+                        <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </span>
+                                <div>
+                                    <span class="text-amber-400 font-bold block text-xs">Fitur Export Nota Kegiatan:</span>
+                                    <span class="text-[10px] text-neutral-300">Tarik foto bukti struk &amp; kuitansi langsung dari transaksi kegiatan</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="bukaModalPilihExportNota()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95 shrink-0">
+                                <i class="fa-solid fa-file-import text-[10px]"></i>
+                                <span>Pilih Kegiatan (Export Nota)</span>
+                            </button>
+                        </div>
+
                         <div id="sba_nota_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
@@ -2142,43 +2206,7 @@
                     </div>
                 </div>
 
-                <!-- CARD: LAMPIRAN DOKUMENTASI (KHUSUS SBA - HALAMAN 8) -->
-                <div id="card_sba_lampiran_dok" class="glass-card p-4 sm:p-5 hidden">
-                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
-                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
-                            <i class="fa-solid fa-camera text-orange-500"></i> Lampiran: Dokumentasi Kegiatan
-                        </span>
-                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 8</span>
-                    </div>
-                    <div class="space-y-3">
-                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
-                            <div class="flex flex-col pr-2">
-                                <span class="text-xs font-bold text-neutral-200">Sertakan Lampiran Dokumentasi</span>
-                                <span class="text-[10px] text-neutral-400">Tampilkan lembar foto dokumentasi kegiatan acara</span>
-                            </div>
-                            <input type="checkbox" id="sba_inc_dok" checked onchange="toggleSbaDokSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
-                        </label>
 
-                        <div id="sba_dok_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-image text-orange-500"></i> Galeri Foto Dokumentasi
-                                    <span id="sba_dok_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Foto</span>
-                                </span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" onclick="resetSbaDokDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset STUBAN</button>
-                                    <label class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors cursor-pointer">
-                                        <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> Unggah Foto
-                                        <input type="file" id="sba_dok_file_input" accept="image/*" multiple onchange="handleSbaDokUpload(event)" class="hidden">
-                                    </label>
-                                </div>
-                            </div>
-                            <div id="sba_dok_gallery_container" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1">
-                                <!-- Rendered via JS -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- STEPPER NAVIGATION & ACTION BUTTONS (2 TIER LAYOUT) -->
                 <div class="space-y-3 pt-5 border-t border-neutral-800/80 mt-4" id="page_nav_buttons_container">
@@ -3956,14 +3984,6 @@
             'surat/assets/sba_nota_7.png'
         ];
 
-        const DEFAULT_SBA_DOKS = [
-            'surat/assets/sba_dok_1.png',
-            'surat/assets/sba_dok_2.png',
-            'surat/assets/sba_dok_3.png',
-            'surat/assets/sba_dok_4.png',
-            'surat/assets/sba_dok_5.png'
-        ];
-
         const DEFAULT_SBA_OUTPUT = 'Kegiatan studi banding melalui forum *Focus Group Discussion* (*FGD*) antara LDK IMIP dan MAF PGSD UNJ ini berhasil menjadi wadah kolaboratif untuk saling berbagi *insight* mengenai program kerja organisasi. Seluruh gagasan dan ide yang didiskusikan dalam forum ini dirumuskan menjadi sebuah draf *insight* resmi, yang tidak hanya berfungsi sebagai bahan evaluasi kabinet saat ini, tetapi juga diproyeksikan sebagai kompas strategis dan referensi inovasi bagi kepengurusan pada kabinet selanjutnya.';
 
         const DEFAULT_SBA_HAMBATAN = `• Koordinasi antar-panitia kurang transparan dan pembagian tugas di hari H kurang jelas.
@@ -3997,7 +4017,6 @@
         let sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
         let sbaPengeluaranDivisi = JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_DIVISI));
         let sbaNotaList = [...DEFAULT_SBA_NOTAS];
-        let sbaDokList = [...DEFAULT_SBA_DOKS];
 
         function getGoogleDriveFileId(url) {
             if (!url) return null;
@@ -4254,7 +4273,176 @@
             }
         }
 
-        function applySelectedSbaProkerData(prokerId) {
+        function bukaModalPilihExportRab() {
+            if (!sbaDbProkers || sbaDbProkers.length === 0) {
+                loadSbaProkerDatabase(false);
+            }
+
+            const prokers = sbaDbProkers || [];
+            if (prokers.length === 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Memuat Database Kegiatan...',
+                        text: 'Sedang mengambil data kegiatan dari database. Silakan coba klik kembali dalam 2 detik.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+                return;
+            }
+
+            const agendaList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('agenda'));
+            const prokerList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('program') || !(p.jenis || '').toLowerCase().includes('agenda'));
+
+            const renderCard = (p) => {
+                const jenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+                const badgeClass = jenis === 'Program Kerja' 
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+                
+                const prokerTx = (sbaDbTransactions || []).filter(t => (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString()));
+                let totalMasuk = 0;
+                let totalKeluar = 0;
+                prokerTx.forEach(t => {
+                    const j = (t.jenis || '').toLowerCase();
+                    const n = Number(t.nominal) || 0;
+                    if (j === 'masuk') totalMasuk += n;
+                    else totalKeluar += n;
+                });
+                if (totalKeluar === 0 && (p.realisasi || p.pengeluaran)) totalKeluar = Number(p.realisasi || p.pengeluaran);
+                if (totalMasuk === 0 && p.pemasukan) totalMasuk = Number(p.pemasukan);
+
+                return `
+                    <div class="p-3 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-blue-500/60 transition-all text-left flex flex-col justify-between gap-2 shadow-xs group">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded border font-bold uppercase ${badgeClass}">${jenis}</span>
+                                <h4 class="font-bold text-xs text-white mt-1 group-hover:text-blue-300 transition-colors">${escapeHtml(p.nama_proker || p.nama_kegiatan)}</h4>
+                                <span class="text-[10px] text-neutral-400 block">${escapeHtml(p.divisi || 'UKM IMIP')}</span>
+                            </div>
+                            <span class="text-[9px] font-mono font-bold text-neutral-400 bg-neutral-800/80 px-1.5 py-0.5 rounded">ID #${p.id}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-neutral-800/70 text-[10.5px] font-mono">
+                            <span class="text-neutral-400">Total: <b class="text-orange-400">${formatSbaRupiah(totalKeluar)}</b></span>
+                            <button type="button" onclick="Swal.close(); applySelectedSbaProkerData('${p.id}', 'rab_only');" class="px-2.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold text-[10px] flex items-center gap-1.5 transition-all active:scale-95 shadow-xs">
+                                <i class="fa-solid fa-file-import text-[9px]"></i>
+                                <span>Pilih RAB</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            };
+
+            const htmlAgenda = agendaList.map(renderCard).join('');
+            const htmlProker = prokerList.map(renderCard).join('');
+
+            Swal.fire({
+                title: '<div class="text-sm sm:text-base font-bold text-white flex items-center justify-center gap-2"><span>📊</span><span>Pilih Kegiatan untuk Export RAB ke SBA</span></div>',
+                html: `
+                    <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 max-h-[65vh] overflow-y-auto pr-1">
+                        <p class="text-[11px] text-neutral-400 leading-relaxed">
+                            Pilih kegiatan di bawah ini untuk <b>langsung otomatis mengisi laporan RAB Keuangan SBA</b> (Pemasukan, Belanja Bahan per Divisi &amp; Rekapitulasi).
+                        </p>
+
+                        ${agendaList.length > 0 ? `
+                        <div>
+                            <span class="text-[10px] font-mono font-bold text-orange-400 uppercase tracking-wider block mb-1.5">📌 Agenda Kerja</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${htmlAgenda}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        ${prokerList.length > 0 ? `
+                        <div class="mt-2">
+                            <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider block mb-1.5">📌 Program Kerja</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${htmlProker}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-[95%] sm:w-full bg-[#111622]'
+                }
+            });
+        }
+
+        function bukaModalPilihExportNota() {
+            if (!sbaDbProkers || sbaDbProkers.length === 0) {
+                loadSbaProkerDatabase(false);
+            }
+
+            const prokers = sbaDbProkers || [];
+            if (prokers.length === 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Memuat Database Kegiatan...',
+                        text: 'Sedang mengambil data kegiatan dari database. Silakan coba klik kembali dalam 2 detik.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+                return;
+            }
+
+            const cardsHtml = prokers.map(p => {
+                const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
+                const count = receipts.length;
+                const jenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+                const badgeClass = jenis === 'Program Kerja' 
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+
+                return `
+                    <div class="p-3 rounded-xl bg-neutral-900 border ${count > 0 ? 'border-neutral-700/80 hover:border-amber-500/70' : 'border-neutral-800/60 opacity-60'} transition-all text-left flex flex-col justify-between gap-2 shadow-xs group">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded border font-bold uppercase ${badgeClass}">${jenis}</span>
+                                <h4 class="font-bold text-xs text-white mt-1 group-hover:text-amber-300 transition-colors">${escapeHtml(p.nama_proker || p.nama_kegiatan)}</h4>
+                                <span class="text-[10px] text-neutral-400 block">${escapeHtml(p.divisi || 'UKM IMIP')}</span>
+                            </div>
+                            <span class="text-[9px] font-mono font-bold ${count > 0 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-neutral-800 text-neutral-500'} px-2 py-0.5 rounded">
+                                ${count > 0 ? `${count} NOTA` : '0 Nota'}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-neutral-800/70 text-[10.5px]">
+                            <span class="text-neutral-400">${count > 0 ? 'Bukti fisik siap tarik' : 'Belum ada bukti transaksi'}</span>
+                            <button type="button" onclick="Swal.close(); applySelectedSbaProkerData('${p.id}', 'nota_only');" class="px-2.5 py-1.5 rounded-lg ${count > 0 ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300'} font-bold text-[10px] flex items-center gap-1 transition-all active:scale-95 shadow-xs">
+                                <i class="fa-solid fa-receipt text-[9px]"></i>
+                                <span>Pilih Nota</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            Swal.fire({
+                title: '<div class="text-sm sm:text-base font-bold text-white flex items-center justify-center gap-2"><span>🧾</span><span>Pilih Kegiatan untuk Export Nota ke SBA</span></div>',
+                html: `
+                    <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 max-h-[65vh] overflow-y-auto pr-1">
+                        <p class="text-[11px] text-neutral-400 leading-relaxed">
+                            Pilih kegiatan di bawah ini untuk <b>langsung otomatis menarik foto bukti nota struk belanja</b> ke lembar Lampiran Nota SBA.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            ${cardsHtml}
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'border border-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-[95%] sm:w-full bg-[#111622]'
+                }
+            });
+        }
+
+        function applySelectedSbaProkerData(prokerId, mode = 'all') {
             const pid = prokerId || document.getElementById('sba_proker_select')?.value || sbaSelectedProkerId;
             if (!pid) {
                 if (typeof Swal !== 'undefined') {
@@ -4267,6 +4455,9 @@
             if (!p) return;
 
             sbaSelectedProkerId = pid;
+            const selectEl = document.getElementById('sba_proker_select');
+            if (selectEl) selectEl.value = pid;
+
             const detectedJenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
             setSbaJenisKegiatan(detectedJenis);
 
@@ -4283,125 +4474,145 @@
                 else outTxs.push(t);
             });
 
-            // 1. GENERATE PENGELUARAN DIVISI
-            const divMap = {};
-            outTxs.forEach(t => {
-                let divName = (t.divisi || '').trim();
-                if (!divName || divName.toUpperCase() === 'NULL') divName = 'Umum';
-                if (!divMap[divName]) divMap[divName] = [];
-                divMap[divName].push(t);
-            });
+            // 1. GENERATE PENGELUARAN DIVISI & PEMASUKAN (JIKA MODE 'all' ATAU 'rab_only')
+            if (mode === 'all' || mode === 'rab_only') {
+                const divMap = {};
+                outTxs.forEach(t => {
+                    let divName = (t.divisi || '').trim();
+                    if (!divName || divName.toUpperCase() === 'NULL') divName = 'Umum';
+                    if (!divMap[divName]) divMap[divName] = [];
+                    divMap[divName].push(t);
+                });
 
-            const divKeys = Object.keys(divMap);
-            if (divKeys.length > 0) {
-                sbaPengeluaranDivisi = divKeys.map((divName, idx) => {
-                    const items = divMap[divName].map(t => {
-                        const nom = Number(t.nominal) || 0;
-                        const hs = Number(t.harga_satuan) || nom;
-                        let qty = Number(t.volume) || (hs > 0 ? Math.round(nom / hs) : 1);
-                        if (!qty || qty < 1) qty = 1;
-                        const sat = t.satuan || 'pcs';
-                        const unitStr = `${qty} ${sat}`.trim();
+                const divKeys = Object.keys(divMap);
+                if (divKeys.length > 0) {
+                    sbaPengeluaranDivisi = divKeys.map((divName, idx) => {
+                        const items = divMap[divName].map(t => {
+                            const nom = Number(t.nominal) || 0;
+                            const hs = Number(t.harga_satuan) || nom;
+                            let qty = Number(t.volume) || (hs > 0 ? Math.round(nom / hs) : 1);
+                            if (!qty || qty < 1) qty = 1;
+                            const sat = t.satuan || 'pcs';
+                            const unitStr = `${qty} ${sat}`.trim();
+                            return {
+                                uraian: cleanTitle(t.uraian || t.keterangan || 'Belanja'),
+                                unit: unitStr,
+                                hargaSatuan: hs,
+                                jumlah: nom
+                            };
+                        });
+
                         return {
-                            uraian: cleanTitle(t.uraian || t.keterangan || 'Belanja'),
-                            unit: unitStr,
-                            hargaSatuan: hs,
-                            jumlah: nom
+                            divisiKode: String.fromCharCode(65 + idx) + '.',
+                            divisiNama: `Divisi ${divName}`,
+                            items: items
                         };
                     });
-
-                    return {
-                        divisiKode: String.fromCharCode(65 + idx) + '.',
-                        divisiNama: `Divisi ${divName}`,
-                        items: items
-                    };
-                });
-            } else if (p.realisasi || p.pengeluaran) {
-                sbaPengeluaranDivisi = [{
-                    divisiKode: 'A.',
-                    divisiNama: 'Divisi Pelaksana',
-                    items: [{
-                        uraian: `Belanja Bahan ${p.nama_proker || p.nama_kegiatan}`,
-                        unit: '1 paket',
-                        hargaSatuan: Number(p.realisasi || p.pengeluaran),
-                        jumlah: Number(p.realisasi || p.pengeluaran)
-                    }]
-                }];
-            }
-
-            // 2. GENERATE PEMASUKAN
-            const totalPengeluaran = getSbaTotalPengeluaran();
-            let sumIn = 0;
-            const newPemasukan = [];
-
-            inTxs.forEach((t, i) => {
-                const nom = Number(t.nominal) || 0;
-                sumIn += nom;
-                newPemasukan.push({
-                    no: `${i + 1}.`,
-                    sumber: cleanTitle(t.uraian || t.kategori || 'Pemasukan'),
-                    jumlah: nom
-                });
-            });
-
-            if (totalPengeluaran > sumIn) {
-                const selisih = totalPengeluaran - sumIn;
-                newPemasukan.unshift({
-                    no: '1.',
-                    sumber: 'Kas LDK IMIP',
-                    jumlah: selisih
-                });
-                newPemasukan.forEach((it, i) => it.no = `${i + 1}.`);
-            } else if (newPemasukan.length === 0) {
-                newPemasukan.push({
-                    no: '1.',
-                    sumber: 'Kas LDK IMIP',
-                    jumlah: totalPengeluaran > 0 ? totalPengeluaran : 250000
-                });
-            }
-            sbaPemasukanList = newPemasukan;
-
-            // 3. GENERATE NOTA BUKTI TRANSAKSI
-            const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
-            sbaNotaDetails = receipts;
-            if (receipts.length > 0) {
-                sbaNotaList = receipts.map(r => r.displayUrl || r.url);
-            }
-
-            // 4. SINKRONISASI IDENTITAS KEGIATAN & TTD KETUA PELAKSANA
-            const namaAcaraField = document.getElementById('field_nama_acara');
-            if (namaAcaraField && p.nama_proker) {
-                namaAcaraField.value = p.nama_proker;
-            }
-
-            if (p.id_anggota && sbaDbAnggota && sbaDbAnggota.length > 0) {
-                const ketuaObj = sbaDbAnggota.find(a => a.id && a.id.toString() === p.id_anggota.toString());
-                if (ketuaObj) {
-                    const ttd1Nama = document.getElementById('field_ttd1_nama');
-                    if (ttd1Nama) ttd1Nama.value = ketuaObj.name || ketuaObj.nama || '';
-                    const ttd1Nim = document.getElementById('field_ttd1_nim');
-                    if (ttd1Nim) ttd1Nim.value = ketuaObj.nim ? `NIM. ${ketuaObj.nim}` : '';
+                } else if (p.realisasi || p.pengeluaran) {
+                    sbaPengeluaranDivisi = [{
+                        divisiKode: 'A.',
+                        divisiNama: 'Divisi Pelaksana',
+                        items: [{
+                            uraian: `Belanja Bahan ${p.nama_proker || p.nama_kegiatan}`,
+                            unit: '1 paket',
+                            hargaSatuan: Number(p.realisasi || p.pengeluaran),
+                            jumlah: Number(p.realisasi || p.pengeluaran)
+                        }]
+                    }];
                 }
+
+                // PEMASUKAN
+                const totalPengeluaran = getSbaTotalPengeluaran();
+                let sumIn = 0;
+                const newPemasukan = [];
+
+                inTxs.forEach((t, i) => {
+                    const nom = Number(t.nominal) || 0;
+                    sumIn += nom;
+                    newPemasukan.push({
+                        no: `${i + 1}.`,
+                        sumber: cleanTitle(t.uraian || t.kategori || 'Pemasukan'),
+                        jumlah: nom
+                    });
+                });
+
+                if (totalPengeluaran > sumIn) {
+                    const selisih = totalPengeluaran - sumIn;
+                    newPemasukan.unshift({
+                        no: '1.',
+                        sumber: 'Kas LDK IMIP',
+                        jumlah: selisih
+                    });
+                    newPemasukan.forEach((it, i) => it.no = `${i + 1}.`);
+                } else if (newPemasukan.length === 0) {
+                    newPemasukan.push({
+                        no: '1.',
+                        sumber: 'Kas LDK IMIP',
+                        jumlah: totalPengeluaran > 0 ? totalPengeluaran : 250000
+                    });
+                }
+                sbaPemasukanList = newPemasukan;
+
+                // Sinkronkan nama acara & TTD Ketua Pelaksana jika ada
+                const namaAcaraField = document.getElementById('field_nama_acara');
+                if (namaAcaraField && p.nama_proker) {
+                    namaAcaraField.value = p.nama_proker;
+                }
+
+                if (p.id_anggota && sbaDbAnggota && sbaDbAnggota.length > 0) {
+                    const ketuaObj = sbaDbAnggota.find(a => a.id && a.id.toString() === p.id_anggota.toString());
+                    if (ketuaObj) {
+                        const ttd1Nama = document.getElementById('field_ttd1_nama');
+                        if (ttd1Nama) ttd1Nama.value = ketuaObj.name || ketuaObj.nama || '';
+                        const ttd1Nim = document.getElementById('field_ttd1_nim');
+                        if (ttd1Nim) ttd1Nim.value = ketuaObj.nim ? `NIM. ${ketuaObj.nim}` : '';
+                    }
+                }
+
+                const chkKeu = document.getElementById('sba_inc_keuangan');
+                if (chkKeu) chkKeu.checked = true;
+
+                renderSbaPemasukanEditor();
+                renderSbaPengeluaranEditor();
+                updateSbaRekapitulasiDisplay();
             }
 
-            const chkKeu = document.getElementById('sba_inc_keuangan');
-            if (chkKeu) chkKeu.checked = true;
-            const chkNota = document.getElementById('sba_inc_nota');
-            if (chkNota) chkNota.checked = true;
+            // 2. GENERATE NOTA BUKTI TRANSAKSI (JIKA MODE 'all' ATAU 'nota_only')
+            if (mode === 'all' || mode === 'nota_only') {
+                const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
+                sbaNotaDetails = receipts;
+                if (receipts.length > 0) {
+                    sbaNotaList = receipts.map(r => r.displayUrl || r.url);
+                }
 
-            renderSbaPemasukanEditor();
-            renderSbaPengeluaranEditor();
-            renderSbaNotaGallery();
-            updateSbaRekapitulasiDisplay();
+                const chkNota = document.getElementById('sba_inc_nota');
+                if (chkNota) chkNota.checked = true;
+
+                renderSbaNotaGallery();
+            }
+
+            onSbaProkerSelectChange(pid);
+
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
 
             if (typeof Swal !== 'undefined') {
+                let notifTitle = 'RAB & Nota Berhasil Diterapkan!';
+                let notifHtml = `Data <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)}</b> (${detectedJenis}) telah disinkronkan ke lembar SBA:<br><span class="text-xs text-neutral-400 mt-2 block">• Pemasukan: ${formatSbaRupiah(getSbaTotalPemasukan())}<br>• Pengeluaran: ${formatSbaRupiah(getSbaTotalPengeluaran())}<br>• Lampiran Nota: ${sbaNotaList.length} Foto</span>`;
+
+                if (mode === 'rab_only') {
+                    notifTitle = 'RAB Berhasil Dimasukkan!';
+                    notifHtml = `RAB <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)}</b> (${detectedJenis}) telah dimasukkan ke SBA:<br><span class="text-xs text-neutral-400 mt-2 block">• Pemasukan: ${formatSbaRupiah(getSbaTotalPemasukan())}<br>• Pengeluaran: ${formatSbaRupiah(getSbaTotalPengeluaran())}</span>`;
+                } else if (mode === 'nota_only') {
+                    notifTitle = 'Nota Berhasil Ditarik!';
+                    notifHtml = `Bukti nota dari <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)}</b> berhasil ditarik ke Lampiran SBA:<br><span class="text-xs text-neutral-400 mt-2 block">• ${sbaNotaList.length} Foto Nota Siap Ditampilkan</span>`;
+                }
+
                 Swal.fire({
                     icon: 'success',
-                    title: 'RAB & Nota Berhasil Diterapkan!',
-                    html: `Data <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)}</b> (${detectedJenis}) telah disinkronkan ke lembar SBA:<br><span class="text-xs text-neutral-400 mt-2 block">• Pemasukan: ${formatSbaRupiah(getSbaTotalPemasukan())}<br>• Pengeluaran: ${formatSbaRupiah(totalPengeluaran)}<br>• Lampiran Nota: ${sbaNotaList.length} Foto</span>`,
+                    title: notifTitle,
+                    html: notifHtml,
                     timer: 2600,
                     showConfirmButton: false
                 });
@@ -4430,11 +4641,6 @@
             return el ? el.checked : true;
         }
 
-        function isSbaDokActive() {
-            const el = document.getElementById('sba_inc_dok');
-            return el ? el.checked : true;
-        }
-
         function toggleSbaKeuanganSections() {
             const incKeu = isSbaKeuanganActive();
             const group = document.getElementById('sba_keuangan_group');
@@ -4448,15 +4654,6 @@
             const incNota = isSbaNotaActive();
             const group = document.getElementById('sba_nota_group');
             if (group) group.classList.toggle('hidden', !incNota);
-            if (typeof renderPageTabs === 'function') renderPageTabs();
-            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
-            updatePreview();
-        }
-
-        function toggleSbaDokSections() {
-            const incDok = isSbaDokActive();
-            const group = document.getElementById('sba_dok_group');
-            if (group) group.classList.toggle('hidden', !incDok);
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
@@ -4507,14 +4704,14 @@
         }
 
         function showSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('hidden');
             });
         }
 
         function hideSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4536,10 +4733,6 @@
 
             if (isSbaNotaActive()) {
                 pages.push({ key: 'nota', label: 'Lampiran Nota', icon: 'fa-receipt', desc: 'Lampiran Nota Keuangan' });
-            }
-
-            if (isSbaDokActive()) {
-                pages.push({ key: 'dok', label: 'Lampiran Dok', icon: 'fa-images', desc: 'Lampiran Dokumentasi Kegiatan' });
             }
 
             return pages.map((p, idx) => ({ ...p, id: idx + 1 }));
@@ -4941,51 +5134,6 @@
             updatePreview();
         }
 
-        // DOKUMENTASI GALLERY
-        function renderSbaDokGallery() {
-            const container = document.getElementById('sba_dok_gallery_container');
-            if (!container) return;
-            const badge = document.getElementById('sba_dok_count_badge');
-            if (badge) badge.innerText = `${sbaDokList.length} Foto`;
-
-            container.innerHTML = sbaDokList.map((src, idx) => `
-                <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[4/3] flex items-center justify-center">
-                    <img src="${src}" alt="Dokumentasi #${idx + 1}" class="w-full h-full object-cover">
-                    <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-white">#${idx + 1}</span>
-                    <button type="button" onclick="removeSbaDokItem(${idx})" class="absolute top-1 right-1 p-1 rounded-lg bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Hapus Foto">
-                        <i class="fa-solid fa-trash text-[10px]"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function handleSbaDokUpload(event) {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    sbaDokList.push(e.target.result);
-                    renderSbaDokGallery();
-                    updatePreview();
-                };
-                reader.readAsDataURL(file);
-            });
-            event.target.value = '';
-        }
-
-        function removeSbaDokItem(idx) {
-            sbaDokList.splice(idx, 1);
-            renderSbaDokGallery();
-            updatePreview();
-        }
-
-        function resetSbaDokDefault() {
-            sbaDokList = [...DEFAULT_SBA_DOKS];
-            renderSbaDokGallery();
-            updatePreview();
-        }
-
         function initSbaEditors() {
             const elOutput = document.getElementById('sba_output_kegiatan');
             if (elOutput && !elOutput.value) elOutput.value = DEFAULT_SBA_OUTPUT;
@@ -5002,7 +5150,6 @@
             renderSbaPemasukanEditor();
             renderSbaPengeluaranEditor();
             renderSbaNotaGallery();
-            renderSbaDokGallery();
             updateSbaRekapitulasiDisplay();
 
             const selStyle = document.getElementById('sba_nota_layout_style');
@@ -5074,59 +5221,6 @@
                         ${remaining.map(src => `
                             <div style="width: 100%; height: 48mm; display: flex; align-items: center; justify-content: center; background: #fff;">
                                 <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 48mm; object-fit: contain; display: block;">
-                            </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-
-        function renderSbaDokGridHtml() {
-            if (!sbaDokList || sbaDokList.length === 0) {
-                return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran dokumentasi.</p>';
-            }
-            const row1 = sbaDokList.slice(0, 2);
-            const row2 = sbaDokList.slice(2, 4);
-            const row3 = sbaDokList.slice(4, 5);
-            const remaining = sbaDokList.slice(5);
-
-            return `
-                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6pt;">
-                    <!-- Baris 1: 2 Foto -->
-                    ${row1.length > 0 ? `
-                    <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px; align-items: center;">
-                        ${row1.map(src => `
-                            <div style="width: 100%; height: 47mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
-                                <img src="${src}" alt="Dokumentasi" style="width: 100%; height: 47mm; object-fit: cover; display: block;">
-                            </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                    <!-- Baris 2: 2 Foto -->
-                    ${row2.length > 0 ? `
-                    <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: center;">
-                        ${row2.map(src => `
-                            <div style="width: 100%; height: 47mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
-                                <img src="${src}" alt="Dokumentasi" style="width: 100%; height: 47mm; object-fit: cover; display: block;">
-                            </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                    <!-- Baris 3: 1 Foto Kiri/Tengah -->
-                    ${row3.length > 0 ? `
-                    <div style="display: flex; justify-content: flex-start;">
-                        <div style="width: 55%; height: 48mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
-                            <img src="${row3[0]}" alt="Dokumentasi" style="width: 100%; height: 48mm; object-fit: cover; display: block;">
-                        </div>
-                    </div>
-                    ` : ''}
-                    <!-- Baris Tambahan jika ada -->
-                    ${remaining.length > 0 ? `
-                    <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 3)}, 1fr); gap: 10px; align-items: center;">
-                        ${remaining.map(src => `
-                            <div style="width: 100%; height: 45mm; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
-                                <img src="${src}" alt="Dokumentasi" style="width: 100%; height: 45mm; object-fit: cover; display: block;">
                             </div>
                         `).join('')}
                     </div>
@@ -6529,19 +6623,6 @@
 
                         ${renderSbaNotaGridHtml()}
                     `;
-                } else if (key === 'dok') {
-                    // HALAMAN 8: LAMPIRAN DOKUMENTASI
-                    pageContentHtml = `
-                        <!-- NOMOR SURAT BRACKET -->
-                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
-                        </div>
-
-                        <p style="margin: 0 0 2pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
-                        <p style="margin: 0 0 14pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Dokumentasi</p>
-
-                        ${renderSbaDokGridHtml()}
-                    `;
                 }
 
                 // Push complete A4 sheet
@@ -7128,7 +7209,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const hasL2 = (currentSuratType === 'SPZ' && isSpzLampiran2Active());
             const hasKeu = (currentSuratType === 'SBA' && isSbaKeuanganActive());
             const hasNota = (currentSuratType === 'SBA' && isSbaNotaActive());
-            const hasDok = (currentSuratType === 'SBA' && isSbaDokActive());
 
             if (page === 'all') {
                 return {
@@ -7145,7 +7225,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_penutup: true,
                     card_penandatangan: true,
                     card_sba_lampiran_nota: hasNota,
-                    card_sba_lampiran_dok: hasDok,
                     card_spz_lampiran_1: hasL1,
                     card_spz_lampiran_2: hasL2
                 };
@@ -7166,7 +7245,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_sba_keuangan: false,
                     card_sba_rekapitulasi: false,
                     card_sba_lampiran_nota: false,
-                    card_sba_lampiran_dok: false,
                     card_spz_lampiran_1: false,
                     card_spz_lampiran_2: false
                 };
@@ -7188,7 +7266,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_sba_keuangan: false,
                         card_sba_rekapitulasi: false,
                         card_sba_lampiran_nota: false,
-                        card_sba_lampiran_dok: false,
                         card_spz_lampiran_1: false,
                         card_spz_lampiran_2: false
                     };
@@ -7207,7 +7284,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_sba_keuangan: false,
                         card_sba_rekapitulasi: false,
                         card_sba_lampiran_nota: false,
-                        card_sba_lampiran_dok: false,
                         card_spz_lampiran_1: false,
                         card_spz_lampiran_2: false
                     };
@@ -7233,7 +7309,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_penutup: (key === 'pengesahan'),
                     card_penandatangan: (key === 'pengesahan'),
                     card_sba_lampiran_nota: (key === 'nota'),
-                    card_sba_lampiran_dok: (key === 'dok'),
                     card_spz_lampiran_1: false,
                     card_spz_lampiran_2: false
                 };
@@ -7630,7 +7705,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const checkboxIds = [
                 'field_include_event_details', 'field_ttd3_active', 'field_use_kop',
                 'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish',
-                'sba_inc_prestasi', 'sba_inc_keuangan', 'sba_inc_nota', 'sba_inc_dok'
+                'sba_inc_prestasi', 'sba_inc_keuangan', 'sba_inc_nota'
             ];
 
             const data = {};
@@ -7688,9 +7763,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
             if (typeof sbaNotaList !== 'undefined') {
                 data.sbaNotaList = JSON.parse(JSON.stringify(sbaNotaList));
-            }
-            if (typeof sbaDokList !== 'undefined') {
-                data.sbaDokList = JSON.parse(JSON.stringify(sbaDokList));
             }
 
             return data;
@@ -7753,7 +7825,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
             for (const key in d) {
                 if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited' ||
-                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaNotaList' || key === 'sbaDokList') {
+                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaNotaList') {
                     continue;
                 }
                 const el = document.getElementById(key);
@@ -7820,16 +7892,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (d.sbaNotaList && Array.isArray(d.sbaNotaList)) {
                     sbaNotaList = JSON.parse(JSON.stringify(d.sbaNotaList));
                 }
-                if (d.sbaDokList && Array.isArray(d.sbaDokList)) {
-                    sbaDokList = JSON.parse(JSON.stringify(d.sbaDokList));
-                }
                 if (typeof initSbaEditors === 'function') {
                     initSbaEditors();
                 }
                 if (typeof toggleSbaPrestasiSection === 'function') toggleSbaPrestasiSection();
                 if (typeof toggleSbaKeuanganSections === 'function') toggleSbaKeuanganSections();
                 if (typeof toggleSbaNotaSections === 'function') toggleSbaNotaSections();
-                if (typeof toggleSbaDokSections === 'function') toggleSbaDokSections();
             }
 
             if (typeof toggleEventDetails === 'function') toggleEventDetails();
