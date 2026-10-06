@@ -1899,7 +1899,7 @@
                 <div id="card_sba_output_evaluasi" class="glass-card p-4 sm:p-5 hidden">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
                         <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
-                            <i class="fa-solid fa-comments text-orange-500"></i> 2. Output, Hambatan &amp; Evaluasi
+                            <i class="fa-solid fa-comments text-orange-500"></i> 2. Output Kegiatan &amp; Evaluasi
                         </span>
                         <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 3</span>
                     </div>
@@ -3981,9 +3981,13 @@
         }
 
         function showSbaCards() {
-            ['card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+            ['card_sba_rundown', 'card_sba_output_evaluasi'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('hidden');
+            });
+            ['card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
             });
         }
 
@@ -3995,32 +3999,12 @@
         }
 
         function getSbaPagesStructure() {
-            const incKeu = isSbaKeuanganActive();
-            const incNota = isSbaNotaActive();
-            const incDok = isSbaDokActive();
-
-            const pages = [];
-            let cur = 1;
-            pages.push({ id: cur++, key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' });
-            pages.push({ id: cur++, key: 'rundown', label: 'Rundown Acara', icon: 'fa-list-check', desc: '1. Hasil Kegiatan (Rundown)' });
-            pages.push({ id: cur++, key: 'output_eval', label: 'Output & Evaluasi', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' });
-
-            if (incKeu) {
-                pages.push({ id: cur++, key: 'keuangan', label: 'Keuangan', icon: 'fa-coins', desc: 'Keuangan: Pemasukan & Belanja Bahan' });
-                pages.push({ id: cur++, key: 'rekapitulasi', label: 'Rekapitulasi Kas', icon: 'fa-scale-balanced', desc: '3. Rekapitulasi Kas Keuangan' });
-            }
-
-            pages.push({ id: cur++, key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Penutup & Lembar Pengesahan' });
-
-            if (incNota) {
-                pages.push({ id: cur++, key: 'nota', label: 'Lampiran Nota', icon: 'fa-receipt', desc: 'Lampiran Nota & Bukti Keuangan' });
-            }
-
-            if (incDok) {
-                pages.push({ id: cur++, key: 'dok', label: 'Dokumentasi', icon: 'fa-camera', desc: 'Lampiran Foto Dokumentasi' });
-            }
-
-            return pages;
+            return [
+                { id: 1, key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' },
+                { id: 2, key: 'rundown', label: 'Hasil Kegiatan', icon: 'fa-list-check', desc: '1. Hasil Kegiatan (Rundown Acara)' },
+                { id: 3, key: 'output_eval', label: 'Output Kegiatan', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' },
+                { id: 4, key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Penutup & Lembar Pengesahan' }
+            ];
         }
 
         // RUNDOWN EDITOR
@@ -6698,8 +6682,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         titleTxt = `Formulir Halaman ${currentActivePage}: 1. Hasil Kegiatan (Rundown Acara)`;
                         descTxt = 'Kelola susunan rangkaian kegiatan, alokasi waktu, dan penanggung jawab.';
                     } else if (key === 'output_eval') {
-                        titleTxt = `Formulir Halaman ${currentActivePage}: 2. Output, Hambatan & Evaluasi`;
-                        descTxt = 'Isi rincian capaian output, poin hambatan di lapangan, dan solusi evaluasi.';
+                        titleTxt = `Formulir Halaman ${currentActivePage}: 2. Output Kegiatan & Evaluasi`;
+                        descTxt = 'Isi rincian capaian output, poin hambatan di lapangan, dan evaluasi perbaikan.';
                     } else if (key === 'keuangan') {
                         titleTxt = `Formulir Halaman ${currentActivePage}: Keuangan (Pemasukan & Belanja Bahan)`;
                         descTxt = 'Kelola sumber kas/donasi pemasukan serta belanja bahan kepanitiaan per divisi.';
