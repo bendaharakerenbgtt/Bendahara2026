@@ -1907,6 +1907,33 @@
                             </div>
                             <textarea id="sba_output_kegiatan" rows="4" oninput="updatePreview()" class="form-input text-xs w-full" placeholder="Uraikan output capaian kegiatan..."></textarea>
                         </div>
+
+                        <!-- TABEL CAPAIAN / PRESTASI PESERTA (KHUSUS OUTPUT KEGIATAN) -->
+                        <div class="pt-2 border-t border-neutral-800/80">
+                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/60 border border-neutral-800">
+                                <label class="flex items-center gap-2.5 cursor-pointer">
+                                    <input type="checkbox" id="sba_inc_prestasi" onchange="toggleSbaPrestasiSection()" class="form-checkbox text-orange-500 rounded border-neutral-700 focus:ring-orange-500 bg-neutral-800" checked>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-neutral-200">Sertakan Tabel Capaian Kegiatan</span>
+                                        <span class="text-[10px] text-neutral-400">Tabel capaian &amp; prestasi (Capaian, Tingkat, Bidang/Cabang, Nama/NIM, Prodi)</span>
+                                    </div>
+                                </label>
+                                <span id="sba_prestasi_count_badge" class="px-2 py-0.5 rounded bg-neutral-800 text-[10px] font-mono text-neutral-300 font-bold border border-neutral-700">3 Baris</span>
+                            </div>
+
+                            <!-- PRESTASI EDITOR CONTAINER -->
+                            <div id="sba_prestasi_editor_wrapper" class="mt-3 space-y-2.5">
+                                <div id="sba_prestasi_editor_container" class="space-y-2"></div>
+                                <div class="flex items-center gap-2 pt-1">
+                                    <button type="button" onclick="addSbaPrestasiRow()" class="px-3 py-1.5 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-400 hover:text-orange-300 text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 shadow-sm">
+                                        <i class="fa-solid fa-plus text-[10px]"></i> Tambah Baris Capaian
+                                    </button>
+                                    <button type="button" onclick="resetSbaPrestasiDefault()" class="px-2.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-300 text-xs font-medium transition-all" title="Kembalikan ke Contoh Bawaan">
+                                        <i class="fa-solid fa-rotate-left text-[10px] mr-1"></i> Reset Contoh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="text-[11px] font-bold text-neutral-200">Hambatan Pelaksanaan</label>
@@ -3884,11 +3911,30 @@
 • Perketat fungsi *time keeper* dan matangkan susunan rundown agar estimasi waktu setiap sesi lebih akurat.
 • Lakukan pengecekan ulang seluruh logistik pada H-1 serta siapkan rencana cadangan untuk kondisi di luar prediksi.`;
 
+        const DEFAULT_SBA_PRESTASI = [
+            { capaian: 'Peserta Teraktif Ikhwan', tingkat: 'UKM IMIP', bidang: 'Pendidikan Agama Islam', namaNim: 'Abid Dziaulhaai Faisholi\n(2570405001)', prodi: 'Penyiaran' },
+            { capaian: 'Peserta Teraktif Akhwat', tingkat: 'UKM IMIP', bidang: 'Pendidikan Agama Islam', namaNim: 'Asiah (2590442025)', prodi: 'Desain Grafis' },
+            { capaian: 'Peserta Terbaik', tingkat: 'UKM IMIP', bidang: 'Pendidikan Agama Islam', namaNim: 'Azizah Putri Firjatullah\n(2594406017)', prodi: 'Seni Kuliner' }
+        ];
+
         let sbaRundownList = JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN));
+        let sbaPrestasiList = JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI));
         let sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
         let sbaPengeluaranDivisi = JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_DIVISI));
         let sbaNotaList = [...DEFAULT_SBA_NOTAS];
         let sbaDokList = [...DEFAULT_SBA_DOKS];
+
+        function isSbaPrestasiActive() {
+            const el = document.getElementById('sba_inc_prestasi');
+            return el ? el.checked : true;
+        }
+
+        function toggleSbaPrestasiSection() {
+            const inc = isSbaPrestasiActive();
+            const wrapper = document.getElementById('sba_prestasi_editor_wrapper');
+            if (wrapper) wrapper.classList.toggle('hidden', !inc);
+            updatePreview();
+        }
 
         function isSbaKeuanganActive() {
             const el = document.getElementById('sba_inc_keuangan');
@@ -4066,6 +4112,106 @@
             sbaRundownList = JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN));
             renderSbaRundownEditor();
             updatePreview();
+        }
+
+        // PRESTASI / CAPAIAN EDITOR
+        function renderSbaPrestasiEditor() {
+            const container = document.getElementById('sba_prestasi_editor_container');
+            if (!container) return;
+            const badge = document.getElementById('sba_prestasi_count_badge');
+            if (badge) badge.innerText = `${sbaPrestasiList.length} Baris`;
+
+            container.innerHTML = sbaPrestasiList.map((item, idx) => `
+                <div class="p-2.5 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
+                    <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
+                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-trophy text-[10px]"></i> Capaian #${idx + 1}
+                        </span>
+                        <button type="button" onclick="removeSbaPrestasiRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Baris Capaian">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-4">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Capaian</label>
+                            <input type="text" value="${escapeHtml(item.capaian || '')}" oninput="updateSbaPrestasiField(${idx}, 'capaian', this.value)" placeholder="Peserta Teraktif Ikhwan" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Tingkat</label>
+                            <input type="text" value="${escapeHtml(item.tingkat || '')}" oninput="updateSbaPrestasiField(${idx}, 'tingkat', this.value)" placeholder="UKM IMIP" class="form-input text-xs py-1.5 px-2.5 w-full text-center">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Bidang / Cabang</label>
+                            <input type="text" value="${escapeHtml(item.bidang || '')}" oninput="updateSbaPrestasiField(${idx}, 'bidang', this.value)" placeholder="Pendidikan Agama Islam" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Prodi</label>
+                            <input type="text" value="${escapeHtml(item.prodi || '')}" oninput="updateSbaPrestasiField(${idx}, 'prodi', this.value)" placeholder="Penyiaran" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        </div>
+                        <div class="sm:col-span-12">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Nama dan NIM (Gunakan enter jika ingin NIM di baris baru)</label>
+                            <textarea rows="2" oninput="updateSbaPrestasiField(${idx}, 'namaNim', this.value)" placeholder="Abid Dziaulhaai Faisholi&#10;(2570405001)" class="form-input text-xs py-1.5 px-2.5 w-full">${escapeHtml(item.namaNim || '')}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addSbaPrestasiRow() {
+            sbaPrestasiList.push({ capaian: '', tingkat: 'UKM IMIP', bidang: 'Pendidikan Agama Islam', namaNim: '', prodi: '' });
+            renderSbaPrestasiEditor();
+            updatePreview();
+        }
+
+        function removeSbaPrestasiRow(idx) {
+            if (sbaPrestasiList.length <= 1) {
+                sbaPrestasiList = [{ capaian: '', tingkat: 'UKM IMIP', bidang: '', namaNim: '', prodi: '' }];
+            } else {
+                sbaPrestasiList.splice(idx, 1);
+            }
+            renderSbaPrestasiEditor();
+            updatePreview();
+        }
+
+        function updateSbaPrestasiField(idx, field, val) {
+            if (sbaPrestasiList[idx]) {
+                sbaPrestasiList[idx][field] = val;
+                updatePreview();
+            }
+        }
+
+        function resetSbaPrestasiDefault() {
+            sbaPrestasiList = JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI));
+            renderSbaPrestasiEditor();
+            updatePreview();
+        }
+
+        function renderSbaPrestasiTableHtml() {
+            if (!isSbaPrestasiActive() || !sbaPrestasiList || sbaPrestasiList.length === 0) return '';
+            return `
+                <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 12pt; border: 1px solid #000; text-align: center;">
+                    <thead>
+                        <tr style="font-weight: bold;">
+                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 22%;">Capaian</th>
+                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 16%;">Tingkat</th>
+                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 20%;">Bidang/Cabang</th>
+                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 26%;">Nama dan NIM</th>
+                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 16%;">Prodi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sbaPrestasiList.map(item => `
+                            <tr>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.capaian).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.tingkat).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.bidang).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.namaNim).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.prodi).replace(/\n/g, '<br>')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         // PEMASUKAN EDITOR
@@ -4355,6 +4501,8 @@
             if (elEvaluasi && !elEvaluasi.value) elEvaluasi.value = DEFAULT_SBA_EVALUASI;
 
             renderSbaRundownEditor();
+            renderSbaPrestasiEditor();
+            toggleSbaPrestasiSection();
             renderSbaPemasukanEditor();
             renderSbaPengeluaranEditor();
             renderSbaNotaGallery();
@@ -5598,6 +5746,8 @@
                             ${formatInlineRichText(outputText).replace(/\n/g, '<br>')}
                         </p>
 
+                        ${renderSbaPrestasiTableHtml()}
+
                         <!-- PENGANTAR HAMBATAN & EVALUASI -->
                         <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
                             Adapun Hambatan dan Evaluasi dari kegiatan yang sudah dilaksanakan antara lain:
@@ -5825,7 +5975,7 @@
                             </table>
 
                             <!-- BARIS 3: TEMBUSAN (Taro paling bawah lembar surat) -->
-                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: 195pt;">
+                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: 140pt;">
                                 <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
                                 <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
                                     <tr>
@@ -6945,7 +7095,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const checkboxIds = [
                 'field_include_event_details', 'field_ttd3_active', 'field_use_kop',
                 'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish',
-                'sba_inc_keuangan', 'sba_inc_nota', 'sba_inc_dok'
+                'sba_inc_prestasi', 'sba_inc_keuangan', 'sba_inc_nota', 'sba_inc_dok'
             ];
 
             const data = {};
@@ -6979,6 +7129,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             // SBA dynamic arrays
             if (typeof sbaRundownList !== 'undefined') {
                 data.sbaRundownList = JSON.parse(JSON.stringify(sbaRundownList));
+            }
+            if (typeof sbaPrestasiList !== 'undefined') {
+                data.sbaPrestasiList = JSON.parse(JSON.stringify(sbaPrestasiList));
             }
             if (typeof sbaPemasukanList !== 'undefined') {
                 data.sbaPemasukanList = JSON.parse(JSON.stringify(sbaPemasukanList));
@@ -7092,6 +7245,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (d.sbaRundownList && Array.isArray(d.sbaRundownList)) {
                     sbaRundownList = JSON.parse(JSON.stringify(d.sbaRundownList));
                 }
+                if (d.sbaPrestasiList && Array.isArray(d.sbaPrestasiList)) {
+                    sbaPrestasiList = JSON.parse(JSON.stringify(d.sbaPrestasiList));
+                }
                 if (d.sbaPemasukanList && Array.isArray(d.sbaPemasukanList)) {
                     sbaPemasukanList = JSON.parse(JSON.stringify(d.sbaPemasukanList));
                 }
@@ -7107,6 +7263,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (typeof initSbaEditors === 'function') {
                     initSbaEditors();
                 }
+                if (typeof toggleSbaPrestasiSection === 'function') toggleSbaPrestasiSection();
                 if (typeof toggleSbaKeuanganSections === 'function') toggleSbaKeuanganSections();
                 if (typeof toggleSbaNotaSections === 'function') toggleSbaNotaSections();
                 if (typeof toggleSbaDokSections === 'function') toggleSbaDokSections();
