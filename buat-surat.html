@@ -1864,6 +1864,56 @@
                     </div>
                 </div>
 
+                <!-- CARD: INTEGRASI DATA PROKER / AGENDA KERJA (SBA AUTO EXPORT RAB & NOTA) -->
+                <div id="card_sba_proker_integrator" class="glass-card p-4 sm:p-5 border border-orange-500/35 bg-gradient-to-r from-orange-500/10 via-neutral-900 to-amber-500/10 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 pb-2.5 border-b border-neutral-800">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-orange-500/30">
+                                <i class="fa-solid fa-link"></i>
+                            </span>
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-2">
+                                    Konek Data Proker (Auto RAB &amp; Nota)
+                                    <span id="sba_badge_jenis_kegiatan" class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold uppercase">Agenda Kerja</span>
+                                </h4>
+                                <p class="text-[10px] text-neutral-400">Pilih program kerja atau agenda kerja dari database untuk otomatis mengisi RAB Keuangan &amp; Lampiran Nota SBA.</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="loadSbaProkerDatabase(true)" id="btn_sba_sync_db" class="px-2.5 py-1.5 rounded-xl bg-neutral-800/90 hover:bg-neutral-800 text-neutral-300 hover:text-white text-xs flex items-center gap-1.5 transition-all self-start sm:self-auto border border-neutral-700/80 active:scale-95 shadow-xs" title="Perbarui Data dari Database Google Sheets">
+                            <i class="fa-solid fa-rotate text-[10px]" id="sba_refresh_icon"></i>
+                            <span class="text-[11px] font-semibold">Sync Database</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                        <div class="sm:col-span-8">
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Pilih Kegiatan (Agenda Kerja / Program Kerja):</label>
+                            <select id="sba_proker_select" onchange="onSbaProkerSelectChange(this.value)" class="form-input text-xs py-2 px-3 w-full bg-neutral-900 border-neutral-700 rounded-xl focus:border-orange-500 text-neutral-200">
+                                <option value="">-- Memuat daftar kegiatan dari database... --</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-4 flex items-center gap-2">
+                            <button type="button" onclick="applySelectedSbaProkerData()" id="btn_apply_sba_proker" class="w-full py-2 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-orange-500/20 active:scale-95 transition-all">
+                                <i class="fa-solid fa-file-import text-[11px]"></i>
+                                <span>Terapkan RAB &amp; Nota</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Status Banner Kegiatan Terpilih -->
+                    <div id="sba_proker_info_banner" class="mt-3 p-2.5 rounded-xl bg-neutral-950/90 border border-neutral-800 flex flex-wrap items-center justify-between text-[11px] gap-2">
+                        <div class="flex items-center gap-2 text-neutral-300">
+                            <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+                            <span id="sba_proker_info_text">Tersinkron ke: <b>Studi Banding (Agenda Kerja)</b></span>
+                        </div>
+                        <div class="flex items-center gap-3 text-neutral-400 font-mono text-[10px]">
+                            <span id="sba_info_pemasukan_badge"><i class="fa-solid fa-arrow-down text-emerald-400"></i> Masuk: Rp337.000</span>
+                            <span id="sba_info_pengeluaran_badge"><i class="fa-solid fa-arrow-up text-orange-400"></i> Keluar: Rp280.100</span>
+                            <span id="sba_info_nota_badge"><i class="fa-solid fa-receipt text-amber-400"></i> 7 Nota</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CARD: HASIL KEGIATAN / RUNDOWN (KHUSUS SBA - HALAMAN 2) -->
                 <div id="card_sba_rundown" class="glass-card p-4 sm:p-5 hidden">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
@@ -2077,6 +2127,16 @@
                             </div>
                             <div id="sba_nota_gallery_container" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto pr-1">
                                 <!-- Rendered via JS -->
+                            </div>
+
+                            <!-- PILIHAN 2 GAYA SUSUNAN NOTA STANDAR SBA -->
+                            <div class="pt-2.5 border-t border-neutral-800/80">
+                                <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Gaya Susunan Lembar Nota SBA:</label>
+                                <select id="sba_nota_layout_style" onchange="onSbaNotaStyleChange(this.value)" class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-900 border-neutral-700 rounded-lg text-neutral-200 focus:border-orange-500">
+                                    <option value="grid">Susunan 1: Standar Grid Foto Asli SBA (Foto Struk Belanja Bersih)</option>
+                                    <option value="detailed">Susunan 2: Grid Foto + Rincian Keterangan &amp; Nominal Transaksi</option>
+                                </select>
+                                <span class="text-[9.5px] text-neutral-400 mt-1 block">Pilih susunan format lampiran nota yang sesuai kebutuhan berkas SBA.</span>
                             </div>
                         </div>
                     </div>
@@ -2556,6 +2616,9 @@
                 if (cardTujuan) cardTujuan.classList.add('hidden');
                 showSbaCards();
                 initSbaEditors();
+                if (typeof loadSbaProkerDatabase === 'function') {
+                    loadSbaProkerDatabase(false);
+                }
             } else {
                 hideSbaCards();
                 if (type !== 'SPZ' && cardTujuan) {
@@ -3917,12 +3980,433 @@
             { capaian: 'Peserta Terbaik', tingkat: 'UKM IMIP', bidang: 'Pendidikan Agama Islam', namaNim: 'Azizah Putri Firjatullah\n(2594406017)', prodi: 'Seni Kuliner' }
         ];
 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
+        const LDK_CACHE_KEY = 'ldk_db_cache';
+
+        let sbaJenisKegiatan = 'Agenda Kerja';
+        let sbaSelectedProkerId = '';
+        let sbaNotaLayoutStyle = 'grid'; // 'grid' | 'detailed'
+        let sbaNotaDetails = [];
+        let sbaDbProkers = [];
+        let sbaDbTransactions = [];
+        let sbaDbAnggota = [];
+        let isSbaDbLoading = false;
+
         let sbaRundownList = JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN));
         let sbaPrestasiList = JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI));
         let sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
         let sbaPengeluaranDivisi = JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_DIVISI));
         let sbaNotaList = [...DEFAULT_SBA_NOTAS];
         let sbaDokList = [...DEFAULT_SBA_DOKS];
+
+        function getGoogleDriveFileId(url) {
+            if (!url) return null;
+            const match = String(url).match(/\/d\/([a-zA-Z0-9_-]+)/) || String(url).match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            return match ? match[1] : null;
+        }
+
+        function getDirectImageUrl(src) {
+            if (!src) return '';
+            const s = String(src).trim();
+            const driveId = getGoogleDriveFileId(s);
+            if (driveId) {
+                return `https://lh3.googleusercontent.com/d/${driveId}`;
+            }
+            return s;
+        }
+
+        function isLikelyImageUrl(url) {
+            if (!url) return false;
+            const u = String(url).toLowerCase().trim();
+            if (u.startsWith('data:image/')) return true;
+            if (u.includes('drive.google.com') || u.includes('googleusercontent.com')) return true;
+            if (u.match(/\.(jpeg|jpg|png|webp|gif|bmp)(\?.*)?$/i)) return true;
+            if (u.includes('imgur.com') || u.includes('cloudinary.com') || u.includes('ibb.co')) return true;
+            return false;
+        }
+
+        function getAllReceiptPaths(tx) {
+            if (!tx) return [];
+            const list = [];
+            const candidates = [tx.bukti, tx.keterangan, tx.catatan, tx.uraian];
+            for (const raw of candidates) {
+                if (!raw) continue;
+                const str = String(raw).trim();
+                if (!str) continue;
+
+                const base64Matches = str.match(/data:image\/[a-zA-Z0-9+=\/;,]+/g);
+                if (base64Matches) {
+                    base64Matches.forEach(b => {
+                        if (!list.includes(b)) list.push(b);
+                    });
+                }
+
+                const urlMatches = str.match(/https?:\/\/[^\s),;"']+/g);
+                if (urlMatches) {
+                    urlMatches.forEach(u => {
+                        if (isLikelyImageUrl(u) && !list.includes(u)) {
+                            list.push(u);
+                        }
+                    });
+                }
+            }
+            return list;
+        }
+
+        function cleanTitle(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '')
+                .replace(/https?:\/\/[^\s]+/gi, '')
+                .replace(/\(\s*\)/g, '')
+                .trim();
+        }
+
+        function getProkerReceiptsFromData(prokerId, txList) {
+            const list = txList || sbaDbTransactions || [];
+            const prokerTx = list.filter(t => {
+                return (t.proker_id && t.proker_id.toString() === prokerId.toString()) || 
+                       (t.id_kegiatan && t.id_kegiatan.toString() === prokerId.toString());
+            });
+
+            const receipts = [];
+            prokerTx.forEach(t => {
+                const paths = getAllReceiptPaths(t);
+                paths.forEach((p) => {
+                    const did = getGoogleDriveFileId(p);
+                    receipts.push({
+                        url: p,
+                        displayUrl: getDirectImageUrl(p),
+                        fallbackUrl: did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : p,
+                        uraian: cleanTitle(t.uraian || t.keterangan || t.catatan || 'Transaksi Belanja'),
+                        nominal: Number(t.nominal) || 0,
+                        divisi: t.divisi || '',
+                        tanggal: t.tanggal || ''
+                    });
+                });
+            });
+            return receipts;
+        }
+
+        function setSbaJenisKegiatan(val) {
+            if (!val) return;
+            sbaJenisKegiatan = (val.toLowerCase().includes('program')) ? 'Program Kerja' : 'Agenda Kerja';
+            
+            const badge = document.getElementById('sba_badge_jenis_kegiatan');
+            if (badge) {
+                badge.innerText = sbaJenisKegiatan;
+                if (sbaJenisKegiatan === 'Program Kerja') {
+                    badge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase';
+                } else {
+                    badge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold uppercase';
+                }
+            }
+            updatePreview();
+        }
+
+        function onSbaNotaStyleChange(val) {
+            sbaNotaLayoutStyle = (val === 'detailed') ? 'detailed' : 'grid';
+            updatePreview();
+        }
+
+        function loadSbaProkerDatabase(forceRefresh = false) {
+            const icon = document.getElementById('sba_refresh_icon');
+            if (icon) icon.classList.add('fa-spin');
+            isSbaDbLoading = true;
+
+            const applyCached = (cachedData) => {
+                if (cachedData && cachedData.proker) {
+                    sbaDbProkers = cachedData.proker || [];
+                    sbaDbTransactions = cachedData.transaksi || [];
+                    sbaDbAnggota = cachedData.anggota || [];
+                    populateSbaProkerDropdown();
+                }
+            };
+
+            if (!forceRefresh) {
+                try {
+                    const raw = localStorage.getItem(LDK_CACHE_KEY);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.status === 'success' && parsed.proker && parsed.proker.length > 0) {
+                            applyCached(parsed);
+                            if (icon) icon.classList.remove('fa-spin');
+                            isSbaDbLoading = false;
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Gagal membaca cache LDK:', e);
+                }
+            }
+
+            fetch(GOOGLE_SCRIPT_URL + '?action=get_all_data')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.status === 'success') {
+                        try {
+                            localStorage.setItem(LDK_CACHE_KEY, JSON.stringify(data));
+                        } catch (e) {}
+                        applyCached(data);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching database:', err);
+                })
+                .finally(() => {
+                    if (icon) icon.classList.remove('fa-spin');
+                    isSbaDbLoading = false;
+                });
+        }
+
+        function populateSbaProkerDropdown() {
+            const select = document.getElementById('sba_proker_select');
+            if (!select) return;
+
+            if (!sbaDbProkers || sbaDbProkers.length === 0) {
+                select.innerHTML = '<option value="">-- Tidak ada kegiatan ditemukan di database --</option>';
+                return;
+            }
+
+            const agendaList = sbaDbProkers.filter(p => (p.jenis || '').toLowerCase().includes('agenda'));
+            const prokerList = sbaDbProkers.filter(p => (p.jenis || '').toLowerCase().includes('program') || !(p.jenis || '').toLowerCase().includes('agenda'));
+
+            let html = '<option value="">-- Pilih Kegiatan Agenda / Program Kerja --</option>';
+
+            if (agendaList.length > 0) {
+                html += '<optgroup label="Agenda Kerja">';
+                agendaList.forEach(p => {
+                    const nama = p.nama_proker || p.nama_kegiatan || `Agenda #${p.id}`;
+                    const div = p.divisi ? ` (${p.divisi})` : '';
+                    html += `<option value="${p.id}">${escapeHtml(nama)}${escapeHtml(div)}</option>`;
+                });
+                html += '</optgroup>';
+            }
+
+            if (prokerList.length > 0) {
+                html += '<optgroup label="Program Kerja">';
+                prokerList.forEach(p => {
+                    const nama = p.nama_proker || p.nama_kegiatan || `Proker #${p.id}`;
+                    const div = p.divisi ? ` (${p.divisi})` : '';
+                    html += `<option value="${p.id}">${escapeHtml(nama)}${escapeHtml(div)}</option>`;
+                });
+                html += '</optgroup>';
+            }
+
+            select.innerHTML = html;
+
+            if (sbaSelectedProkerId && sbaDbProkers.some(p => p.id.toString() === sbaSelectedProkerId.toString())) {
+                select.value = sbaSelectedProkerId;
+            } else {
+                const defaultStuban = sbaDbProkers.find(p => p.id.toString() === '13' || (p.nama_proker && p.nama_proker.toLowerCase().includes('studi banding')));
+                if (defaultStuban) {
+                    select.value = defaultStuban.id;
+                    sbaSelectedProkerId = defaultStuban.id;
+                }
+            }
+
+            if (select.value) {
+                onSbaProkerSelectChange(select.value);
+            }
+        }
+
+        function onSbaProkerSelectChange(prokerId) {
+            sbaSelectedProkerId = prokerId;
+            if (!prokerId) return;
+
+            const p = sbaDbProkers.find(item => item.id.toString() === prokerId.toString());
+            if (!p) return;
+
+            const detectedJenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+            setSbaJenisKegiatan(detectedJenis);
+
+            const prokerTx = sbaDbTransactions.filter(t => {
+                return (t.proker_id && t.proker_id.toString() === p.id.toString()) || 
+                       (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
+            });
+
+            let totalMasuk = 0;
+            let totalKeluar = 0;
+            prokerTx.forEach(t => {
+                const j = (t.jenis || '').toLowerCase();
+                const nom = Number(t.nominal) || 0;
+                if (j === 'masuk') totalMasuk += nom;
+                else totalKeluar += nom;
+            });
+
+            const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
+
+            const bannerText = document.getElementById('sba_proker_info_text');
+            if (bannerText) {
+                bannerText.innerHTML = `Tersinkron ke: <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)} (${detectedJenis})</b>`;
+            }
+            const badgeMasuk = document.getElementById('sba_info_pemasukan_badge');
+            if (badgeMasuk) {
+                badgeMasuk.innerHTML = `<i class="fa-solid fa-arrow-down text-emerald-400"></i> Masuk: ${formatSbaRupiah(totalMasuk || p.pemasukan || 0)}`;
+            }
+            const badgeKeluar = document.getElementById('sba_info_pengeluaran_badge');
+            if (badgeKeluar) {
+                badgeKeluar.innerHTML = `<i class="fa-solid fa-arrow-up text-orange-400"></i> Keluar: ${formatSbaRupiah(totalKeluar || p.pengeluaran || p.realisasi || 0)}`;
+            }
+            const badgeNota = document.getElementById('sba_info_nota_badge');
+            if (badgeNota) {
+                badgeNota.innerHTML = `<i class="fa-solid fa-receipt text-amber-400"></i> ${receipts.length} Nota`;
+            }
+        }
+
+        function applySelectedSbaProkerData(prokerId) {
+            const pid = prokerId || document.getElementById('sba_proker_select')?.value || sbaSelectedProkerId;
+            if (!pid) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'warning', title: 'Pilih Kegiatan', text: 'Silakan pilih program kerja atau agenda kerja terlebih dahulu.' });
+                }
+                return;
+            }
+
+            const p = sbaDbProkers.find(item => item.id.toString() === pid.toString());
+            if (!p) return;
+
+            sbaSelectedProkerId = pid;
+            const detectedJenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+            setSbaJenisKegiatan(detectedJenis);
+
+            const prokerTx = sbaDbTransactions.filter(t => {
+                return (t.proker_id && t.proker_id.toString() === p.id.toString()) || 
+                       (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString());
+            });
+
+            const inTxs = [];
+            const outTxs = [];
+            prokerTx.forEach(t => {
+                const j = (t.jenis || '').toLowerCase();
+                if (j === 'masuk') inTxs.push(t);
+                else outTxs.push(t);
+            });
+
+            // 1. GENERATE PENGELUARAN DIVISI
+            const divMap = {};
+            outTxs.forEach(t => {
+                let divName = (t.divisi || '').trim();
+                if (!divName || divName.toUpperCase() === 'NULL') divName = 'Umum';
+                if (!divMap[divName]) divMap[divName] = [];
+                divMap[divName].push(t);
+            });
+
+            const divKeys = Object.keys(divMap);
+            if (divKeys.length > 0) {
+                sbaPengeluaranDivisi = divKeys.map((divName, idx) => {
+                    const items = divMap[divName].map(t => {
+                        const nom = Number(t.nominal) || 0;
+                        const hs = Number(t.harga_satuan) || nom;
+                        let qty = Number(t.volume) || (hs > 0 ? Math.round(nom / hs) : 1);
+                        if (!qty || qty < 1) qty = 1;
+                        const sat = t.satuan || 'pcs';
+                        const unitStr = `${qty} ${sat}`.trim();
+                        return {
+                            uraian: cleanTitle(t.uraian || t.keterangan || 'Belanja'),
+                            unit: unitStr,
+                            hargaSatuan: hs,
+                            jumlah: nom
+                        };
+                    });
+
+                    return {
+                        divisiKode: String.fromCharCode(65 + idx) + '.',
+                        divisiNama: `Divisi ${divName}`,
+                        items: items
+                    };
+                });
+            } else if (p.realisasi || p.pengeluaran) {
+                sbaPengeluaranDivisi = [{
+                    divisiKode: 'A.',
+                    divisiNama: 'Divisi Pelaksana',
+                    items: [{
+                        uraian: `Belanja Bahan ${p.nama_proker || p.nama_kegiatan}`,
+                        unit: '1 paket',
+                        hargaSatuan: Number(p.realisasi || p.pengeluaran),
+                        jumlah: Number(p.realisasi || p.pengeluaran)
+                    }]
+                }];
+            }
+
+            // 2. GENERATE PEMASUKAN
+            const totalPengeluaran = getSbaTotalPengeluaran();
+            let sumIn = 0;
+            const newPemasukan = [];
+
+            inTxs.forEach((t, i) => {
+                const nom = Number(t.nominal) || 0;
+                sumIn += nom;
+                newPemasukan.push({
+                    no: `${i + 1}.`,
+                    sumber: cleanTitle(t.uraian || t.kategori || 'Pemasukan'),
+                    jumlah: nom
+                });
+            });
+
+            if (totalPengeluaran > sumIn) {
+                const selisih = totalPengeluaran - sumIn;
+                newPemasukan.unshift({
+                    no: '1.',
+                    sumber: 'Kas LDK IMIP',
+                    jumlah: selisih
+                });
+                newPemasukan.forEach((it, i) => it.no = `${i + 1}.`);
+            } else if (newPemasukan.length === 0) {
+                newPemasukan.push({
+                    no: '1.',
+                    sumber: 'Kas LDK IMIP',
+                    jumlah: totalPengeluaran > 0 ? totalPengeluaran : 250000
+                });
+            }
+            sbaPemasukanList = newPemasukan;
+
+            // 3. GENERATE NOTA BUKTI TRANSAKSI
+            const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
+            sbaNotaDetails = receipts;
+            if (receipts.length > 0) {
+                sbaNotaList = receipts.map(r => r.displayUrl || r.url);
+            }
+
+            // 4. SINKRONISASI IDENTITAS KEGIATAN & TTD KETUA PELAKSANA
+            const namaAcaraField = document.getElementById('field_nama_acara');
+            if (namaAcaraField && p.nama_proker) {
+                namaAcaraField.value = p.nama_proker;
+            }
+
+            if (p.id_anggota && sbaDbAnggota && sbaDbAnggota.length > 0) {
+                const ketuaObj = sbaDbAnggota.find(a => a.id && a.id.toString() === p.id_anggota.toString());
+                if (ketuaObj) {
+                    const ttd1Nama = document.getElementById('field_ttd1_nama');
+                    if (ttd1Nama) ttd1Nama.value = ketuaObj.name || ketuaObj.nama || '';
+                    const ttd1Nim = document.getElementById('field_ttd1_nim');
+                    if (ttd1Nim) ttd1Nim.value = ketuaObj.nim ? `NIM. ${ketuaObj.nim}` : '';
+                }
+            }
+
+            const chkKeu = document.getElementById('sba_inc_keuangan');
+            if (chkKeu) chkKeu.checked = true;
+            const chkNota = document.getElementById('sba_inc_nota');
+            if (chkNota) chkNota.checked = true;
+
+            renderSbaPemasukanEditor();
+            renderSbaPengeluaranEditor();
+            renderSbaNotaGallery();
+            updateSbaRekapitulasiDisplay();
+            if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            updatePreview();
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'RAB & Nota Berhasil Diterapkan!',
+                    html: `Data <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)}</b> (${detectedJenis}) telah disinkronkan ke lembar SBA:<br><span class="text-xs text-neutral-400 mt-2 block">• Pemasukan: ${formatSbaRupiah(getSbaTotalPemasukan())}<br>• Pengeluaran: ${formatSbaRupiah(totalPengeluaran)}<br>• Lampiran Nota: ${sbaNotaList.length} Foto</span>`,
+                    timer: 2600,
+                    showConfirmButton: false
+                });
+            }
+        }
 
         function isSbaPrestasiActive() {
             const el = document.getElementById('sba_inc_prestasi');
@@ -4023,30 +4507,42 @@
         }
 
         function showSbaCards() {
-            ['card_sba_rundown', 'card_sba_output_evaluasi'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('hidden');
-            });
-            ['card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
             });
         }
 
         function hideSbaCards() {
-            ['card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dok'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
         }
 
         function getSbaPagesStructure() {
-            return [
-                { id: 1, key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' },
-                { id: 2, key: 'rundown', label: 'Hasil Kegiatan', icon: 'fa-list-check', desc: '1. Hasil Kegiatan (Rundown Acara)' },
-                { id: 3, key: 'output_eval', label: 'Output Kegiatan', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' },
-                { id: 4, key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Penutup & Lembar Pengesahan' }
+            const pages = [
+                { key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' },
+                { key: 'rundown', label: 'Hasil Kegiatan', icon: 'fa-list-check', desc: '1. Hasil Kegiatan (Rundown Acara)' },
+                { key: 'output_eval', label: 'Output Kegiatan', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' }
             ];
+
+            if (isSbaKeuanganActive()) {
+                pages.push({ key: 'keuangan', label: 'Keuangan', icon: 'fa-money-bill-wave', desc: `Keuangan ${sbaJenisKegiatan}` });
+                pages.push({ key: 'rekapitulasi', label: 'Rekapitulasi', icon: 'fa-calculator', desc: '3. Rekapitulasi Kas Keuangan' });
+            }
+
+            pages.push({ key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Penutup & Lembar Pengesahan' });
+
+            if (isSbaNotaActive()) {
+                pages.push({ key: 'nota', label: 'Lampiran Nota', icon: 'fa-receipt', desc: 'Lampiran Nota Keuangan' });
+            }
+
+            if (isSbaDokActive()) {
+                pages.push({ key: 'dok', label: 'Lampiran Dok', icon: 'fa-images', desc: 'Lampiran Dokumentasi Kegiatan' });
+            }
+
+            return pages.map((p, idx) => ({ ...p, id: idx + 1 }));
         }
 
         // RUNDOWN EDITOR
@@ -4508,12 +5004,46 @@
             renderSbaNotaGallery();
             renderSbaDokGallery();
             updateSbaRekapitulasiDisplay();
+
+            const selStyle = document.getElementById('sba_nota_layout_style');
+            if (selStyle) selStyle.value = sbaNotaLayoutStyle;
         }
 
         function renderSbaNotaGridHtml() {
             if (!sbaNotaList || sbaNotaList.length === 0) {
                 return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran nota keuangan.</p>';
             }
+
+            if (sbaNotaLayoutStyle === 'detailed') {
+                // SUSUNAN 2: GRID FOTO + RINCIAN KETERANGAN & NOMINAL TRANSAKSI (STANDAR LPJ / SBA RINCI)
+                return `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin-top: 6pt;">
+                        ${sbaNotaList.map((src, idx) => {
+                            const detail = (sbaNotaDetails && sbaNotaDetails[idx]) ? sbaNotaDetails[idx] : null;
+                            const title = detail ? (detail.uraian || `Nota #${idx + 1}`) : `Nota Transaksi #${idx + 1}`;
+                            const div = detail && detail.divisi ? `Divisi ${detail.divisi}` : 'Kepanitiaan';
+                            const nom = detail && detail.nominal ? formatSbaRupiah(detail.nominal) : '';
+
+                            return `
+                                <div style="border: 1px solid #000; padding: 4px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+                                    <div style="width: 100%; height: 42mm; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;">
+                                        <img src="${src}" alt="Nota #${idx + 1}" style="max-width: 100%; max-height: 42mm; object-fit: contain; display: block;">
+                                    </div>
+                                    <div style="width: 100%; border-top: 1px solid #222; margin-top: 4px; padding-top: 3px; font-family: 'Times New Roman', serif; font-size: 9pt; line-height: 1.25;">
+                                        <div style="font-weight: bold; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${idx + 1}. ${escapeHtml(title)}</div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5pt; font-size: 8.5pt;">
+                                            <span>${escapeHtml(div)}</span>
+                                            <span style="font-weight: bold;">${nom}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // SUSUNAN 1: STANDAR GRID FOTO ASLI BERSIH SBA (PERSIS MASTER PDF HALAMAN 7)
             const row1 = sbaNotaList.slice(0, 3);
             const row2 = sbaNotaList.slice(3, 7);
             const remaining = sbaNotaList.slice(7);
@@ -5695,7 +6225,7 @@
                         </div>
 
                         <!-- SUBJUDUL -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hasil dan <em>Output</em> Kegiatan Agenda Kerja</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hasil dan <em>Output</em> Kegiatan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
                         <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Hasil Kegiatan</p>
 
                         <!-- TABEL RUNDOWN -->
@@ -5809,7 +6339,7 @@
                             <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
                         </div>
 
-                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan Agenda Kerja</p>
+                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
                         <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Pemasukan</p>
 
                         <!-- TABEL PEMASUKAN -->
@@ -6602,6 +7132,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             if (page === 'all') {
                 return {
+                    card_sba_proker_integrator: (currentSuratType === 'SBA'),
                     card_kop_nomor: true,
                     card_tujuan: (currentSuratType !== 'SBA'),
                     card_pembuka: true,
@@ -6622,6 +7153,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             if (currentSuratType === 'SUD') {
                 return {
+                    card_sba_proker_integrator: false,
                     card_kop_nomor: true,
                     card_tujuan: true,
                     card_pembuka: true,
@@ -6643,6 +7175,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (currentSuratType === 'SPM') {
                 if (page === 1) {
                     return {
+                        card_sba_proker_integrator: false,
                         card_kop_nomor: true,
                         card_tujuan: true,
                         card_pembuka: true,
@@ -6661,6 +7194,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     };
                 } else {
                     return {
+                        card_sba_proker_integrator: false,
                         card_kop_nomor: false,
                         card_tujuan: false,
                         card_pembuka: false,
@@ -6686,6 +7220,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 const key = curPageObj ? curPageObj.key : 'pokok';
 
                 return {
+                    card_sba_proker_integrator: (key === 'pokok' || key === 'keuangan'),
                     card_kop_nomor: (key === 'pokok'),
                     card_tujuan: false,
                     card_pembuka: (key === 'pokok'),
@@ -7126,7 +7661,19 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 data.isSpzTempatManuallyEdited = isSpzTempatManuallyEdited;
             }
 
-            // SBA dynamic arrays
+            // SBA dynamic arrays & integrator state
+            if (typeof sbaJenisKegiatan !== 'undefined') {
+                data.sbaJenisKegiatan = sbaJenisKegiatan;
+            }
+            if (typeof sbaSelectedProkerId !== 'undefined') {
+                data.sbaSelectedProkerId = sbaSelectedProkerId;
+            }
+            if (typeof sbaNotaLayoutStyle !== 'undefined') {
+                data.sbaNotaLayoutStyle = sbaNotaLayoutStyle;
+            }
+            if (typeof sbaNotaDetails !== 'undefined') {
+                data.sbaNotaDetails = JSON.parse(JSON.stringify(sbaNotaDetails));
+            }
             if (typeof sbaRundownList !== 'undefined') {
                 data.sbaRundownList = JSON.parse(JSON.stringify(sbaRundownList));
             }
@@ -7240,8 +7787,24 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (typeof toggleSpzSubbagSections === 'function') toggleSpzSubbagSections();
             }
 
-            // 5. Restore SBA dynamic lists
+            // 5. Restore SBA dynamic lists & integrator state
             if (doc.type === 'SBA') {
+                if (d.sbaJenisKegiatan) {
+                    setSbaJenisKegiatan(d.sbaJenisKegiatan);
+                }
+                if (d.sbaSelectedProkerId) {
+                    sbaSelectedProkerId = d.sbaSelectedProkerId;
+                    const sel = document.getElementById('sba_proker_select');
+                    if (sel) sel.value = sbaSelectedProkerId;
+                }
+                if (d.sbaNotaLayoutStyle) {
+                    sbaNotaLayoutStyle = d.sbaNotaLayoutStyle;
+                    const selStyle = document.getElementById('sba_nota_layout_style');
+                    if (selStyle) selStyle.value = sbaNotaLayoutStyle;
+                }
+                if (d.sbaNotaDetails && Array.isArray(d.sbaNotaDetails)) {
+                    sbaNotaDetails = JSON.parse(JSON.stringify(d.sbaNotaDetails));
+                }
                 if (d.sbaRundownList && Array.isArray(d.sbaRundownList)) {
                     sbaRundownList = JSON.parse(JSON.stringify(d.sbaRundownList));
                 }
