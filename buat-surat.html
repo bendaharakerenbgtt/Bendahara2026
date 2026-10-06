@@ -1660,15 +1660,11 @@
                                 <input type="hidden" id="field_ttd3_nim" value="NIP. 198005072023211013">
                             </div>
 
-                            <!-- Nama Lengkap & Gelar (Otomatis & Tidak Bisa Diedit) -->
-                            <div class="sm:col-span-2 p-2.5 rounded-lg bg-neutral-950/70 border border-neutral-800/80 flex items-center justify-between">
-                                <div>
-                                    <label class="text-[10px] text-neutral-400 block mb-0.5 font-semibold">Nama Lengkap & Gelar</label>
-                                    <div class="text-xs font-bold text-neutral-100 font-mono">Dr. H. Zainul Hakim, S.Ag., M.Pd.I.</div>
-                                </div>
-                                <span class="text-[9px] px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono border border-neutral-700/50">Otomatis</span>
+                            <!-- Nama Lengkap & Gelar -->
+                            <div class="sm:col-span-2">
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap & Gelar</label>
+                                <input type="text" id="field_ttd3_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Dr. H. Zainul Hakim, S.Ag., M.Pd.I." value="Dr. H. Zainul Hakim, S.Ag., M.Pd.I.">
                             </div>
-                            <input type="hidden" id="field_ttd3_nama" value="Dr. H. Zainul Hakim, S.Ag., M.Pd.I.">
                         </div>
                     </div>
 
@@ -2331,7 +2327,7 @@
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
                 ttd3Jabatan: 'Dosen Pembimbing\nUKM IMIP',
-                ttd3Nama: 'Zainul Hakim, S.Ag.,M.Pd.I',
+                ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013'
             },
             SPZ: {
@@ -5418,7 +5414,7 @@
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
             const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM IMIP';
-            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim() || 'Zainul Hakim, S.Ag.,M.Pd.I';
+            const ttd3Nama = (document.getElementById('field_ttd3_nama')?.value || '').trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
 
             const mpmJabatan = (document.getElementById('field_ttd_mpm_jabatan')?.value || '').trim() || 'Ketua Umum MPM\nPoliMedia Periode 2026';
@@ -5754,11 +5750,11 @@
                                 </colgroup>
                                 <tr>
                                     <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
+                                        ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br><br><br><br>
                                     </td>
                                     <td style="width: 32%; vertical-align: top;"></td>
                                     <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
+                                        ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br><br><br><br>
                                     </td>
                                 </tr>
                                 <tr>
@@ -5778,19 +5774,19 @@
                             <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
                             <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 34%;">
-                                    <col style="width: 32%;">
-                                    <col style="width: 34%;">
+                                    <col style="width: 38%;">
+                                    <col style="width: 31%;">
+                                    <col style="width: 31%;">
                                 </colgroup>
                                 <tr>
-                                    <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(ttd3Jabatan)}<br><br><br><br><br>
+                                    <td style="width: 38%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        ${formatTtdJabatan(ttd3Jabatan)}<br><br><br><br><br><br><br><br>
                                     </td>
-                                    <td style="width: 32%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(mpmJabatan)}<br><br><br><br><br>
+                                    <td style="width: 31%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        ${formatTtdJabatan(mpmJabatan)}<br><br><br><br><br><br><br><br>
                                     </td>
-                                    <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(bemJabatan)}<br><br><br><br><br>
+                                    <td style="width: 31%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        ${formatTtdJabatan(bemJabatan)}<br><br><br><br><br><br><br><br>
                                     </td>
                                 </tr>
                                 <tr>
@@ -5809,8 +5805,8 @@
                                 </tr>
                             </table>
 
-                            <!-- BARIS 3: TEMBUSAN (Persis format jarak & indent SPZ) -->
-                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: 36pt;">
+                            <!-- BARIS 3: TEMBUSAN (Taro paling bawah lembar surat) -->
+                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: 155pt;">
                                 <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
                                 <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
                                     <tr>
