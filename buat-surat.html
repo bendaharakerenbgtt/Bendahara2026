@@ -5173,7 +5173,7 @@
 
                             return `
                                 <div style="border: 1px solid #000; padding: 4px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
-                                    <div style="width: 100%; height: 42mm; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;">
+                                    <div style="width: 100%; height: 42mm; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent;">
                                         <img src="${src}" alt="Nota #${idx + 1}" style="max-width: 100%; max-height: 42mm; object-fit: contain; display: block;">
                                     </div>
                                     <div style="width: 100%; border-top: 1px solid #222; margin-top: 4px; padding-top: 3px; font-family: 'Times New Roman', serif; font-size: 9pt; line-height: 1.25;">
@@ -5200,16 +5200,16 @@
                     <!-- Baris 1: Max 3 Nota -->
                     <div style="display: grid; grid-template-columns: repeat(${row1.length}, 1fr); gap: 10px; align-items: center; justify-items: center;">
                         ${row1.map(src => `
-                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: #fff;">
+                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: transparent;">
                                 <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 50mm; object-fit: contain; display: block;">
                             </div>
                         `).join('')}
                     </div>
                     <!-- Baris 2: Max 4 Nota -->
                     ${row2.length > 0 ? `
-                    <div style="display: grid; grid-template-columns: repeat(${row2.length}, 1fr); gap: 8px; align-items: center; justify-items: center;">
+                    <div style="${row2.length <= 2 ? 'display: flex; justify-content: center; gap: 16px; align-items: center;' : `display: grid; grid-template-columns: repeat(${row2.length}, 1fr); gap: 8px; align-items: center; justify-items: center;`}">
                         ${row2.map(src => `
-                            <div style="width: 100%; height: 52mm; display: flex; align-items: center; justify-content: center; background: #fff;">
+                            <div style="${row2.length <= 2 ? 'flex: 0 1 45%; max-width: 45%;' : 'width: 100%;'} height: 52mm; display: flex; align-items: center; justify-content: center; background: transparent;">
                                 <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 52mm; object-fit: contain; display: block;">
                             </div>
                         `).join('')}
@@ -5219,7 +5219,7 @@
                     ${remaining.length > 0 ? `
                     <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 4)}, 1fr); gap: 8px; align-items: center; justify-items: center;">
                         ${remaining.map(src => `
-                            <div style="width: 100%; height: 48mm; display: flex; align-items: center; justify-content: center; background: #fff;">
+                            <div style="width: 100%; height: 48mm; display: flex; align-items: center; justify-content: center; background: transparent;">
                                 <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 48mm; object-fit: contain; display: block;">
                             </div>
                         `).join('')}
