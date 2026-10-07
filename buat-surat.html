@@ -2222,10 +2222,12 @@
                                 </span>
                                 <div class="flex items-center gap-2">
                                     <button type="button" onclick="resetSbaNotaDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset STUBAN</button>
-                                    <label class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors cursor-pointer">
-                                        <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> Unggah Nota
+                                    <button type="button" onclick="clearAllSbaNotas()" class="text-[10px] text-red-400 hover:text-red-300 underline">Kosongkan</button>
+                                    <label class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors cursor-pointer" title="Tambah foto nota baru ke galeri">
+                                        <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> + Tambah
                                         <input type="file" id="sba_nota_file_input" accept="image/*" multiple onchange="handleSbaNotaUpload(event)" class="hidden">
                                     </label>
+                                    <input type="file" id="sba_nota_single_replace_input" accept="image/*" onchange="handleSingleNotaReplace(event)" class="hidden">
                                 </div>
                             </div>
                             <div id="sba_nota_gallery_container" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto pr-1">
@@ -4041,6 +4043,8 @@
 
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
         const LDK_CACHE_KEY = 'ldk_db_cache';
+        const LDK_CACHE_TIME_KEY = 'ldk_db_cache_time';
+        const LDK_CACHE_TTL = 60000; // 60 detik fresh cache
 
         let sbaJenisKegiatan = 'Agenda Kerja';
         let sbaSelectedProkerId = '';
@@ -4050,12 +4054,55 @@
         let sbaDbTransactions = [];
         let sbaDbAnggota = [];
         let isSbaDbLoading = false;
+        let sbaReplacingIndex = null;
 
         let sbaRundownList = JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN));
         let sbaPrestasiList = JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI));
         let sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
         let sbaPengeluaranDivisi = JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_DIVISI));
         let sbaNotaList = [...DEFAULT_SBA_NOTAS];
+
+        function capitalizeUnit(unitStr) {
+            if (!unitStr) return "";
+            const s = String(unitStr).trim();
+            if (!s || s.toUpperCase() === "NULL" || s === "-") return s;
+            return s.replace(/(?:^|[\s\/\-_])([a-z])/gi, (m) => m.toUpperCase());
+        }
+
+        function normalizeTransactions(list) {
+            return (list || []).map(tx => {
+                if (!tx) return tx;
+                const idStr = (tx.id !== undefined && tx.id !== null) ? String(tx.id).trim() : '';
+                const uraianStr = String(tx.uraian !== undefined && tx.uraian !== null ? tx.uraian : (tx.keterangan || '')).trim();
+                const ketStr = String(tx.keterangan !== undefined && tx.keterangan !== null ? tx.keterangan : '').trim();
+                const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
+                const combined = `${uraianStr} ${ketStr}`.toLowerCase();
+
+                let finalUnit = unitStr;
+                if (idStr === 'TRX397' || (combined.includes('sewa tempat') && (unitStr === '3' || unitStr === '' || unitStr.toUpperCase() === 'NULL'))) {
+                    finalUnit = '3 Day';
+                } else if (/^\d+$/.test(unitStr) && (combined.includes('sewa tempat') || combined.includes('wammy') || combined.includes('villa') || combined.includes('penginapan'))) {
+                    finalUnit = `${unitStr} Day`;
+                } else if (unitStr && unitStr.toUpperCase() !== 'NULL') {
+                    finalUnit = capitalizeUnit(unitStr);
+                }
+
+                let finalProkerId = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
+                if (idStr === 'TRX006' || idStr === 'TRX007' || combined.includes('acara takram')) {
+                    finalProkerId = '7';
+                } else if (idStr === 'TRX020' || idStr === 'TRX021' || combined.includes('saat itikaf') || combined.includes('acara itikaf')) {
+                    finalProkerId = '8';
+                } else if (['TRX275', 'TRX276', 'TRX277', 'TRX385', 'TRX386', 'TRX388'].includes(idStr) || (combined.includes('stuban') && (finalProkerId === '12' || !finalProkerId))) {
+                    finalProkerId = '13';
+                }
+
+                return {
+                    ...tx,
+                    unit: finalUnit,
+                    proker_id: finalProkerId
+                };
+            });
+        }
 
         function getGoogleDriveFileId(url) {
             if (!url) return null;
@@ -4167,7 +4214,7 @@
             updatePreview();
         }
 
-        function loadSbaProkerDatabase(forceRefresh = false) {
+        function loadSbaProkerDatabase(forceRefresh = false, callback = null) {
             const icon = document.getElementById('sba_refresh_icon');
             if (icon) icon.classList.add('fa-spin');
             isSbaDbLoading = true;
@@ -4175,22 +4222,32 @@
             const applyCached = (cachedData) => {
                 if (cachedData && cachedData.proker) {
                     sbaDbProkers = cachedData.proker || [];
-                    sbaDbTransactions = cachedData.transaksi || [];
+                    sbaDbTransactions = normalizeTransactions(cachedData.transaksi || []);
                     sbaDbAnggota = cachedData.anggota || [];
                     populateSbaProkerDropdown();
                 }
             };
 
-            if (!forceRefresh) {
+            const now = Date.now();
+            if (forceRefresh) {
+                try {
+                    localStorage.removeItem(LDK_CACHE_KEY);
+                    localStorage.removeItem(LDK_CACHE_TIME_KEY);
+                } catch (e) {}
+            } else {
                 try {
                     const raw = localStorage.getItem(LDK_CACHE_KEY);
+                    const rawTime = localStorage.getItem(LDK_CACHE_TIME_KEY);
                     if (raw) {
                         const parsed = JSON.parse(raw);
                         if (parsed && parsed.status === 'success' && parsed.proker && parsed.proker.length > 0) {
                             applyCached(parsed);
-                            if (icon) icon.classList.remove('fa-spin');
-                            isSbaDbLoading = false;
-                            return;
+                            if (rawTime && (now - Number(rawTime) < LDK_CACHE_TTL)) {
+                                if (icon) icon.classList.remove('fa-spin');
+                                isSbaDbLoading = false;
+                                if (typeof callback === 'function') callback();
+                                return;
+                            }
                         }
                     }
                 } catch (e) {
@@ -4204,6 +4261,7 @@
                     if (data && data.status === 'success') {
                         try {
                             localStorage.setItem(LDK_CACHE_KEY, JSON.stringify(data));
+                            localStorage.setItem(LDK_CACHE_TIME_KEY, Date.now().toString());
                         } catch (e) {}
                         applyCached(data);
                     }
@@ -4214,7 +4272,20 @@
                 .finally(() => {
                     if (icon) icon.classList.remove('fa-spin');
                     isSbaDbLoading = false;
+                    if (typeof callback === 'function') callback();
                 });
+        }
+
+        function refreshSbaModalDatabase(type = 'nota') {
+            const icon = document.getElementById(`modal_sync_${type}_icon`);
+            if (icon) icon.classList.add('fa-spin');
+            loadSbaProkerDatabase(true, () => {
+                if (type === 'nota') {
+                    bukaModalPilihExportNota();
+                } else {
+                    bukaModalPilihExportRab();
+                }
+            });
         }
 
         function populateSbaProkerDropdown() {
@@ -4380,9 +4451,15 @@
                 title: '<div class="text-sm sm:text-base font-bold text-white flex items-center justify-center gap-2"><span>📊</span><span>Pilih Kegiatan untuk Export RAB ke SBA</span></div>',
                 html: `
                     <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 max-h-[65vh] overflow-y-auto pr-1">
-                        <p class="text-[11px] text-neutral-400 leading-relaxed">
-                            Pilih kegiatan di bawah ini untuk <b>langsung otomatis mengisi laporan RAB Keuangan SBA</b> (Pemasukan, Belanja Bahan per Divisi &amp; Rekapitulasi).
-                        </p>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/80">
+                            <p class="text-[11px] text-neutral-400 leading-relaxed">
+                                Pilih kegiatan di bawah ini untuk <b>langsung otomatis mengisi laporan RAB Keuangan SBA</b> (Pemasukan, Belanja Bahan per Divisi &amp; Rekapitulasi).
+                            </p>
+                            <button type="button" onclick="refreshSbaModalDatabase('rab')" id="modal_sync_rab_btn" class="px-2.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-blue-400 hover:text-white text-[10px] font-bold flex items-center gap-1.5 shrink-0 border border-neutral-700 active:scale-95 transition-all self-start sm:self-auto" title="Ambil data transaksi &amp; RAB terbaru dari Google Sheets">
+                                <i class="fa-solid fa-rotate" id="modal_sync_rab_icon"></i>
+                                <span>Sync DB Terbaru</span>
+                            </button>
+                        </div>
 
                         ${agendaList.length > 0 ? `
                         <div>
@@ -4454,7 +4531,7 @@
                             <span class="text-neutral-400">${count > 0 ? 'Bukti fisik siap tarik' : 'Belum ada bukti transaksi'}</span>
                             <button type="button" onclick="Swal.close(); applySelectedSbaProkerData('${p.id}', 'nota_only');" class="px-2.5 py-1.5 rounded-lg ${count > 0 ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300'} font-bold text-[10px] flex items-center gap-1 transition-all active:scale-95 shadow-xs">
                                 <i class="fa-solid fa-receipt text-[9px]"></i>
-                                <span>Pilih Nota</span>
+                                <span>${count > 0 ? `Tarik ${count} Nota` : 'Pilih Nota'}</span>
                             </button>
                         </div>
                     </div>
@@ -4465,9 +4542,15 @@
                 title: '<div class="text-sm sm:text-base font-bold text-white flex items-center justify-center gap-2"><span>🧾</span><span>Pilih Kegiatan untuk Export Nota ke SBA</span></div>',
                 html: `
                     <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3 max-h-[65vh] overflow-y-auto pr-1">
-                        <p class="text-[11px] text-neutral-400 leading-relaxed">
-                            Pilih kegiatan di bawah ini untuk <b>langsung otomatis menarik foto bukti nota struk belanja</b> ke lembar Lampiran Nota SBA.
-                        </p>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/80">
+                            <p class="text-[11px] text-neutral-400 leading-relaxed">
+                                Pilih kegiatan di bawah ini untuk <b>langsung otomatis menarik foto bukti nota struk belanja</b> ke lembar Lampiran Nota SBA.
+                            </p>
+                            <button type="button" onclick="refreshSbaModalDatabase('nota')" id="modal_sync_nota_btn" class="px-2.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-amber-400 hover:text-white text-[10px] font-bold flex items-center gap-1.5 shrink-0 border border-neutral-700 active:scale-95 transition-all self-start sm:self-auto" title="Ambil data transaksi &amp; bukti nota terbaru dari Google Sheets">
+                                <i class="fa-solid fa-rotate" id="modal_sync_nota_icon"></i>
+                                <span>Sync DB Terbaru</span>
+                            </button>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             ${cardsHtml}
                         </div>
@@ -4619,15 +4702,41 @@
             // 2. GENERATE NOTA BUKTI TRANSAKSI (JIKA MODE 'all' ATAU 'nota_only')
             if (mode === 'all' || mode === 'nota_only') {
                 const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
-                sbaNotaDetails = receipts;
                 if (receipts.length > 0) {
+                    sbaNotaDetails = receipts;
                     sbaNotaList = receipts.map(r => r.displayUrl || r.url);
+                    const chkNota = document.getElementById('sba_inc_nota');
+                    if (chkNota) chkNota.checked = true;
+                    renderSbaNotaGallery();
+                } else if (mode === 'nota_only') {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Belum Ada Bukti Nota',
+                            html: `Kegiatan <b>${escapeHtml(p.nama_proker || p.nama_kegiatan)}</b> belum memiliki bukti nota fisik di database transaksi.<br><br>Apakah Anda ingin <b>mengosongkan galeri nota</b> untuk mengunggah foto nota hasil editan sendiri?`,
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya, Kosongkan & Unggah',
+                            cancelButtonText: 'Batal (Tetap Pakai Foto Contoh)',
+                            confirmButtonColor: '#f59e0b',
+                            cancelButtonColor: '#374151'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                sbaNotaList = [];
+                                sbaNotaDetails = [];
+                                renderSbaNotaGallery();
+                                updatePreview();
+                                setTimeout(() => {
+                                    document.getElementById('sba_nota_file_input')?.click();
+                                }, 300);
+                            }
+                        });
+                    }
+                    onSbaProkerSelectChange(pid);
+                    if (typeof renderPageTabs === 'function') renderPageTabs();
+                    if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+                    updatePreview();
+                    return;
                 }
-
-                const chkNota = document.getElementById('sba_inc_nota');
-                if (chkNota) chkNota.checked = true;
-
-                renderSbaNotaGallery();
             }
 
             onSbaProkerSelectChange(pid);
@@ -5129,21 +5238,101 @@
         }
 
         // NOTA GALLERY
+        function triggerReplaceSbaNota(idx) {
+            sbaReplacingIndex = idx;
+            const input = document.getElementById('sba_nota_single_replace_input');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        }
+
+        function handleSingleNotaReplace(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0 || sbaReplacingIndex === null) return;
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                sbaNotaList[sbaReplacingIndex] = e.target.result;
+                renderSbaNotaGallery();
+                updatePreview();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Foto Nota Berhasil Diganti!',
+                        text: `Foto Nota #${sbaReplacingIndex + 1} berhasil diperbarui dengan gambar baru.`,
+                        timer: 1800,
+                        showConfirmButton: false
+                    });
+                }
+                sbaReplacingIndex = null;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function clearAllSbaNotas() {
+            if (sbaNotaList.length === 0) return;
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Kosongkan Semua Nota?',
+                    text: 'Semua foto nota pada lembar lampiran SBA akan dihapus. Anda dapat menambahkan foto editan baru secara manual.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Kosongkan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#374151'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        sbaNotaList = [];
+                        sbaNotaDetails = [];
+                        renderSbaNotaGallery();
+                        updatePreview();
+                    }
+                });
+            } else {
+                sbaNotaList = [];
+                sbaNotaDetails = [];
+                renderSbaNotaGallery();
+                updatePreview();
+            }
+        }
+
         function renderSbaNotaGallery() {
             const container = document.getElementById('sba_nota_gallery_container');
             if (!container) return;
             const badge = document.getElementById('sba_nota_count_badge');
             if (badge) badge.innerText = `${sbaNotaList.length} Foto`;
 
-            container.innerHTML = sbaNotaList.map((src, idx) => `
+            if (sbaNotaList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 sm:col-span-4 p-4 text-center rounded-xl border border-dashed border-neutral-800 text-neutral-500 text-xs">
+                        <i class="fa-solid fa-receipt text-lg mb-1 text-neutral-600 block"></i>
+                        Belum ada foto nota. Klik <b>+ Tambah</b> di atas untuk mengunggah foto nota hasil editan.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sbaNotaList.map((src, idx) => {
+                const did = getGoogleDriveFileId(src);
+                const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                return `
                 <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[3/4] flex items-center justify-center">
-                    <img src="${src}" alt="Nota #${idx + 1}" class="w-full h-full object-contain p-1">
-                    <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-white">#${idx + 1}</span>
-                    <button type="button" onclick="removeSbaNotaItem(${idx})" class="absolute top-1 right-1 p-1 rounded-lg bg-red-500/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Hapus Nota">
-                        <i class="fa-solid fa-trash text-[10px]"></i>
-                    </button>
+                    <img src="${src}" alt="Nota #${idx + 1}" class="w-full h-full object-contain p-1" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                    <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-white font-bold">#${idx + 1}</span>
+                    <div class="absolute top-1 right-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button type="button" onclick="triggerReplaceSbaNota(${idx})" class="p-1 rounded-md bg-amber-500 hover:bg-amber-600 text-white shadow-xs" title="Ganti / Upload Ulang Foto #${idx + 1}">
+                            <i class="fa-solid fa-arrow-up-from-bracket text-[9px]"></i>
+                        </button>
+                        <button type="button" onclick="removeSbaNotaItem(${idx})" class="p-1 rounded-md bg-red-500/80 hover:bg-red-600 text-white shadow-xs" title="Hapus Nota #${idx + 1}">
+                            <i class="fa-solid fa-trash text-[9px]"></i>
+                        </button>
+                    </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function handleSbaNotaUpload(event) {
@@ -5163,12 +5352,16 @@
 
         function removeSbaNotaItem(idx) {
             sbaNotaList.splice(idx, 1);
+            if (sbaNotaDetails && sbaNotaDetails.length > idx) {
+                sbaNotaDetails.splice(idx, 1);
+            }
             renderSbaNotaGallery();
             updatePreview();
         }
 
         function resetSbaNotaDefault() {
             sbaNotaList = [...DEFAULT_SBA_NOTAS];
+            sbaNotaDetails = [];
             renderSbaNotaGallery();
             updatePreview();
         }
@@ -5209,11 +5402,13 @@
                             const title = detail ? (detail.uraian || `Nota #${idx + 1}`) : `Nota Transaksi #${idx + 1}`;
                             const div = detail && detail.divisi ? `Divisi ${detail.divisi}` : 'Kepanitiaan';
                             const nom = detail && detail.nominal ? formatSbaRupiah(detail.nominal) : '';
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
 
                             return `
-                                <div style="border: 1px solid #000; padding: 4px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
+                                <div style="border: 1px solid #000; padding: 4px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: space-between;">
                                     <div style="width: 100%; height: 42mm; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent;">
-                                        <img src="${src}" alt="Nota #${idx + 1}" style="max-width: 100%; max-height: 42mm; object-fit: contain; display: block;">
+                                        <img src="${src}" alt="Nota #${idx + 1}" style="max-width: 100%; max-height: 42mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                                     </div>
                                     <div style="width: 100%; border-top: 1px solid #222; margin-top: 4px; padding-top: 3px; font-family: 'Times New Roman', serif; font-size: 9pt; line-height: 1.25;">
                                         <div style="font-weight: bold; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${idx + 1}. ${escapeHtml(title)}</div>
@@ -5238,30 +5433,42 @@
                 <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6pt;">
                     <!-- Baris 1: Max 3 Nota -->
                     <div style="display: grid; grid-template-columns: repeat(${row1.length}, 1fr); gap: 10px; align-items: center; justify-items: center;">
-                        ${row1.map(src => `
+                        ${row1.map(src => {
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                            return `
                             <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: transparent;">
-                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 50mm; object-fit: contain; display: block;">
+                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 50mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                     <!-- Baris 2: Max 4 Nota -->
                     ${row2.length > 0 ? `
                     <div style="${row2.length <= 2 ? 'display: flex; justify-content: center; gap: 16px; align-items: center;' : `display: grid; grid-template-columns: repeat(${row2.length}, 1fr); gap: 8px; align-items: center; justify-items: center;`}">
-                        ${row2.map(src => `
+                        ${row2.map(src => {
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                            return `
                             <div style="${row2.length <= 2 ? 'flex: 0 1 45%; max-width: 45%;' : 'width: 100%;'} height: 52mm; display: flex; align-items: center; justify-content: center; background: transparent;">
-                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 52mm; object-fit: contain; display: block;">
+                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 52mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                     ` : ''}
                     <!-- Baris Tambahan (Jika ada lebih dari 7) -->
                     ${remaining.length > 0 ? `
                     <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 4)}, 1fr); gap: 8px; align-items: center; justify-items: center;">
-                        ${remaining.map(src => `
+                        ${remaining.map(src => {
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                            return `
                             <div style="width: 100%; height: 48mm; display: flex; align-items: center; justify-content: center; background: transparent;">
-                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 48mm; object-fit: contain; display: block;">
+                                <img src="${src}" alt="Nota Keuangan" style="max-width: 100%; max-height: 48mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                     ` : ''}
                 </div>
