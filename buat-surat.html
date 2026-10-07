@@ -208,16 +208,6 @@
         html.light-mode #doc_last_modified_text {
             color: #64748B !important;
         }
-        html.light-mode #editor_top_doc_bar button[onclick*="exportCurrentDocJson"] {
-            background-color: #FFF7ED !important;
-            border-color: #FED7AA !important;
-            color: #1E293B !important;
-        }
-        html.light-mode #editor_top_doc_bar button[onclick*="exportCurrentDocJson"]:hover {
-            background-color: #FFEDD5 !important;
-            border-color: #FDBA74 !important;
-            color: #EA580C !important;
-        }
 
         /* Page Stepper Card */
         html.light-mode #page_stepper_card {
@@ -1030,31 +1020,60 @@
                     </div>
                 </div>
 
-                <!-- Right: Aksi Dokumen (Download JSON + Tooltip Penjelasan) -->
-                <div class="flex items-center gap-2 shrink-0">
+                <!-- Right: Aksi Dokumen (Cetak / Simpan PDF & Unduh Word) -->
+                <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                    <!-- Tombol Cetak / Simpan PDF + Tooltip -->
                     <div class="relative group">
-                        <button type="button" onclick="exportCurrentDocJson()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-neutral-200 bg-neutral-800 hover:bg-neutral-700 hover:text-white border border-neutral-700 hover:border-neutral-600 transition-all flex items-center gap-2 shadow-xs active:scale-95" title="Download berkas JSON surat ini untuk backup atau impor di perangkat lain">
-                            <i class="fa-solid fa-download text-xs text-amber-400"></i>
-                            <span>Download JSON</span>
-                            <i class="fa-solid fa-circle-question text-[11px] text-neutral-400 group-hover:text-amber-400 transition-colors"></i>
+                        <button type="button" onclick="quickPrintSurat()" class="px-3.5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md flex items-center gap-2 transition-all active:scale-95" title="Cetak Surat / Simpan ke PDF (Direkomendasikan untuk Semua Perangkat)">
+                            <i class="fa-solid fa-print text-xs shrink-0"></i>
+                            <span class="whitespace-nowrap">Cetak / Simpan PDF</span>
+                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
                         </button>
-                        
-                        <!-- Tooltip Penjelasan Fungsi (z-50 di atas card berikutnya) -->
-                        <div class="absolute right-0 top-full mt-2.5 w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+
+                        <!-- Tooltip Penjelasan PDF -->
+                        <div class="absolute right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <!-- Arrow pointer -->
                             <div class="absolute -top-1.5 right-6 w-3 h-3 bg-neutral-900 border-t border-l border-neutral-700 rotate-45"></div>
-                            
                             <div class="relative z-10 flex items-start gap-2.5">
-                                <div class="w-6 h-6 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                                    <i class="fa-solid fa-circle-info text-amber-400 text-xs"></i>
+                                <div class="w-6 h-6 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-file-pdf text-orange-400 text-xs"></i>
                                 </div>
                                 <div class="space-y-1">
-                                    <p class="font-bold text-white text-xs">Fungsi Download JSON</p>
+                                    <p class="font-bold text-white text-xs">Format PDF (Rekomendasi Utama)</p>
                                     <p class="leading-relaxed text-neutral-300 text-[11px]">
-                                        Menyimpan seluruh data isian surat ini ke dalam file <code class="text-amber-300 bg-neutral-800 px-1 py-0.5 rounded font-mono text-[10px]">.json</code> di perangkat Anda.
+                                        Format standar resmi siap cetak. <strong>Bisa langsung dibuka di semua perangkat (HP Android, iPhone, Tablet, maupun Laptop)</strong> tanpa merubah tata letak atau font.
                                     </p>
                                     <p class="leading-relaxed text-neutral-400 text-[10.5px] pt-1 border-t border-neutral-800">
-                                        💡 Berguna untuk backup offline, dipindahkan ke perangkat lain, atau dipulihkan kapan saja lewat tombol <strong>Impor JSON</strong> di folder surat.
+                                        💡 Sangat disarankan untuk dibagikan via WhatsApp, email kampus, atau dicetak langsung.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Unduh Word (.doc) + Tooltip -->
+                    <div class="relative group">
+                        <button type="button" onclick="exportSuratWord()" class="px-3.5 py-2 rounded-xl text-xs font-black text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center gap-2 transition-all active:scale-95" title="Unduh Dokumen Word (.doc) untuk Laptop/PC">
+                            <i class="fa-solid fa-file-word text-xs shrink-0"></i>
+                            <span class="whitespace-nowrap">Unduh Word (.doc)</span>
+                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
+                        </button>
+
+                        <!-- Tooltip Penjelasan Word -->
+                        <div class="absolute right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <!-- Arrow pointer -->
+                            <div class="absolute -top-1.5 right-6 w-3 h-3 bg-neutral-900 border-t border-l border-neutral-700 rotate-45"></div>
+                            <div class="relative z-10 flex items-start gap-2.5">
+                                <div class="w-6 h-6 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-file-word text-blue-400 text-xs"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-white text-xs">Format Word (.doc)</p>
+                                    <p class="leading-relaxed text-neutral-300 text-[11px]">
+                                        Berkas dokumen Microsoft Word untuk diedit ulang atau dimodifikasi lebih lanjut di <strong>Laptop/PC</strong>.
+                                    </p>
+                                    <p class="leading-relaxed text-amber-300/90 text-[10.5px] pt-1 border-t border-neutral-800">
+                                        ⚠️ <strong>Catatan untuk HP:</strong> File .doc umumnya tidak dapat dibuka langsung di aplikasi bawaan HP. Jika ingin dibuka atau dibagikan lewat HP, gunakan <strong>Cetak / Simpan PDF</strong>.
                                     </p>
                                 </div>
                             </div>
@@ -1070,13 +1089,13 @@
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
-                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200">Mode Pengisian Lembar</span>
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200">Mode Tampilan Lembar</span>
                         <span id="current_page_indicator_badge" class="px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-[10px] font-bold text-orange-400 font-mono">
-                            Halaman 1 dari 4
+                            Semua Halaman (Lengkap)
                         </span>
                     </div>
-                    <p class="text-[11px] text-neutral-400 mt-0.5">
-                        Isi surat per halaman dengan pratinjau lembar A4 fokus tepat di atas formulir isian.
+                    <p id="mode_stepper_desc" class="text-[11px] text-neutral-400 mt-0.5">
+                        Menampilkan seluruh halaman lembar A4 dan formulir isian secara lengkap.
                     </p>
                 </div>
                 
@@ -2249,80 +2268,18 @@
 
 
 
-                <!-- STEPPER NAVIGATION & ACTION BUTTONS (2 TIER LAYOUT) -->
-                <div class="space-y-3 pt-5 border-t border-neutral-800/80 mt-4" id="page_nav_buttons_container">
-                    <!-- Baris 1: Navigasi Antar Halaman (Prev & Next) -->
+                <!-- STEPPER NAVIGATION -->
+                <div class="pt-5 border-t border-neutral-800/80 mt-4" id="page_nav_buttons_container">
                     <div class="grid grid-cols-2 gap-2.5">
                         <button type="button" id="btn_step_prev" onclick="goToPrevPage()" class="py-2.5 px-3 rounded-xl font-bold text-xs text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white flex items-center justify-center gap-2 transition-all disabled:opacity-30 disabled:pointer-events-none truncate shadow-xs">
                             <i class="fa-solid fa-arrow-left text-xs shrink-0"></i>
-                            <span class="truncate">Halaman Sebelumnya</span>
+                            <span id="btn_step_prev_text" class="truncate">Halaman Sebelumnya</span>
                         </button>
 
                         <button type="button" id="btn_step_next" onclick="goToNextPage()" class="py-2.5 px-3 rounded-xl font-black text-xs text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md flex items-center justify-center gap-2 transition-all truncate active:scale-95">
                             <span id="btn_step_next_text" class="truncate">Lanjut ke Halaman 2</span>
                             <i class="fa-solid fa-arrow-right text-xs shrink-0"></i>
                         </button>
-                    </div>
-
-                    <!-- Baris 2: Tombol Output (Cetak PDF & Word) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <!-- Tombol Cetak / Simpan PDF + Tooltip -->
-                        <div class="relative group">
-                            <button type="button" onclick="quickPrintSurat()" class="w-full py-2.5 px-3 rounded-xl font-black text-xs text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all truncate" title="Cetak Surat / Simpan ke PDF (Direkomendasikan untuk Semua Perangkat)">
-                                <i class="fa-solid fa-print text-xs shrink-0"></i>
-                                <span class="truncate">Cetak / Simpan PDF</span>
-                                <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
-                            </button>
-
-                            <!-- Tooltip Penjelasan PDF -->
-                            <div class="absolute left-0 bottom-full mb-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <!-- Arrow pointer -->
-                                <div class="absolute -bottom-1.5 left-8 w-3 h-3 bg-neutral-900 border-b border-r border-neutral-700 rotate-45"></div>
-                                <div class="relative z-10 flex items-start gap-2.5">
-                                    <div class="w-6 h-6 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-file-pdf text-orange-400 text-xs"></i>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="font-bold text-white text-xs">Format PDF (Rekomendasi Utama)</p>
-                                        <p class="leading-relaxed text-neutral-300 text-[11px]">
-                                            Format standar resmi siap cetak. <strong>Bisa langsung dibuka di semua perangkat (HP Android, iPhone, Tablet, maupun Laptop)</strong> tanpa merubah tata letak atau font.
-                                        </p>
-                                        <p class="leading-relaxed text-neutral-400 text-[10.5px] pt-1 border-t border-neutral-800">
-                                            💡 Sangat disarankan untuk dibagikan via WhatsApp, email kampus, atau dicetak langsung.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tombol Unduh Word (.doc) + Tooltip -->
-                        <div class="relative group">
-                            <button type="button" onclick="exportSuratWord()" class="w-full py-2.5 px-3 rounded-xl font-black text-xs text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center justify-center gap-2 active:scale-95 transition-all truncate" title="Unduh Dokumen Word (.doc) untuk Laptop/PC">
-                                <i class="fa-solid fa-file-word text-xs shrink-0"></i>
-                                <span class="truncate">Unduh Word (.doc)</span>
-                                <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
-                            </button>
-
-                            <!-- Tooltip Penjelasan Word -->
-                            <div class="absolute right-0 bottom-full mb-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <!-- Arrow pointer -->
-                                <div class="absolute -bottom-1.5 right-8 w-3 h-3 bg-neutral-900 border-b border-r border-neutral-700 rotate-45"></div>
-                                <div class="relative z-10 flex items-start gap-2.5">
-                                    <div class="w-6 h-6 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-file-word text-blue-400 text-xs"></i>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="font-bold text-white text-xs">Format Word (.doc)</p>
-                                        <p class="leading-relaxed text-neutral-300 text-[11px]">
-                                            Berkas dokumen Microsoft Word untuk diedit ulang atau dimodifikasi lebih lanjut di <strong>Laptop/PC</strong>.
-                                        </p>
-                                        <p class="leading-relaxed text-amber-300/90 text-[10.5px] pt-1 border-t border-neutral-800">
-                                            ⚠️ <strong>Catatan untuk HP:</strong> File .doc ini umumnya tidak dapat dibuka langsung di aplikasi bawaan HP. Jika ingin dibuka atau dibagikan lewat HP, silakan gunakan <strong>Cetak / Simpan PDF</strong>.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -2800,7 +2757,7 @@
                 setTimePickersFromString(tpl.waktu);
             }
 
-            currentActivePage = 1;
+            currentActivePage = 'all';
             if (typeof renderPageTabs === 'function') renderPageTabs();
             updateTtd3State();
             updatePreview();
@@ -7336,7 +7293,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         // ==========================================
         // PAGE-BY-PAGE STEPPER & WORKFLOW SYSTEM
         // ==========================================
-        let currentActivePage = 1; // 1, 2, 3, 4, or 'all'
+        let currentActivePage = 'all'; // Default: 'all' (semua halaman), atau nomor lembar 1, 2, 3, dst.
         let currentLayoutMode = 'stacked'; // 'stacked' (Preview Atas) or 'side' (Berdampingan)
 
         function isSpzLampiran1Active() {
@@ -7365,6 +7322,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         function getPageTabsConfig() {
             const tabs = [];
 
+            // Tab 1: Semua Halaman (Pilihan default yang menampilkan semua lembar sekaligus)
+            tabs.push({ id: 'all', label: 'Semua Halaman', icon: 'fa-layer-group', badge: 'Semua', desc: 'Tampilkan seluruh lembar & formulir' });
+
             if (currentSuratType === 'SUD') {
                 tabs.push({ id: 1, label: 'Hal 1: Undangan', icon: 'fa-envelope-open-text', badge: '1 Lembar', desc: 'Isi Surat Undangan Lengkap' });
             } else if (currentSuratType === 'SPM') {
@@ -7392,7 +7352,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             }
 
-            tabs.push({ id: 'all', label: 'Lihat Semua Lembar', icon: 'fa-layer-group', badge: 'Semua', desc: 'Tampilkan semua lembar & formulir' });
             return tabs;
         }
 
@@ -7541,6 +7500,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 setActivePage(total);
             } else if (currentActivePage > 1) {
                 setActivePage(currentActivePage - 1);
+            } else if (currentActivePage === 1) {
+                setActivePage('all');
             }
         }
 
@@ -7772,25 +7733,30 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const stepNum = document.getElementById('step_banner_num');
             const stepTitle = document.getElementById('step_banner_title');
             const stepDesc = document.getElementById('step_banner_desc');
+            const modeDesc = document.getElementById('mode_stepper_desc');
             const btnPrev = document.getElementById('btn_step_prev');
+            const btnPrevText = document.getElementById('btn_step_prev_text');
             const btnNext = document.getElementById('btn_step_next');
             const btnNextText = document.getElementById('btn_step_next_text');
             const headerBtnsPrev = document.querySelectorAll('.btn-step-prev');
             const headerBtnsNext = document.querySelectorAll('.btn-step-next');
 
             if (currentActivePage === 'all') {
-                if (indBadge) indBadge.innerText = 'Semua Lembar (Lengkap)';
-                if (prevTitle) prevTitle.innerText = `Pratinjau Kertas A4 • Semua Lembar (Total ${total} Halaman)`;
+                if (indBadge) indBadge.innerText = 'Semua Halaman (Lengkap)';
+                if (prevTitle) prevTitle.innerText = `Pratinjau Kertas A4 • Semua Halaman (Total ${total} Lembar)`;
                 if (stepNum) stepNum.innerText = '★';
                 if (stepTitle) stepTitle.innerText = 'Semua Formulir Isian Aktif';
-                if (stepDesc) stepDesc.innerText = 'Menampilkan seluruh kartu formulir isian dari halaman awal hingga akhir.';
-                if (btnPrev) btnPrev.disabled = false;
-                if (btnNextText) btnNextText.innerText = 'Kembali ke Halaman 1';
-                headerBtnsPrev.forEach(b => b.disabled = false);
+                if (stepDesc) stepDesc.innerText = 'Menampilkan seluruh halaman lembar A4 dan kartu formulir isian dari awal hingga akhir.';
+                if (modeDesc) modeDesc.innerText = 'Menampilkan seluruh halaman lembar A4 dan formulir isian secara lengkap.';
+                if (btnPrev) btnPrev.disabled = true;
+                if (btnPrevText) btnPrevText.innerText = 'Halaman Sebelumnya';
+                if (btnNextText) btnNextText.innerText = 'Fokus Halaman 1';
+                headerBtnsPrev.forEach(b => b.disabled = true);
             } else {
                 if (indBadge) indBadge.innerText = `Halaman ${currentActivePage} dari ${total}`;
                 if (prevTitle) prevTitle.innerText = `Pratinjau Kertas A4 • Halaman ${currentActivePage} dari ${total}`;
                 if (stepNum) stepNum.innerText = currentActivePage;
+                if (modeDesc) modeDesc.innerText = 'Isi surat per halaman dengan pratinjau lembar A4 fokus tepat di atas formulir isian.';
 
                 let titleTxt = `Formulir Pengisian: Halaman ${currentActivePage}`;
                 let descTxt = 'Isi data formulir di bawah ini untuk memperbarui lembar halaman di atas.';
@@ -7842,14 +7808,21 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (stepTitle) stepTitle.innerText = titleTxt;
                 if (stepDesc) stepDesc.innerText = descTxt;
 
-                if (btnPrev) btnPrev.disabled = (currentActivePage <= 1);
-                headerBtnsPrev.forEach(b => b.disabled = (currentActivePage <= 1));
+                if (btnPrev) btnPrev.disabled = false;
+                if (btnPrevText) {
+                    if (currentActivePage === 1) {
+                        btnPrevText.innerText = 'Semua Halaman';
+                    } else {
+                        btnPrevText.innerText = `Halaman ${currentActivePage - 1}`;
+                    }
+                }
+                headerBtnsPrev.forEach(b => b.disabled = false);
 
                 if (btnNextText) {
                     if (currentActivePage < total) {
                         btnNextText.innerText = `Lanjut ke Halaman ${currentActivePage + 1}`;
                     } else {
-                        btnNextText.innerText = 'Lihat Semua Lembar';
+                        btnNextText.innerText = 'Semua Halaman';
                     }
                 }
             }
