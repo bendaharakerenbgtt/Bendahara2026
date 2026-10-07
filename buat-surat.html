@@ -3230,6 +3230,28 @@
             return escaped;
         }
 
+        function autoBoldPhrase(text, phrase) {
+            if (!text) return '';
+            let res = text
+                .replace(/\*{4,}/g, '**')
+                .replace(/\*\*\s*\*\*/g, '')
+                .replace(/\*\*([^*]+)\*\*\s*(\d{4})\*\*/g, '**$1 $2**')
+                .replace(/(?<!\*)\*([^*]*studi banding[^*]*)\*(?!\*)/gi, '**$1**');
+
+            if (!phrase) return res;
+            const cleanPhrase = phrase.trim();
+            if (!cleanPhrase) return res;
+
+            const escaped = cleanPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const alreadyBoldRegex = new RegExp(`(\\*\\*[^\\*]*${escaped}[^\\*]*\\*\\*|<strong>[^<]*${escaped}[^<]*<\\/strong>|<b>[^<]*${escaped}[^<]*<\\/b>)`, 'i');
+            if (alreadyBoldRegex.test(res)) {
+                return res;
+            }
+
+            const standaloneRegex = new RegExp(`(?<!\\*\\*|\\w)(${escaped})(?!\\*\\*|\\w)`, 'gi');
+            return res.replace(standaloneRegex, '**$1**');
+        }
+
         function formatSelectionBold(target) {
             const el = (typeof target === 'string') ? document.getElementById(target) : target;
             if (!el || typeof el.selectionStart !== 'number') return;
@@ -4678,7 +4700,11 @@
                 // Sinkronkan nama acara & TTD Ketua Pelaksana jika ada
                 const namaAcaraField = document.getElementById('field_nama_acara');
                 if (namaAcaraField && p.nama_proker) {
-                    namaAcaraField.value = p.nama_proker;
+                    let acName = (p.nama_proker || p.nama_kegiatan || '').trim();
+                    if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(acName)) {
+                        acName = `${acName} 2026`;
+                    }
+                    namaAcaraField.value = acName;
                 }
 
                 if (p.id_anggota && sbaDbAnggota && sbaDbAnggota.length > 0) {
@@ -6410,31 +6436,31 @@
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 2 Juli 2026';
 
             const incEvent = document.getElementById('field_include_event_details').checked;
-            const namaAcara = document.getElementById('field_nama_acara').value.trim() || 'Studi Banding 2026';
+            const rawNamaAcara = (document.getElementById('field_nama_acara')?.value || '').trim() || 'Studi Banding 2026';
+            let namaAcara = rawNamaAcara;
+            if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
+                namaAcara = `${namaAcara} 2026`;
+            }
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Minggu, 28 Juni 2026';
             const waktu = document.getElementById('field_waktu').value.trim() || '08.00 s/d 13.10 WIB';
             const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220';
 
             let rawPembuka = (document.getElementById('field_pembuka')?.value || '').trim() || 'Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **Studi Banding 2026** pada:';
-            // Auto bold Unit Kegiatan Mahasiswa LDK IMIP jika belum ditebalkan
-            if (!rawPembuka.includes('**Unit Kegiatan Mahasiswa LDK IMIP**') && !rawPembuka.includes('<strong>Unit Kegiatan Mahasiswa LDK IMIP</strong>') && !rawPembuka.includes('<b>Unit Kegiatan Mahasiswa LDK IMIP</b>')) {
-                rawPembuka = rawPembuka.replace(/Unit Kegiatan Mahasiswa LDK IMIP/g, '**Unit Kegiatan Mahasiswa LDK IMIP**');
-            }
-            // Auto bold nama proker (nama acara) jika ada di pembuka dan belum ditebalkan
-            if (namaAcara && !rawPembuka.includes(`**${namaAcara}**`) && !rawPembuka.includes(`<strong>${namaAcara}</strong>`) && !rawPembuka.includes(`<b>${namaAcara}</b>`)) {
-                const escapedAcara = namaAcara.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                rawPembuka = rawPembuka.replace(new RegExp(escapedAcara, 'g'), `**${namaAcara}**`);
-            }
+            rawPembuka = autoBoldPhrase(rawPembuka, 'Unit Kegiatan Mahasiswa LDK IMIP');
+            if (namaAcara) rawPembuka = autoBoldPhrase(rawPembuka, namaAcara);
+            if (rawNamaAcara) rawPembuka = autoBoldPhrase(rawPembuka, rawNamaAcara);
             const pembuka = rawPembuka;
 
-            let rawIsiInti = (document.getElementById('field_isi_inti')?.value || '').trim() || '**Studi Banding** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.';
-            // Auto bold nama proker di isi inti jika belum ditebalkan
-            if (namaAcara && !rawIsiInti.includes(`**${namaAcara}**`) && !rawIsiInti.includes(`<strong>${namaAcara}</strong>`)) {
-                const escapedAcara = namaAcara.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                rawIsiInti = rawIsiInti.replace(new RegExp(escapedAcara, 'g'), `**${namaAcara}**`);
-            } else if (!rawIsiInti.includes('**Studi Banding**') && !rawIsiInti.includes('<strong>Studi Banding</strong>')) {
-                rawIsiInti = rawIsiInti.replace(/Studi Banding/g, '**Studi Banding**');
+            // Bersihkan field textarea input jika sebelumnya terlanjur tersimpan asteris ganda/rusak
+            const elPembuka = document.getElementById('field_pembuka');
+            if (elPembuka && (elPembuka.value.includes('****') || elPembuka.value.includes('*Studi Banding') || !elPembuka.value.includes('**Unit Kegiatan'))) {
+                elPembuka.value = pembuka;
             }
+
+            let rawIsiInti = (document.getElementById('field_isi_inti')?.value || '').trim() || '**Studi Banding** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.';
+            if (namaAcara) rawIsiInti = autoBoldPhrase(rawIsiInti, namaAcara);
+            if (rawNamaAcara) rawIsiInti = autoBoldPhrase(rawIsiInti, rawNamaAcara);
+            rawIsiInti = autoBoldPhrase(rawIsiInti, 'Studi Banding');
             const isiInti = rawIsiInti;
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.';
 
@@ -8117,24 +8143,22 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 d['field_ttd3_nama'] = 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             }
             if (doc.type === 'SBA') {
+                const rawAc = (d['field_nama_acara'] || '').trim();
+                let ac = rawAc || 'Studi Banding 2026';
+                if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(ac)) {
+                    ac = `${ac} 2026`;
+                }
+                d['field_nama_acara'] = ac;
+
                 if (d['field_pembuka']) {
-                    if (!d['field_pembuka'].includes('**Unit Kegiatan Mahasiswa LDK IMIP**') && d['field_pembuka'].includes('Unit Kegiatan Mahasiswa LDK IMIP')) {
-                        d['field_pembuka'] = d['field_pembuka'].replace(/Unit Kegiatan Mahasiswa LDK IMIP/g, '**Unit Kegiatan Mahasiswa LDK IMIP**');
-                    }
-                    const ac = d['field_nama_acara'] || 'Studi Banding 2026';
-                    if (ac && !d['field_pembuka'].includes(`**${ac}**`) && d['field_pembuka'].includes(ac)) {
-                        const escapedAc = ac.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        d['field_pembuka'] = d['field_pembuka'].replace(new RegExp(escapedAc, 'g'), `**${ac}**`);
-                    }
+                    d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], 'Unit Kegiatan Mahasiswa LDK IMIP');
+                    if (ac) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], ac);
+                    if (rawAc) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], rawAc);
                 }
                 if (d['field_isi_inti']) {
-                    const ac = d['field_nama_acara'] || 'Studi Banding 2026';
-                    if (ac && !d['field_isi_inti'].includes(`**${ac}**`) && d['field_isi_inti'].includes(ac)) {
-                        const escapedAc = ac.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        d['field_isi_inti'] = d['field_isi_inti'].replace(new RegExp(escapedAc, 'g'), `**${ac}**`);
-                    } else if (!d['field_isi_inti'].includes('**Studi Banding**') && d['field_isi_inti'].includes('Studi Banding')) {
-                        d['field_isi_inti'] = d['field_isi_inti'].replace(/Studi Banding/g, '**Studi Banding**');
-                    }
+                    if (ac) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], ac);
+                    if (rawAc) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], rawAc);
+                    d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], 'Studi Banding');
                 }
             }
             for (const key in d) {
