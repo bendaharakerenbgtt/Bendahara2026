@@ -256,6 +256,32 @@
             background-color: #FED7AA !important;
             color: #C2410C !important;
         }
+        html.light-mode #btn_scroll_tab_left,
+        html.light-mode #btn_scroll_tab_right {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+            color: #C2410C !important;
+        }
+        html.light-mode #btn_scroll_tab_left:hover,
+        html.light-mode #btn_scroll_tab_right:hover {
+            background-color: #FFEDD5 !important;
+            border-color: #FDBA74 !important;
+            color: #EA580C !important;
+        }
+
+        #page_stepper_tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+        #page_stepper_tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #page_stepper_tabs::-webkit-scrollbar-thumb {
+            background: rgba(249, 115, 22, 0.35);
+            border-radius: 9999px;
+        }
+        #page_stepper_tabs::-webkit-scrollbar-thumb:hover {
+            background: rgba(249, 115, 22, 0.7);
+        }
 
         /* Preview Outer Desk */
         html.light-mode #preview_sheet_outer_box {
@@ -1118,9 +1144,22 @@
                 </div>
             </div>
 
-            <!-- TABS PER HALAMAN -->
-            <div class="mt-3 pt-3 border-t border-neutral-800/80 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="page_stepper_tabs">
-                <!-- Injected via JS -->
+            <!-- TABS PER HALAMAN WITH SCROLL CONTROLS -->
+            <div class="mt-3 pt-3 border-t border-neutral-800/80 flex items-center gap-1.5 relative">
+                <!-- Tombol Geser Kiri -->
+                <button type="button" id="btn_scroll_tab_left" onclick="scrollPageTabs('left')" class="shrink-0 w-8 h-8 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-all shadow-xs active:scale-95" title="Geser Tab ke Kiri">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+
+                <!-- Container Tab dengan Smooth Scroll & Drag -->
+                <div class="flex-1 flex items-center gap-2 overflow-x-auto py-1 scroll-smooth select-none" id="page_stepper_tabs" style="scrollbar-width: thin; scrollbar-color: rgba(249, 115, 22, 0.4) transparent;">
+                    <!-- Injected via JS -->
+                </div>
+
+                <!-- Tombol Geser Kanan -->
+                <button type="button" id="btn_scroll_tab_right" onclick="scrollPageTabs('right')" class="shrink-0 w-8 h-8 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-all shadow-xs active:scale-95" title="Geser Tab ke Kanan">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
             </div>
         </div>
 
@@ -7124,6 +7163,64 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             return tabs;
         }
 
+        function scrollPageTabs(direction) {
+            const container = document.getElementById('page_stepper_tabs');
+            if (!container) return;
+            const offset = (direction === 'left' ? -240 : 240);
+            container.scrollBy({ left: offset, behavior: 'smooth' });
+        }
+
+        function initPageTabsScrollInteractions() {
+            const container = document.getElementById('page_stepper_tabs');
+            if (!container || container.dataset.scrollInit === 'true') return;
+            container.dataset.scrollInit = 'true';
+
+            // 1. Mouse wheel horizontal scrolling (rolling vertical mouse wheel scrolls tabs horizontally)
+            container.addEventListener('wheel', (e) => {
+                if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    container.scrollLeft += e.deltaY;
+                }
+            }, { passive: false });
+
+            // 2. Mouse drag to scroll (klik & tahan lalu geser)
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            let hasDragged = false;
+
+            container.addEventListener('mousedown', (e) => {
+                isDown = true;
+                hasDragged = false;
+                startX = e.pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX);
+                if (Math.abs(walk) > 4) {
+                    hasDragged = true;
+                    e.preventDefault();
+                    container.scrollLeft = scrollLeft - walk;
+                }
+            });
+
+            // Prevent accidental tab click when dragging
+            container.addEventListener('click', (e) => {
+                if (hasDragged) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    hasDragged = false;
+                }
+            }, true);
+        }
+
         function renderPageTabs() {
             const container = document.getElementById('page_stepper_tabs');
             if (!container) return;
@@ -7155,6 +7252,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     </button>
                 `;
             }).join('');
+
+            initPageTabsScrollInteractions();
+
+            // Auto scroll active tab into view
+            setTimeout(() => {
+                const activeBtn = container.querySelector('.page-tab-item.bg-gradient-to-r');
+                if (activeBtn) {
+                    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 60);
         }
 
         function setActivePage(pageId) {
