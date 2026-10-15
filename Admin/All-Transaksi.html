@@ -664,8 +664,11 @@
                             <!-- Pihak, Metode & Alokasi -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="flex flex-col gap-1.5">
-                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Metode Pembayaran</label>
+                                    <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                        <span>Metode Pembayaran <span class="text-cyan-400">*</span></span>
+                                    </label>
                                     <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                        <option value="" disabled selected class="text-neutral-500">-- Pilih Metode Pembayaran --</option>
                                         <option value="Tunai">💵 Tunai (Cash)</option>
                                         <option value="GoPay">📱 E-Wallet GoPay</option>
                                     </select>
@@ -872,8 +875,11 @@
                         <!-- Pihak, Metode & Alokasi -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="flex flex-col gap-1.5">
-                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Metode Pembayaran</label>
+                                <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
+                                    <span>Metode Pembayaran <span class="text-rose-400">*</span></span>
+                                </label>
                                 <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
+                                    <option value="" disabled selected class="text-neutral-500">-- Pilih Metode Pembayaran --</option>
                                     <option value="Tunai">💵 Uang Tunai (Cash)</option>
                                     <option value="GoPay">📱 E-Wallet GoPay</option>
                                 </select>
@@ -1348,7 +1354,7 @@
                 const unitStr = (tx.unit !== undefined && tx.unit !== null) ? String(tx.unit).trim() : '';
                 const catStr = (tx.catatan !== undefined && tx.catatan !== null) ? String(tx.catatan).trim() : '';
                 const jenisStr = String(tx.jenis || 'Keluar').trim();
-                const metodeStr = String(tx.metode || 'Tunai').trim();
+                const metodeStr = (tx.metode !== undefined && tx.metode !== null) ? String(tx.metode).trim() : '';
                 const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : null;
                 const picStr = (tx.nama_pic_pengeluar !== undefined && tx.nama_pic_pengeluar !== null) ? String(tx.nama_pic_pengeluar).trim() : null;
                 const reimbStr = (tx.status_reimburse !== undefined && tx.status_reimburse !== null) ? String(tx.status_reimburse).trim() : 'Tidak Perlu';
@@ -1904,6 +1910,15 @@
                 }
             }
 
+            if (!method) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Metode Pembayaran Wajib Diisi',
+                    text: 'Silakan pilih metode pembayaran (Tunai atau GoPay) terlebih dahulu!'
+                });
+                return;
+            }
+
             if (!userId) {
                 Swal.fire({
                     icon: 'warning',
@@ -2009,6 +2024,15 @@
                     userId = match.id;
                     document.getElementById('out_user_id').value = match.id;
                 }
+            }
+
+            if (!method) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Metode Pembayaran Wajib Diisi',
+                    text: 'Silakan pilih metode pembayaran (Tunai atau GoPay) terlebih dahulu!'
+                });
+                return;
             }
 
             if (!userId) {
@@ -2380,7 +2404,7 @@
                             </div>
                         </td>
                         <td class="p-3 text-center align-middle">
-                            <span class="text-[9px] font-bold text-cyan-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>
+                            ${tx.metode ? `<span class="text-[9px] font-bold text-cyan-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>` : `<span class="text-[8.5px] font-mono text-neutral-500 italic bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-850">Belum Diisi</span>`}
                         </td>
                         <td class="p-3 text-right font-black text-xs align-middle ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center align-middle">
@@ -2402,7 +2426,7 @@
                                 <span class="text-[7px] font-mono text-neutral-600 mt-0.5 leading-none select-all">${tx.id}</span>
                             </div>
                             <div class="flex items-center gap-1">
-                                <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-cyan-400 border-neutral-850">${tx.metode}</span>
+                                ${tx.metode ? `<span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-cyan-400 border-neutral-850">${tx.metode}</span>` : `<span class="text-[8px] font-mono text-neutral-500 italic px-1.5 py-0.5 rounded border bg-neutral-900 border-neutral-850">Belum Diisi</span>`}
                                 <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
                             </div>
                         </div>
@@ -2712,8 +2736,11 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Metode Pembayaran</label>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">
+                                    <span>Metode Pembayaran <span class="text-rose-400">*</span></span>
+                                </label>
                                 <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    <option value="" disabled ${(!item.metode || item.metode === '') ? 'selected' : ''}>-- Pilih Metode Pembayaran --</option>
                                     <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai (Cash)</option>
                                     <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>📱 GoPay</option>
                                 </select>
@@ -3033,6 +3060,10 @@
                     const tanggal = document.getElementById('swal-edit-tanggal').value;
                     const keterangan = document.getElementById('swal-edit-keterangan').value.trim();
                     const metode = document.getElementById('swal-edit-metode').value;
+                    if (!metode) {
+                        Swal.showValidationMessage('Silakan pilih metode pembayaran (Tunai atau GoPay)!');
+                        return false;
+                    }
                     const prokerId = document.getElementById('swal-edit-proker').value;
 
                     const divSelect = document.getElementById('swal-edit-divisi-select');
