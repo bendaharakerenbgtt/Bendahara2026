@@ -1240,15 +1240,15 @@
                             <div>
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-[11px] font-bold text-neutral-300">Lampiran</label>
-                                    <span class="text-[9px] text-orange-400 font-mono">Angka saja</span>
+                                    <span id="lampiran_auto_badge" class="text-[9px] text-orange-400 font-mono">Otomatis Terhitung</span>
                                 </div>
                                 <div class="relative flex items-center">
-                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="field_lampiran_angka" oninput="handleLampiranNumberInput(this)" class="form-input text-xs font-bold pr-16" placeholder="1" value="1">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-neutral-400 pointer-events-none select-none">
-                                        Lembar
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="field_lampiran_angka" oninput="handleLampiranNumberInput(this)" class="form-input text-xs font-bold pr-16" placeholder="2" value="2">
+                                    <span id="lampiran_unit_label" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-neutral-400 pointer-events-none select-none">
+                                        Halaman
                                     </span>
                                 </div>
-                                <input type="hidden" id="field_lampiran" value="1 Lembar">
+                                <input type="hidden" id="field_lampiran" value="2 Halaman">
                             </div>
                             <div>
                                 <div class="flex items-center justify-between mb-1">
@@ -2273,6 +2273,46 @@
                     </div>
                 </div>
 
+                <!-- CARD: LAMPIRAN DOKUMENTASI KEGIATAN (KHUSUS SBA - SETELAH NOTA) -->
+                <div id="card_sba_lampiran_dokumentasi" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-camera text-orange-500"></i> Lampiran: Dokumentasi Kegiatan
+                        </span>
+                        <span id="sba_dok_page_badge" class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Lampiran Dokumentasi</span>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
+                            <div class="flex flex-col pr-2">
+                                <span class="text-xs font-bold text-neutral-200">Sertakan Lampiran Dokumentasi Kegiatan</span>
+                                <span class="text-[10px] text-neutral-400">Tampilkan lembar foto dokumentasi pelaksanaan kegiatan di lembar lampiran SBA</span>
+                            </div>
+                            <input type="checkbox" id="sba_inc_dok" checked onchange="toggleSbaDokumentasiSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                        </label>
+
+                        <div id="sba_dokumentasi_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-images text-orange-500"></i> Galeri Foto Kegiatan
+                                    <span id="sba_dokumentasi_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-orange-400 font-bold">5 Foto</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="resetSbaDokumentasiDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset Contoh</button>
+                                    <button type="button" onclick="clearAllSbaDokumentasi()" class="text-[10px] text-red-400 hover:text-red-300 underline">Kosongkan</button>
+                                    <label class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-colors cursor-pointer" title="Tambah foto dokumentasi baru">
+                                        <i class="fa-solid fa-cloud-arrow-up text-[8px]"></i> + Unggah Foto
+                                        <input type="file" id="sba_dok_file_input" accept="image/*" multiple onchange="handleSbaDokumentasiUpload(event)" class="hidden">
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="sba_dokumentasi_gallery_container" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1">
+                                <!-- Rendered via JS -->
+                            </div>
+                            <span class="text-[9.5px] text-neutral-400 mt-1 block">Foto dokumentasi akan disusun rapi di lembar lampiran SBA setelah nota keuangan.</span>
+                        </div>
+                    </div>
+                </div>
+
 
 
                 <!-- STEPPER NAVIGATION -->
@@ -2680,8 +2720,10 @@
             }
             composeNomorSurat();
 
-            // Lampiran handling
-            if (type === 'SBA') {
+            // Lampiran handling otomatis sesuai jumlah lampiran aktif
+            if (typeof syncAutoLampiranCount === 'function') {
+                syncAutoLampiranCount();
+            } else if (type === 'SBA') {
                 if (document.getElementById('field_lampiran_angka')) {
                     document.getElementById('field_lampiran_angka').value = '2';
                 }
@@ -2863,10 +2905,11 @@
 
         function handleLampiranNumberInput(el) {
             el.value = el.value.replace(/[^0-9]/g, '');
-            const num = el.value.trim() || '1';
+            const num = el.value.trim();
+            const unit = (currentSuratType === 'SBA') ? 'Halaman' : 'Lembar';
             const hidden = document.getElementById('field_lampiran');
             if (hidden) {
-                hidden.value = `${num} Lembar`;
+                hidden.value = num ? `${num} ${unit}` : '-';
             }
             updatePreview();
         }
@@ -3621,6 +3664,7 @@
             if (l1Group) {
                 l1Group.classList.toggle('hidden', !incPanitia);
             }
+            if (typeof syncAutoLampiranCount === 'function') syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             updatePreview();
         }
@@ -3631,6 +3675,7 @@
             if (l2Group) {
                 l2Group.classList.toggle('hidden', !incSubbag);
             }
+            if (typeof syncAutoLampiranCount === 'function') syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             updatePreview();
         }
@@ -4015,6 +4060,14 @@
             'surat/assets/sba_nota_7.png'
         ];
 
+        const DEFAULT_SBA_DOKUMENTASI = [
+            'surat/assets/sba_dok_1.png',
+            'surat/assets/sba_dok_2.png',
+            'surat/assets/sba_dok_3.png',
+            'surat/assets/sba_dok_4.png',
+            'surat/assets/sba_dok_5.png'
+        ];
+
         const DEFAULT_SBA_OUTPUT = 'Kegiatan studi banding melalui forum *Focus Group Discussion* (*FGD*) antara LDK IMIP dan MAF PGSD UNJ ini berhasil menjadi wadah kolaboratif untuk saling berbagi *insight* mengenai program kerja organisasi. Seluruh gagasan dan ide yang didiskusikan dalam forum ini dirumuskan menjadi sebuah draf *insight* resmi, yang tidak hanya berfungsi sebagai bahan evaluasi kabinet saat ini, tetapi juga diproyeksikan sebagai kompas strategis dan referensi inovasi bagi kepengurusan pada kabinet selanjutnya.';
 
         const DEFAULT_SBA_HAMBATAN = `• Koordinasi antar-panitia kurang transparan dan pembagian tugas di hari H kurang jelas.
@@ -4065,6 +4118,7 @@
             }
         }
         let sbaNotaList = [...DEFAULT_SBA_NOTAS];
+        let sbaDokumentasiList = [...DEFAULT_SBA_DOKUMENTASI];
 
         function capitalizeUnit(unitStr) {
             if (!unitStr) return "";
@@ -4888,9 +4942,63 @@
             const incNota = isSbaNotaActive();
             const group = document.getElementById('sba_nota_group');
             if (group) group.classList.toggle('hidden', !incNota);
+            syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
+        }
+
+        function isSbaDokumentasiActive() {
+            const el = document.getElementById('sba_inc_dok');
+            return el ? el.checked : true;
+        }
+
+        function toggleSbaDokumentasiSections() {
+            const incDok = isSbaDokumentasiActive();
+            const group = document.getElementById('sba_dokumentasi_group');
+            if (group) group.classList.toggle('hidden', !incDok);
+            syncAutoLampiranCount();
+            if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            updatePreview();
+        }
+
+        function syncAutoLampiranCount() {
+            let count = 0;
+            let unit = 'Halaman';
+
+            if (currentSuratType === 'SBA') {
+                unit = 'Halaman';
+                if (isSbaNotaActive()) count++;
+                if (isSbaDokumentasiActive()) count++;
+            } else if (currentSuratType === 'SPZ') {
+                unit = 'Lembar';
+                if (typeof isSpzLampiran1Active === 'function' && isSpzLampiran1Active()) count++;
+                if (typeof isSpzLampiran2Active === 'function' && isSpzLampiran2Active()) count++;
+            } else {
+                unit = 'Lembar';
+                const el = document.getElementById('field_lampiran_angka');
+                count = el ? parseInt(el.value) || 0 : 0;
+            }
+
+            const lampiranText = count > 0 ? `${count} ${unit}` : '-';
+
+            const angkaEl = document.getElementById('field_lampiran_angka');
+            const hiddenEl = document.getElementById('field_lampiran');
+            const unitLabel = document.getElementById('lampiran_unit_label');
+
+            if (angkaEl && (currentSuratType === 'SBA' || currentSuratType === 'SPZ')) {
+                angkaEl.value = count > 0 ? count : '';
+                angkaEl.placeholder = count > 0 ? String(count) : '-';
+            }
+            if (hiddenEl && (currentSuratType === 'SBA' || currentSuratType === 'SPZ')) {
+                hiddenEl.value = lampiranText;
+            }
+            if (unitLabel) {
+                unitLabel.innerText = unit;
+            }
+
+            return lampiranText;
         }
 
         function formatSbaRupiah(amount) {
@@ -4948,14 +5056,14 @@
         }
 
         function showSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'ttd_wadir_block'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dokumentasi', 'ttd_wadir_block'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('hidden');
             });
         }
 
         function hideSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'ttd_wadir_block'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dokumentasi', 'ttd_wadir_block'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -4977,6 +5085,10 @@
 
             if (isSbaNotaActive()) {
                 pages.push({ key: 'nota', label: 'Lampiran Nota', icon: 'fa-receipt', desc: 'Lampiran Nota Keuangan' });
+            }
+
+            if (isSbaDokumentasiActive()) {
+                pages.push({ key: 'dok', label: 'Dokumentasi', icon: 'fa-camera', desc: 'Lampiran Dokumentasi Kegiatan' });
             }
 
             return pages.map((p, idx) => ({ ...p, id: idx + 1 }));
@@ -5664,6 +5776,9 @@
             renderSbaPemasukanEditor();
             renderSbaPengeluaranEditor();
             renderSbaNotaGallery();
+            toggleSbaNotaSections();
+            renderSbaDokumentasiGallery();
+            toggleSbaDokumentasiSections();
             updateSbaRekapitulasiDisplay();
 
             const selStyle = document.getElementById('sba_nota_layout_style');
@@ -5757,11 +5872,131 @@
             `;
         }
 
-        // RENDER DEDICATED OFFICIAL SPZ MULTI-PAGE SYSTEM (MATCHING 025_SPZ QURMEDIA 2026.pdf)
+        // ==========================================
+        // DOKUMENTASI KEGIATAN (LAMPIRAN TERAKHIR SBA)
+        // ==========================================
+        function renderSbaDokumentasiGallery() {
+            const container = document.getElementById('sba_dokumentasi_gallery_container');
+            if (!container) return;
+            const badge = document.getElementById('sba_dokumentasi_count_badge');
+            if (badge) badge.innerText = `${sbaDokumentasiList.length} Foto`;
+
+            if (sbaDokumentasiList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full p-4 rounded-xl border border-dashed border-neutral-800 text-center text-xs text-neutral-500">
+                        Belum ada foto dokumentasi kegiatan. Klik <b>+ Unggah Foto</b> untuk menambahkan.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sbaDokumentasiList.map((src, idx) => `
+                <div class="relative group rounded-lg overflow-hidden border border-neutral-800 bg-neutral-950 aspect-video flex items-center justify-center">
+                    <img src="${src}" alt="Dokumentasi #${idx + 1}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                        <button type="button" onclick="removeSingleSbaDok(${idx})" class="p-1.5 rounded bg-red-600/80 hover:bg-red-600 text-white text-[10px]" title="Hapus Foto">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <span class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-white">#${idx + 1}</span>
+                </div>
+            `).join('');
+        }
+
+        function handleSbaDokumentasiUpload(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sbaDokumentasiList.push(e.target.result);
+                    renderSbaDokumentasiGallery();
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function removeSingleSbaDok(idx) {
+            sbaDokumentasiList.splice(idx, 1);
+            renderSbaDokumentasiGallery();
+            updatePreview();
+        }
+
+        function resetSbaDokumentasiDefault() {
+            sbaDokumentasiList = [...DEFAULT_SBA_DOKUMENTASI];
+            renderSbaDokumentasiGallery();
+            updatePreview();
+        }
+
+        function clearAllSbaDokumentasi() {
+            sbaDokumentasiList = [];
+            renderSbaDokumentasiGallery();
+            updatePreview();
+        }
+
+        function renderSbaDokumentasiGridHtml() {
+            if (!sbaDokumentasiList || sbaDokumentasiList.length === 0) {
+                return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran foto dokumentasi.</p>';
+            }
+
+            const row1 = sbaDokumentasiList.slice(0, 3);
+            const row2 = sbaDokumentasiList.slice(3, 5);
+            const remaining = sbaDokumentasiList.slice(5);
+
+            return `
+                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8pt;">
+                    <!-- Baris 1: Max 3 Foto -->
+                    <div style="display: grid; grid-template-columns: repeat(${row1.length}, 1fr); gap: 10px; align-items: center; justify-items: center;">
+                        ${row1.map(src => {
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                            return `
+                            <div style="width: 100%; height: 56mm; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #111; padding: 2px;">
+                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 55mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <!-- Baris 2: Max 2 Foto (Besar & Center) -->
+                    ${row2.length > 0 ? `
+                    <div style="display: flex; justify-content: center; gap: 14px; align-items: center;">
+                        ${row2.map(src => {
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                            return `
+                            <div style="flex: 0 1 48%; max-width: 48%; height: 58mm; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #111; padding: 2px;">
+                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 57mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ` : ''}
+
+                    <!-- Baris Tambahan (Jika ada lebih dari 5) -->
+                    ${remaining.length > 0 ? `
+                    <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 3)}, 1fr); gap: 10px; align-items: center; justify-items: center;">
+                        ${remaining.map(src => {
+                            const did = getGoogleDriveFileId(src);
+                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                            return `
+                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #111; padding: 2px;">
+                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 49mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
         function renderSpzLetterHtml() {
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '025/SPZ/E1/UKM IMIP/IX/2026';
-            const rawLampiran = document.getElementById('field_lampiran').value.trim();
-            const lampiran = /^\d+$/.test(rawLampiran) ? `${rawLampiran} Lembar` : (rawLampiran || '1 Lembar');
+            const autoLamp = syncAutoLampiranCount();
+            const rawLampiran = (document.getElementById('field_lampiran')?.value || '').trim();
+            const lampiran = autoLamp || (/^\d+$/.test(rawLampiran) ? `${rawLampiran} Lembar` : (rawLampiran || '1 Lembar'));
             
             const rawFasilitas = document.getElementById('spz_input_fasilitas') ? document.getElementById('spz_input_fasilitas').value.trim() : '';
             const rawPerihal = document.getElementById('field_perihal').value.trim();
@@ -6697,7 +6932,9 @@
         // ==========================================
         function renderSbaLetterHtml() {
             const noSurat = document.getElementById('field_nomor_surat').value.trim() || '034/SBA/E1/UKM IMIP/VII/2026';
-            const lampiran = document.getElementById('field_lampiran').value.trim() || '2 Halaman';
+            const autoLamp = syncAutoLampiranCount();
+            const rawLamp = (document.getElementById('field_lampiran')?.value || '').trim();
+            const lampiran = autoLamp || rawLamp || '2 Halaman';
             const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Berita Acara Studi Banding';
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 2 Juli 2026';
 
@@ -7209,6 +7446,19 @@
                         <p style="margin: 0 0 14pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Nota Keuangan</p>
 
                         ${renderSbaNotaGridHtml()}
+                    `;
+                } else if (key === 'dok') {
+                    // HALAMAN 8: LAMPIRAN DOKUMENTASI KEGIATAN (PERSIS MASTER PDF 034_SBA STUBAN)
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                        </div>
+
+                        <p style="margin: 0 0 2pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+                        <p style="margin: 0 0 14pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Dokumentasi</p>
+
+                        ${renderSbaDokumentasiGridHtml()}
                     `;
                 }
 
@@ -7868,6 +8118,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const hasL2 = (currentSuratType === 'SPZ' && isSpzLampiran2Active());
             const hasKeu = (currentSuratType === 'SBA' && isSbaKeuanganActive());
             const hasNota = (currentSuratType === 'SBA' && isSbaNotaActive());
+            const hasDok = (currentSuratType === 'SBA' && isSbaDokumentasiActive());
 
             if (page === 'all') {
                 return {
@@ -7884,6 +8135,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_penutup: true,
                     card_penandatangan: true,
                     card_sba_lampiran_nota: hasNota,
+                    card_sba_lampiran_dokumentasi: hasDok,
                     card_spz_lampiran_1: hasL1,
                     card_spz_lampiran_2: hasL2
                 };
@@ -7904,6 +8156,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_sba_keuangan: false,
                     card_sba_rekapitulasi: false,
                     card_sba_lampiran_nota: false,
+                    card_sba_lampiran_dokumentasi: false,
                     card_spz_lampiran_1: false,
                     card_spz_lampiran_2: false
                 };
@@ -7925,6 +8178,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_sba_keuangan: false,
                         card_sba_rekapitulasi: false,
                         card_sba_lampiran_nota: false,
+                        card_sba_lampiran_dokumentasi: false,
                         card_spz_lampiran_1: false,
                         card_spz_lampiran_2: false
                     };
@@ -7943,6 +8197,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_sba_keuangan: false,
                         card_sba_rekapitulasi: false,
                         card_sba_lampiran_nota: false,
+                        card_sba_lampiran_dokumentasi: false,
                         card_spz_lampiran_1: false,
                         card_spz_lampiran_2: false
                     };
@@ -7968,6 +8223,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_penutup: (key === 'pengesahan'),
                     card_penandatangan: (key === 'pengesahan'),
                     card_sba_lampiran_nota: (key === 'nota'),
+                    card_sba_lampiran_dokumentasi: (key === 'dok'),
                     card_spz_lampiran_1: false,
                     card_spz_lampiran_2: false
                 };
@@ -8378,7 +8634,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 'field_include_event_details', 'field_ttd3_active', 'field_use_kop',
                 'field_ttd_wadir_active',
                 'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish',
-                'sba_inc_prestasi', 'sba_inc_keuangan', 'sba_inc_nota'
+                'sba_inc_prestasi', 'sba_inc_keuangan', 'sba_inc_nota', 'sba_inc_dok'
             ];
 
             const data = {};
@@ -8440,6 +8696,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (typeof sbaNotaList !== 'undefined') {
                 data.sbaNotaList = JSON.parse(JSON.stringify(sbaNotaList));
             }
+            if (typeof sbaDokumentasiList !== 'undefined') {
+                data.sbaDokumentasiList = JSON.parse(JSON.stringify(sbaDokumentasiList));
+            }
 
             return data;
         }
@@ -8499,7 +8758,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
             for (const key in d) {
                 if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited' ||
-                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaPengeluaranCategories' || key === 'sbaNotaList') {
+                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaPengeluaranCategories' || key === 'sbaNotaList' || key === 'sbaDokumentasiList') {
                     continue;
                 }
                 const el = document.getElementById(key);
@@ -8578,6 +8837,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (d.sbaNotaList && Array.isArray(d.sbaNotaList)) {
                     sbaNotaList = JSON.parse(JSON.stringify(d.sbaNotaList));
                 }
+                if (d.sbaDokumentasiList && Array.isArray(d.sbaDokumentasiList)) {
+                    sbaDokumentasiList = JSON.parse(JSON.stringify(d.sbaDokumentasiList));
+                }
                 if (typeof initSbaEditors === 'function') {
                     initSbaEditors();
                 }
@@ -8587,6 +8849,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (typeof toggleSbaPrestasiSection === 'function') toggleSbaPrestasiSection();
                 if (typeof toggleSbaKeuanganSections === 'function') toggleSbaKeuanganSections();
                 if (typeof toggleSbaNotaSections === 'function') toggleSbaNotaSections();
+                if (typeof toggleSbaDokumentasiSections === 'function') toggleSbaDokumentasiSections();
             }
 
             if (typeof toggleEventDetails === 'function') toggleEventDetails();
