@@ -1775,6 +1775,45 @@
                                 <input type="hidden" id="field_ttd_bem_nim" value="NIM. 2490343155">
                             </div>
                         </div>
+
+                        <!-- Wakil Direktur III (Menyetujui - Khusus Dana Operasional / Danop) -->
+                        <div id="ttd_wadir_block" class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2.5 sm:col-span-2">
+                            <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-black text-amber-400 uppercase font-mono flex items-center gap-1.5">
+                                        <i class="fa-solid fa-graduation-cap text-[10px]"></i> Wakil Direktur III (Menyetujui)
+                                    </span>
+                                    <span id="wadir_auto_badge" class="text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20">Danop / Anggaran</span>
+                                </div>
+                                <label class="flex items-center gap-1.5 text-[10px] text-neutral-300 cursor-pointer select-none">
+                                    <input type="checkbox" id="field_ttd_wadir_active" onchange="updatePreview()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5">
+                                    <span>Sertakan TTD Wakil Direktur III</span>
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                <div>
+                                    <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Jabatan</label>
+                                    <input type="text" id="field_ttd_wadir_jabatan" value="Wakil Direktur&#10;Bidang Kemahasiswaan dan Alumni" oninput="updatePreview()" class="form-input text-xs font-sans" placeholder="Wakil Direktur Bidang Kemahasiswaan">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap &amp; Gelar</label>
+                                    <input type="text" id="field_ttd_wadir_nama" value="Dr. Dayu Sri Herti, S.Pd., M.Sn." oninput="updatePreview()" class="form-input text-xs" placeholder="Dr. Dayu Sri Herti, S.Pd., M.Sn.">
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="text-[10px] text-neutral-300 font-semibold">NIP</label>
+                                        <span class="text-[9px] text-orange-400 font-mono">Nomor saja</span>
+                                    </div>
+                                    <div class="relative flex items-center">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
+                                            NIP.
+                                        </span>
+                                        <input type="text" inputmode="numeric" id="field_ttd_wadir_nip_angka" oninput="handleNipInput('field_ttd_wadir_nip_angka', 'field_ttd_wadir_nip')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="197602012002122001" value="197602012002122001">
+                                    </div>
+                                    <input type="hidden" id="field_ttd_wadir_nip" value="NIP. 197602012002122001">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2729,6 +2768,9 @@
             currentActivePage = 'all';
             if (typeof renderPageTabs === 'function') renderPageTabs();
             updateTtd3State();
+            if (type === 'SBA' && typeof checkAutoWadirDanop === 'function') {
+                checkAutoWadirDanop();
+            }
             updatePreview();
         }
 
@@ -4906,14 +4948,14 @@
         }
 
         function showSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'ttd_wadir_block'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('hidden');
             });
         }
 
         function hideSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'ttd_wadir_block'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -5105,6 +5147,36 @@
             `;
         }
 
+        // DETEKSI OTOMATIS DANA OPERASIONAL (DANOP / ANGGARAN KAMPUS)
+        function isSbaDanopDetected() {
+            if (!Array.isArray(sbaPemasukanList)) return false;
+            const danopKeywords = ['danop', 'dana operasional', 'dipa', 'kemahasiswaan', 'anggaran'];
+            return sbaPemasukanList.some(item => {
+                const sumber = (item.sumber || '').toLowerCase();
+                return danopKeywords.some(kw => sumber.includes(kw));
+            });
+        }
+
+        function checkAutoWadirDanop() {
+            const wadirCheck = document.getElementById('field_ttd_wadir_active');
+            const badge = document.getElementById('wadir_auto_badge');
+            if (!wadirCheck) return;
+
+            const detected = isSbaDanopDetected();
+            if (detected) {
+                wadirCheck.checked = true;
+                if (badge) {
+                    badge.innerText = 'Danop Terdeteksi (Auto)';
+                    badge.className = 'text-[9px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20';
+                }
+            } else {
+                if (badge) {
+                    badge.innerText = 'Danop / Anggaran';
+                    badge.className = 'text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20';
+                }
+            }
+        }
+
         // PEMASUKAN EDITOR
         function renderSbaPemasukanEditor() {
             const container = document.getElementById('sba_pemasukan_editor_container');
@@ -5112,10 +5184,12 @@
             const badge = document.getElementById('sba_pemasukan_count_badge');
             if (badge) badge.innerText = `${sbaPemasukanList.length} Sumber`;
 
+            checkAutoWadirDanop();
+
             container.innerHTML = sbaPemasukanList.map((item, idx) => `
                 <div class="p-2 rounded-xl bg-neutral-900/90 border border-neutral-800 flex items-center gap-2 text-xs">
                     <span class="font-mono text-neutral-400 text-[10px] w-5 text-center">${idx + 1}.</span>
-                    <input type="text" value="${escapeHtml(item.sumber || '')}" oninput="updateSbaPemasukanField(${idx}, 'sumber', this.value)" placeholder="Sumber Pemasukan (misal: Kas LDK IMIP)" class="form-input text-xs py-1.5 px-2.5 flex-1">
+                    <input type="text" value="${escapeHtml(item.sumber || '')}" oninput="updateSbaPemasukanField(${idx}, 'sumber', this.value)" placeholder="Sumber Pemasukan (misal: Kas LDK IMIP, Danop Kemahasiswaan)" class="form-input text-xs py-1.5 px-2.5 flex-1">
                     <div class="relative w-36">
                         <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-neutral-500 font-mono">Rp</span>
                         <input type="number" value="${item.jumlah || 0}" oninput="updateSbaPemasukanField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1.5 pl-7 pr-2 font-mono text-right w-full">
@@ -5142,13 +5216,32 @@
                 sbaPemasukanList.splice(idx, 1);
             }
             sbaPemasukanList.forEach((p, i) => p.no = `${i + 1}.`);
+            checkAutoWadirDanop();
             renderSbaPemasukanEditor();
             updatePreview();
         }
 
         function updateSbaPemasukanField(idx, field, val) {
             if (sbaPemasukanList[idx]) {
+                const wasDanop = isSbaDanopDetected();
                 sbaPemasukanList[idx][field] = (field === 'jumlah') ? (Number(val) || 0) : val;
+                if (field === 'sumber') {
+                    const nowDanop = isSbaDanopDetected();
+                    if (nowDanop && !wasDanop) {
+                        checkAutoWadirDanop();
+                    } else {
+                        const badge = document.getElementById('wadir_auto_badge');
+                        if (badge) {
+                            if (nowDanop) {
+                                badge.innerText = 'Danop Terdeteksi (Auto)';
+                                badge.className = 'text-[9px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20';
+                            } else {
+                                badge.innerText = 'Danop / Anggaran';
+                                badge.className = 'text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20';
+                            }
+                        }
+                    }
+                }
                 updateSbaRekapitulasiDisplay();
                 updatePreview();
             }
@@ -5156,6 +5249,7 @@
 
         function resetSbaPemasukanDefault() {
             sbaPemasukanList = JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN));
+            checkAutoWadirDanop();
             renderSbaPemasukanEditor();
             updatePreview();
         }
@@ -5712,6 +5806,11 @@
             const bemJabatan = (document.getElementById('field_ttd_bem_jabatan')?.value || '').trim() || 'Ketua BEM PoliMedia\nPeriode 2026';
             const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
             const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
+
+            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : isSbaDanopDetected();
+            const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
+            const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
+            const wadirNip = (document.getElementById('field_ttd_wadir_nip')?.value || '').trim() || 'NIP. 197602012002122001';
 
             const incPanitia = document.getElementById('spz_inc_lampiran_panitia') ? document.getElementById('spz_inc_lampiran_panitia').checked : true;
             const incSubbag = document.getElementById('spz_inc_subbag_umum') ? document.getElementById('spz_inc_subbag_umum').checked : true;
@@ -6412,6 +6511,11 @@
             const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
             const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
 
+            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : isSbaDanopDetected();
+            const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
+            const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
+            const wadirNip = (document.getElementById('field_ttd_wadir_nip')?.value || '').trim() || 'NIP. 197602012002122001';
+
             const kopHtml = generateOfficialKopHtml();
 
             let eventBoxHtml = '';
@@ -6649,6 +6753,11 @@
             const bemJabatan = (document.getElementById('field_ttd_bem_jabatan')?.value || '').trim() || 'Ketua BEM PoliMedia\nPeriode 2026';
             const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
             const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
+
+            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : isSbaDanopDetected();
+            const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
+            const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
+            const wadirNip = (document.getElementById('field_ttd_wadir_nip')?.value || '').trim() || 'NIP. 197602012002122001';
 
             const kopHtml = generateOfficialKopHtml();
             const sbaPages = getSbaPagesStructure();
@@ -7019,7 +7128,7 @@
 
                             <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
                             <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: ${isWadirActive ? '10pt' : '14pt'}; table-layout: fixed;">
                                 <colgroup>
                                     <col style="width: 33.33%;">
                                     <col style="width: 33.34%;">
@@ -7052,14 +7161,38 @@
                                 </tr>
                             </table>
 
+                            ${isWadirActive ? `
+                            <!-- BARIS 2.5: MENYETUJUI (WAKIL DIREKTUR III) -->
+                            <div style="text-align: center; margin-top: 10pt; margin-bottom: 12pt;">
+                                <p style="margin: 0 0 4pt 0; font-size: 12pt; font-weight: bold;">Menyetujui,</p>
+                                <p style="margin: 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">
+                                    ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br><br>
+                                </p>
+                                <p style="margin: 0; line-height: 1.25;">
+                                    <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
+                                    <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
+                                </p>
+                            </div>` : ''}
+
                             <!-- BARIS 3: TEMBUSAN (Taro paling bawah lembar surat) -->
-                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: 140pt;">
+                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: ${isWadirActive ? '16pt' : '140pt'};">
                                 <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
                                 <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
+                                    ${isWadirActive ? `
+                                    <tr>
+                                        <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
+                                        <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Wakil Direktur Bidang Kemahasiswaan dan Alumni</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 22px; vertical-align: top; padding: 1pt 0;">2.</td>
+                                        <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Arsip</td>
+                                    </tr>
+                                    ` : `
                                     <tr>
                                         <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
                                         <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Arsip</td>
                                     </tr>
+                                    `}
                                 </table>
                             </div>
                         </div>
@@ -8235,6 +8368,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 'field_ttd3_jabatan', 'field_ttd3_nama', 'field_ttd3_nim', 'field_ttd3_nim_angka',
                 'field_ttd_bem_jabatan', 'field_ttd_bem_nama', 'field_ttd_bem_nim', 'field_ttd_bem_nim_angka', 'field_ttd_bem_periode',
                 'field_ttd_mpm_jabatan', 'field_ttd_mpm_nama', 'field_ttd_mpm_nim', 'field_ttd_mpm_nim_angka', 'field_ttd_mpm_periode',
+                'field_ttd_wadir_jabatan', 'field_ttd_wadir_nama', 'field_ttd_wadir_nip', 'field_ttd_wadir_nip_angka',
                 'spz_no_hp', 'spz_batas_waktu',
                 'event_date_start', 'event_date_end', 'time_start_h', 'time_start_m', 'time_end_h', 'time_end_m',
                 'sba_output_kegiatan', 'sba_hambatan_kegiatan', 'sba_evaluasi_kegiatan'
@@ -8242,6 +8376,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             const checkboxIds = [
                 'field_include_event_details', 'field_ttd3_active', 'field_use_kop',
+                'field_ttd_wadir_active',
                 'spz_inc_lampiran_panitia', 'spz_inc_subbag_umum', 'time_until_finish',
                 'sba_inc_prestasi', 'sba_inc_keuangan', 'sba_inc_nota'
             ];
@@ -8445,6 +8580,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
                 if (typeof initSbaEditors === 'function') {
                     initSbaEditors();
+                }
+                if (d.field_ttd_wadir_active === undefined && typeof checkAutoWadirDanop === 'function') {
+                    checkAutoWadirDanop();
                 }
                 if (typeof toggleSbaPrestasiSection === 'function') toggleSbaPrestasiSection();
                 if (typeof toggleSbaKeuanganSections === 'function') toggleSbaKeuanganSections();
