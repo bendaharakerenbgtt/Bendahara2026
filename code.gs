@@ -495,8 +495,17 @@ function handleAdminLogin(p) {
 // ============================================================
 function doPost(e) {
   try {
-    const payload = JSON.parse(e.postData.contents);
-    const action  = payload.action;
+    let payload = {};
+    if (e && e.postData && e.postData.contents) {
+      try {
+        payload = JSON.parse(e.postData.contents);
+      } catch (jsonErr) {
+        payload = e.parameter || {};
+      }
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    }
+    const action = payload.action || (e && e.parameter ? e.parameter.action : "");
 
     // 1. Endpoint Otentikasi Login Admin
     if (action === "admin_login" || action === "verify_admin") {
