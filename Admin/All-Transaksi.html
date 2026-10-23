@@ -2,9 +2,15 @@
 <html lang="id" class="dark">
 <head>
     <script>
-        if (sessionStorage.getItem('adminSession') !== 'active') {
-            window.location.replace('Login-Admin.html');
-        }
+        (function() {
+            const session = sessionStorage.getItem('adminSession');
+            const token = sessionStorage.getItem('adminAuthToken');
+            if (session !== 'active' || !token) {
+                sessionStorage.removeItem('adminSession');
+                sessionStorage.removeItem('adminAuthToken');
+                window.location.replace('Login-Admin.html');
+            }
+        })();
         document.documentElement.classList.remove('light-mode');
         document.documentElement.classList.add('dark');
     </script>
@@ -1964,6 +1970,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: "insert_transaction",
+                    admin_token: sessionStorage.getItem('adminAuthToken') || '',
                     tanggal: date,
                     divisi: divisi,
                     uraian: desc,
@@ -2083,6 +2090,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: "insert_transaction",
+                    admin_token: sessionStorage.getItem('adminAuthToken') || '',
                     tanggal: date,
                     divisi: divisi,
                     uraian: desc,
@@ -2524,7 +2532,8 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: "delete_transaction",
-                            id: id
+                            id: id,
+                            admin_token: sessionStorage.getItem('adminAuthToken') || ''
                         })
                     })
                     .then(() => {
@@ -3148,6 +3157,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: "edit_transaction",
+                            admin_token: sessionStorage.getItem('adminAuthToken') || '',
                             id: id,
                             jenis: val.jenis,
                             uraian: val.uraian,

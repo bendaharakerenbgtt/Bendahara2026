@@ -2,9 +2,15 @@
 <html lang="id" class="dark">
 <head>
     <script>
-        if (sessionStorage.getItem('adminSession') !== 'active') {
-            window.location.replace('Login-Admin.html');
-        }
+        (function() {
+            const session = sessionStorage.getItem('adminSession');
+            const token = sessionStorage.getItem('adminAuthToken');
+            if (session !== 'active' || !token) {
+                sessionStorage.removeItem('adminSession');
+                sessionStorage.removeItem('adminAuthToken');
+                window.location.replace('Login-Admin.html');
+            }
+        })();
         document.documentElement.classList.remove('light-mode');
         document.documentElement.classList.add('dark');
     </script>
@@ -1309,6 +1315,7 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 action: "edit_transaction_relation",
+                                admin_token: sessionStorage.getItem('adminAuthToken') || '',
                                 id: t.id,
                                 proker_id: "",
                                 kategori: "Kas Umum"
@@ -4527,6 +4534,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: "insert_proker",
+                    admin_token: sessionStorage.getItem('adminAuthToken') || '',
                     nama_proker: name,
                     jenis: jenis,
                     divisi: divisi,
@@ -4745,6 +4753,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: "edit_proker",
+                            admin_token: sessionStorage.getItem('adminAuthToken') || '',
                             id: id,
                             ...payload
                         })
@@ -4794,6 +4803,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: "update_proker_status",
+                            admin_token: sessionStorage.getItem('adminAuthToken') || '',
                             id: id,
                             status: "Selesai"
                         })
@@ -4842,7 +4852,8 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: "delete_proker",
-                            id: id
+                            id: id,
+                            admin_token: sessionStorage.getItem('adminAuthToken') || ''
                         })
                     })
                     .then(() => {
@@ -4952,6 +4963,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         action: "edit_transaction_relation",
+                        admin_token: sessionStorage.getItem('adminAuthToken') || '',
                         id: txId,
                         proker_id: activeProkerId,
                         kategori: catName
@@ -5008,6 +5020,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: "edit_transaction_relation",
+                            admin_token: sessionStorage.getItem('adminAuthToken') || '',
                             id: id,
                             proker_id: "",
                             kategori: "Kas Umum"
@@ -5065,6 +5078,7 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 action: "edit_transaction_relation",
+                                admin_token: sessionStorage.getItem('adminAuthToken') || '',
                                 id: t.id,
                                 proker_id: "",
                                 kategori: "Kas Umum"

@@ -2,9 +2,15 @@
 <html lang="id" class="dark">
 <head>
     <script>
-        if (sessionStorage.getItem('adminSession') !== 'active') {
-            window.location.replace('Login-Admin.html');
-        }
+        (function() {
+            const session = sessionStorage.getItem('adminSession');
+            const token = sessionStorage.getItem('adminAuthToken');
+            if (session !== 'active' || !token) {
+                sessionStorage.removeItem('adminSession');
+                sessionStorage.removeItem('adminAuthToken');
+                window.location.replace('Login-Admin.html');
+            }
+        })();
         document.documentElement.classList.remove('light-mode');
         document.documentElement.classList.add('dark');
     </script>
@@ -935,7 +941,7 @@
                             <span>📅</span> <span id="admin-masehi-date">Memuat Masehi...</span>
                         </div>
                     </div>
-                    <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession')" class="text-[11px] font-mono bg-neutral-900 hover:bg-rose-950/30 transition-all border border-neutral-800 hover:border-rose-500/30 px-2.5 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-8" title="Keluar Sesi Admin">
+                    <a href="../dasboard.html" onclick="sessionStorage.removeItem('adminSession'); sessionStorage.removeItem('adminAuthToken');" class="text-[11px] font-mono bg-neutral-900 hover:bg-rose-950/30 transition-all border border-neutral-800 hover:border-rose-500/30 px-2.5 py-1.5 rounded-xl text-neutral-400 hover:text-rose-400 font-bold active:scale-95 flex items-center justify-center h-8" title="Keluar Sesi Admin">
                         <span>↗</span>
                     </a>
                 </div>
@@ -2035,7 +2041,8 @@
                         },
                         body: JSON.stringify({
                             action: actionName,
-                            id: txId
+                            id: txId,
+                            admin_token: sessionStorage.getItem('adminAuthToken') || ''
                         })
                     })
                     .then(() => {

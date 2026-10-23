@@ -430,12 +430,105 @@ function getAllData(callback) {
 }
 
 // ============================================================
+// SISTEM KEAMANAN & OTORISASI ADMIN (LDK IMIP 2026)
+// ============================================================
+const DEFAULT_ADMIN_TOKEN = "LDK_IMIP_BENDAHARA_2026_SECRET_AUTH_TOKEN";
+
+function computeSha256(str) {
+  if (!str) return "";
+  const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(str), Utilities.Charset.UTF_8);
+  let hex = "";
+  for (let i = 0; i < digest.length; i++) {
+    let byteVal = digest[i];
+    if (byteVal < 0) byteVal += 256;
+    let byteHex = byteVal.toString(16);
+    if (byteHex.length === 1) byteHex = "0" + byteHex;
+    hex += byteHex;
+  }
+  return hex;
+}
+
+function getAdminSecretKey() {
+  const prop = PropertiesService.getScriptProperties().getProperty('ADMIN_SECRET_KEY');
+  return prop || DEFAULT_ADMIN_TOKEN;
+}
+
+function verifyAdminAuthorization(payload) {
+  const token = (payload.admin_token || payload.token || "").toString().trim();
+  if (!token) return false;
+
+  const expectedKey = getAdminSecretKey();
+  if (token === expectedKey) return true;
+
+  // Verifikasi hash SHA-256
+  if (computeSha256(token) === computeSha256(expectedKey)) return true;
+
+  return false;
+}
+
+function handleAdminLogin(p) {
+  const user = (p.username || "").trim();
+  const pass = (p.password || "").trim();
+  
+  const userHash = computeSha256(user);
+  const passHash = computeSha256(pass);
+
+  const VALID_USER_HASH = '18d810a30910a643a50bb4bf08b3d2ca426db46a5b871fba2580547491dbe29f';
+  const VALID_PASS_HASH = '933e8ddfb4016e700828918be957feeded4c7e58c40cbb4ffb55d8b9c889df49';
+
+  if (userHash === VALID_USER_HASH && passHash === VALID_PASS_HASH) {
+    return jsonResponse({
+      status: "success",
+      message: "Otentikasi admin berhasil",
+      admin_token: getAdminSecretKey()
+    });
+  } else {
+    return jsonResponse({
+      status: "unauthorized",
+      message: "Username atau password salah."
+    });
+  }
+}
+
+// ============================================================
 // POST REQUEST — Semua operasi CRUD
 // ============================================================
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
     const action  = payload.action;
+
+    // 1. Endpoint Otentikasi Login Admin
+    if (action === "admin_login" || action === "verify_admin") {
+      return handleAdminLogin(payload);
+    }
+
+    // 2. Proteksi Aksi Administratif Kritis
+    // Siapa pun tanpa token admin sah TIDAK BISA menghapus/mengubah data!
+    const protectedActions = [
+      "delete_transaction",
+      "cancel_kas_month",
+      "edit_transaction",
+      "approve_transaction",
+      "reject_transaction",
+      "insert_proker",
+      "edit_proker",
+      "update_proker_status",
+      "delete_proker",
+      "edit_transaction_relation",
+      "insert_member",
+      "edit_member"
+    ];
+
+    if (protectedActions.indexOf(action) !== -1) {
+      if (!verifyAdminAuthorization(payload)) {
+        Logger.log("[SECURITY ALERT] Percobaan aksi administratif tanpa otorisasi sah: " + action);
+        return jsonResponse({
+          status: "unauthorized",
+          message: "Akses Ditolak: Aksi '" + action + "' memerlukan token otentikasi admin yang sah."
+        });
+      }
+    }
 
     if (action === "insert_transaction")        return insertTransaction(payload);
     if (action === "delete_transaction")        return deleteTransaction(payload);

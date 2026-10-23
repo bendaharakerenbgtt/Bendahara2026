@@ -256,28 +256,42 @@
 
     <script>
         // Kredensial disimpan sebagai hash SHA-256 untuk keamanan
-        // (Bukan plaintext - tidak bisa dibaca langsung dari source code)
+        // Sistem otentikasi dilengkapi rate limiting (anti brute-force) dan secure token session
 
-        // --- Form Login Handler with SweetAlert2 ---
+        // Token otentikasi admin untuk komunikasi aman dengan Google Apps Script backend
+        const ADMIN_AUTH_TOKEN = 'LDK_IMIP_BENDAHARA_2026_SECRET_AUTH_TOKEN';
+
+        // Hash dari kredensial yang valid (SHA-256)
+        const VALID_USER_HASH = '18d810a30910a643a50bb4bf08b3d2ca426db46a5b871fba2580547491dbe29f';
+        const VALID_PASS_HASH = '933e8ddfb4016e700828918be957feeded4c7e58c40cbb4ffb55d8b9c889df49';
+
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // --- Form Login Handler with SweetAlert2 & Anti Brute-Force ---
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Cek apakah sedang dalam masa lockout (hukuman brute-force)
+            const lockoutUntil = parseInt(sessionStorage.getItem('adminLockoutUntil') || '0', 10);
+            if (Date.now() < lockoutUntil) {
+                const sisaDetik = Math.ceil((lockoutUntil - Date.now()) / 1000);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Akses Dikunci Sementara',
+                    text: `Terlalu banyak percobaan gagal. Silakan tunggu ${sisaDetik} detik lagi demi keamanan.`,
+                    confirmButtonColor: '#10b981'
+                });
+                return;
+            }
+
             const userInp = document.getElementById('username').value.trim();
             const passInp = document.getElementById('password').value;
             const errorBanner = document.getElementById('error-banner');
-
-            // Hash password menggunakan Web Crypto API (SHA-256)
-            // Plaintext password tidak disimpan, hanya hash-nya
-            async function sha256(message) {
-                const msgBuffer = new TextEncoder().encode(message);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            }
-
-            // Hash dari kredensial yang valid (SHA-256)
-            const VALID_USER_HASH = '18d810a30910a643a50bb4bf08b3d2ca426db46a5b871fba2580547491dbe29f';
-            const VALID_PASS_HASH = '933e8ddfb4016e700828918be957feeded4c7e58c40cbb4ffb55d8b9c889df49';
 
             const [userHash, passHash] = await Promise.all([
                 sha256(userInp),
@@ -288,6 +302,10 @@
             if (userHash === VALID_USER_HASH && passHash === VALID_PASS_HASH) {
                 errorBanner.classList.add('hidden');
                 
+                // Reset counter gagal login
+                sessionStorage.removeItem('adminFailedAttempts');
+                sessionStorage.removeItem('adminLockoutUntil');
+
                 // Efek button loading sukses sebentar sebelum redirect
                 const btn = e.target.querySelector('button[type="submit"]');
                 btn.disabled = true;
@@ -299,16 +317,37 @@
                         title: 'Login Berhasil!',
                         text: 'Mengalihkan ke sistem admin dashboard LDK IMIP.',
                         showConfirmButton: false,
-                        timer: 1500,
+                        timer: 1200,
                         timerProgressBar: true
                     }).then(() => {
+                        // Simpan sesi dan token otorisasi admin untuk backend Google Apps Script
                         sessionStorage.setItem('adminSession', 'active');
-                        window.location.href = 'Admin-Dashboard.html';
+                        sessionStorage.setItem('adminAuthToken', ADMIN_AUTH_TOKEN);
+                        sessionStorage.setItem('adminUser', userInp);
+                        sessionStorage.setItem('adminLoginTime', Date.now().toString());
+
+                        window.location.replace('Admin-Dashboard.html');
                     });
-                }, 600);
+                }, 400);
             } else {
-                // Tampilkan pesan error jika salah ketik kredensial
-                errorBanner.classList.remove('hidden');
+                // Catat kegagalan login (Rate Limiting)
+                let attempts = parseInt(sessionStorage.getItem('adminFailedAttempts') || '0', 10) + 1;
+                sessionStorage.setItem('adminFailedAttempts', attempts.toString());
+
+                if (attempts >= 5) {
+                    const lockoutTime = Date.now() + (60 * 1000); // Kunci 60 detik
+                    sessionStorage.setItem('adminLockoutUntil', lockoutTime.toString());
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Percobaan Dibatasi!',
+                        text: 'Anda telah 5 kali salah memasukkan kredensial. Akses dikunci sementara selama 60 detik demi keamanan.',
+                        confirmButtonColor: '#f43f5e'
+                    });
+                } else {
+                    errorBanner.innerText = `⚠️ Username atau password salah. (Percobaan ${attempts}/5)`;
+                    errorBanner.classList.remove('hidden');
+                }
+
                 document.getElementById('password').value = '';
             }
         });

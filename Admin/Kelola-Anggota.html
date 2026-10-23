@@ -2,9 +2,15 @@
 <html lang="id" class="dark">
 <head>
     <script>
-        if (sessionStorage.getItem('adminSession') !== 'active') {
-            window.location.replace('Login-Admin.html');
-        }
+        (function() {
+            const session = sessionStorage.getItem('adminSession');
+            const token = sessionStorage.getItem('adminAuthToken');
+            if (session !== 'active' || !token) {
+                sessionStorage.removeItem('adminSession');
+                sessionStorage.removeItem('adminAuthToken');
+                window.location.replace('Login-Admin.html');
+            }
+        })();
         document.documentElement.classList.remove('light-mode');
         document.documentElement.classList.add('dark');
     </script>
@@ -728,6 +734,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: "insert_member",
+                    admin_token: sessionStorage.getItem('adminAuthToken') || '',
                     nim: nim,
                     nama: nama,
                     divisi: divisi,
@@ -870,6 +877,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: "edit_member",
+                    admin_token: sessionStorage.getItem('adminAuthToken') || '',
                     id: id,
                     nim: data.nim,
                     nama: data.nama,

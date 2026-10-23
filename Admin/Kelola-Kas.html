@@ -2,9 +2,15 @@
 <html lang="id" class="dark">
 <head>
     <script>
-        if (sessionStorage.getItem('adminSession') !== 'active') {
-            window.location.replace('Login-Admin.html');
-        }
+        (function() {
+            const session = sessionStorage.getItem('adminSession');
+            const token = sessionStorage.getItem('adminAuthToken');
+            if (session !== 'active' || !token) {
+                sessionStorage.removeItem('adminSession');
+                sessionStorage.removeItem('adminAuthToken');
+                window.location.replace('Login-Admin.html');
+            }
+        })();
         document.documentElement.classList.remove('light-mode');
         document.documentElement.classList.add('dark');
     </script>
@@ -1165,6 +1171,7 @@
 
             const payload = {
                 action: "insert_transaction",
+                admin_token: sessionStorage.getItem('adminAuthToken') || '',
                 tanggal: new Date().toISOString().substring(0, 10),
                 keterangan: `Pembayaran Uang Kas (${bulanArray.join(', ')})`,
                 user_id: userId,
@@ -1261,6 +1268,7 @@
 
                     const payload = {
                         action: "cancel_kas_month",
+                        admin_token: sessionStorage.getItem('adminAuthToken') || '',
                         id: txId,
                         user_id: userId,
                         bulan: bulan
