@@ -11057,8 +11057,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 setActivePage('all');
             }
 
-            // Scroll mulus ke elemen terkait di formulir kiri
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Scroll mulus ke elemen hanya jika diminta fokus atau dalam mode berdampingan (agar di mode bertumpuk tidak mental ke bawah saat mengedit di pratinjau)
+            if (shouldFocus || currentLayoutMode === 'side') {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
 
             // Animasi ring indikator oranye
             targetEl.classList.add('ring-4', 'ring-orange-500/70', 'border-orange-500');
