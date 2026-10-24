@@ -3040,6 +3040,9 @@
             const pembukaEl = document.getElementById('field_pembuka');
             if (pembukaEl) {
                 pembukaEl.placeholder = autoText;
+                if (pembukaEl.value && pembukaEl.value.includes('peminjaman fasilitas')) {
+                    pembukaEl.value = pembukaEl.value.replace(/fasilitas\s+\*\*([^*]+)\*\*\s+Jakarta/gi, 'fasilitas $1 Jakarta');
+                }
                 if (!isSpzPembukaManual || !pembukaEl.value.trim() || pembukaEl.value.includes('Unit Kegiatan Mahasiswa LDK IMIP')) {
                     pembukaEl.value = autoText;
                 }
@@ -3061,7 +3064,7 @@
             const acara = (document.getElementById('field_nama_acara') ? document.getElementById('field_nama_acara').value.trim() : '');
             const fasForText = fas || 'Masjid Ar-Rahman';
             const acaraForText = acara || 'QURMEDIA 2026';
-            const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas **${fasForText}** Jakarta untuk kegiatan **${acaraForText}** yang akan dilaksanakan pada:`;
+            const autoText = `Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan permohonan izin peminjaman fasilitas ${fasForText} Jakarta untuk kegiatan **${acaraForText}** yang akan dilaksanakan pada:`;
 
             const fasTag = document.getElementById('spz_pembuka_tag_fasilitas');
             if (fasTag) {
@@ -3896,25 +3899,17 @@
             if (!str) return '';
             let escaped = formatInlineRichText(str);
 
-            // Dynamically collect key terms to auto-bold
+            // Dynamically collect key terms to auto-bold (Organisasi & Acara)
             const currentAcara = (document.getElementById('field_nama_acara')?.value || '').trim();
             const currentFas = (document.getElementById('spz_input_fasilitas')?.value || '').trim();
 
             const autoBoldList = [
                 'Unit Kegiatan Mahasiswa LDK IMIP',
-                'UKM LDK IMIP',
-                'Masjid Ar-Rahman Politeknik Negeri Media Kreatif',
-                'Masjid Ar-Rahman PoliMedia',
-                'QURMEDIA 2026'
+                'UKM LDK IMIP'
             ];
 
             if (currentAcara && !autoBoldList.includes(currentAcara)) {
                 autoBoldList.push(currentAcara);
-            }
-            if (currentFas) {
-                const fasPol = `${currentFas} PoliMedia`;
-                if (!autoBoldList.includes(fasPol)) autoBoldList.push(fasPol);
-                if (!autoBoldList.includes(currentFas)) autoBoldList.push(currentFas);
             }
 
             // Sort longer phrases first
@@ -3927,6 +3922,25 @@
                     escaped = escaped.split(escTerm).join(`<strong style="font-weight: bold;">${escTerm}</strong>`);
                 }
             });
+
+            // FASILITAS / TEMPAT PINJAMAN RESMI TIDAK BOLEH BOLD (PASTIKAN SELALU UNBOLD)
+            const fasTermsToUnbold = [];
+            if (currentFas) {
+                fasTermsToUnbold.push(currentFas);
+                fasTermsToUnbold.push(`${currentFas} PoliMedia`);
+                fasTermsToUnbold.push(`${currentFas} Politeknik Negeri Media Kreatif`);
+            }
+            fasTermsToUnbold.push('Masjid Ar-Rahman');
+            fasTermsToUnbold.push('Masjid Ar-Rahman PoliMedia');
+            fasTermsToUnbold.push('Masjid Ar-Rahman Politeknik Negeri Media Kreatif');
+
+            fasTermsToUnbold.forEach(fasName => {
+                if (!fasName) return;
+                const escFas = escapeHtml(fasName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const boldRegex = new RegExp(`(<strong[^>]*>|<b>)\\s*(${escFas})\\s*(<\\/strong>|<\\/b>)`, 'gi');
+                escaped = escaped.replace(boldRegex, '$2');
+            });
+
             return escaped;
         }
 
