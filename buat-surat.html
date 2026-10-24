@@ -1282,7 +1282,7 @@
                         <!-- DEFAULT PERIHAL (Untuk selain SPZ) -->
                         <div id="default_perihal_container">
                             <label class="text-[11px] font-bold text-neutral-300 block mb-1">Perihal / Hal</label>
-                            <input type="text" id="field_perihal" oninput="if(typeof syncAutoDocTitle==='function') syncAutoDocTitle(); updatePreview();" class="form-input font-medium" placeholder="Permohonan Bantuan Dana Kegiatan Dauroh">
+                            <input type="text" id="field_perihal" oninput="handlePerihalInput(this.value);" class="form-input font-medium" placeholder="Permohonan Bantuan Dana Kegiatan Dauroh">
                         </div>
                     </div>
                 </div>
@@ -1375,7 +1375,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="field_pembuka" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Melalui surat ini, kami Unit Kegiatan Mahasiswa LDK IMIP bermaksud untuk mengajukan permohonan izin peminjaman fasilitas Masjid Ar-Rahman Jakarta untuk kegiatan QURMEDIA 2026 yang akan dilaksanakan pada:"></textarea>
+                            <textarea id="field_pembuka" oninput="handlePembukaInput(this.value);" rows="3" class="form-input text-xs" placeholder="Melalui surat ini, kami Unit Kegiatan Mahasiswa LDK IMIP bermaksud untuk mengajukan permohonan izin peminjaman fasilitas Masjid Ar-Rahman Jakarta untuk kegiatan QURMEDIA 2026 yang akan dilaksanakan pada:"></textarea>
                         </div>
                     </div>
                 </div>
@@ -1510,7 +1510,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="field_isi_inti" oninput="updatePreview()" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan (misal: Kegiatan ini merupakan rangkaian persiapan pelaksanaan QURMEDIA 2026...)">Deskripsikan Kegiatan.</textarea>
+                            <textarea id="field_isi_inti" oninput="handleIsiIntiInput(this.value);" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan (misal: Kegiatan ini merupakan rangkaian persiapan pelaksanaan QURMEDIA 2026...)">Deskripsikan Kegiatan.</textarea>
                         </div>
                     </div>
                 </div>
@@ -2469,7 +2469,7 @@
                 nomorSurat: '034/SBA/E1/UKM IMIP/VII/2026',
                 lampiran: '2 Halaman',
                 tanggalSurat: 'Jakarta, 2 Juli 2026',
-                perihal: 'Surat Berita Acara Studi Banding',
+                perihal: 'Surat Berita Acara Studi Banding 2026',
                 tujuan: '',
                 incEvent: true,
                 namaAcara: 'Studi Banding 2026',
@@ -2477,7 +2477,7 @@
                 waktu: '08.00 s/d 13.10 WIB',
                 tempat: 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220',
                 pembuka: 'Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **Studi Banding 2026** pada:',
-                isiInti: '**Studi Banding** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.',
+                isiInti: '**Studi Banding 2026** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.',
                 penutup: 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.',
                 ttd1Jabatan: 'Ketua Pelaksana\nStudi Banding 2026',
                 ttd1Nama: 'Faridah Rihadatul ‘Aisy',
@@ -2698,6 +2698,12 @@
                 if (type !== 'SPZ' && cardTujuan) {
                     cardTujuan.classList.remove('hidden');
                 }
+            }
+
+            if (type === 'SBA') {
+                isSbaIsiIntiManuallyEdited = false;
+                isSbaPembukaManuallyEdited = false;
+                isSbaPerihalManuallyEdited = false;
             }
 
             // Load default data for selected template
@@ -3090,6 +3096,111 @@
             updatePreview();
         }
 
+        // ==================== SBA AUTO FIELDS SYNC (DESKRIPSI, PEMBUKA & PERIHAL) ====================
+        let isSbaIsiIntiManuallyEdited = false;
+        let isSbaPembukaManuallyEdited = false;
+        let isSbaPerihalManuallyEdited = false;
+
+        function updateSbaAutoFields() {
+            if (currentSuratType !== 'SBA') return;
+
+            const acaraEl = document.getElementById('field_nama_acara');
+            let rawAcara = (acaraEl ? acaraEl.value.trim() : '') || 'Studi Banding 2026';
+            let namaAcara = rawAcara;
+            if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
+                namaAcara = `${namaAcara} 2026`;
+            }
+
+            // 1. Deskripsi Kegiatan (field_isi_inti) - Otomatis tambahkan 2026 / nama acara lengkap tapi tetap bisa diedit
+            const isiEl = document.getElementById('field_isi_inti');
+            if (isiEl) {
+                const currentIsi = isiEl.value.trim();
+                const isDefaultDesc = !isSbaIsiIntiManuallyEdited || !currentIsi ||
+                    currentIsi.includes('antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah') ||
+                    currentIsi.startsWith('**Studi Banding') || currentIsi.startsWith('Studi Banding');
+
+                if (isDefaultDesc) {
+                    isiEl.value = `**${namaAcara}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
+                }
+            }
+
+            // 2. Paragraf Pembuka (field_pembuka)
+            const pembukaEl = document.getElementById('field_pembuka');
+            if (pembukaEl) {
+                const currentPembuka = pembukaEl.value.trim();
+                const isDefaultPembuka = !isSbaPembukaManuallyEdited || !currentPembuka ||
+                    currentPembuka.includes('telah melaksanakan kegiatan');
+
+                if (isDefaultPembuka) {
+                    pembukaEl.value = `Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **${namaAcara}** pada:`;
+                }
+            }
+
+            // 3. Hal / Perihal (field_perihal)
+            const perihalEl = document.getElementById('field_perihal');
+            if (perihalEl) {
+                const currentPerihal = perihalEl.value.trim();
+                const isDefaultPerihal = !isSbaPerihalManuallyEdited || !currentPerihal ||
+                    currentPerihal.startsWith('Surat Berita Acara');
+
+                if (isDefaultPerihal) {
+                    perihalEl.value = `Surat Berita Acara ${namaAcara}`;
+                }
+            }
+        }
+
+        function handleIsiIntiInput(val) {
+            if (currentSuratType === 'SBA') {
+                const acara = (document.getElementById('field_nama_acara')?.value || '').trim() || 'Studi Banding 2026';
+                let namaAcara = acara;
+                if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
+                    namaAcara = `${namaAcara} 2026`;
+                }
+                const defaultText = `**${namaAcara}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
+                if (!val || val.trim() === '' || val.trim() === defaultText) {
+                    isSbaIsiIntiManuallyEdited = false;
+                } else {
+                    isSbaIsiIntiManuallyEdited = true;
+                }
+            }
+            updatePreview();
+        }
+
+        function handlePembukaInput(val) {
+            if (currentSuratType === 'SBA') {
+                const acara = (document.getElementById('field_nama_acara')?.value || '').trim() || 'Studi Banding 2026';
+                let namaAcara = acara;
+                if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
+                    namaAcara = `${namaAcara} 2026`;
+                }
+                const defaultPembuka = `Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **${namaAcara}** pada:`;
+                if (!val || val.trim() === '' || val.trim() === defaultPembuka) {
+                    isSbaPembukaManuallyEdited = false;
+                } else {
+                    isSbaPembukaManuallyEdited = true;
+                }
+            }
+            updatePreview();
+        }
+
+        function handlePerihalInput(val) {
+            if (currentSuratType === 'SBA') {
+                const acara = (document.getElementById('field_nama_acara')?.value || '').trim() || 'Studi Banding 2026';
+                let namaAcara = acara;
+                if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
+                    namaAcara = `${namaAcara} 2026`;
+                }
+                const defaultPerihal = `Surat Berita Acara ${namaAcara}`;
+                if (!val || val.trim() === '' || val.trim() === defaultPerihal) {
+                    isSbaPerihalManuallyEdited = false;
+                } else {
+                    isSbaPerihalManuallyEdited = true;
+                }
+            }
+            if (typeof syncAutoDocTitle === 'function') syncAutoDocTitle();
+            updatePreview();
+        }
+
         function stripBoldMarkdown(str) {
             if (!str) return '';
             let res = String(str);
@@ -3221,6 +3332,9 @@
             syncTtd1Jabatan();
             if (currentSuratType === 'SPZ') {
                 updateSpzAutoPembuka();
+            }
+            if (currentSuratType === 'SBA') {
+                updateSbaAutoFields();
             }
             if (typeof syncAutoDocTitle === 'function') {
                 syncAutoDocTitle();
@@ -7204,8 +7318,6 @@
             const autoLamp = syncAutoLampiranCount();
             const rawLamp = (document.getElementById('field_lampiran')?.value || '').trim();
             const lampiran = autoLamp || rawLamp || '2 Halaman';
-            const perihal = document.getElementById('field_perihal').value.trim() || 'Surat Berita Acara Studi Banding';
-            const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 2 Juli 2026';
 
             const incEvent = document.getElementById('field_include_event_details').checked;
             const rawNamaAcara = (document.getElementById('field_nama_acara')?.value || '').trim() || 'Studi Banding 2026';
@@ -7213,11 +7325,13 @@
             if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
                 namaAcara = `${namaAcara} 2026`;
             }
+            const perihal = document.getElementById('field_perihal').value.trim() || `Surat Berita Acara ${namaAcara}`;
+            const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 2 Juli 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Minggu, 28 Juni 2026';
             const waktu = document.getElementById('field_waktu').value.trim() || '08.00 s/d 13.10 WIB';
             const tempat = document.getElementById('field_tempat').value.trim() || 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220';
 
-            let rawPembuka = (document.getElementById('field_pembuka')?.value || '').trim() || 'Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **Studi Banding 2026** pada:';
+            let rawPembuka = (document.getElementById('field_pembuka')?.value || '').trim() || `Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **${namaAcara}** pada:`;
             rawPembuka = autoBoldPhrase(rawPembuka, 'Unit Kegiatan Mahasiswa LDK IMIP');
             if (namaAcara) rawPembuka = autoBoldPhrase(rawPembuka, namaAcara);
             if (rawNamaAcara) rawPembuka = autoBoldPhrase(rawPembuka, rawNamaAcara);
@@ -7229,10 +7343,12 @@
                 elPembuka.value = pembuka;
             }
 
-            let rawIsiInti = (document.getElementById('field_isi_inti')?.value || '').trim() || '**Studi Banding** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.';
+            let rawIsiInti = (document.getElementById('field_isi_inti')?.value || '').trim() || `**${namaAcara}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
+            if (rawIsiInti.includes('**Studi Banding** antara') || rawIsiInti.includes('Studi Banding antara')) {
+                rawIsiInti = rawIsiInti.replace(/(\*\*)?Studi Banding(\*\*)?\s+antara/i, `**${namaAcara}** antara`);
+            }
             if (namaAcara) rawIsiInti = autoBoldPhrase(rawIsiInti, namaAcara);
             if (rawNamaAcara) rawIsiInti = autoBoldPhrase(rawIsiInti, rawNamaAcara);
-            rawIsiInti = autoBoldPhrase(rawIsiInti, 'Studi Banding');
             const isiInti = rawIsiInti;
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.';
 
@@ -8898,6 +9014,15 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (typeof sbaDokumentasiList !== 'undefined') {
                 data.sbaDokumentasiList = JSON.parse(JSON.stringify(sbaDokumentasiList));
             }
+            if (typeof isSbaIsiIntiManuallyEdited !== 'undefined') {
+                data.isSbaIsiIntiManuallyEdited = isSbaIsiIntiManuallyEdited;
+            }
+            if (typeof isSbaPembukaManuallyEdited !== 'undefined') {
+                data.isSbaPembukaManuallyEdited = isSbaPembukaManuallyEdited;
+            }
+            if (typeof isSbaPerihalManuallyEdited !== 'undefined') {
+                data.isSbaPerihalManuallyEdited = isSbaPerihalManuallyEdited;
+            }
 
             return data;
         }
@@ -8951,14 +9076,22 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     if (rawAc) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], rawAc);
                 }
                 if (d['field_isi_inti']) {
+                    if (d['field_isi_inti'].includes('**Studi Banding** antara') || d['field_isi_inti'].includes('Studi Banding antara')) {
+                        d['field_isi_inti'] = d['field_isi_inti'].replace(/(\*\*)?Studi Banding(\*\*)?\s+antara/i, `**${ac}** antara`);
+                    }
                     if (ac) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], ac);
                     if (rawAc) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], rawAc);
-                    d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], 'Studi Banding');
+                }
+                if (d['field_perihal']) {
+                    if (d['field_perihal'] === 'Surat Berita Acara Studi Banding') {
+                        d['field_perihal'] = `Surat Berita Acara ${ac}`;
+                    }
                 }
             }
             for (const key in d) {
                 if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited' ||
-                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaPengeluaranCategories' || key === 'sbaNotaList' || key === 'sbaDokumentasiList') {
+                    key === 'sbaRundownList' || key === 'sbaPemasukanList' || key === 'sbaPengeluaranDivisi' || key === 'sbaPengeluaranCategories' || key === 'sbaNotaList' || key === 'sbaDokumentasiList' ||
+                    key === 'isSbaIsiIntiManuallyEdited' || key === 'isSbaPembukaManuallyEdited' || key === 'isSbaPerihalManuallyEdited') {
                     continue;
                 }
                 const el = document.getElementById(key);
@@ -9050,6 +9183,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (typeof toggleSbaKeuanganSections === 'function') toggleSbaKeuanganSections();
                 if (typeof toggleSbaNotaSections === 'function') toggleSbaNotaSections();
                 if (typeof toggleSbaDokumentasiSections === 'function') toggleSbaDokumentasiSections();
+                if (d.isSbaIsiIntiManuallyEdited !== undefined) isSbaIsiIntiManuallyEdited = Boolean(d.isSbaIsiIntiManuallyEdited);
+                if (d.isSbaPembukaManuallyEdited !== undefined) isSbaPembukaManuallyEdited = Boolean(d.isSbaPembukaManuallyEdited);
+                if (d.isSbaPerihalManuallyEdited !== undefined) isSbaPerihalManuallyEdited = Boolean(d.isSbaPerihalManuallyEdited);
             }
 
             if (typeof toggleEventDetails === 'function') toggleEventDetails();
