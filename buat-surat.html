@@ -1817,6 +1817,74 @@
                     </div>
                 </div>
 
+                <!-- CARD: KELOLA LAMPIRAN & HALAMAN SBA -->
+                <div id="card_sba_lampiran_manager" class="glass-card p-4 sm:p-5 hidden">
+                    <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-paperclip text-orange-500"></i> Pengaturan Lampiran &amp; Halaman SBA
+                        </span>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Kelola Lampiran</span>
+                    </div>
+                    <p class="text-xs text-neutral-400 mb-3.5 leading-relaxed">
+                        Atur apakah lembar lampiran nota struk belanja dan foto dokumentasi kegiatan disertakan atau dilewati dalam berkas Berita Acara ini.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- Toggle Nota Keuangan -->
+                        <div class="p-3.5 rounded-xl bg-neutral-900/80 border border-neutral-800 flex flex-col justify-between gap-3 hover:border-neutral-700 transition-colors">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <span class="w-8 h-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-receipt"></i>
+                                    </span>
+                                    <div>
+                                        <span class="text-xs font-bold text-neutral-200 block">Lampiran Nota Keuangan</span>
+                                        <span class="text-[10px] text-neutral-400 leading-snug block">Foto struk belanja, nota toko &amp; kuitansi transaksi</span>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" id="mgr_sba_inc_nota" checked onchange="handleMgrNotaToggle(this.checked)" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-neutral-800/80 text-[11px]">
+                                <span id="mgr_nota_status_badge" class="font-mono text-emerald-400 flex items-center gap-1 font-bold">
+                                    <i class="fa-solid fa-circle-check text-[9px]"></i> Aktif Disertakan
+                                </span>
+                                <button type="button" id="mgr_btn_go_nota" onclick="jumpToSbaAttachment('nota')" class="text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1 transition-colors">
+                                    <span>Buka Lembar Nota</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Dokumentasi Kegiatan -->
+                        <div class="p-3.5 rounded-xl bg-neutral-900/80 border border-neutral-800 flex flex-col justify-between gap-3 hover:border-neutral-700 transition-colors">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <span class="w-8 h-8 rounded-lg bg-orange-500/15 text-orange-400 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </span>
+                                    <div>
+                                        <span class="text-xs font-bold text-neutral-200 block">Lampiran Dokumentasi</span>
+                                        <span class="text-[10px] text-neutral-400 leading-snug block">Galeri foto pelaksanaan kegiatan &amp; peserta</span>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                    <input type="checkbox" id="mgr_sba_inc_dok" checked onchange="handleMgrDokToggle(this.checked)" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-neutral-800/80 text-[11px]">
+                                <span id="mgr_dok_status_badge" class="font-mono text-emerald-400 flex items-center gap-1 font-bold">
+                                    <i class="fa-solid fa-circle-check text-[9px]"></i> Aktif Disertakan
+                                </span>
+                                <button type="button" id="mgr_btn_go_dok" onclick="jumpToSbaAttachment('dok')" class="text-orange-400 hover:text-orange-300 font-bold flex items-center gap-1 transition-colors">
+                                    <span>Buka Lembar Dokumentasi</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CARD: LAMPIRAN 1 (KHUSUS SPZ - HALAMAN 3) -->
                 <div id="card_spz_lampiran_1" class="glass-card p-4 sm:p-5 hidden">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
@@ -2223,6 +2291,21 @@
                             <input type="checkbox" id="sba_inc_nota" checked onchange="toggleSbaNotaSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
 
+                        <!-- BANNER KETIKA NOTA DINONAKTIFKAN -->
+                        <div id="sba_nota_inactive_banner" class="hidden p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-center space-y-2">
+                            <div class="flex items-center justify-center gap-2 text-orange-400 font-bold text-xs">
+                                <i class="fa-solid fa-receipt"></i>
+                                <span>Lampiran Nota Keuangan Sedang Dinonaktifkan</span>
+                            </div>
+                            <p class="text-[11px] text-neutral-400 max-w-md mx-auto">
+                                Lembar lampiran nota struk belanja dilewati dan tidak masuk dalam cetakan PDF berkas SBA ini.
+                            </p>
+                            <button type="button" onclick="enableSbaAttachment('nota')" class="px-3.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all shadow-xs active:scale-95">
+                                <i class="fa-solid fa-plus-circle text-[11px]"></i>
+                                <span>Aktifkan Kembali Lampiran Nota</span>
+                            </button>
+                        </div>
+
                         <!-- TOMBOL EXPORT NOTA KEGIATAN -->
                         <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="flex items-center gap-2 text-xs">
@@ -2289,6 +2372,21 @@
                             </div>
                             <input type="checkbox" id="sba_inc_dok" checked onchange="toggleSbaDokumentasiSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
+
+                        <!-- BANNER KETIKA DOKUMENTASI DINONAKTIFKAN -->
+                        <div id="sba_dok_inactive_banner" class="hidden p-4 rounded-xl bg-orange-500/10 border border-orange-500/30 text-center space-y-2">
+                            <div class="flex items-center justify-center gap-2 text-orange-400 font-bold text-xs">
+                                <i class="fa-solid fa-camera"></i>
+                                <span>Lampiran Dokumentasi Kegiatan Sedang Dinonaktifkan</span>
+                            </div>
+                            <p class="text-[11px] text-neutral-400 max-w-md mx-auto">
+                                Lembar lampiran foto dokumentasi pelaksanaan dilewati dan tidak masuk dalam cetakan PDF berkas SBA ini.
+                            </p>
+                            <button type="button" onclick="enableSbaAttachment('dok')" class="px-3.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs inline-flex items-center gap-1.5 transition-all shadow-xs active:scale-95">
+                                <i class="fa-solid fa-plus-circle text-[11px]"></i>
+                                <span>Aktifkan Kembali Dokumentasi</span>
+                            </button>
+                        </div>
 
                         <div id="sba_dokumentasi_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
                             <div class="flex items-center justify-between">
@@ -3789,6 +3887,7 @@
             }
             if (typeof syncAutoLampiranCount === 'function') syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
         }
 
@@ -3800,6 +3899,7 @@
             }
             if (typeof syncAutoLampiranCount === 'function') syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
         }
 
@@ -5280,6 +5380,7 @@
             const incKeu = isSbaKeuanganActive();
             const group = document.getElementById('sba_keuangan_group');
             if (group) group.classList.toggle('hidden', !incKeu);
+            syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
@@ -5289,7 +5390,10 @@
             const incNota = isSbaNotaActive();
             const group = document.getElementById('sba_nota_group');
             if (group) group.classList.toggle('hidden', !incNota);
+            const banner = document.getElementById('sba_nota_inactive_banner');
+            if (banner) banner.classList.toggle('hidden', incNota);
             syncAutoLampiranCount();
+            syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
@@ -5304,10 +5408,137 @@
             const incDok = isSbaDokumentasiActive();
             const group = document.getElementById('sba_dokumentasi_group');
             if (group) group.classList.toggle('hidden', !incDok);
+            const banner = document.getElementById('sba_dok_inactive_banner');
+            if (banner) banner.classList.toggle('hidden', incDok);
             syncAutoLampiranCount();
+            syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             updatePreview();
+        }
+
+        function syncSbaLampiranManagerUI() {
+            const isNota = isSbaNotaActive();
+            const isDok = isSbaDokumentasiActive();
+
+            const mgrNota = document.getElementById('mgr_sba_inc_nota');
+            if (mgrNota && mgrNota.checked !== isNota) mgrNota.checked = isNota;
+
+            const mgrDok = document.getElementById('mgr_sba_inc_dok');
+            if (mgrDok && mgrDok.checked !== isDok) mgrDok.checked = isDok;
+
+            const notaBadge = document.getElementById('mgr_nota_status_badge');
+            if (notaBadge) {
+                if (isNota) {
+                    notaBadge.className = 'font-mono text-emerald-400 flex items-center gap-1 font-bold';
+                    notaBadge.innerHTML = '<i class="fa-solid fa-circle-check text-[9px]"></i> Aktif Disertakan';
+                } else {
+                    notaBadge.className = 'font-mono text-neutral-500 flex items-center gap-1 font-semibold';
+                    notaBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[9px]"></i> Nonaktif (Dilewati)';
+                }
+            }
+
+            const btnGoNota = document.getElementById('mgr_btn_go_nota');
+            if (btnGoNota) {
+                btnGoNota.innerHTML = isNota 
+                    ? '<span>Buka Lembar Nota</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>'
+                    : '<span class="text-orange-400 font-bold">+ Aktifkan Sekarang</span>';
+            }
+
+            const dokBadge = document.getElementById('mgr_dok_status_badge');
+            if (dokBadge) {
+                if (isDok) {
+                    dokBadge.className = 'font-mono text-emerald-400 flex items-center gap-1 font-bold';
+                    dokBadge.innerHTML = '<i class="fa-solid fa-circle-check text-[9px]"></i> Aktif Disertakan';
+                } else {
+                    dokBadge.className = 'font-mono text-neutral-500 flex items-center gap-1 font-semibold';
+                    dokBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[9px]"></i> Nonaktif (Dilewati)';
+                }
+            }
+
+            const btnGoDok = document.getElementById('mgr_btn_go_dok');
+            if (btnGoDok) {
+                btnGoDok.innerHTML = isDok 
+                    ? '<span>Buka Lembar Dokumentasi</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>'
+                    : '<span class="text-orange-400 font-bold">+ Aktifkan Sekarang</span>';
+            }
+        }
+
+        function handleMgrNotaToggle(checked) {
+            const el = document.getElementById('sba_inc_nota');
+            if (el) el.checked = checked;
+            toggleSbaNotaSections();
+        }
+
+        function handleMgrDokToggle(checked) {
+            const el = document.getElementById('sba_inc_dok');
+            if (el) el.checked = checked;
+            toggleSbaDokumentasiSections();
+        }
+
+        function enableSbaAttachment(type) {
+            if (type === 'nota') {
+                const el = document.getElementById('sba_inc_nota');
+                if (el) el.checked = true;
+                toggleSbaNotaSections();
+                const pages = getSbaPagesStructure();
+                const pObj = pages.find(p => p.key === 'nota');
+                if (pObj) setActivePage(pObj.id);
+                else setActivePage('all');
+            } else if (type === 'dok') {
+                const el = document.getElementById('sba_inc_dok');
+                if (el) el.checked = true;
+                toggleSbaDokumentasiSections();
+                const pages = getSbaPagesStructure();
+                const pObj = pages.find(p => p.key === 'dok');
+                if (pObj) setActivePage(pObj.id);
+                else setActivePage('all');
+            } else if (type === 'keuangan') {
+                const el = document.getElementById('sba_inc_keuangan');
+                if (el) el.checked = true;
+                toggleSbaKeuanganSections();
+                const pages = getSbaPagesStructure();
+                const pObj = pages.find(p => p.key === 'keuangan');
+                if (pObj) setActivePage(pObj.id);
+                else setActivePage('all');
+            }
+        }
+
+        function jumpToSbaAttachment(type) {
+            if (type === 'nota') {
+                if (!isSbaNotaActive()) {
+                    enableSbaAttachment('nota');
+                } else {
+                    const pages = getSbaPagesStructure();
+                    const pObj = pages.find(p => p.key === 'nota');
+                    if (pObj) setActivePage(pObj.id);
+                    else setActivePage('all');
+                }
+            } else if (type === 'dok') {
+                if (!isSbaDokumentasiActive()) {
+                    enableSbaAttachment('dok');
+                } else {
+                    const pages = getSbaPagesStructure();
+                    const pObj = pages.find(p => p.key === 'dok');
+                    if (pObj) setActivePage(pObj.id);
+                    else setActivePage('all');
+                }
+            }
+        }
+
+        function enableSpzAttachment(type) {
+            if (type === 1) {
+                const el = document.getElementById('spz_inc_lampiran_panitia');
+                if (el) el.checked = true;
+                if (typeof toggleSpzAttachmentSections === 'function') toggleSpzAttachmentSections();
+                setActivePage(3);
+            } else if (type === 2) {
+                const el = document.getElementById('spz_inc_subbag_umum');
+                if (el) el.checked = true;
+                if (typeof toggleSpzSubbagSections === 'function') toggleSpzSubbagSections();
+                const total = getTotalPagesForCurrentType();
+                setActivePage(total);
+            }
         }
 
         function syncAutoLampiranCount() {
@@ -8269,7 +8500,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 else if (p > total) currentActivePage = total;
             }
 
-            container.innerHTML = tabs.map(tab => {
+            const tabsHtml = tabs.map(tab => {
                 const isActive = (tab.id === currentActivePage);
                 const activeClasses = isActive
                     ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold border-transparent shadow-md shadow-orange-500/25 ring-2 ring-orange-500/40'
@@ -8286,6 +8517,58 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     </button>
                 `;
             }).join('');
+
+            let inactivePillsHtml = '';
+            if (currentSuratType === 'SBA') {
+                if (typeof isSbaKeuanganActive === 'function' && !isSbaKeuanganActive()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="enableSbaAttachment('keuangan')" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-semibold active:scale-95 shadow-xs" title="Klik untuk mengaktifkan kembali lembar Keuangan SBA">
+                            <i class="fa-solid fa-plus-circle text-emerald-400 text-[11px]"></i>
+                            <span>+ Keuangan</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-emerald-400 font-mono">Off</span>
+                        </button>
+                    `;
+                }
+                if (typeof isSbaNotaActive === 'function' && !isSbaNotaActive()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="enableSbaAttachment('nota')" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-semibold active:scale-95 shadow-xs" title="Klik untuk mengaktifkan kembali lembar Lampiran Nota Keuangan">
+                            <i class="fa-solid fa-plus-circle text-orange-400 text-[11px]"></i>
+                            <span>+ Lampiran Nota</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-orange-400 font-mono">Mati</span>
+                        </button>
+                    `;
+                }
+                if (typeof isSbaDokumentasiActive === 'function' && !isSbaDokumentasiActive()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="enableSbaAttachment('dok')" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-semibold active:scale-95 shadow-xs" title="Klik untuk mengaktifkan kembali lembar Lampiran Dokumentasi Kegiatan">
+                            <i class="fa-solid fa-plus-circle text-orange-400 text-[11px]"></i>
+                            <span>+ Dokumentasi</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-orange-400 font-mono">Mati</span>
+                        </button>
+                    `;
+                }
+            } else if (currentSuratType === 'SPZ') {
+                if (typeof isSpzLampiran1Active === 'function' && !isSpzLampiran1Active()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="enableSpzAttachment(1)" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-semibold active:scale-95 shadow-xs" title="Klik untuk mengaktifkan kembali Lampiran 1 (Barang, Panitia & Rundown)">
+                            <i class="fa-solid fa-plus-circle text-orange-400 text-[11px]"></i>
+                            <span>+ Lampiran 1</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-orange-400 font-mono">Mati</span>
+                        </button>
+                    `;
+                }
+                if (typeof isSpzLampiran2Active === 'function' && !isSpzLampiran2Active()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="enableSpzAttachment(2)" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-semibold active:scale-95 shadow-xs" title="Klik untuk mengaktifkan kembali Lampiran 2 (Subbag Umum)">
+                            <i class="fa-solid fa-plus-circle text-orange-400 text-[11px]"></i>
+                            <span>+ Lampiran 2</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-orange-400 font-mono">Mati</span>
+                        </button>
+                    `;
+                }
+            }
+
+            container.innerHTML = tabsHtml + inactivePillsHtml;
 
             initPageTabsScrollInteractions();
 
@@ -8364,14 +8647,15 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_isi_inti: true,
                     card_sba_rundown: (currentSuratType === 'SBA'),
                     card_sba_output_evaluasi: (currentSuratType === 'SBA'),
-                    card_sba_keuangan: hasKeu,
+                    card_sba_keuangan: (currentSuratType === 'SBA'),
                     card_sba_rekapitulasi: hasKeu,
                     card_penutup: true,
                     card_penandatangan: true,
-                    card_sba_lampiran_nota: hasNota,
-                    card_sba_lampiran_dokumentasi: hasDok,
-                    card_spz_lampiran_1: hasL1,
-                    card_spz_lampiran_2: hasL2
+                    card_sba_lampiran_manager: (currentSuratType === 'SBA'),
+                    card_sba_lampiran_nota: (currentSuratType === 'SBA'),
+                    card_sba_lampiran_dokumentasi: (currentSuratType === 'SBA'),
+                    card_spz_lampiran_1: (currentSuratType === 'SPZ'),
+                    card_spz_lampiran_2: (currentSuratType === 'SPZ')
                 };
             }
 
@@ -8389,6 +8673,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_sba_output_evaluasi: false,
                     card_sba_keuangan: false,
                     card_sba_rekapitulasi: false,
+                    card_sba_lampiran_manager: false,
                     card_sba_lampiran_nota: false,
                     card_sba_lampiran_dokumentasi: false,
                     card_spz_lampiran_1: false,
@@ -8411,6 +8696,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_sba_output_evaluasi: false,
                         card_sba_keuangan: false,
                         card_sba_rekapitulasi: false,
+                        card_sba_lampiran_manager: false,
                         card_sba_lampiran_nota: false,
                         card_sba_lampiran_dokumentasi: false,
                         card_spz_lampiran_1: false,
@@ -8430,6 +8716,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_sba_output_evaluasi: false,
                         card_sba_keuangan: false,
                         card_sba_rekapitulasi: false,
+                        card_sba_lampiran_manager: false,
                         card_sba_lampiran_nota: false,
                         card_sba_lampiran_dokumentasi: false,
                         card_spz_lampiran_1: false,
@@ -8456,6 +8743,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_sba_rekapitulasi: (key === 'rekapitulasi'),
                     card_penutup: (key === 'pengesahan'),
                     card_penandatangan: (key === 'pengesahan'),
+                    card_sba_lampiran_manager: (key === 'pengesahan'),
                     card_sba_lampiran_nota: (key === 'nota'),
                     card_sba_lampiran_dokumentasi: (key === 'dok'),
                     card_spz_lampiran_1: false,
