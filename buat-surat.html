@@ -2098,7 +2098,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div id="sba_rundown_editor_container" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                        <div id="sba_rundown_editor_container" class="space-y-3 max-h-[580px] overflow-y-auto pr-1.5">
                             <!-- Rendered via JS -->
                         </div>
                     </div>
@@ -4236,47 +4236,83 @@
                 const endTimeVal = rawEndTime === 'selesai' ? '' : rawEndTime;
 
                 return `
-                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2.5 text-xs">
-                    <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
-                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
-                            <i class="fa-regular fa-calendar-check text-[10px]"></i> Agenda #${idx + 1}
-                        </span>
-                        <button type="button" onclick="removeSpzRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Agenda">
-                            <i class="fa-solid fa-trash text-[11px]"></i>
-                        </button>
+                <div class="p-3.5 sm:p-4 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-all flex flex-col gap-3 text-xs shadow-xs">
+                    <!-- BARIS HEADER: Nomor Agenda & Aksi Cepat -->
+                    <div class="flex items-center justify-between pb-2 border-b border-neutral-800/80 flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-xs text-orange-400 flex items-center gap-1.5 bg-orange-500/10 px-2.5 py-0.5 rounded-lg border border-orange-500/20">
+                                <i class="fa-regular fa-calendar-check text-[10px]"></i> Agenda #${idx + 1}
+                            </span>
+                            <span class="text-[10px] text-neutral-500 hidden sm:inline-block font-sans">Jadwal Acara</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            ${idx > 0 ? `<button type="button" onclick="inheritPrevRundownTime('spz', ${idx})" class="text-[10px] px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-orange-400 border border-neutral-700/80 font-mono transition-colors flex items-center gap-1 active:scale-95 shadow-2xs" title="Sambung jam dari Agenda #${idx}"><i class="fa-solid fa-link text-[9px]"></i> Sambung #${idx}</button>` : ''}
+                            <button type="button" onclick="setRundownUntilFinish('spz', ${idx})" class="text-[10px] px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700/80 font-mono transition-colors active:scale-95 shadow-2xs" title="Set selesai (contoh: 12.00 - Selesai WIB)">s.d. Selesai</button>
+                            <button type="button" onclick="removeSpzRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-neutral-800 transition-colors ml-1 active:scale-95" title="Hapus Agenda">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
                     </div>
+
+                    <!-- 1. NAMA KEGIATAN (FULL WIDTH) -->
                     <div>
-                        <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Nama Kegiatan</label>
-                        <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzRundownField(${idx}, 'nama', this.value)" placeholder="Nama Kegiatan" class="form-input text-xs py-1.5 px-2.5 w-full">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-[11px] text-neutral-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-clipboard-list text-orange-500"></i> Nama Kegiatan
+                            </label>
+                        </div>
+                        <input type="text" value="${escapeHtml(item.nama || '')}" 
+                            oninput="updateSpzRundownField(${idx}, 'nama', this.value)" 
+                            placeholder="Contoh: Pembukaan, Sambutan, Ishoma..." 
+                            class="form-input text-xs py-2 px-3 w-full font-medium text-neutral-100 bg-neutral-950/70 border-neutral-800 focus:border-orange-500 rounded-lg">
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                        <div class="sm:col-span-7 flex flex-col gap-1.5">
+
+                    <!-- 2. GRID BAWAH: WAKTU & PENANGGUNG JAWAB -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-neutral-800/40">
+                        <!-- KOLOM WAKTU -->
+                        <div class="flex flex-col gap-1.5">
                             <div class="flex items-center justify-between">
-                                <label class="text-[10px] text-neutral-400 font-semibold flex items-center gap-1">
-                                    <i class="fa-regular fa-clock text-orange-400 text-[10px]"></i> Waktu
-                                    <span class="text-[9px] font-mono text-orange-400/80 bg-orange-500/10 px-1 py-0.2 rounded font-normal">Auto WIB</span>
+                                <label class="text-[11px] text-neutral-300 font-bold flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-orange-400"></i> Waktu Pelaksanaan
                                 </label>
-                                <div class="flex items-center gap-1">
-                                    ${idx > 0 ? `<button type="button" onclick="inheritPrevRundownTime('spz', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-orange-400 border border-neutral-700 font-mono transition-colors" title="Sambung jam dari Agenda #${idx}"><i class="fa-solid fa-link text-[8px]"></i> Sambung #${idx}</button>` : ''}
-                                    <button type="button" onclick="setRundownUntilFinish('spz', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 font-mono transition-colors" title="Set selesai (contoh: 12.00 - Selesai WIB)">s.d. Selesai</button>
-                                </div>
+                                <span class="text-[9px] font-mono text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.2 rounded font-normal">Auto WIB</span>
                             </div>
+                            
                             <input type="text" value="${escapeHtml(item.waktu || '')}" 
                                 oninput="updateSpzRundownField(${idx}, 'waktu', this.value)" 
                                 onblur="autoFormatRundownTimeOnBlur('spz', ${idx}, this)" 
                                 onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
-                                placeholder="08.00 - 08.30 WIB atau ketik bebas" 
-                                class="form-input text-xs py-1.5 px-2.5 font-mono w-full">
-                            <div class="flex items-center gap-1.5 text-[10px] text-neutral-400 bg-neutral-950/70 p-1.5 rounded-lg border border-neutral-800/80">
-                                <span class="text-[9px] text-neutral-400 font-mono">Pilih Jam:</span>
-                                <input type="time" value="${startTimeVal}" onchange="applyRundownQuickTime('spz', ${idx}, this.value, 'start')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Mulai">
-                                <span class="text-neutral-500 text-[10px]">-</span>
-                                <input type="time" value="${endTimeVal}" onchange="applyRundownQuickTime('spz', ${idx}, this.value, 'end')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Selesai">
+                                placeholder="08.00 - 08.30 WIB" 
+                                class="form-input text-xs py-2 px-3 font-mono text-center w-full font-semibold text-orange-300 bg-neutral-950/70 border-neutral-800 focus:border-orange-500 rounded-lg">
+
+                            <!-- Quick Picker Bar -->
+                            <div class="flex items-center justify-between gap-1.5 bg-neutral-950/80 p-1.5 px-2.5 rounded-lg border border-neutral-800/80">
+                                <span class="text-[10px] text-neutral-400 font-mono flex items-center gap-1 shrink-0">
+                                    <i class="fa-regular fa-clock text-orange-400 text-[9px]"></i> Jam:
+                                </span>
+                                <div class="flex items-center gap-1.5 flex-1 justify-end">
+                                    <input type="time" value="${startTimeVal}" onchange="applyRundownQuickTime('spz', ${idx}, this.value, 'start')" class="bg-neutral-900 border border-neutral-700/80 rounded px-2 py-1 text-xs text-neutral-200 font-mono focus:border-orange-500 outline-none w-full max-w-[100px]" title="Jam Mulai">
+                                    <span class="text-neutral-500 text-xs font-bold shrink-0">-</span>
+                                    <input type="time" value="${endTimeVal}" onchange="applyRundownQuickTime('spz', ${idx}, this.value, 'end')" class="bg-neutral-900 border border-neutral-700/80 rounded px-2 py-1 text-xs text-neutral-200 font-mono focus:border-orange-500 outline-none w-full max-w-[100px]" title="Jam Selesai">
+                                </div>
                             </div>
                         </div>
-                        <div class="sm:col-span-5 flex flex-col justify-start">
-                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Penanggung Jawab</label>
-                            <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSpzRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1.5 px-2.5 w-full">
+
+                        <!-- KOLOM PENANGGUNG JAWAB -->
+                        <div class="flex flex-col justify-between">
+                            <div>
+                                <label class="text-[11px] text-neutral-300 font-bold block mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-shield text-orange-400"></i> Penanggung Jawab (PJ)
+                                </label>
+                                <input type="text" value="${escapeHtml(item.pj || '')}" 
+                                    oninput="updateSpzRundownField(${idx}, 'pj', this.value)" 
+                                    placeholder="Contoh: Sie Acara, MC..." 
+                                    class="form-input text-xs py-2 px-3 w-full text-neutral-100 bg-neutral-950/70 border-neutral-800 focus:border-orange-500 rounded-lg">
+                            </div>
+                            <div class="pt-2 text-[10px] text-neutral-500 italic flex items-center gap-1">
+                                <i class="fa-solid fa-circle-info text-[9px] text-neutral-600"></i>
+                                <span>Tercantum di tabel Lampiran 1 lembar A4</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -5685,47 +5721,84 @@
                 const endTimeVal = rawEndTime === 'selesai' ? '' : rawEndTime;
 
                 return `
-                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2.5 text-xs">
-                    <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
-                        <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-list-ol text-[10px]"></i> Baris #${idx + 1}
-                        </span>
-                        <button type="button" onclick="removeSbaRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1 rounded hover:bg-neutral-800 transition-colors" title="Hapus Baris Rundown">
-                            <i class="fa-solid fa-trash text-[11px]"></i>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                        <div class="sm:col-span-5 flex flex-col justify-start">
-                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Rangkaian Kegiatan</label>
-                            <textarea rows="3" oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value)" placeholder="Rangkaian kegiatan..." class="form-input text-xs py-1.5 px-2.5 w-full">${escapeHtml(item.rangkaian || '')}</textarea>
+                <div class="p-3.5 sm:p-4 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-all flex flex-col gap-3 text-xs shadow-xs">
+                    <!-- BARIS HEADER: Nomor Baris & Aksi Cepat -->
+                    <div class="flex items-center justify-between pb-2 border-b border-neutral-800/80 flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-xs text-orange-400 flex items-center gap-1.5 bg-orange-500/10 px-2.5 py-0.5 rounded-lg border border-orange-500/20">
+                                <i class="fa-solid fa-list-ol text-[10px]"></i> Baris #${idx + 1}
+                            </span>
+                            <span class="text-[10px] text-neutral-500 hidden sm:inline-block font-sans">Agenda Rundown</span>
                         </div>
-                        <div class="sm:col-span-4 flex flex-col gap-1.5">
+                        <div class="flex items-center gap-1.5">
+                            ${idx > 0 ? `<button type="button" onclick="inheritPrevRundownTime('sba', ${idx})" class="text-[10px] px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-orange-400 border border-neutral-700/80 font-mono transition-colors flex items-center gap-1 active:scale-95 shadow-2xs" title="Sambung jam mulai dari jam selesai Baris #${idx}"><i class="fa-solid fa-link text-[9px]"></i> Sambung #${idx}</button>` : ''}
+                            <button type="button" onclick="setRundownUntilFinish('sba', ${idx})" class="text-[10px] px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700/80 font-mono transition-colors active:scale-95 shadow-2xs" title="Set jam selesai jadi Selesai WIB">s.d. Selesai</button>
+                            <button type="button" onclick="removeSbaRundownRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-neutral-800 transition-colors ml-1 active:scale-95" title="Hapus Baris Rundown">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1. RANGKAIAN KEGIATAN (FULL WIDTH - LEGA) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-[11px] text-neutral-300 font-bold flex items-center gap-1.5">
+                                <i class="fa-solid fa-clipboard-list text-orange-500"></i> Rangkaian Kegiatan
+                            </label>
+                            <span class="text-[10px] text-neutral-500 font-mono">Bisa format *miring*</span>
+                        </div>
+                        <input type="text" value="${escapeHtml(item.rangkaian || '')}" 
+                            oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value)" 
+                            placeholder="Contoh: Pembukaan MC, Pembacaan Tilawah, Sambutan..." 
+                            class="form-input text-xs py-2 px-3 w-full font-medium text-neutral-100 bg-neutral-950/70 border-neutral-800 focus:border-orange-500 rounded-lg">
+                    </div>
+
+                    <!-- 2. GRID BAWAH: WAKTU & PENANGGUNG JAWAB (2 KOLOM LEGA) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-neutral-800/40">
+                        <!-- KOLOM WAKTU -->
+                        <div class="flex flex-col gap-1.5">
                             <div class="flex items-center justify-between">
-                                <label class="text-[10px] text-neutral-400 font-semibold flex items-center gap-1">
-                                    <i class="fa-regular fa-clock text-orange-400 text-[10px]"></i> Waktu
-                                    <span class="text-[9px] font-mono text-orange-400/80 bg-orange-500/10 px-1 py-0.2 rounded font-normal">Auto WIB</span>
+                                <label class="text-[11px] text-neutral-300 font-bold flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-orange-400"></i> Waktu Pelaksanaan
                                 </label>
-                                <div class="flex items-center gap-1">
-                                    ${idx > 0 ? `<button type="button" onclick="inheritPrevRundownTime('sba', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-orange-400 border border-neutral-700 font-mono transition-colors" title="Sambung jam dari Baris #${idx}"><i class="fa-solid fa-link text-[8px]"></i> #${idx}</button>` : ''}
-                                    <button type="button" onclick="setRundownUntilFinish('sba', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 font-mono transition-colors" title="Set selesai (contoh: 12.00 - Selesai WIB)">Selesai</button>
-                                </div>
+                                <span class="text-[9px] font-mono text-orange-400 bg-orange-500/10 border border-orange-500/20 px-1.5 py-0.2 rounded font-normal">Auto WIB</span>
                             </div>
+                            
                             <input type="text" value="${escapeHtml(item.waktu || '')}" 
                                 oninput="updateSbaRundownField(${idx}, 'waktu', this.value)" 
                                 onblur="autoFormatRundownTimeOnBlur('sba', ${idx}, this)" 
                                 onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
-                                placeholder="08.00 - 08.30 WIB atau ketik bebas" 
-                                class="form-input text-xs py-1.5 px-2.5 font-mono text-center w-full">
-                            <div class="flex items-center justify-center gap-1.5 text-[10px] text-neutral-400 bg-neutral-950/70 p-1.5 rounded-lg border border-neutral-800/80">
-                                <span class="text-[9px] text-neutral-400 font-mono">Pilih Jam:</span>
-                                <input type="time" value="${startTimeVal}" onchange="applyRundownQuickTime('sba', ${idx}, this.value, 'start')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Mulai">
-                                <span class="text-neutral-500 text-[10px]">-</span>
-                                <input type="time" value="${endTimeVal}" onchange="applyRundownQuickTime('sba', ${idx}, this.value, 'end')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Selesai">
+                                placeholder="08.00 - 08.30 WIB" 
+                                class="form-input text-xs py-2 px-3 font-mono text-center w-full font-semibold text-orange-300 bg-neutral-950/70 border-neutral-800 focus:border-orange-500 rounded-lg">
+
+                            <!-- Quick Picker Bar -->
+                            <div class="flex items-center justify-between gap-1.5 bg-neutral-950/80 p-1.5 px-2.5 rounded-lg border border-neutral-800/80">
+                                <span class="text-[10px] text-neutral-400 font-mono flex items-center gap-1 shrink-0">
+                                    <i class="fa-regular fa-clock text-orange-400 text-[9px]"></i> Jam:
+                                </span>
+                                <div class="flex items-center gap-1.5 flex-1 justify-end">
+                                    <input type="time" value="${startTimeVal}" onchange="applyRundownQuickTime('sba', ${idx}, this.value, 'start')" class="bg-neutral-900 border border-neutral-700/80 rounded px-2 py-1 text-xs text-neutral-200 font-mono focus:border-orange-500 outline-none w-full max-w-[100px]" title="Jam Mulai">
+                                    <span class="text-neutral-500 text-xs font-bold shrink-0">-</span>
+                                    <input type="time" value="${endTimeVal}" onchange="applyRundownQuickTime('sba', ${idx}, this.value, 'end')" class="bg-neutral-900 border border-neutral-700/80 rounded px-2 py-1 text-xs text-neutral-200 font-mono focus:border-orange-500 outline-none w-full max-w-[100px]" title="Jam Selesai">
+                                </div>
                             </div>
                         </div>
-                        <div class="sm:col-span-3 flex flex-col justify-start">
-                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Penanggung Jawab</label>
-                            <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSbaRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1.5 px-2.5 w-full">
+
+                        <!-- KOLOM PENANGGUNG JAWAB -->
+                        <div class="flex flex-col justify-between">
+                            <div>
+                                <label class="text-[11px] text-neutral-300 font-bold block mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-user-shield text-orange-400"></i> Penanggung Jawab (PJ)
+                                </label>
+                                <input type="text" value="${escapeHtml(item.pj || '')}" 
+                                    oninput="updateSbaRundownField(${idx}, 'pj', this.value)" 
+                                    placeholder="Contoh: Seluruh Panitia, MC..." 
+                                    class="form-input text-xs py-2 px-3 w-full text-neutral-100 bg-neutral-950/70 border-neutral-800 focus:border-orange-500 rounded-lg">
+                            </div>
+                            <div class="pt-2 text-[10px] text-neutral-500 italic flex items-center gap-1">
+                                <i class="fa-solid fa-circle-info text-[9px] text-neutral-600"></i>
+                                <span>Tercantum di tabel Rundown lembar A4</span>
+                            </div>
                         </div>
                     </div>
                 </div>
