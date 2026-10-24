@@ -3826,6 +3826,183 @@
             updatePreview();
         }
 
+        // ==================== RUNDOWN TIME HELPERS ====================
+        function cleanRundownTimePart(str) {
+            if (!str) return '';
+            str = str.trim();
+            const m = str.match(/^([01]?\d|2[0-3])[:.]([0-5]\d)$/);
+            if (m) {
+                return m[1].padStart(2, '0') + '.' + m[2];
+            }
+            const mSingle = str.match(/^([01]?\d|2[0-3])$/);
+            if (mSingle) {
+                return mSingle[1].padStart(2, '0') + '.00';
+            }
+            return str;
+        }
+
+        function formatRundownTimeString(raw) {
+            if (!raw) return '';
+            let s = raw.trim();
+            if (!s) return '';
+
+            // Normalize dashes
+            s = s.replace(/[\u2013\u2014]/g, '-');
+
+            // Detect & extract timezone (WIB, WITA, WIT)
+            let zone = 'WIB';
+            const zoneMatch = s.match(/(WIB|WITA|WIT)/i);
+            if (zoneMatch) {
+                zone = zoneMatch[1].toUpperCase();
+                s = s.replace(/(WIB|WITA|WIT)/gi, '').trim();
+            }
+
+            s = s.replace(/\s*-\s*/g, ' - ');
+
+            const parts = s.split(' - ');
+            if (parts.length === 2) {
+                let start = parts[0].trim();
+                let end = parts[1].trim();
+
+                start = cleanRundownTimePart(start);
+
+                if (/^selesai$/i.test(end)) {
+                    end = 'Selesai';
+                } else {
+                    end = cleanRundownTimePart(end);
+                }
+
+                return `${start} - ${end} ${zone}`;
+            } else if (parts.length === 1) {
+                let single = parts[0].trim();
+                if (/^kondisional$/i.test(single)) return 'Kondisional';
+                const cleaned = cleanRundownTimePart(single);
+                if (cleaned !== single || /^\d{2}\.\d{2}$/.test(cleaned)) {
+                    return `${cleaned} ${zone}`;
+                }
+                return `${single} ${zone}`;
+            }
+
+            return raw.trim() + ' ' + zone;
+        }
+
+        function extractRundownStartTime(str) {
+            if (!str) return '';
+            const normalized = str.replace(/[\u2013\u2014]/g, '-');
+            const parts = normalized.split('-');
+            const leftPart = parts[0].trim();
+            const m = leftPart.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/);
+            if (m) {
+                return m[1].padStart(2, '0') + ':' + m[2];
+            }
+            return '';
+        }
+
+        function extractRundownEndTime(str) {
+            if (!str) return '';
+            const normalized = str.replace(/[\u2013\u2014]/g, '-');
+            const parts = normalized.split('-');
+            if (parts.length >= 2) {
+                const rightPart = parts.slice(1).join('-').trim();
+                if (/selesai/i.test(rightPart)) return 'selesai';
+                const m = rightPart.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/);
+                if (m) {
+                    return m[1].padStart(2, '0') + ':' + m[2];
+                }
+            }
+            return '';
+        }
+
+        function addMinutesToTimeString(timeStr, mins) {
+            if (!timeStr) return '';
+            const m = timeStr.match(/^([01]?\d|2[0-3])[:.]([0-5]\d)$/);
+            if (!m) return '';
+            let totalMinutes = parseInt(m[1], 10) * 60 + parseInt(m[2], 10) + mins;
+            if (totalMinutes >= 24 * 60) totalMinutes %= (24 * 60);
+            const h = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+            const min = String(totalMinutes % 60).padStart(2, '0');
+            return `${h}.${min}`;
+        }
+
+        function autoFormatRundownTimeOnBlur(type, idx, inputEl) {
+            if (!inputEl) return;
+            const raw = inputEl.value;
+            if (!raw || !raw.trim()) return;
+            const formatted = formatRundownTimeString(raw);
+            inputEl.value = formatted;
+            if (type === 'spz') {
+                updateSpzRundownField(idx, 'waktu', formatted);
+                renderSpzRundownEditor();
+            } else {
+                updateSbaRundownField(idx, 'waktu', formatted);
+                renderSbaRundownEditor();
+            }
+        }
+
+        function applyRundownQuickTime(type, idx, timeVal, part) {
+            if (!timeVal) return;
+            const list = (type === 'spz' ? spzRundownList : sbaRundownList);
+            const item = list[idx];
+            if (!item) return;
+
+            let start = extractRundownStartTime(item.waktu || '') || '08:00';
+            let end = extractRundownEndTime(item.waktu || '') || '08:30';
+
+            if (part === 'start') {
+                start = timeVal;
+                if (end !== 'selesai' && end <= start) {
+                    end = addMinutesToTimeString(start, 30).replace('.', ':');
+                }
+            } else if (part === 'end') {
+                end = timeVal;
+            }
+
+            const startFormatted = start.replace(':', '.');
+            const endFormatted = (end === 'selesai') ? 'Selesai' : end.replace(':', '.');
+            const formatted = `${startFormatted} - ${endFormatted} WIB`;
+
+            if (type === 'spz') {
+                updateSpzRundownField(idx, 'waktu', formatted);
+                renderSpzRundownEditor();
+            } else {
+                updateSbaRundownField(idx, 'waktu', formatted);
+                renderSbaRundownEditor();
+            }
+        }
+
+        function setRundownUntilFinish(type, idx) {
+            const list = (type === 'spz' ? spzRundownList : sbaRundownList);
+            const current = list[idx]?.waktu || '';
+            const start = extractRundownStartTime(current) || '08:00';
+            const formatted = `${start.replace(':', '.')} - Selesai WIB`;
+            if (type === 'spz') {
+                updateSpzRundownField(idx, 'waktu', formatted);
+                renderSpzRundownEditor();
+            } else {
+                updateSbaRundownField(idx, 'waktu', formatted);
+                renderSbaRundownEditor();
+            }
+        }
+
+        function inheritPrevRundownTime(type, idx) {
+            if (idx <= 0) return;
+            const list = (type === 'spz' ? spzRundownList : sbaRundownList);
+            const prev = list[idx - 1];
+            if (!prev || !prev.waktu) return;
+            const prevEnd = extractRundownEndTime(prev.waktu);
+            if (!prevEnd || prevEnd === 'selesai') return;
+            const startPart = prevEnd;
+            const endPart = addMinutesToTimeString(startPart, 30).replace('.', ':');
+            const formatted = `${startPart.replace(':', '.')} - ${endPart.replace(':', '.')} WIB`;
+            if (type === 'spz') {
+                updateSpzRundownField(idx, 'waktu', formatted);
+                renderSpzRundownEditor();
+            } else {
+                updateSbaRundownField(idx, 'waktu', formatted);
+                renderSbaRundownEditor();
+            }
+        }
+
         function renderSpzRundownEditor() {
             const container = document.getElementById('spz_rundown_editor_container');
             if (!container) return;
@@ -3833,8 +4010,13 @@
             const filledCount = spzRundownList.filter(r => (r.nama && r.nama.trim() !== '') || (r.waktu && r.waktu.trim() !== '') || (r.pj && r.pj.trim() !== '')).length;
             if (badge) badge.innerText = `${spzRundownList.length} Agenda${filledCount > 0 ? ` (${filledCount} Diisi)` : ' (Kosong)'}`;
 
-            container.innerHTML = spzRundownList.map((item, idx) => `
-                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
+            container.innerHTML = spzRundownList.map((item, idx) => {
+                const startTimeVal = extractRundownStartTime(item.waktu || '');
+                const rawEndTime = extractRundownEndTime(item.waktu || '');
+                const endTimeVal = rawEndTime === 'selesai' ? '' : rawEndTime;
+
+                return `
+                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2.5 text-xs">
                     <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
                         <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
                             <i class="fa-regular fa-calendar-check text-[10px]"></i> Agenda #${idx + 1}
@@ -3847,22 +4029,53 @@
                         <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Nama Kegiatan</label>
                         <input type="text" value="${escapeHtml(item.nama || '')}" oninput="updateSpzRundownField(${idx}, 'nama', this.value)" placeholder="Nama Kegiatan" class="form-input text-xs py-1.5 px-2.5 w-full">
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Waktu</label>
-                            <input type="text" value="${escapeHtml(item.waktu || '')}" oninput="updateSpzRundownField(${idx}, 'waktu', this.value)" placeholder="Contoh: 18.00 – 19.00 WIB" class="form-input text-xs py-1.5 px-2.5 font-mono w-full">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                        <div class="sm:col-span-7 flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[10px] text-neutral-400 font-semibold flex items-center gap-1">
+                                    <i class="fa-regular fa-clock text-orange-400 text-[10px]"></i> Waktu
+                                    <span class="text-[9px] font-mono text-orange-400/80 bg-orange-500/10 px-1 py-0.2 rounded font-normal">Auto WIB</span>
+                                </label>
+                                <div class="flex items-center gap-1">
+                                    ${idx > 0 ? `<button type="button" onclick="inheritPrevRundownTime('spz', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-orange-400 border border-neutral-700 font-mono transition-colors" title="Sambung jam dari Agenda #${idx}"><i class="fa-solid fa-link text-[8px]"></i> Sambung #${idx}</button>` : ''}
+                                    <button type="button" onclick="setRundownUntilFinish('spz', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 font-mono transition-colors" title="Set selesai (contoh: 12.00 - Selesai WIB)">s.d. Selesai</button>
+                                </div>
+                            </div>
+                            <input type="text" value="${escapeHtml(item.waktu || '')}" 
+                                oninput="updateSpzRundownField(${idx}, 'waktu', this.value)" 
+                                onblur="autoFormatRundownTimeOnBlur('spz', ${idx}, this)" 
+                                onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                                placeholder="08.00 - 08.30 WIB atau ketik bebas" 
+                                class="form-input text-xs py-1.5 px-2.5 font-mono w-full">
+                            <div class="flex items-center gap-1.5 text-[10px] text-neutral-400 bg-neutral-950/70 p-1.5 rounded-lg border border-neutral-800/80">
+                                <span class="text-[9px] text-neutral-400 font-mono">Pilih Jam:</span>
+                                <input type="time" value="${startTimeVal}" onchange="applyRundownQuickTime('spz', ${idx}, this.value, 'start')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Mulai">
+                                <span class="text-neutral-500 text-[10px]">-</span>
+                                <input type="time" value="${endTimeVal}" onchange="applyRundownQuickTime('spz', ${idx}, this.value, 'end')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Selesai">
+                            </div>
                         </div>
-                        <div>
+                        <div class="sm:col-span-5 flex flex-col justify-start">
                             <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Penanggung Jawab</label>
                             <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSpzRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1.5 px-2.5 w-full">
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function addSpzRundownRow() {
-            spzRundownList.push({ nama: '', waktu: '', pj: '' });
+            let nextWaktu = '';
+            if (spzRundownList.length > 0) {
+                const lastItem = spzRundownList[spzRundownList.length - 1];
+                const lastEnd = extractRundownEndTime(lastItem.waktu || '');
+                if (lastEnd && lastEnd !== 'selesai') {
+                    const startPart = lastEnd;
+                    const endPart = addMinutesToTimeString(startPart, 30).replace('.', ':');
+                    nextWaktu = `${startPart.replace(':', '.')} - ${endPart.replace(':', '.')} WIB`;
+                }
+            }
+            spzRundownList.push({ nama: '', waktu: nextWaktu, pj: '' });
             renderSpzRundownEditor();
             updatePreview();
         }
@@ -5115,8 +5328,13 @@
             const badge = document.getElementById('sba_rundown_count_badge');
             if (badge) badge.innerText = `${sbaRundownList.length} Baris`;
 
-            container.innerHTML = sbaRundownList.map((item, idx) => `
-                <div class="p-2.5 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2 text-xs">
+            container.innerHTML = sbaRundownList.map((item, idx) => {
+                const startTimeVal = extractRundownStartTime(item.waktu || '');
+                const rawEndTime = extractRundownEndTime(item.waktu || '');
+                const endTimeVal = rawEndTime === 'selesai' ? '' : rawEndTime;
+
+                return `
+                <div class="p-3 rounded-xl bg-neutral-900/90 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex flex-col gap-2.5 text-xs">
                     <div class="flex items-center justify-between pb-1 border-b border-neutral-800/60">
                         <span class="font-mono font-bold text-[11px] text-orange-400 flex items-center gap-1.5">
                             <i class="fa-solid fa-list-ol text-[10px]"></i> Baris #${idx + 1}
@@ -5125,26 +5343,57 @@
                             <i class="fa-solid fa-trash text-[11px]"></i>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                        <div class="sm:col-span-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                        <div class="sm:col-span-5 flex flex-col justify-start">
                             <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Rangkaian Kegiatan</label>
-                            <textarea rows="2" oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value)" placeholder="Rangkaian kegiatan..." class="form-input text-xs py-1.5 px-2.5 w-full">${escapeHtml(item.rangkaian || '')}</textarea>
+                            <textarea rows="3" oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value)" placeholder="Rangkaian kegiatan..." class="form-input text-xs py-1.5 px-2.5 w-full">${escapeHtml(item.rangkaian || '')}</textarea>
                         </div>
-                        <div class="sm:col-span-3">
-                            <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Waktu</label>
-                            <input type="text" value="${escapeHtml(item.waktu || '')}" oninput="updateSbaRundownField(${idx}, 'waktu', this.value)" placeholder="08.00 - 08.30 WIB" class="form-input text-xs py-1.5 px-2.5 font-mono text-center w-full">
+                        <div class="sm:col-span-4 flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[10px] text-neutral-400 font-semibold flex items-center gap-1">
+                                    <i class="fa-regular fa-clock text-orange-400 text-[10px]"></i> Waktu
+                                    <span class="text-[9px] font-mono text-orange-400/80 bg-orange-500/10 px-1 py-0.2 rounded font-normal">Auto WIB</span>
+                                </label>
+                                <div class="flex items-center gap-1">
+                                    ${idx > 0 ? `<button type="button" onclick="inheritPrevRundownTime('sba', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-orange-400 border border-neutral-700 font-mono transition-colors" title="Sambung jam dari Baris #${idx}"><i class="fa-solid fa-link text-[8px]"></i> #${idx}</button>` : ''}
+                                    <button type="button" onclick="setRundownUntilFinish('sba', ${idx})" class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 font-mono transition-colors" title="Set selesai (contoh: 12.00 - Selesai WIB)">Selesai</button>
+                                </div>
+                            </div>
+                            <input type="text" value="${escapeHtml(item.waktu || '')}" 
+                                oninput="updateSbaRundownField(${idx}, 'waktu', this.value)" 
+                                onblur="autoFormatRundownTimeOnBlur('sba', ${idx}, this)" 
+                                onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                                placeholder="08.00 - 08.30 WIB atau ketik bebas" 
+                                class="form-input text-xs py-1.5 px-2.5 font-mono text-center w-full">
+                            <div class="flex items-center justify-center gap-1.5 text-[10px] text-neutral-400 bg-neutral-950/70 p-1.5 rounded-lg border border-neutral-800/80">
+                                <span class="text-[9px] text-neutral-400 font-mono">Pilih Jam:</span>
+                                <input type="time" value="${startTimeVal}" onchange="applyRundownQuickTime('sba', ${idx}, this.value, 'start')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Mulai">
+                                <span class="text-neutral-500 text-[10px]">-</span>
+                                <input type="time" value="${endTimeVal}" onchange="applyRundownQuickTime('sba', ${idx}, this.value, 'end')" class="bg-neutral-900 border border-neutral-700 rounded px-1.5 py-0.5 text-[10px] text-neutral-200 font-mono focus:border-orange-500 outline-none" title="Jam Selesai">
+                            </div>
                         </div>
-                        <div class="sm:col-span-3">
+                        <div class="sm:col-span-3 flex flex-col justify-start">
                             <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Penanggung Jawab</label>
                             <input type="text" value="${escapeHtml(item.pj || '')}" oninput="updateSbaRundownField(${idx}, 'pj', this.value)" placeholder="Penanggung Jawab" class="form-input text-xs py-1.5 px-2.5 w-full">
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function addSbaRundownRow() {
-            sbaRundownList.push({ no: `${sbaRundownList.length + 1}.`, rangkaian: '', waktu: '', pj: '' });
+            let nextWaktu = '';
+            if (sbaRundownList.length > 0) {
+                const lastItem = sbaRundownList[sbaRundownList.length - 1];
+                const lastEnd = extractRundownEndTime(lastItem.waktu || '');
+                if (lastEnd && lastEnd !== 'selesai') {
+                    const startPart = lastEnd;
+                    const endPart = addMinutesToTimeString(startPart, 30).replace('.', ':');
+                    nextWaktu = `${startPart.replace(':', '.')} - ${endPart.replace(':', '.')} WIB`;
+                }
+            }
+            sbaRundownList.push({ no: `${sbaRundownList.length + 1}.`, rangkaian: '', waktu: nextWaktu, pj: '' });
             renderSbaRundownEditor();
             updatePreview();
         }
