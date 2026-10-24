@@ -547,6 +547,25 @@
             font-style: normal !important;
         }
 
+        /* Interactive Click-to-Edit System from A4 Preview */
+        .preview-editable {
+            cursor: pointer !important;
+            position: relative;
+            border-radius: 4px;
+            transition: background-color 0.15s ease, outline 0.15s ease, box-shadow 0.15s ease;
+        }
+        .preview-editable:hover {
+            outline: 2px dashed #f97316 !important;
+            outline-offset: 3px;
+            background-color: rgba(249, 115, 22, 0.08) !important;
+        }
+        .preview-editable.preview-editable-active {
+            outline: 2.5px solid #f97316 !important;
+            outline-offset: 3px;
+            background-color: rgba(249, 115, 22, 0.15) !important;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25) !important;
+        }
+
         /* SPZ Authentic A4 Multi-Page System */
         .spz-page-sheet {
             background-color: #FFFFFF !important;
@@ -743,8 +762,14 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner, #workspace_form_section, #page_stepper_tabs, .workspace-toolbar, #form_step_banner, #page_stepper_card, #preview_toolbar_top, #view_folder_dokumen, #editor_top_doc_bar, #modal_create_new_doc, #nav_btn_folder, #nav_btn_editor {
+            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner, #workspace_form_section, #page_stepper_tabs, .workspace-toolbar, #form_step_banner, #page_stepper_card, #preview_toolbar_top, #view_folder_dokumen, #editor_top_doc_bar, #modal_create_new_doc, #nav_btn_folder, #nav_btn_editor, #preview_quick_edit_popover {
                 display: none !important;
+            }
+            .preview-editable {
+                outline: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                cursor: default !important;
             }
             #view_editor_dokumen {
                 display: block !important;
@@ -1187,19 +1212,60 @@
             
             <!-- LIVE PREVIEW SECTION (TOP IN STACKED MODE) -->
             <div id="workspace_preview_section" class="flex flex-col gap-3">
-                <div id="preview_toolbar_top" class="flex items-center justify-between px-1 print:hidden">
+                <div id="preview_toolbar_top" class="flex items-center justify-between px-1 print:hidden flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="preview_header_title" class="text-xs font-bold font-mono tracking-wider text-neutral-300 uppercase">
                             Pratinjau Kertas A4 &bull; Halaman 1
                         </span>
                     </div>
+                    <!-- Quick Click-to-Edit Indicator Pill -->
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/25 text-orange-400 text-[11px] font-medium shadow-xs">
+                        <i class="fa-solid fa-hand-pointer text-[10px] animate-pulse"></i>
+                        <span>Klik teks di lembar untuk langsung mengubah</span>
+                    </div>
                 </div>
 
                 <!-- SHEET CONTAINER -->
-                <div id="preview_sheet_outer_box" class="rounded-xl border border-neutral-800 bg-neutral-950/40 p-2 sm:p-4 overflow-x-auto shadow-inner">
+                <div id="preview_sheet_outer_box" class="rounded-xl border border-neutral-800 bg-neutral-950/40 p-2 sm:p-4 overflow-x-auto shadow-inner relative">
                     <div id="rendered_surat_paper" class="a4-preview-sheet mx-auto">
                         <!-- Konten surat dirender secara dinamis di sini -->
+                    </div>
+
+                    <!-- FLOATING QUICK-EDIT POPOVER DARI PRATINJAU -->
+                    <div id="preview_quick_edit_popover" class="hidden fixed z-50 p-4 rounded-2xl bg-neutral-900/95 border border-orange-500/50 shadow-2xl backdrop-blur-md text-neutral-100 w-[92vw] max-w-md print:hidden transition-all duration-200">
+                        <!-- Header Popover -->
+                        <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-neutral-800">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </span>
+                                <div>
+                                    <span class="text-xs font-bold text-white block leading-tight" id="popover_edit_title">Ubah Bagian Surat</span>
+                                    <span class="text-[10px] text-orange-400 font-mono" id="popover_edit_subtitle">Edit langsung dari pratinjau</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="closePreviewQuickEdit()" class="w-6 h-6 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center transition-colors" title="Tutup (Esc)">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- Input Body Container -->
+                        <div id="popover_input_container" class="space-y-2 mb-3">
+                            <!-- Diisi secara dinamis via JS -->
+                        </div>
+
+                        <!-- Footer Popover -->
+                        <div class="flex items-center justify-between pt-2 border-t border-neutral-800 text-xs">
+                            <button type="button" onclick="focusLeftFormCard()" class="text-[11px] text-neutral-400 hover:text-orange-300 flex items-center gap-1 font-medium transition-colors">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                <span>Buka di Formulir</span>
+                            </button>
+                            <button type="button" onclick="closePreviewQuickEdit()" class="px-3.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95">
+                                <i class="fa-solid fa-check text-[10px]"></i>
+                                <span>Selesai</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3888,6 +3954,7 @@
             if (typeof syncAutoLampiranCount === 'function') syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             updatePreview();
         }
 
@@ -3900,6 +3967,7 @@
             if (typeof syncAutoLampiranCount === 'function') syncAutoLampiranCount();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             updatePreview();
         }
 
@@ -5366,6 +5434,7 @@
 
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             updatePreview();
 
             if (typeof Swal !== 'undefined') {
@@ -5419,6 +5488,7 @@
             syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             updatePreview();
         }
 
@@ -5432,6 +5502,7 @@
             syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             updatePreview();
         }
 
@@ -5450,6 +5521,7 @@
             syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             updatePreview();
         }
 
@@ -6814,7 +6886,7 @@
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
                             <!-- TANGGAL SURAT -->
                             <div style="text-align: right; margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
+                                <p style="margin: 0;"><span class="preview-editable" data-edit-target="field_tanggal_surat" data-edit-label="Kota &amp; Tanggal Surat" data-edit-type="text" title="Klik untuk edit Tanggal Surat">${formatInlineRichText(tanggalSurat)}</span></p>
                             </div>
 
                             <!-- META SURAT -->
@@ -6822,22 +6894,22 @@
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;"><span class="preview-editable" data-edit-target="field_nomor_prefix" data-edit-label="Nomor Urut Surat" data-edit-type="text" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span></td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;"><span class="preview-editable" data-edit-target="${rawFasilitas ? 'spz_input_fasilitas' : 'field_perihal'}" data-edit-label="${rawFasilitas ? 'Fasilitas Peminjaman' : 'Perihal Surat'}" data-edit-type="text" title="Klik untuk edit Perihal">${formatInlineRichText(perihal)}</span></td>
                                 </tr>
                                 <tr>
                                     <td style="width: 65px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                     <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                    <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
+                                    <td style="vertical-align: top; padding: 1.5pt 0;"><span class="preview-editable" data-edit-target="field_lampiran_angka" data-edit-label="Jumlah Lampiran" data-edit-type="text" title="Klik untuk edit Lampiran">${formatInlineRichText(lampiran)}</span></td>
                                 </tr>
                             </table>
 
                             <!-- TUJUAN SURAT -->
-                            <div style="margin-bottom: 18pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div class="preview-editable" data-edit-target="field_tujuan" data-edit-label="Tujuan Surat" data-edit-type="textarea" title="Klik untuk edit Tujuan Surat" style="margin-bottom: 18pt; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${formatSpzTujuan(tujuan)}
                             </div>
 
@@ -6847,15 +6919,17 @@
                             </div>
 
                             <!-- PARAGRAF PEMBUKA -->
-                            <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div class="preview-editable" data-edit-target="field_pembuka" data-edit-label="Paragraf Pembuka" data-edit-type="textarea" title="Klik untuk edit Paragraf Pembuka" style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${pembukaParas}
                             </div>
 
                             <!-- RINCIAN ACARA -->
-                            ${eventBoxHtml}
+                            <div class="preview-editable" data-edit-target="card_detail_kegiatan" data-edit-label="Rincian Hari, Waktu &amp; Tempat" data-edit-type="detail_kegiatan" title="Klik untuk edit Rincian Acara">
+                                ${eventBoxHtml}
+                            </div>
 
                             <!-- PARAGRAF INTI -->
-                            <div style="margin-bottom: 0; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <div class="preview-editable" data-edit-target="field_isi_inti" data-edit-label="Paragraf Deskripsi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Deskripsi Kegiatan" style="margin-bottom: 0; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 ${intiParas}
                             </div>
                         </div>
@@ -6880,14 +6954,16 @@
 
                         <div class="spz-body-container" style="padding-left: 9mm; padding-right: 9mm;">
                             <div style="margin-bottom: 10pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
-                                <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                                <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_prefix" data-edit-label="Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
                             </div>
 
-                            <p style="margin: 0 0 12pt 0; text-align: left; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                ${formatSpzText(penutup).replace(/\n/g, '<br>')}
-                            </p>
+                            <div class="preview-editable" data-edit-target="field_penutup" data-edit-label="Paragraf Penutup" data-edit-type="textarea" title="Klik untuk edit Paragraf Penutup">
+                                <p style="margin: 0 0 12pt 0; text-align: left; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                    ${formatSpzText(penutup).replace(/\n/g, '<br>')}
+                                </p>
+                            </div>
 
-                            <div style="font-family: 'Times New Roman', serif;">
+                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penandatangan Surat" data-edit-type="ttd" title="Klik untuk edit Penandatangan" style="font-family: 'Times New Roman', serif;">
                                 <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
                                 <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
@@ -7736,7 +7812,7 @@
                     pageContentHtml = `
                         <!-- TANGGAL SURAT -->
                         <div style="text-align: right; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                            <p style="margin: 0;">${formatInlineRichText(tanggalSurat)}</p>
+                            <p style="margin: 0;"><span class="preview-editable" data-edit-target="field_tanggal_surat" data-edit-label="Kota &amp; Tanggal Surat" data-edit-type="text" title="Klik untuk edit Tanggal Surat">${formatInlineRichText(tanggalSurat)}</span></p>
                         </div>
 
                         <!-- META SURAT -->
@@ -7744,36 +7820,36 @@
                             <tr>
                                 <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Nomor</td>
                                 <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(noSurat)}</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;"><span class="preview-editable" data-edit-target="field_nomor_prefix" data-edit-label="Nomor Urut Surat" data-edit-type="text" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span></td>
                             </tr>
                             <tr>
                                 <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Hal</td>
                                 <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(perihal)}</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;"><span class="preview-editable" data-edit-target="field_perihal" data-edit-label="Perihal / Hal Surat" data-edit-type="text" title="Klik untuk edit Perihal">${formatInlineRichText(perihal)}</span></td>
                             </tr>
                             <tr>
                                 <td style="width: 75px; vertical-align: top; padding: 1.5pt 0;">Lampiran</td>
                                 <td style="width: 15px; vertical-align: top; text-align: center; padding: 1.5pt 0;">:</td>
-                                <td style="vertical-align: top; padding: 1.5pt 0;">${formatInlineRichText(lampiran)}</td>
+                                <td style="vertical-align: top; padding: 1.5pt 0;"><span class="preview-editable" data-edit-target="field_lampiran_angka" data-edit-label="Jumlah Lampiran" data-edit-type="text" title="Klik untuk edit Lampiran">${formatInlineRichText(lampiran)}</span></td>
                             </tr>
                         </table>
 
                         <!-- JUDUL BERITA ACARA -->
                         <div style="text-align: center; margin-bottom: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.5;">
                             <p style="margin: 0;">BERITA ACARA</p>
-                            <p style="margin: 0;">${formatInlineRichText(namaAcara.toUpperCase())}</p>
+                            <p style="margin: 0;"><span class="preview-editable" data-edit-target="field_nama_acara" data-edit-label="Nama Kegiatan" data-edit-type="text" title="Klik untuk edit Nama Kegiatan">${formatInlineRichText(namaAcara.toUpperCase())}</span></p>
                             <p style="margin: 0;">UNIT KEGIATAN MAHASISWA LDK IMIP</p>
                         </div>
 
                         <!-- ISI SURAT -->
-                        ${pembukaParas}
-                        ${eventBoxHtml}
-                        ${intiParas}
+                        <div class="preview-editable" data-edit-target="field_pembuka" data-edit-label="Paragraf Pembuka Surat" data-edit-type="textarea" title="Klik untuk edit Paragraf Pembuka">${pembukaParas}</div>
+                        ${eventBoxHtml ? `<div class="preview-editable" data-edit-target="card_detail_kegiatan" data-edit-label="Rincian Hari, Waktu &amp; Tempat" data-edit-type="detail_kegiatan" title="Klik untuk edit Rincian Acara">${eventBoxHtml}</div>` : ''}
+                        <div class="preview-editable" data-edit-target="field_isi_inti" data-edit-label="Paragraf Isi Inti Berita Acara" data-edit-type="textarea" title="Klik untuk edit Paragraf Isi Inti">${intiParas}</div>
                     `;
                 } else if (key === 'rundown') {
                     // HALAMAN 2: HASIL KEGIATAN (RUNDOWN ACARA)
                     const rowsHtml = sbaRundownList.map((item, idx) => `
-                        <tr>
+                        <tr class="preview-editable" data-edit-target="sba_rundown_row" data-edit-idx="${idx}" data-edit-label="Susunan Rundown Baris #${idx + 1}" data-edit-type="rundown" title="Klik untuk edit Rundown Baris #${idx + 1}">
                             <td style="border: 1px solid #000; padding: 4pt 3pt; text-align: center; vertical-align: middle;">${item.no || `${idx + 1}.`}</td>
                             <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: left; vertical-align: middle;">${formatInlineRichText(item.rangkaian).replace(/\n/g, '<br>')}</td>
                             <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle; white-space: nowrap;">${formatInlineRichText(item.waktu)}</td>
@@ -8016,12 +8092,14 @@
                         </div>
 
                         <!-- PARAGRAF PENUTUP -->
-                        <p style="margin: 0 0 12pt 0; text-align: left; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                            ${formatInlineRichText(penutup).replace(/\n/g, '<br>')}
-                        </p>
+                        <div class="preview-editable" data-edit-target="field_penutup" data-edit-label="Paragraf Penutup" data-edit-type="textarea" title="Klik untuk edit Paragraf Penutup">
+                            <p style="margin: 0 0 12pt 0; text-align: left; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                ${formatInlineRichText(penutup).replace(/\n/g, '<br>')}
+                            </p>
+                        </div>
 
                         <!-- PENGESAHAN FORMAT & JARAK PERSIS SPZ -->
-                        <div style="font-family: 'Times New Roman', serif;">
+                        <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penandatangan Surat" data-edit-type="ttd" title="Klik untuk edit Penandatangan" style="font-family: 'Times New Roman', serif;">
                             <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
                             <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
                             <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
@@ -8206,6 +8284,9 @@
             if (container) {
                 container.className = 'w-full space-y-6 mx-auto';
                 container.innerHTML = renderSuratFullHtml();
+                if (typeof initPreviewClickToEdit === 'function') {
+                    initPreviewClickToEdit();
+                }
             }
             if (typeof applyActivePageVisibility === 'function') {
                 applyActivePageVisibility();
@@ -10291,6 +10372,315 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
         }
 
+        // ==========================================
+        // SISTEM EDIT LANGSUNG DARI PRATINJAU (INTERACTIVE CLICK-TO-EDIT)
+        // ==========================================
+        let currentQuickEditTarget = null;
+        let currentQuickEditElement = null;
+        let quickEditDebounceTimer = null;
+
+        function initPreviewClickToEdit() {
+            const paper = document.getElementById('rendered_surat_paper');
+            if (!paper || paper.dataset.clickInit === 'true') return;
+            paper.dataset.clickInit = 'true';
+
+            paper.addEventListener('click', (e) => {
+                const editable = e.target.closest('.preview-editable');
+                if (!editable) return;
+                e.preventDefault();
+                e.stopPropagation();
+                openPreviewQuickEdit(editable);
+            });
+        }
+
+        function openPreviewQuickEdit(editable) {
+            currentQuickEditElement = editable;
+            const targetId = editable.getAttribute('data-edit-target') || '';
+            const label = editable.getAttribute('data-edit-label') || 'Bagian Surat';
+            const type = editable.getAttribute('data-edit-type') || 'text';
+            const idx = editable.getAttribute('data-edit-idx');
+
+            currentQuickEditTarget = { targetId, label, type, idx };
+
+            // 1. Indikator aktif pada elemen di lembar pratinjau
+            document.querySelectorAll('.preview-editable-active').forEach(el => el.classList.remove('preview-editable-active'));
+            editable.classList.add('preview-editable-active');
+
+            // 2. Setup Popover
+            const popover = document.getElementById('preview_quick_edit_popover');
+            const titleEl = document.getElementById('popover_edit_title');
+            const subtitleEl = document.getElementById('popover_edit_subtitle');
+            const container = document.getElementById('popover_input_container');
+            if (!popover || !container) return;
+
+            if (titleEl) titleEl.innerText = `Ubah ${label}`;
+            if (subtitleEl) subtitleEl.innerText = `Indikator aktif • Ketik teks untuk memperbarui pratinjau`;
+
+            container.innerHTML = generatePopoverInputHtml(type, targetId, idx);
+
+            // 3. Posisikan Popover dekat dengan teks yang diklik
+            positionQuickEditPopover(editable, popover);
+            popover.classList.remove('hidden');
+
+            // 4. Fokus ke input utama dalam popover
+            setTimeout(() => {
+                const input = container.querySelector('input:not([type="hidden"]), textarea');
+                if (input) {
+                    input.focus();
+                    if (typeof input.select === 'function') input.select();
+                }
+            }, 60);
+
+            // 5. Tandai & scroll kartu formulir di sebelah kiri (tanpa fokus agar popover tetap aktif)
+            highlightCorrespondingFormCard(targetId, idx, false);
+        }
+
+        function closePreviewQuickEdit() {
+            const popover = document.getElementById('preview_quick_edit_popover');
+            if (popover) popover.classList.add('hidden');
+            document.querySelectorAll('.preview-editable-active').forEach(el => el.classList.remove('preview-editable-active'));
+            currentQuickEditTarget = null;
+            currentQuickEditElement = null;
+        }
+
+        function positionQuickEditPopover(editable, popover) {
+            const rect = editable.getBoundingClientRect();
+            const popWidth = Math.min(window.innerWidth * 0.92, 430);
+            const popHeight = 260;
+
+            let left = rect.left + (rect.width / 2) - (popWidth / 2);
+            if (left < 16) left = 16;
+            if (left + popWidth > window.innerWidth - 16) left = window.innerWidth - popWidth - 16;
+
+            let top = rect.bottom + 12;
+            if (top + popHeight > window.innerHeight - 20) {
+                top = Math.max(20, rect.top - popHeight - 12);
+            }
+
+            popover.style.left = `${Math.round(left)}px`;
+            popover.style.top = `${Math.round(top)}px`;
+        }
+
+        function generatePopoverInputHtml(type, targetId, idx) {
+            if (type === 'text') {
+                const formInput = document.getElementById(targetId);
+                const val = formInput ? formInput.value : '';
+                const ph = formInput ? (formInput.placeholder || 'Ketik teks di sini...') : 'Ketik teks...';
+                return `
+                    <div>
+                        <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Teks Isian (Placeholder: ${escapeHtml(ph)})</label>
+                        <input type="text" id="quick_input_main" value="${escapeHtml(val)}" placeholder="${escapeHtml(ph)}" 
+                            oninput="syncQuickEditToForm('${targetId}', this.value)" 
+                            onkeydown="if(event.key==='Enter'){event.preventDefault(); closePreviewQuickEdit();}"
+                            class="form-input text-xs py-2 px-3 w-full font-medium text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500">
+                    </div>
+                `;
+            }
+
+            if (type === 'textarea') {
+                const formInput = document.getElementById(targetId);
+                const val = formInput ? formInput.value : '';
+                const ph = formInput ? (formInput.placeholder || 'Ketik teks paragraf...') : 'Ketik teks paragraf...';
+                return `
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-[10px] text-neutral-400 font-semibold">Teks Paragraf</label>
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="formatQuickSelection('quick_input_main', '**')" class="px-2 py-0.5 rounded bg-neutral-800 text-[10px] font-bold text-neutral-300 hover:text-white border border-neutral-700">Tebal</button>
+                                <button type="button" onclick="formatQuickSelection('quick_input_main', '*')" class="px-2 py-0.5 rounded bg-neutral-800 text-[10px] italic text-neutral-300 hover:text-white border border-neutral-700">Miring</button>
+                            </div>
+                        </div>
+                        <textarea id="quick_input_main" rows="4" placeholder="${escapeHtml(ph)}" 
+                            oninput="syncQuickEditToForm('${targetId}', this.value)" 
+                            class="form-input text-xs py-2 px-3 w-full leading-relaxed text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500">${escapeHtml(val)}</textarea>
+                        <span class="text-[9.5px] text-neutral-400 mt-1 block">Gunakan *teks* untuk cetak miring, **teks** untuk tebal.</span>
+                    </div>
+                `;
+            }
+
+            if (type === 'detail_kegiatan') {
+                const valHari = document.getElementById('field_hari_tanggal')?.value || '';
+                const valWaktu = document.getElementById('field_waktu')?.value || '';
+                const valTempat = document.getElementById('field_tempat')?.value || '';
+                return `
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-0.5">Hari, Tanggal</label>
+                            <input type="text" value="${escapeHtml(valHari)}" placeholder="Minggu, 28 Juni 2026" 
+                                oninput="syncQuickEditToForm('field_hari_tanggal', this.value)" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-0.5">Waktu / Pukul</label>
+                            <input type="text" value="${escapeHtml(valWaktu)}" placeholder="08.00 s/d 13.10 WIB" 
+                                oninput="syncQuickEditToForm('field_waktu', this.value)" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-0.5">Tempat Kegiatan</label>
+                            <input type="text" value="${escapeHtml(valTempat)}" placeholder="Masjid Ulul Albab..." 
+                                oninput="syncQuickEditToForm('field_tempat', this.value)" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white">
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (type === 'rundown' && idx !== undefined) {
+                const row = sbaRundownList[idx] || {};
+                return `
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[10px] text-neutral-400 font-semibold block mb-0.5">Rangkaian Kegiatan (Baris #${parseInt(idx) + 1})</label>
+                            <input type="text" value="${escapeHtml(row.rangkaian || '')}" placeholder="Contoh: Pembukaan MC..." 
+                                oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-neutral-400 font-semibold block mb-0.5">Waktu</label>
+                                <input type="text" value="${escapeHtml(row.waktu || '')}" placeholder="08.00 - 08.30 WIB" 
+                                    oninput="updateSbaRundownField(${idx}, 'waktu', this.value);" 
+                                    onblur="autoFormatRundownTimeOnBlur('sba', ${idx}, this); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();"
+                                    class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg font-mono text-center text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-400 font-semibold block mb-0.5">Penanggung Jawab</label>
+                                <input type="text" value="${escapeHtml(row.pj || '')}" placeholder="PJ Kegiatan..." 
+                                    oninput="updateSbaRundownField(${idx}, 'pj', this.value); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();" 
+                                    class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (type === 'ttd') {
+                const ttd1Nama = document.getElementById('field_ttd1_nama')?.value || '';
+                const ttd1Nim = document.getElementById('field_ttd1_nim')?.value || '';
+                const ttd2Nama = document.getElementById('field_ttd2_nama')?.value || '';
+                const ttd2Nim = document.getElementById('field_ttd2_nim')?.value || '';
+                return `
+                    <div class="space-y-2">
+                        <div class="p-2 rounded-lg bg-neutral-950 border border-neutral-800">
+                            <label class="text-[10px] text-orange-400 font-bold block mb-1">Ketua Pelaksana</label>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <input type="text" value="${escapeHtml(ttd1Nama)}" placeholder="Nama Ketua Pelaksana" oninput="syncQuickEditToForm('field_ttd1_nama', this.value)" class="form-input text-xs py-1 px-2 bg-neutral-900 border-neutral-700 text-white">
+                                <input type="text" value="${escapeHtml(ttd1Nim)}" placeholder="NIM" oninput="syncQuickEditToForm('field_ttd1_nim', this.value)" class="form-input text-xs py-1 px-2 bg-neutral-900 border-neutral-700 font-mono text-white">
+                            </div>
+                        </div>
+                        <div class="p-2 rounded-lg bg-neutral-950 border border-neutral-800">
+                            <label class="text-[10px] text-orange-400 font-bold block mb-1">Ketua UKM IMIP</label>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <input type="text" value="${escapeHtml(ttd2Nama)}" placeholder="Nama Ketua IMIP" oninput="syncQuickEditToForm('field_ttd2_nama', this.value)" class="form-input text-xs py-1 px-2 bg-neutral-900 border-neutral-700 text-white">
+                                <input type="text" value="${escapeHtml(ttd2Nim)}" placeholder="NIM" oninput="syncQuickEditToForm('field_ttd2_nim', this.value)" class="form-input text-xs py-1 px-2 bg-neutral-900 border-neutral-700 font-mono text-white">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return '';
+        }
+
+        function syncQuickEditToForm(targetId, val) {
+            const input = document.getElementById(targetId);
+            if (input) {
+                input.value = val;
+                if (typeof input.oninput === 'function') {
+                    try { input.oninput(); } catch (err) {}
+                }
+            }
+
+            clearTimeout(quickEditDebounceTimer);
+            quickEditDebounceTimer = setTimeout(() => {
+                updatePreview();
+                if (currentQuickEditTarget) {
+                    const selector = `[data-edit-target="${currentQuickEditTarget.targetId}"]`;
+                    const newEl = document.querySelector(selector);
+                    if (newEl) newEl.classList.add('preview-editable-active');
+                }
+            }, 100);
+        }
+
+        function formatQuickSelection(inputId, wrapper) {
+            const el = document.getElementById(inputId);
+            if (!el) return;
+            const start = el.selectionStart;
+            const end = el.selectionEnd;
+            const text = el.value;
+            const selected = text.substring(start, end) || 'teks';
+            const replacement = `${wrapper}${selected}${wrapper}`;
+            el.value = text.substring(0, start) + replacement + text.substring(end);
+            el.dispatchEvent(new Event('input'));
+            el.focus();
+            el.setSelectionRange(start + wrapper.length, start + wrapper.length + selected.length);
+        }
+
+        function focusLeftFormCard() {
+            if (!currentQuickEditTarget) return;
+            const { targetId, idx } = currentQuickEditTarget;
+            closePreviewQuickEdit();
+            highlightCorrespondingFormCard(targetId, idx, true);
+        }
+
+        function highlightCorrespondingFormCard(targetId, idx, shouldFocus = false) {
+            let targetEl = document.getElementById(targetId);
+            if (targetId === 'sba_rundown_row' && idx !== undefined) {
+                const container = document.getElementById('sba_rundown_editor_container');
+                if (container) {
+                    const rows = container.querySelectorAll('.p-3\\.5, .p-3');
+                    if (rows && rows[idx]) targetEl = rows[idx];
+                }
+            } else if (targetId === 'card_detail_kegiatan') {
+                targetEl = document.getElementById('card_detail_kegiatan') || document.getElementById('field_hari_tanggal');
+            } else if (targetId === 'card_penandatangan') {
+                targetEl = document.getElementById('card_penandatangan');
+            }
+
+            if (!targetEl) return;
+
+            // Jika kartu berada di halaman stepper lain dan tersembunyi, switch ke 'all'
+            const parentCard = targetEl.closest('.glass-card');
+            if (parentCard && parentCard.classList.contains('hidden-by-step')) {
+                setActivePage('all');
+            }
+
+            // Scroll mulus ke elemen terkait di formulir kiri
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Animasi ring indikator oranye
+            targetEl.classList.add('ring-4', 'ring-orange-500/70', 'border-orange-500');
+            setTimeout(() => {
+                targetEl.classList.remove('ring-4', 'ring-orange-500/70');
+            }, 1800);
+
+            if (shouldFocus) {
+                const input = targetEl.querySelector ? (targetEl.querySelector('input, textarea') || targetEl) : targetEl;
+                if (input && typeof input.focus === 'function') {
+                    input.focus();
+                    if (typeof input.select === 'function') input.select();
+                }
+            }
+        }
+
+        // Global listeners for Click-to-Edit Popover
+        document.addEventListener('mousedown', (e) => {
+            const popover = document.getElementById('preview_quick_edit_popover');
+            if (!popover || popover.classList.contains('hidden')) return;
+            if (popover.contains(e.target) || e.target.closest('.preview-editable')) return;
+            closePreviewQuickEdit();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const popover = document.getElementById('preview_quick_edit_popover');
+                if (popover && !popover.classList.contains('hidden')) {
+                    closePreviewQuickEdit();
+                }
+            }
+        });
+
         // INITIALIZE ON LOAD
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
@@ -10332,6 +10722,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
 
             // Cek URL params untuk menentukan tampilan awal
             const urlParams = new URLSearchParams(window.location.search);
