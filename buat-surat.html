@@ -2269,16 +2269,24 @@
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="text-[11px] font-bold text-neutral-200">Hambatan Pelaksanaan</label>
-                                <span class="text-[9px] text-neutral-400 font-mono">Poin-poin hambatan (baris baru / bullet •)</span>
+                                <span class="text-[9px] text-orange-400 font-mono">Tekan Enter untuk poin baru (•) otomatis</span>
                             </div>
-                            <textarea id="sba_hambatan_kegiatan" rows="4" oninput="updatePreview()" class="form-input text-xs w-full font-sans" placeholder="Tuliskan tiap hambatan pada baris baru (bisa dengan bullet •)..."></textarea>
+                            <textarea id="sba_hambatan_kegiatan" rows="4" 
+                                onkeydown="handleBulletKeydown(event, this, 'sba_hambatan_kegiatan')"
+                                oninput="updatePreview()" 
+                                class="form-input text-xs w-full font-sans leading-relaxed" 
+                                placeholder="Contoh format per baris:&#10;• Koordinasi antar-panitia kurang optimal di hari H&#10;• Manajemen waktu kurang disiplin sehingga acara molor&#10;• Kesiapan perlengkapan teknis dan logistik kurang terantisipasi"></textarea>
                         </div>
                         <div>
                             <div class="flex items-center justify-between mb-1">
                                 <label class="text-[11px] font-bold text-neutral-200">Evaluasi &amp; Solusi Perbaikan</label>
-                                <span class="text-[9px] text-neutral-400 font-mono">Rencana perbaikan (baris baru / bullet •)</span>
+                                <span class="text-[9px] text-orange-400 font-mono">Tekan Enter untuk poin baru (•) otomatis</span>
                             </div>
-                            <textarea id="sba_evaluasi_kegiatan" rows="4" oninput="updatePreview()" class="form-input text-xs w-full font-sans" placeholder="Tuliskan tiap evaluasi pada baris baru (bisa dengan bullet •)..."></textarea>
+                            <textarea id="sba_evaluasi_kegiatan" rows="4" 
+                                onkeydown="handleBulletKeydown(event, this, 'sba_evaluasi_kegiatan')"
+                                oninput="updatePreview()" 
+                                class="form-input text-xs w-full font-sans leading-relaxed" 
+                                placeholder="Contoh format per baris:&#10;• Buat satu grup koordinasi utama untuk seluruh panitia agar komunikasi terpusat&#10;• Perketat fungsi time keeper dan matangkan susunan rundown kegiatan&#10;• Lakukan pengecekan fisik seluruh perlengkapan pada H-1 acara"></textarea>
                         </div>
                     </div>
                 </div>
@@ -11120,6 +11128,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 else if (type === 'spz_rundown_all' || type === 'sba_rundown_all') subtitleEl.innerText = 'Kelola susunan rundown, waktu & penanggung jawab';
                 else if (type === 'sba_prestasi_all') subtitleEl.innerText = 'Kelola semua capaian prestasi, kejuaraan, nama peserta & prodi';
                 else if (type === 'sba_prestasi_row') subtitleEl.innerText = 'Ubah capaian, tingkat, bidang, nama & prodi';
+                else if (targetId === 'sba_hambatan_kegiatan') subtitleEl.innerText = 'Tulis tiap kendala per baris • Otomatis menjadi poin (•) saat tekan Enter';
+                else if (targetId === 'sba_evaluasi_kegiatan') subtitleEl.innerText = 'Tulis tiap evaluasi per baris • Otomatis menjadi poin (•) saat tekan Enter';
                 else subtitleEl.innerText = `Komponen formulir aktif • Placeholder sesuai formulir asli`;
             }
 
@@ -12311,6 +12321,47 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 `;
             }
 
+            // KHUSUS HAMBATAN & EVALUASI KEGIATAN (FORMAT BULLET OTOMATIS & PLACEHOLDER JELAS)
+            if (targetId === 'sba_hambatan_kegiatan' || targetId === 'sba_evaluasi_kegiatan') {
+                const formInput = document.getElementById(targetId);
+                const val = formInput ? formInput.value : '';
+                const isHambatan = (targetId === 'sba_hambatan_kegiatan');
+                const labelTxt = isHambatan ? 'Poin-Poin Hambatan Pelaksanaan' : 'Poin-Poin Evaluasi & Solusi Perbaikan';
+                const examplePh = isHambatan 
+                    ? `• Koordinasi antar-panitia kurang transparan dan pembagian tugas di hari H kurang jelas.\n• Manajemen waktu kurang disiplin, sehingga keberangkatan molor dan durasi acara selesai terlalu cepat.\n• Kesiapan logistik dan kendala lapangan kurang terantisipasi.\n(Tekan Enter untuk membuat baris poin baru)`
+                    : `• Buat satu grup koordinasi utama untuk seluruh panitia agar komunikasi terpusat dan tidak terpecah lewat personal chat.\n• Perketat fungsi time keeper dan matangkan susunan rundown agar estimasi waktu setiap sesi acara lebih terukur.\n• Lakukan inventarisasi dan briefing kesiapan teknis logistik pada H-1 kegiatan.\n(Tekan Enter untuk membuat baris poin baru)`;
+
+                return `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-1 border-b border-neutral-800">
+                            <label class="text-[11px] font-bold text-neutral-200 flex items-center gap-1.5">
+                                <i class="fa-solid fa-list-ul text-orange-400"></i> ${labelTxt}
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickBulletPoint('quick_input_main', '${targetId}')" class="px-2 py-0.5 rounded-md bg-orange-500/20 hover:bg-orange-500/30 text-[10px] font-bold text-orange-400 border border-orange-500/30 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah poin baru (•)">
+                                    <i class="fa-solid fa-plus text-[8px]"></i> Poin Baru
+                                </button>
+                                <button type="button" onclick="tidyQuickBulletPoints('quick_input_main', '${targetId}')" class="px-2 py-0.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-[10px] font-medium text-neutral-300 border border-neutral-700 transition-all" title="Rapikan awalan bullet • pada setiap baris">
+                                    Rapikan •
+                                </button>
+                                <button type="button" onclick="formatQuickSelection('quick_input_main', '**')" class="px-1.5 py-0.5 rounded bg-neutral-800 text-[10px] font-bold text-neutral-300 hover:text-white border border-neutral-700" title="Tebal">B</button>
+                                <button type="button" onclick="formatQuickSelection('quick_input_main', '*')" class="px-1.5 py-0.5 rounded bg-neutral-800 text-[10px] italic text-neutral-300 hover:text-white border border-neutral-700" title="Miring">I</button>
+                            </div>
+                        </div>
+                        <textarea id="quick_input_main" rows="6" placeholder="${escapeHtml(examplePh)}" 
+                            onkeydown="handleBulletKeydown(event, this, '${targetId}')"
+                            oninput="syncQuickEditToForm('${targetId}', this.value)" 
+                            class="form-input text-xs py-2 px-3 w-full leading-relaxed text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500 font-sans">${escapeHtml(val)}</textarea>
+                        <div class="flex items-center justify-between text-[10px] pt-0.5 text-neutral-400">
+                            <span class="flex items-center gap-1 text-orange-400/90 font-medium">
+                                <i class="fa-regular fa-keyboard text-orange-400"></i> Tekan <kbd class="px-1 py-0.2 bg-neutral-800 rounded font-mono text-[9px] text-orange-300 border border-neutral-700">Enter</kbd> untuk poin baru otomatis
+                            </span>
+                            <span class="text-neutral-500 font-mono">Format Resmi SBA</span>
+                        </div>
+                    </div>
+                `;
+            }
+
             // FALLBACK TEXT & TEXTAREA
             if (type === 'textarea') {
                 const formInput = document.getElementById(targetId);
@@ -12576,6 +12627,83 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             }, 100);
         }
+
+        function handleBulletKeydown(e, textarea, targetFormId) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const value = textarea.value;
+
+                // Cari awal baris saat ini
+                const lastNewLine = value.lastIndexOf('\n', start - 1);
+                const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
+                const currentLine = value.substring(lineStart, start);
+
+                // Cek apakah baris ini memiliki awalan bullet
+                const bulletMatch = currentLine.match(/^(\s*[•\-\*]\s*)/);
+
+                if (bulletMatch) {
+                    // Jika baris saat ini HANYA simbol bullet tanpa teks (pengguna menekan enter di bullet kosong untuk mengakhiri daftar)
+                    if (currentLine.trim() === '•' || currentLine.trim() === '-' || currentLine.trim() === '*') {
+                        e.preventDefault();
+                        textarea.value = value.substring(0, lineStart) + value.substring(start);
+                        textarea.selectionStart = textarea.selectionEnd = lineStart;
+                        if (targetFormId) syncQuickEditToForm(targetFormId, textarea.value);
+                        else textarea.dispatchEvent(new Event('input'));
+                        return;
+                    }
+
+                    // Tambahkan bullet baru di baris bawahnya
+                    e.preventDefault();
+                    const bulletPrefix = '\n• ';
+                    textarea.value = value.substring(0, start) + bulletPrefix + value.substring(end);
+                    textarea.selectionStart = textarea.selectionEnd = start + bulletPrefix.length;
+                    if (targetFormId) syncQuickEditToForm(targetFormId, textarea.value);
+                    else textarea.dispatchEvent(new Event('input'));
+                } else {
+                    // Jika ada bullet di dokumen atau teks non-kosong, otomatis tambahkan bullet
+                    if (value.includes('•') || value.includes('- ') || value.includes('* ') || currentLine.trim().length > 0) {
+                        e.preventDefault();
+                        const bulletPrefix = '\n• ';
+                        textarea.value = value.substring(0, start) + bulletPrefix + value.substring(end);
+                        textarea.selectionStart = textarea.selectionEnd = start + bulletPrefix.length;
+                        if (targetFormId) syncQuickEditToForm(targetFormId, textarea.value);
+                        else textarea.dispatchEvent(new Event('input'));
+                    }
+                }
+            }
+        }
+        window.handleBulletKeydown = handleBulletKeydown;
+
+        function addQuickBulletPoint(textareaId, targetFormId) {
+            const el = document.getElementById(textareaId);
+            if (!el) return;
+            const val = el.value.trimEnd();
+            const newPrefix = (val.length > 0 ? '\n• ' : '• ');
+            el.value = val + newPrefix;
+            el.selectionStart = el.selectionEnd = el.value.length;
+            el.focus();
+            if (targetFormId) syncQuickEditToForm(targetFormId, el.value);
+            else el.dispatchEvent(new Event('input'));
+        }
+        window.addQuickBulletPoint = addQuickBulletPoint;
+
+        function tidyQuickBulletPoints(textareaId, targetFormId) {
+            const el = document.getElementById(textareaId);
+            if (!el) return;
+            const lines = el.value.split('\n');
+            const tidied = lines.map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return '';
+                const cleaned = trimmed.replace(/^[•\-\*]\s*/, '').trim();
+                return `• ${cleaned}`;
+            }).filter(l => l !== '').join('\n');
+            el.value = tidied;
+            el.focus();
+            if (targetFormId) syncQuickEditToForm(targetFormId, el.value);
+            else el.dispatchEvent(new Event('input'));
+        }
+        window.tidyQuickBulletPoints = tidyQuickBulletPoints;
 
         function formatQuickSelection(inputId, wrapper) {
             const el = document.getElementById(inputId);
