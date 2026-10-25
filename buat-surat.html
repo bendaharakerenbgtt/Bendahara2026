@@ -6039,7 +6039,58 @@
                 }
             }
 
-            pages.push({ key: 'output_eval', label: 'Output Kegiatan', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' });
+            // AUTO-PAGINATION SBA OUTPUT, PRESTASI & EVALUASI
+            const isPrestasi = (typeof isSbaPrestasiActive === 'function') ? isSbaPrestasiActive() : true;
+            const pCount = (isPrestasi && typeof sbaPrestasiList !== 'undefined' && sbaPrestasiList && sbaPrestasiList.length) ? sbaPrestasiList.length : 0;
+            const hTextVal = (document.getElementById('sba_hambatan_kegiatan')?.value || DEFAULT_SBA_HAMBATAN || '').trim();
+            const eTextVal = (document.getElementById('sba_evaluasi_kegiatan')?.value || DEFAULT_SBA_EVALUASI || '').trim();
+            const totalBulletLines = (hTextVal.split('\n').filter(l => l.trim()).length) + (eTextVal.split('\n').filter(l => l.trim()).length);
+
+            if (pCount <= 4 && totalBulletLines <= 6) {
+                pages.push({ 
+                    key: 'output_eval', 
+                    label: 'Output Kegiatan', 
+                    icon: 'fa-comments', 
+                    desc: '2. Output, Hambatan & Evaluasi' 
+                });
+            } else {
+                // Baris prestasi banyak (>= 5 baris) atau poin evaluasi panjang, pisahkan agar tidak tenggelam / terpotong
+                const firstPrestasiLimit = Math.min(pCount, 14);
+                pages.push({ 
+                    key: 'output_prestasi', 
+                    label: 'Output Kegiatan', 
+                    icon: 'fa-trophy', 
+                    desc: '2. Output Kegiatan & Tabel Prestasi',
+                    chunk: { start: 0, end: firstPrestasiLimit }
+                });
+
+                // Jika baris prestasi lebih dari 14 baris, buat halaman lanjutan prestasi
+                let remPrestasi = pCount - firstPrestasiLimit;
+                let curStartP = firstPrestasiLimit;
+                let partNumP = 2;
+                while (remPrestasi > 0) {
+                    const cSize = Math.min(remPrestasi, 16);
+                    pages.push({
+                        key: 'output_prestasi_part_' + partNumP,
+                        label: `Prestasi (Hal ${partNumP})`,
+                        icon: 'fa-trophy',
+                        desc: `Tabel Prestasi Lanjutan Hal ${partNumP}`,
+                        chunk: { start: curStartP, end: curStartP + cSize },
+                        isContinued: true
+                    });
+                    curStartP += cSize;
+                    remPrestasi -= cSize;
+                    partNumP++;
+                }
+
+                // Halaman tersendiri untuk Hambatan dan Evaluasi
+                pages.push({ 
+                    key: 'hambatan_eval', 
+                    label: 'Hambatan & Evaluasi', 
+                    icon: 'fa-comments', 
+                    desc: 'Hambatan Pelaksanaan & Evaluasi Perbaikan' 
+                });
+            }
 
             if (isSbaKeuanganActive()) {
                 pages.push({ key: 'keuangan', label: 'Keuangan', icon: 'fa-money-bill-wave', desc: `Keuangan ${sbaJenisKegiatan}` });
@@ -6269,17 +6320,24 @@
             updatePreview();
         }
 
-        function renderSbaPrestasiTableHtml() {
+        function renderSbaPrestasiTableHtml(chunk) {
             if (!isSbaPrestasiActive() || !sbaPrestasiList || sbaPrestasiList.length === 0) return '';
-            const rowsHtml = sbaPrestasiList.map((item, idx) => `
-                <tr class="preview-editable" data-edit-target="sba_prestasi_row" data-edit-idx="${idx}" data-edit-label="Prestasi Baris #${idx + 1}" data-edit-type="sba_prestasi_row" title="Klik untuk edit Prestasi Baris #${idx + 1}">
-                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.capaian || '').replace(/\n/g, '<br>')}</td>
-                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.tingkat || '').replace(/\n/g, '<br>')}</td>
-                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.bidang || '').replace(/\n/g, '<br>')}</td>
-                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.namaNim || '').replace(/\n/g, '<br>')}</td>
-                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.prodi || '').replace(/\n/g, '<br>')}</td>
-                </tr>
-            `).join('');
+            const rawList = sbaPrestasiList;
+            const currentRows = chunk ? rawList.slice(chunk.start, chunk.end) : rawList;
+            const offset = chunk ? chunk.start : 0;
+
+            const rowsHtml = currentRows.map((item, localIdx) => {
+                const actualIdx = offset + localIdx;
+                return `
+                    <tr class="preview-editable" data-edit-target="sba_prestasi_row" data-edit-idx="${actualIdx}" data-edit-label="Prestasi Baris #${actualIdx + 1}" data-edit-type="sba_prestasi_row" title="Klik untuk edit Prestasi Baris #${actualIdx + 1}">
+                        <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.capaian || '').replace(/\n/g, '<br>')}</td>
+                        <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.tingkat || '').replace(/\n/g, '<br>')}</td>
+                        <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.bidang || '').replace(/\n/g, '<br>')}</td>
+                        <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.namaNim || '').replace(/\n/g, '<br>')}</td>
+                        <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.prodi || '').replace(/\n/g, '<br>')}</td>
+                    </tr>
+                `;
+            }).join('');
 
             return `
                 <div class="preview-table-section mb-3">
@@ -6298,7 +6356,7 @@
                         </tbody>
                     </table>
                     <div class="print:hidden mb-2 flex items-center justify-between text-xs px-1">
-                        <button type="button" onclick="addQuickSbaPrestasiRow(${sbaPrestasiList.length - 1})" class="px-2.5 py-1 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-all shadow-xs active:scale-95" title="Tambah baris prestasi baru">
+                        <button type="button" onclick="addQuickSbaPrestasiRow(${offset + currentRows.length - 1})" class="px-2.5 py-1 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-all shadow-xs active:scale-95" title="Tambah baris prestasi baru">
                             <i class="fa-solid fa-plus text-[10px]"></i> Tambah Baris Prestasi
                         </button>
                         <span class="text-[10px] text-neutral-400 font-mono">Total ${sbaPrestasiList.length} Baris • Klik baris/header untuk edit</span>
@@ -8366,7 +8424,7 @@
                         </div>
                     `;
                 } else if (key === 'output_eval') {
-                    // HALAMAN 3: OUTPUT, HAMBATAN & EVALUASI
+                    // HALAMAN 3: OUTPUT, PRESTASI, HAMBATAN & EVALUASI (DALAM 1 LEMBAR JIKA BARIS SEDIKIT)
                     const outputText = (document.getElementById('sba_output_kegiatan')?.value || DEFAULT_SBA_OUTPUT).trim();
                     const hambatanText = (document.getElementById('sba_hambatan_kegiatan')?.value || DEFAULT_SBA_HAMBATAN).trim();
                     const evaluasiText = (document.getElementById('sba_evaluasi_kegiatan')?.value || DEFAULT_SBA_EVALUASI).trim();
@@ -8408,13 +8466,85 @@
                         </p>
 
                         <!-- HAMBATAN -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hambatan:</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Hambatan:</p>
                         <div class="preview-editable" data-edit-target="sba_hambatan_kegiatan" data-edit-label="Hambatan Kegiatan" data-edit-type="textarea" title="Klik untuk edit Hambatan" style="margin-bottom: 12pt;">
                             ${renderBulletItems(hambatanText)}
                         </div>
 
                         <!-- EVALUASI -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Evaluasi :</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Evaluasi :</p>
+                        <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
+                            ${renderBulletItems(evaluasiText)}
+                        </div>
+                    `;
+                } else if (key === 'output_prestasi' || key.startsWith('output_prestasi_')) {
+                    // HALAMAN: OUTPUT KEGIATAN & TABEL PRESTASI (PAGINASI OTOMATIS)
+                    const outputText = (document.getElementById('sba_output_kegiatan')?.value || DEFAULT_SBA_OUTPUT).trim();
+                    const isContinued = p.isContinued;
+                    const chunk = p.chunk;
+
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
+                        </div>
+
+                        <!-- 2. OUTPUT KEGIATAN -->
+                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            ${isContinued ? '2. <em>Output</em> kegiatan (Lanjutan Tabel Prestasi)' : '2. <em>Output</em> kegiatan'}
+                        </p>
+                        ${!isContinued ? `
+                            <div class="preview-editable" data-edit-target="sba_output_kegiatan" data-edit-label="Output Kegiatan" data-edit-type="textarea" title="Klik untuk edit Output Kegiatan">
+                                <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                    ${formatInlineRichText(outputText).replace(/\n/g, '<br>')}
+                                </p>
+                            </div>
+                        ` : ''}
+
+                        ${renderSbaPrestasiTableHtml(chunk)}
+                    `;
+                } else if (key === 'hambatan_eval') {
+                    // HALAMAN: HAMBATAN & EVALUASI KEGIATAN (LEMBAR BARU PASCA TABEL PRESTASI)
+                    const hambatanText = (document.getElementById('sba_hambatan_kegiatan')?.value || DEFAULT_SBA_HAMBATAN).trim();
+                    const evaluasiText = (document.getElementById('sba_evaluasi_kegiatan')?.value || DEFAULT_SBA_EVALUASI).trim();
+
+                    const renderBulletItems = (raw) => {
+                        const lines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+                        return lines.map(line => {
+                            const cleaned = line.replace(/^[•\-\*]\s*/, '').trim();
+                            return `
+                                <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; margin-bottom: 4pt;">
+                                    <tr>
+                                        <td style="width: 30px; vertical-align: top; padding: 1pt 0; text-align: left;">&bull;</td>
+                                        <td style="vertical-align: top; text-align: justify; padding: 1pt 0;">${formatInlineRichText(cleaned)}</td>
+                                    </tr>
+                                </table>
+                            `;
+                        }).join('');
+                    };
+
+                    pageContentHtml = `
+                        <!-- NOMOR SURAT BRACKET -->
+                        <div style="margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
+                        </div>
+
+                        <!-- SUBJUDUL -->
+                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">2. <em>Output</em> kegiatan (Lanjutan Hambatan &amp; Evaluasi)</p>
+
+                        <!-- PENGANTAR HAMBATAN & EVALUASI -->
+                        <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            Adapun Hambatan dan Evaluasi dari kegiatan yang sudah dilaksanakan antara lain:
+                        </p>
+
+                        <!-- HAMBATAN -->
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Hambatan:</p>
+                        <div class="preview-editable" data-edit-target="sba_hambatan_kegiatan" data-edit-label="Hambatan Kegiatan" data-edit-type="textarea" title="Klik untuk edit Hambatan" style="margin-bottom: 14pt;">
+                            ${renderBulletItems(hambatanText)}
+                        </div>
+
+                        <!-- EVALUASI -->
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Evaluasi :</p>
                         <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
                             ${renderBulletItems(evaluasiText)}
                         </div>
@@ -9381,7 +9511,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_detail_kegiatan: (key === 'pokok'),
                     card_isi_inti: (key === 'pokok'),
                     card_sba_rundown: (key === 'rundown'),
-                    card_sba_output_evaluasi: (key === 'output_eval'),
+                    card_sba_output_evaluasi: (key === 'output_eval' || key === 'output_prestasi' || key.startsWith('output_prestasi_') || key === 'hambatan_eval'),
                     card_sba_keuangan: (key === 'keuangan'),
                     card_sba_rekapitulasi: (key === 'rekapitulasi'),
                     card_penutup: (key === 'pengesahan'),
@@ -9554,6 +9684,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     } else if (key === 'output_eval') {
                         titleTxt = `Formulir Halaman ${currentActivePage}: 2. Output Kegiatan & Evaluasi`;
                         descTxt = 'Isi rincian capaian output, poin hambatan di lapangan, dan evaluasi perbaikan.';
+                    } else if (key === 'output_prestasi' || key.startsWith('output_prestasi_')) {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: 2. Output Kegiatan & Tabel Prestasi`;
+                        descTxt = 'Kelola deskripsi capaian output dan tabel capaian prestasi kegiatan.';
+                    } else if (key === 'hambatan_eval') {
+                        titleTxt = `Formulir Halaman ${currentActivePage}: Hambatan & Evaluasi Kegiatan`;
+                        descTxt = 'Isi rincian kendala lapangan dan rencana evaluasi perbaikan kegiatan.';
                     } else if (key === 'keuangan') {
                         titleTxt = `Formulir Halaman ${currentActivePage}: Keuangan (Pemasukan & Belanja Bahan)`;
                         descTxt = 'Kelola sumber kas/donasi pemasukan serta belanja bahan kepanitiaan per divisi.';
