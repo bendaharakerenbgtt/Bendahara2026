@@ -5998,9 +5998,9 @@
                 { key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' }
             ];
 
-            // AUTO-PAGINATION SBA RUNDOWN (KAPASITAS HALAMAN RESMI A4: MAKSIMAL 14 BARIS DI HALAMAN PERTAMA)
+            // AUTO-PAGINATION SBA RUNDOWN (KAPASITAS HALAMAN RESMI A4: MAKSIMAL 16 BARIS DI HALAMAN PERTAMA AGAR MARGIN SEIMBANG DENGAN HALAMAN LAIN)
             const rCount = (typeof sbaRundownList !== 'undefined' && sbaRundownList && sbaRundownList.length) ? sbaRundownList.length : 0;
-            if (rCount <= 14) {
+            if (rCount <= 17) {
                 pages.push({ 
                     key: 'rundown', 
                     label: 'Hasil Kegiatan', 
@@ -6009,18 +6009,19 @@
                     chunk: { start: 0, end: rCount }
                 });
             } else {
-                // Halaman pertama rundown memuat baris 1 s/d 14
+                // Halaman pertama rundown memuat 16 baris (margin bawah pas ~2.5-3cm sesuai halaman lain)
+                const firstPageLimit = 16;
                 pages.push({ 
                     key: 'rundown', 
                     label: 'Hasil Kegiatan', 
                     icon: 'fa-list-check', 
                     desc: '1. Hasil Kegiatan (Rundown Acara)',
-                    chunk: { start: 0, end: 14 }
+                    chunk: { start: 0, end: firstPageLimit }
                 });
 
                 // Halaman lanjutan berikutnya memuat hingga 18 baris per halaman
-                let remaining = rCount - 14;
-                let currentStart = 14;
+                let remaining = rCount - firstPageLimit;
+                let currentStart = firstPageLimit;
                 let partNum = 2;
                 while (remaining > 0) {
                     const chunkSize = Math.min(remaining, 18);
