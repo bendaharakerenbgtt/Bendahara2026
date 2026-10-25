@@ -2502,45 +2502,7 @@
         }
 
         function isBelanjaSewa(t) {
-            const rawCat = (t.kategori || '').toLowerCase();
-            const rawUraian = (t.uraian || '').toLowerCase();
-            const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
-            const combined = `${rawCat} ${rawUraian} ${rawKet}`;
-
-            const bahanKeywords = [
-                'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata', 
-                'souvenir', 'snack', 'makan', 'konsumsi', 'kue', 'print', 'cetak', 
-                'kertas', 'atk', 'banner', 'spanduk', 'baliho', 'kaos', 'baju', 'merchandise'
-            ];
-            for (const kw of bahanKeywords) {
-                if (combined.includes(kw)) {
-                    return false;
-                }
-            }
-
-            const sewaKeywords = [
-                'sewa', 'rental', 'kontrak', 'booking tempat', 'gedung', 'villa', 'aula', 'lapangan'
-            ];
-            for (const kw of sewaKeywords) {
-                if (combined.includes(kw)) {
-                    return true;
-                }
-            }
-
-            const honorKeywords = [
-                'honor', 'honorarium', 'fee', 'jasa', 'bisyarah', 'narasumber', 'pemateri', 'pembicara', 'juri', 'trainer', 'moderator'
-            ];
-            for (const kw of honorKeywords) {
-                if (combined.includes(kw)) {
-                    return true;
-                }
-            }
-
-            if (rawCat.includes('sewa')) {
-                return true;
-            }
-
-            return false;
+            return typeof categorizeExpenseItem === 'function' ? (categorizeExpenseItem(t) === 'sewa') : false;
         }
 
         function sanitizeFilename(name) {
@@ -3900,36 +3862,55 @@
             const rawCat = (t.kategori || '').toLowerCase();
             const rawUraian = (t.uraian || '').toLowerCase();
             const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
-            const combined = `${rawCat} ${rawUraian} ${rawKet}`.trim();
+            const combined = (rawCat + ' ' + rawUraian + ' ' + rawKet).trim();
 
-            // 1. Belanja Sewa: keyword sewa (misal: sewa, rental, sewa tempat, dsb)
-            if (combined.includes('sewa') || combined.includes('rental')) {
+            // 1. Belanja Sewa: sewa tempat, gedung, sound system, rental, dsb.
+            if (combined.includes('sewa') || combined.includes('rental') || combined.includes('booking tempat')) {
                 return 'sewa';
             }
 
-            // 2. Belanja Jasa: keyword di keterangan/uraian ada fee narasumber, fee, honor, dsb.
-            // Pengecualian: cetak sertifikat / piagam / plakat / bingkisan narasumber masuk ke bahan
-            const isBahanContext = combined.includes('sertifikat') || combined.includes('piagam') || 
-                                   combined.includes('bingkisan') || combined.includes('plakat') || 
-                                   combined.includes('cetak') || combined.includes('print');
-            
-            if (combined.includes('fee narasumber') || combined.includes('fee pemateri')) {
-                return 'jasa';
-            }
-            if (!isBahanContext) {
-                if (combined.includes('fee') || combined.includes('honor') || combined.includes('bisyarah') || 
-                    combined.includes('narasumber') || combined.includes('pemateri') || combined.includes('belanja jasa')) {
-                    return 'jasa';
-                }
+            // 2. CEK MUTLAK: Barang fisik, Konsumsi, Makanan, Minuman, Parcel & Perlengkapan adalah BELANJA BAHAN
+            // Meskipun diperuntukkan bagi narasumber/tamu (misal: Snack Narasumber, Parcel Buah, Air Mineral, Plakat Pemateri),
+            // secara standar akuntansi anggaran Polimedia itu adalah Belanja Bahan (Konsumsi/Perlengkapan), BUKAN Belanja Jasa!
+            const bahanStrictKeywords = [
+                'snack', 'makan', 'makanan', 'konsumsi', 'kue', 'roti', 'nasi', 'box', 'prasmanan', 'catering',
+                'parcel', 'buah', 'mineral', 'aqua', 'minum', 'minuman', 'kopi', 'teh', 'sirup', 'galon',
+                'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata', 'cenderamata',
+                'souvenir', 'merchandise', 'print', 'cetak', 'kertas', 'atk', 'banner', 'spanduk', 'baliho',
+                'id card', 'tali', 'casing', 'tinta', 'foil', 'kaos', 'baju', 'totebag', 'goodie bag', 'lakban', 'baterai',
+                'piring', 'sendok', 'garpu', 'plastik', 'cup', 'gelas', 'tissue', 'tisu'
+            ];
+
+            const isStrictlyBahan = bahanStrictKeywords.some(kw => combined.includes(kw));
+            if (isStrictlyBahan) {
+                return 'bahan';
             }
 
-            // 3. Belanja Lainnya: jika di keterangan/uraian ada keyword 'belanja lainnya' / 'belanja lainya' / 'biaya lainnya'
+            // 3. Belanja Jasa: HANYA untuk jasa tenaga kerja / honorarium / fee (bukan barang/makanan)
+            // Misal: Fee Narasumber, Honorarium, Bisyarah, Insentif Juri, Jasa Desain/Foto/Video/Kebersihan
+            const isFeeJasa = combined.includes('fee') || combined.includes('honor') || 
+                              combined.includes('bisyarah') || combined.includes('insentif') ||
+                              combined.includes('jasa') || combined.includes('belanja jasa') ||
+                              rawCat.includes('jasa') || rawCat.includes('fee');
+
+            if (isFeeJasa) {
+                return 'jasa';
+            }
+
+            // Jika uraian murni menyebut 'narasumber' / 'pemateri' / 'pembicara' / 'juri' / 'trainer' / 'moderator' (tanpa barang fisik)
+            if (rawUraian.includes('narasumber') || rawUraian.includes('pemateri') || 
+                rawUraian.includes('pembicara') || rawUraian.includes('juri') || 
+                rawUraian.includes('trainer') || rawUraian.includes('moderator')) {
+                return 'jasa';
+            }
+
+            // 4. Belanja Lainnya: keyword biaya/belanja lainnya
             if (combined.includes('belanja lainnya') || combined.includes('belanja lainya') || 
                 combined.includes('biaya lainnya') || combined.includes('biaya lainya')) {
                 return 'lainnya';
             }
 
-            // 4. Default: semua yang beli-beli & pengeluaran lainnya masuk ke Belanja Bahan
+            // 5. Default: Semua belanja barang / perlengkapan masuk ke Belanja Bahan
             return 'bahan';
         }
 
