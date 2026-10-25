@@ -2692,7 +2692,8 @@
                 ttd3Active: true,
                 ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
-                ttd3Nim: 'NIP. 198005072023211013'
+                ttd3Nim: 'NIP. 198005072023211013',
+                wadirActive: false
             },
             SBA: {
                 title: 'Surat Berita Acara',
@@ -2775,7 +2776,8 @@
                 ttd3Active: false,
                 ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
-                ttd3Nim: 'NIP. 198005072023211013'
+                ttd3Nim: 'NIP. 198005072023211013',
+                wadirActive: false
             }
         };
 
@@ -7181,7 +7183,7 @@
             const isTtd3Active = document.getElementById('field_ttd3_active') ? document.getElementById('field_ttd3_active').checked : true;
             const isMpmActive = document.getElementById('field_ttd_mpm_active') ? document.getElementById('field_ttd_mpm_active').checked : true;
             const isBemActive = document.getElementById('field_ttd_bem_active') ? document.getElementById('field_ttd_bem_active').checked : true;
-            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : isSbaDanopDetected();
+            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : false;
             const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
             const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
             const wadirNip = (document.getElementById('field_ttd_wadir_nip')?.value || '').trim() || 'NIP. 197602012002122001';
@@ -7887,6 +7889,11 @@
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim();
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim();
 
+            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : false;
+            const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
+            const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
+            const wadirNip = (document.getElementById('field_ttd_wadir_nip')?.value || '').trim() || 'NIP. 197602012002122001';
+
             const kopHtml = generateOfficialKopHtml();
 
             let eventBoxHtml = '';
@@ -7991,15 +7998,15 @@
                             <div class="preview-editable" data-edit-target="field_isi_inti" data-edit-label="Deskripsi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Isi Inti">${intiParas}</div>
                             <div class="preview-editable" data-edit-target="field_penutup" data-edit-label="Paragraf Penutup" data-edit-type="textarea" title="Klik untuk edit Penutup">${penutupParas}</div>
 
-                            <!-- TANDA TANGAN SECTION (SIMETRIS DUA PIHAK) -->
-                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penandatangan Surat" data-edit-type="ttd" title="Klik untuk edit Penandatangan" style="margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                            <!-- TANDA TANGAN SECTION: MODULAR TINGKAT 1 (HORMAT KAMI) -->
+                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                 <p style="margin: 0 0 10pt 0; text-align: center; font-size: 12pt; font-weight: bold;">Hormat Kami,</p>
                                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
                                     <tr>
-                                        <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
+                                        <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
                                             ${formatTtdJabatan(ttd2Jabatan)}
                                         </td>
-                                        <td style="width: 50%; vertical-align: top; padding-bottom: 50pt;">
+                                        <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
                                             ${formatTtdJabatan(ttd1Jabatan)}
                                         </td>
                                     </tr>
@@ -8014,7 +8021,42 @@
                                         </td>
                                     </tr>
                                 </table>
-                                ${ttd3Html}
+                            </div>
+
+                            <!-- TINGKAT 2: MENGETAHUI (DOSEN PEMBIMBING) -->
+                            ${ttd3Active ? `
+                                <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="margin-top: 12pt; text-align: center; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                    <p style="margin: 0 0 2pt 0; font-weight: bold;">Mengetahui,</p>
+                                    <p style="margin: 0 0 44pt 0; font-weight: normal; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
+                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
+                                </div>
+                            ` : `
+                                <div class="preview-editable print:hidden" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" onclick="enableTtd3AndOpenEdit(event)" title="Klik untuk mengaktifkan Dosen Pembimbing" style="margin-top: 10pt; padding: 6pt 12pt; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                    <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Menampilkan TTD Dosen Pembimbing (Mengetahui)</span>
+                                </div>
+                            `}
+
+                            <!-- TINGKAT 3: MENYETUJUI (WAKIL DIREKTUR III - DEFAULT OFF DI SUD) -->
+                            <div id="sud_tingkat3_wadir_wrapper" style="margin-top: 10pt; font-family: 'Times New Roman', serif;">
+                                ${isWadirActive ? `
+                                    <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
+                                        <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt;">Menyetujui,</p>
+                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25;">
+                                            ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br>
+                                        </p>
+                                        <p style="margin: 0; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
+                                        </p>
+                                    </div>
+                                ` : `
+                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="margin-top: 8pt; padding: 6pt 12pt; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                        <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
+                                        <span style="font-size: 8pt; color: #b45309; margin-top: 2pt;">(Opsional: Default tidak aktif, klik untuk sertakan)</span>
+                                    </div>
+                                    <div class="hidden print:block" style="height: 0;"></div>
+                                `}
                             </div>
                         </div>
                     </div>
@@ -8181,61 +8223,92 @@
                                 </p>
                             </div>
 
-                            <!-- PENGESAHAN SPM 3 TIER SESUAI MASTER -->
-                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penandatangan Surat" data-edit-type="ttd" title="Klik untuk edit Penandatangan" style="font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <!-- TIER 1: PENANGGUNG JAWAB -->
-                                <div style="text-align: center; margin-bottom: 14pt;">
-                                    <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Penanggung Jawab,</p>
-                                    <p style="margin: 0; line-height: 1.25;">Ketua UKM LDK IMIP<br>Periode 2026</p>
-                                    <div style="height: 44pt;"></div>
-                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
-                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
-                                </div>
+                            <!-- PENGESAHAN SPM: MODULAR SESUAI MASTER DOKUMEN -->
+                            <!-- TIER 1: PENANGGUNG JAWAB (KETUA UKM) -->
+                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
+                                <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Penanggung Jawab,</p>
+                                <p style="margin: 0; line-height: 1.25;">Ketua UKM LDK IMIP<br>Periode 2026</p>
+                                <div style="height: 44pt;"></div>
+                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
+                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
+                            </div>
 
-                                <!-- TIER 2: MENGETAHUI (DOSEN & BEM) -->
-                                <div style="margin-bottom: 14pt;">
-                                    <p style="margin: 0 0 4pt 0; text-align: center; line-height: 1.25; font-weight: bold;">Mengetahui,</p>
-                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
-                                        <tr>
-                                            <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                                ${formatTtdJabatan(ttd3Jabatan)}
-                                            </td>
-                                            <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                                ${formatTtdJabatan(bemJabatan)}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</p>
-                                                <p style="margin: 0;">${formatInlineRichText(ttd3Nim)}</p>
-                                            </td>
-                                            <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(bemNama)}</p>
-                                                <p style="margin: 0;">${formatInlineRichText(bemNim)}</p>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
+                            <!-- TIER 2: MENGETAHUI (DOSEN & BEM) -->
+                            <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; font-size: 12pt; margin-bottom: 14pt;">
+                                <p style="margin: 0 0 4pt 0; text-align: center; line-height: 1.25; font-weight: bold;">Mengetahui,</p>
+                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
+                                    <tr>
+                                        <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
+                                            ${formatTtdJabatan(ttd3Jabatan)}
+                                        </td>
+                                        <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
+                                            ${formatTtdJabatan(bemJabatan)}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top;">
+                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</p>
+                                            <p style="margin: 0;">${formatInlineRichText(ttd3Nim)}</p>
+                                        </td>
+                                        <td style="vertical-align: top;">
+                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(bemNama)}</p>
+                                            <p style="margin: 0;">${formatInlineRichText(bemNim)}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
 
-                                <!-- TIER 3: MENYETUJUI (KETUA MPM) -->
-                                <div style="text-align: center; margin-bottom: 14pt;">
-                                    <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Menyetujui,</p>
-                                    <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(mpmJabatan)}</p>
-                                    <div style="height: 44pt;"></div>
-                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(mpmNama)}</p>
-                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(mpmNim)}</p>
-                                </div>
+                            <!-- TIER 3: MENYETUJUI (KETUA MPM) -->
+                            <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Menyetujui (Ketua MPM)" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Ketua MPM" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
+                                <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Menyetujui,</p>
+                                <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(mpmJabatan)}</p>
+                                <div style="height: 44pt;"></div>
+                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(mpmNama)}</p>
+                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(mpmNim)}</p>
+                            </div>
 
-                                <!-- TIER 4: TEMBUSAN -->
-                                <div style="font-size: 12pt; line-height: 1.35; text-align: left;">
-                                    <p style="margin: 0 0 2pt 0; font-weight: bold;">Tembusan :</p>
-                                    <table style="margin-left: 28pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35;">
-                                        <tr>
-                                            <td style="width: 20px; vertical-align: top; padding: 1pt 0;">1.</td>
-                                            <td style="vertical-align: top; padding: 1pt 0;">Arsip</td>
-                                        </tr>
-                                    </table>
-                                </div>
+                            <!-- TIER 4: MENYETUJUI WADIR III (OPSIONAL, DEFAULT NONAKTIF DI SPM) -->
+                            <div id="spm_tingkat4_wadir_wrapper" style="margin-top: 10pt; margin-bottom: 14pt; font-family: 'Times New Roman', serif;">
+                                ${isWadirActive ? `
+                                    <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
+                                        <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold; font-size: 12pt;">Menyetujui,</p>
+                                        <p style="margin: 0; line-height: 1.25; font-size: 11pt;">
+                                            ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br>
+                                        </p>
+                                        <p style="margin: 0; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
+                                        </p>
+                                    </div>
+                                ` : `
+                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="padding: 10pt 16pt; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                        <span style="font-size: 9.5pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
+                                        <span style="font-size: 8.5pt; color: #b45309; margin-top: 2pt;">(Opsional: Default tidak aktif, klik untuk sertakan di lembar pengesahan)</span>
+                                    </div>
+                                    <div class="hidden print:block" style="height: 0;"></div>
+                                `}
+                            </div>
+
+                            <!-- TIER 5: TEMBUSAN -->
+                            <div style="font-size: 12pt; line-height: 1.35; text-align: left; margin-top: ${isWadirActive ? '16pt' : '36pt'}; font-family: 'Times New Roman', serif;">
+                                <p style="margin: 0 0 2pt 0; font-weight: bold;">Tembusan :</p>
+                                <table style="margin-left: 28pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35;">
+                                    ${isWadirActive ? `
+                                    <tr>
+                                        <td style="width: 20px; vertical-align: top; padding: 1pt 0;">1.</td>
+                                        <td style="vertical-align: top; padding: 1pt 0;">Wakil Direktur Bidang Kemahasiswaan dan Alumni</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 20px; vertical-align: top; padding: 1pt 0;">2.</td>
+                                        <td style="vertical-align: top; padding: 1pt 0;">Arsip</td>
+                                    </tr>
+                                    ` : `
+                                    <tr>
+                                        <td style="width: 20px; vertical-align: top; padding: 1pt 0;">1.</td>
+                                        <td style="vertical-align: top; padding: 1pt 0;">Arsip</td>
+                                    </tr>
+                                    `}
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -12742,8 +12815,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
         function quickResetTtdPjDefault() {
             const isSba = (currentSuratType === 'SBA');
-            const defaultT1Nama = isSba ? 'Faridah Rihadatul \'Aisy' : 'Sarah Muthmainnah Prayogo';
-            const defaultT1Nim = isSba ? '2470402026' : '2590331052';
+            const isSud = (currentSuratType === 'SUD');
+            let defaultT1Nama = 'Sarah Muthmainnah Prayogo';
+            let defaultT1Nim = '2590331052';
+            if (isSba) {
+                defaultT1Nama = 'Faridah Rihadatul \'Aisy';
+                defaultT1Nim = '2470402026';
+            } else if (isSud) {
+                defaultT1Nama = 'Fadly Ahmad Chandi';
+                defaultT1Nim = '2490345034';
+            }
 
             const t1Nama = document.getElementById('field_ttd1_nama');
             const t1NimAngka = document.getElementById('field_ttd1_nim_angka');
@@ -12772,6 +12853,24 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (qT2Nim) qT2Nim.value = '2490444040';
         }
         window.quickResetTtdPjDefault = quickResetTtdPjDefault;
+
+                function enableTtd3AndOpenEdit(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const t3Check = document.getElementById('field_ttd3_active');
+            if (t3Check) {
+                t3Check.checked = true;
+                if (typeof updateTtdState === 'function') updateTtdState();
+                updatePreview();
+            }
+            setTimeout(() => {
+                const el = document.querySelector('[data-edit-target="card_ttd_mengetahui"]');
+                if (el) openPreviewQuickEdit(el);
+            }, 60);
+        }
+        window.enableTtd3AndOpenEdit = enableTtd3AndOpenEdit;
 
         function enableWadirAndOpenEdit(e) {
             if (e) {
