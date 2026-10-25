@@ -2312,8 +2312,27 @@
                                 <span class="text-xs font-bold text-neutral-200">Sertakan Laporan Keuangan Agenda Kerja</span>
                                 <span class="text-[10px] text-neutral-400">Rincian pemasukan, belanja bahan divisi &amp; rekapitulasi kas (Halaman 4 &amp; 5)</span>
                             </div>
-                            <input type="checkbox" id="sba_inc_keuangan" checked onchange="toggleSbaKeuanganSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                            <input type="checkbox" id="sba_inc_keuangan" onchange="toggleSbaKeuanganSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
+
+                        <!-- BANNER AJAKAN KEUANGAN JIKA BELUM AKTIF -->
+                        <div id="sba_keuangan_inactive_banner" class="p-3.5 rounded-xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/10 flex flex-col gap-2.5">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold shrink-0">
+                                    <i class="fa-solid fa-coins"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-xs font-bold text-white block">Halaman Keuangan Belum Ditambahkan</span>
+                                    <span class="text-[10.5px] text-emerald-300/80 leading-relaxed block">
+                                        Klik tombol di bawah ini untuk memilih kegiatan (Agenda/Program Kerja) dan menyertakan rincian keuangan serta lampiran nota.
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="bukaModalTambahkanKeuanganSba()" class="w-full py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                                <i class="fa-solid fa-plus-circle text-xs"></i>
+                                <span>+ Tambahkan Halaman Keuangan (Pilih Kegiatan &amp; Nota)</span>
+                            </button>
+                        </div>
 
                         <!-- TOMBOL EXPORT RAB KEGIATAN -->
                         <div class="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -2421,7 +2440,7 @@
                                 <span class="text-xs font-bold text-neutral-200">Sertakan Lampiran Nota Keuangan</span>
                                 <span class="text-[10px] text-neutral-400">Tampilkan lembar foto struk belanja dan nota pertanggungjawaban</span>
                             </div>
-                            <input type="checkbox" id="sba_inc_nota" checked onchange="toggleSbaNotaSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                            <input type="checkbox" id="sba_inc_nota" onchange="toggleSbaNotaSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
                         </label>
 
                         <!-- BANNER KETIKA NOTA DINONAKTIFKAN -->
@@ -2699,7 +2718,9 @@
                 title: 'Surat Berita Acara',
                 kode: 'SBA',
                 nomorSurat: '034/SBA/E1/UKM IMIP/VII/2026',
-                lampiran: '2 Halaman',
+                lampiran: '-',
+                keuanganActive: false,
+                notaActive: false,
                 tanggalSurat: 'Jakarta, 2 Juli 2026',
                 perihal: 'Surat Berita Acara Studi Banding 2026',
                 tujuan: '',
@@ -3055,6 +3076,15 @@
                 updateSpzAutoPembuka();
             } else {
                 setTimePickersFromString(tpl.waktu);
+            }
+
+            if (type === 'SBA') {
+                const chkKeu = document.getElementById('sba_inc_keuangan');
+                if (chkKeu) chkKeu.checked = (tpl.keuanganActive !== undefined ? tpl.keuanganActive : false);
+                const chkNota = document.getElementById('sba_inc_nota');
+                if (chkNota) chkNota.checked = (tpl.notaActive !== undefined ? tpl.notaActive : false);
+                toggleSbaKeuanganSections();
+                toggleSbaNotaSections();
             }
 
             currentActivePage = 'all';
@@ -5122,6 +5152,246 @@
             }
         }
 
+        // ==========================================
+        // MODAL TAMBAHKAN HALAMAN KEUANGAN PASCA EVALUASI (SBA)
+        // ==========================================
+        function bukaModalTambahkanKeuanganSba() {
+            if (!sbaDbProkers || sbaDbProkers.length === 0) {
+                loadSbaProkerDatabase(false);
+            }
+
+            const prokers = sbaDbProkers || [];
+            let selectedId = sbaSelectedProkerId || (prokers.length > 0 ? prokers[0].id : '');
+
+            const getProkerInfo = (pid) => {
+                if (!pid || pid === '__custom__') {
+                    return {
+                        nama: 'Input Manual (Isi Sendiri)',
+                        jenis: sbaJenisKegiatan || 'Agenda Kerja',
+                        totalOut: 0,
+                        notaCount: 0
+                    };
+                }
+                const p = prokers.find(item => item.id.toString() === pid.toString());
+                if (!p) return { nama: 'Kegiatan', jenis: 'Agenda Kerja', totalOut: 0, notaCount: 0 };
+                const jenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+                const prokerTx = (sbaDbTransactions || []).filter(t => (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString()));
+                let totalKeluar = 0;
+                prokerTx.forEach(t => {
+                    const j = (t.jenis || '').toLowerCase();
+                    const n = Number(t.nominal) || 0;
+                    if (j !== 'masuk') totalKeluar += n;
+                });
+                if (totalKeluar === 0 && (p.realisasi || p.pengeluaran)) totalKeluar = Number(p.realisasi || p.pengeluaran);
+                const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
+                return {
+                    nama: p.nama_proker || p.nama_kegiatan || `Kegiatan #${p.id}`,
+                    jenis: jenis,
+                    totalOut: totalKeluar,
+                    notaCount: receipts.length
+                };
+            };
+
+            const initialInfo = getProkerInfo(selectedId);
+
+            const agendaList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('agenda'));
+            const prokerList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('program') || !(p.jenis || '').toLowerCase().includes('agenda'));
+
+            let optionsHtml = '';
+            if (agendaList.length > 0) {
+                optionsHtml += '<optgroup label="Agenda Kerja">';
+                agendaList.forEach(p => {
+                    const nama = p.nama_proker || p.nama_kegiatan || `Agenda #${p.id}`;
+                    const div = p.divisi ? ` (${p.divisi})` : '';
+                    const isSel = (p.id.toString() === selectedId.toString()) ? 'selected' : '';
+                    optionsHtml += `<option value="${p.id}" ${isSel}>${escapeHtml(nama)}${escapeHtml(div)}</option>`;
+                });
+                optionsHtml += '</optgroup>';
+            }
+
+            if (prokerList.length > 0) {
+                optionsHtml += '<optgroup label="Program Kerja">';
+                prokerList.forEach(p => {
+                    const nama = p.nama_proker || p.nama_kegiatan || `Proker #${p.id}`;
+                    const div = p.divisi ? ` (${p.divisi})` : '';
+                    const isSel = (p.id.toString() === selectedId.toString()) ? 'selected' : '';
+                    optionsHtml += `<option value="${p.id}" ${isSel}>${escapeHtml(nama)}${escapeHtml(div)}</option>`;
+                });
+                optionsHtml += '</optgroup>';
+            }
+            optionsHtml += '<option value="__custom__">-- Input Manual / Kosongkan (Isi Sendiri) --</option>';
+
+            Swal.fire({
+                title: '<div class="text-sm sm:text-base font-bold text-white flex items-center justify-center gap-2"><span class="text-emerald-400 text-lg"><i class="fa-solid fa-coins"></i></span><span>Tambahkan Halaman Keuangan SBA</span></div>',
+                html: `
+                    <div class="text-left font-sans text-xs text-neutral-300 flex flex-col gap-3.5 max-h-[70vh] overflow-y-auto pr-1">
+                        <p class="text-[11px] text-neutral-400 leading-relaxed pb-1 border-b border-neutral-800">
+                            Halaman Keuangan (RAB &amp; Rekapitulasi) akan disisipkan <b>setelah Evaluasi Kegiatan</b> dan sebelum <b>Lembar Pengesahan</b>. Silakan tentukan kegiatan serta opsi lampiran nota:
+                        </p>
+
+                        <!-- 1. PILIH KEGIATAN -->
+                        <div class="p-3 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2.5">
+                            <label class="text-[11px] font-bold text-orange-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-layer-group text-[10px]"></i> 1. Mau Kegiatan Apa? (Program / Agenda Kerja)
+                            </label>
+                            <select id="modal_keu_select_proker" class="form-input text-xs w-full bg-neutral-950 border border-neutral-700 text-white rounded-lg p-2 focus:border-emerald-500">
+                                ${optionsHtml}
+                            </select>
+
+                            <div id="modal_keu_info_box" class="p-2.5 rounded-lg bg-neutral-950/90 border border-neutral-800 flex items-center justify-between text-[10.5px]">
+                                <div class="pr-2">
+                                    <span id="modal_keu_info_jenis" class="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${initialInfo.jenis === 'Program Kerja' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-orange-500/20 text-orange-400'}">${initialInfo.jenis}</span>
+                                    <span id="modal_keu_info_nama" class="font-bold text-neutral-200 ml-1.5 block sm:inline mt-1 sm:mt-0">${escapeHtml(initialInfo.nama)}</span>
+                                </div>
+                                <div class="text-right font-mono shrink-0">
+                                    <span id="modal_keu_info_total" class="text-emerald-400 font-bold block">${formatSbaRupiah(initialInfo.totalOut)}</span>
+                                    <span id="modal_keu_info_nota" class="text-[9.5px] text-neutral-400">${initialInfo.notaCount} Nota Tersedia</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. PILIHAN NOTA -->
+                        <div class="p-3 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2">
+                            <label class="text-[11px] font-bold text-orange-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt text-[10px]"></i> 2. Sertakan Lampiran Nota Keuangan?
+                            </label>
+                            
+                            <label class="flex items-start gap-2.5 p-2 rounded-lg bg-neutral-950 border border-neutral-800 cursor-pointer hover:border-neutral-700 transition-colors">
+                                <input type="checkbox" id="modal_keu_check_nota" ${initialInfo.notaCount > 0 ? 'checked' : ''} class="mt-0.5 rounded border-neutral-700 text-emerald-500 focus:ring-emerald-500 w-4 h-4 shrink-0">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-semibold text-neutral-200">Sertakan Halaman Lampiran Nota Bukti Transaksi</span>
+                                    <span class="text-[10px] text-neutral-400 leading-relaxed" id="modal_keu_nota_subtext">
+                                        ${initialInfo.notaCount > 0 ? `Otomatis menarik ${initialInfo.notaCount} foto bukti nota dari database kegiatan ini` : 'Tersedia lembar lampiran nota untuk upload / input bukti kuitansi'}
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                `,
+                didOpen: () => {
+                    const selectEl = document.getElementById('modal_keu_select_proker');
+                    if (selectEl) {
+                        selectEl.addEventListener('change', (e) => {
+                            const info = getProkerInfo(e.target.value);
+                            const jenisEl = document.getElementById('modal_keu_info_jenis');
+                            const namaEl = document.getElementById('modal_keu_info_nama');
+                            const totalEl = document.getElementById('modal_keu_info_total');
+                            const notaEl = document.getElementById('modal_keu_info_nota');
+                            const subtextEl = document.getElementById('modal_keu_nota_subtext');
+                            const checkNota = document.getElementById('modal_keu_check_nota');
+
+                            if (jenisEl) {
+                                jenisEl.innerText = info.jenis;
+                                jenisEl.className = `text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${info.jenis === 'Program Kerja' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-orange-500/20 text-orange-400'}`;
+                            }
+                            if (namaEl) namaEl.innerText = info.nama;
+                            if (totalEl) totalEl.innerText = formatSbaRupiah(info.totalOut);
+                            if (notaEl) notaEl.innerText = `${info.notaCount} Nota Tersedia`;
+                            if (subtextEl) {
+                                subtextEl.innerText = info.notaCount > 0 ? `Otomatis menarik ${info.notaCount} foto bukti nota dari database kegiatan ini` : 'Tersedia lembar lampiran nota untuk upload / input bukti kuitansi';
+                            }
+                            if (checkNota && info.notaCount > 0) checkNota.checked = true;
+                        });
+                    }
+                },
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-solid fa-plus-circle mr-1.5"></i> Terapkan &amp; Tampilkan Keuangan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#374151',
+                customClass: {
+                    popup: 'rounded-2xl border border-neutral-700 bg-neutral-950 text-white',
+                    confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
+                    cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
+                }
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    const selectEl = document.getElementById('modal_keu_select_proker');
+                    const checkNotaEl = document.getElementById('modal_keu_check_nota');
+                    const chosenPid = selectEl ? selectEl.value : '';
+                    const incNota = checkNotaEl ? checkNotaEl.checked : false;
+
+                    const chkKeu = document.getElementById('sba_inc_keuangan');
+                    if (chkKeu) chkKeu.checked = true;
+
+                    const chkNota = document.getElementById('sba_inc_nota');
+                    if (chkNota) chkNota.checked = incNota;
+
+                    if (chosenPid && chosenPid !== '__custom__') {
+                        applySelectedSbaProkerData(chosenPid, incNota ? 'all' : 'rab_only');
+                    }
+
+                    toggleSbaKeuanganSections();
+                    toggleSbaNotaSections();
+
+                    setTimeout(() => {
+                        const pages = getSbaPagesStructure();
+                        const pObj = pages.find(p => p.key === 'keuangan');
+                        if (pObj) setActivePage(pObj.id);
+                        else setActivePage('all');
+                    }, 50);
+
+                    if (typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true,
+                            background: '#111827',
+                            color: '#fff'
+                        });
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Halaman Keuangan berhasil ditambahkan!'
+                        });
+                    }
+                }
+            });
+        }
+
+        function nonaktifkanKeuanganSba() {
+            Swal.fire({
+                title: 'Sembunyikan Halaman Keuangan?',
+                text: 'Halaman Keuangan (RAB & Rekapitulasi) serta Lampiran Nota akan disembunyikan dari SBA.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#374151',
+                confirmButtonText: '<i class="fa-solid fa-trash-can mr-1"></i> Ya, Sembunyikan',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    popup: 'rounded-2xl border border-neutral-700 bg-neutral-950 text-white',
+                    confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
+                    cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
+                }
+            }).then(res => {
+                if (res.isConfirmed) {
+                    const chkKeu = document.getElementById('sba_inc_keuangan');
+                    if (chkKeu) chkKeu.checked = false;
+                    const chkNota = document.getElementById('sba_inc_nota');
+                    if (chkNota) chkNota.checked = false;
+                    toggleSbaKeuanganSections();
+                    toggleSbaNotaSections();
+                    setActivePage('all');
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: '#111827',
+                        color: '#fff'
+                    });
+                    Toast.fire({
+                        icon: 'info',
+                        title: 'Halaman Keuangan disembunyikan'
+                    });
+                }
+            });
+        }
+
         function bukaModalPilihExportRab() {
             if (!sbaDbProkers || sbaDbProkers.length === 0) {
                 loadSbaProkerDatabase(false);
@@ -5629,18 +5899,21 @@
 
         function isSbaKeuanganActive() {
             const el = document.getElementById('sba_inc_keuangan');
-            return el ? el.checked : true;
+            return el ? el.checked : false;
         }
 
         function isSbaNotaActive() {
             const el = document.getElementById('sba_inc_nota');
-            return el ? el.checked : true;
+            return el ? el.checked : false;
         }
 
         function toggleSbaKeuanganSections() {
             const incKeu = isSbaKeuanganActive();
             const group = document.getElementById('sba_keuangan_group');
             if (group) group.classList.toggle('hidden', !incKeu);
+            const inactiveBanner = document.getElementById('sba_keuangan_inactive_banner');
+            if (inactiveBanner) inactiveBanner.classList.toggle('hidden', incKeu);
+            syncAutoLampiranCount();
             syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
@@ -5761,13 +6034,7 @@
                 if (pObj) setActivePage(pObj.id);
                 else setActivePage('all');
             } else if (type === 'keuangan') {
-                const el = document.getElementById('sba_inc_keuangan');
-                if (el) el.checked = true;
-                toggleSbaKeuanganSections();
-                const pages = getSbaPagesStructure();
-                const pObj = pages.find(p => p.key === 'keuangan');
-                if (pObj) setActivePage(pObj.id);
-                else setActivePage('all');
+                bukaModalTambahkanKeuanganSba();
             }
         }
 
@@ -8673,6 +8940,19 @@
                         <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
                             ${renderBulletItems(evaluasiText)}
                         </div>
+
+                        ${!isSbaKeuanganActive() ? `
+                            <!-- TOMBOL TAMBAHKAN HALAMAN KEUANGAN PASCA EVALUASI -->
+                            <div class="preview-editable print:hidden" onclick="bukaModalTambahkanKeuanganSba()" style="margin-top: 18pt; padding: 12pt 16pt; border: 2px dashed #10b981; border-radius: 12px; background-color: rgba(16, 185, 129, 0.05); text-align: center; cursor: pointer; transition: all 0.2s;" title="Klik untuk menambahkan halaman Keuangan ke SBA">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <span style="font-size: 13pt; color: #10b981;"><i class="fa-solid fa-coins"></i></span>
+                                    <span style="font-size: 11pt; font-weight: bold; color: #059669; font-family: 'Plus Jakarta Sans', sans-serif;">+ Tambahkan Halaman Keuangan</span>
+                                </div>
+                                <p style="margin: 4pt 0 0 0; font-size: 9pt; color: #047857; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                    (Klik di sini untuk memilih kegiatan program/agenda kerja &amp; lampiran nota yang ingin disertakan setelah evaluasi)
+                                </p>
+                            </div>
+                        ` : ''}
                     `;
                 } else if (key === 'output_prestasi' || key.startsWith('output_prestasi_')) {
                     // HALAMAN: OUTPUT KEGIATAN & TABEL PRESTASI (PAGINASI OTOMATIS)
@@ -8745,6 +9025,19 @@
                         <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
                             ${renderBulletItems(evaluasiText)}
                         </div>
+
+                        ${!isSbaKeuanganActive() ? `
+                            <!-- TOMBOL TAMBAHKAN HALAMAN KEUANGAN PASCA EVALUASI -->
+                            <div class="preview-editable print:hidden" onclick="bukaModalTambahkanKeuanganSba()" style="margin-top: 18pt; padding: 12pt 16pt; border: 2px dashed #10b981; border-radius: 12px; background-color: rgba(16, 185, 129, 0.05); text-align: center; cursor: pointer; transition: all 0.2s;" title="Klik untuk menambahkan halaman Keuangan ke SBA">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <span style="font-size: 13pt; color: #10b981;"><i class="fa-solid fa-coins"></i></span>
+                                    <span style="font-size: 11pt; font-weight: bold; color: #059669; font-family: 'Plus Jakarta Sans', sans-serif;">+ Tambahkan Halaman Keuangan</span>
+                                </div>
+                                <p style="margin: 4pt 0 0 0; font-size: 9pt; color: #047857; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                    (Klik di sini untuk memilih kegiatan program/agenda kerja &amp; lampiran nota yang ingin disertakan setelah evaluasi)
+                                </p>
+                            </div>
+                        ` : ''}
                     `;
                 } else if (key === 'keuangan') {
                     // HALAMAN 4: KEUANGAN (PEMASUKAN & BELANJA BAHAN)
@@ -8828,6 +9121,26 @@
                         <!-- NOMOR SURAT BRACKET -->
                         <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                             <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
+                        </div>
+
+                        <!-- KEUANGAN HEADER CONTROLS (PRINT:HIDDEN) -->
+                        <div class="print:hidden" style="margin-bottom: 12pt; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6pt 10pt; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 9pt; font-weight: bold; color: #065f46; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-coins" style="color: #10b981;"></i> Laporan Keuangan Aktif:
+                                </span>
+                                <span style="font-size: 8.5pt; font-weight: bold; padding: 1.5pt 6pt; border-radius: 5px; background: rgba(16, 185, 129, 0.2); color: #047857;">
+                                    ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <button type="button" onclick="bukaModalTambahkanKeuanganSba()" style="font-size: 8pt; font-weight: bold; padding: 3pt 8pt; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-rotate"></i> Ganti Kegiatan / Nota
+                                </button>
+                                <button type="button" onclick="nonaktifkanKeuanganSba()" style="font-size: 8pt; font-weight: bold; padding: 3pt 8pt; border-radius: 6px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-trash-can"></i> Sembunyikan Keuangan
+                                </button>
+                            </div>
                         </div>
 
                         <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
