@@ -1615,7 +1615,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="field_isi_inti" oninput="handleIsiIntiInput(this.value);" rows="3" class="form-input text-xs" placeholder="Deskripsikan kegiatan (misal: Kegiatan ini merupakan rangkaian persiapan pelaksanaan QURMEDIA 2026...)">Deskripsikan Kegiatan.</textarea>
+                            <textarea id="field_isi_inti" oninput="handleIsiIntiInput(this.value);" rows="5" class="form-input text-xs leading-relaxed" placeholder="Deskripsikan kegiatan (misal: Kegiatan ini merupakan rangkaian persiapan pelaksanaan QURMEDIA 2026...)">Deskripsikan Kegiatan.</textarea>
                         </div>
                     </div>
                 </div>
@@ -11049,6 +11049,24 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             });
         }
 
+                function autoResizePopoverTextarea(ta) {
+            if (!ta) return;
+            ta.style.height = 'auto';
+            const scrollH = ta.scrollHeight;
+            const isIsiInti = (ta.id === 'quick_input_main' && window.currentQuickEditTarget && window.currentQuickEditTarget.targetId === 'field_isi_inti');
+            const minH = isIsiInti ? 140 : 80;
+            const targetH = Math.max(scrollH + 4, minH);
+            const maxH = Math.max(220, Math.min(window.innerHeight * 0.55, 420));
+            if (targetH > maxH) {
+                ta.style.height = `${maxH}px`;
+                ta.style.overflowY = 'auto';
+            } else {
+                ta.style.height = `${targetH}px`;
+                ta.style.overflowY = 'hidden';
+            }
+        }
+        window.autoResizePopoverTextarea = autoResizePopoverTextarea;
+
         function openPreviewQuickEdit(editable) {
             currentQuickEditElement = editable;
             const targetId = editable.getAttribute('data-edit-target') || '';
@@ -11158,16 +11176,27 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             container.innerHTML = generatePopoverInputHtml(type, targetId, idx);
 
-            // 3. Posisikan Popover dekat dengan teks yang diklik
-            positionQuickEditPopover(editable, popover);
             popover.classList.remove('hidden');
+
+            // Auto-resize semua textarea dalam popover agar langsung pas tanpa scrollbar
+            const popTextareas = container.querySelectorAll('textarea');
+            popTextareas.forEach(ta => {
+                autoResizePopoverTextarea(ta);
+                ta.addEventListener('input', () => autoResizePopoverTextarea(ta));
+            });
+
+            // 3. Posisikan Popover dekat dengan teks yang diklik (menggunakan tinggi popover yang akurat)
+            positionQuickEditPopover(editable, popover);
 
             // 4. Fokus ke input utama dalam popover
             setTimeout(() => {
+                popTextareas.forEach(ta => autoResizePopoverTextarea(ta));
                 const input = container.querySelector('input:not([type="hidden"]), textarea');
                 if (input) {
                     input.focus();
-                    if (typeof input.select === 'function') input.select();
+                    if (input.tagName === 'INPUT' && typeof input.select === 'function') {
+                        input.select();
+                    }
                 }
             }, 60);
 
@@ -11287,7 +11316,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             const rect = editable.getBoundingClientRect();
             const popWidth = Math.min(window.innerWidth * 0.94, 460);
-            const popHeight = 360;
+            const popHeight = (popover && popover.offsetHeight) ? popover.offsetHeight : 360;
 
             let left;
             let top;
@@ -11470,7 +11499,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             </div>
                         </div>
                         <textarea id="quick_input_main" rows="3" placeholder="${escapeHtml(ph)}" 
-                            oninput="syncQuickEditToForm('field_tujuan', this.value)" 
+                            oninput="syncQuickEditToForm('field_tujuan', this.value); if(typeof autoResizePopoverTextarea==='function') autoResizePopoverTextarea(this);" 
+                            style="min-height: 80px;"
                             class="form-input text-xs py-2 px-3 w-full leading-relaxed text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500">${escapeHtml(val)}</textarea>
                     </div>
                 `;
@@ -11504,7 +11534,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             </div>
                         </div>
                         <textarea id="quick_input_main" rows="4" placeholder="${escapeHtml(ph)}" 
-                            oninput="syncQuickEditToForm('field_pembuka', this.value)" 
+                            oninput="syncQuickEditToForm('field_pembuka', this.value); if(typeof autoResizePopoverTextarea==='function') autoResizePopoverTextarea(this);" 
+                            style="min-height: 100px;"
                             class="form-input text-xs py-2 px-3 w-full leading-relaxed text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500">${escapeHtml(val)}</textarea>
                     </div>
                 `;
@@ -11609,8 +11640,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 ${isSpz ? `<button type="button" onclick="quickContohSpzIsi()" class="px-1.5 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 text-orange-400 text-[9.5px] font-bold border border-orange-500/30">Contoh SPZ</button>` : ''}
                             </div>
                         </div>
-                        <textarea id="quick_input_main" rows="4" placeholder="${escapeHtml(ph)}" 
-                            oninput="syncQuickEditToForm('field_isi_inti', this.value)" 
+                        <textarea id="quick_input_main" rows="5" placeholder="${escapeHtml(ph)}" 
+                            oninput="syncQuickEditToForm('field_isi_inti', this.value); if(typeof autoResizePopoverTextarea==='function') autoResizePopoverTextarea(this);" 
+                            style="min-height: 140px;"
                             class="form-input text-xs py-2 px-3 w-full leading-relaxed text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500">${escapeHtml(val)}</textarea>
                     </div>
                 `;
@@ -11634,7 +11666,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             </div>
                         </div>
                         <textarea id="quick_input_main" rows="3" placeholder="${escapeHtml(ph)}" 
-                            oninput="syncQuickEditToForm('field_penutup', this.value)" 
+                            oninput="syncQuickEditToForm('field_penutup', this.value); if(typeof autoResizePopoverTextarea==='function') autoResizePopoverTextarea(this);" 
+                            style="min-height: 80px;"
                             class="form-input text-xs py-2 px-3 w-full leading-relaxed text-white bg-neutral-950 border-neutral-700 rounded-lg focus:border-orange-500">${escapeHtml(val)}</textarea>
                     </div>
                 `;
@@ -12670,21 +12703,30 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             generateContohSpzIsiInti();
             const qMain = document.getElementById('quick_input_main');
             const formIsi = document.getElementById('field_isi_inti');
-            if (qMain && formIsi) qMain.value = formIsi.value;
+            if (qMain && formIsi) {
+                qMain.value = formIsi.value;
+                if (typeof autoResizePopoverTextarea === 'function') autoResizePopoverTextarea(qMain);
+            }
         }
 
         function quickBoldNamaAcara() {
             boldNamaAcaraInIsi();
             const qMain = document.getElementById('quick_input_main');
             const formIsi = document.getElementById('field_isi_inti');
-            if (qMain && formIsi) qMain.value = formIsi.value;
+            if (qMain && formIsi) {
+                qMain.value = formIsi.value;
+                if (typeof autoResizePopoverTextarea === 'function') autoResizePopoverTextarea(qMain);
+            }
         }
 
         function quickSyncPembukaAuto() {
             syncSpzPembukaAuto();
             const qMain = document.getElementById('quick_input_main');
             const formPembuka = document.getElementById('field_pembuka');
-            if (qMain && formPembuka) qMain.value = formPembuka.value;
+            if (qMain && formPembuka) {
+                qMain.value = formPembuka.value;
+                if (typeof autoResizePopoverTextarea === 'function') autoResizePopoverTextarea(qMain);
+            }
         }
 
         function handleQuickFormText(targetId, val) {
@@ -12995,6 +13037,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const replacement = `${wrapper}${selected}${wrapper}`;
             el.value = text.substring(0, start) + replacement + text.substring(end);
             el.dispatchEvent(new Event('input'));
+            if (typeof autoResizePopoverTextarea === 'function') autoResizePopoverTextarea(el);
             el.focus();
             el.setSelectionRange(start + wrapper.length, start + wrapper.length + selected.length);
         }
