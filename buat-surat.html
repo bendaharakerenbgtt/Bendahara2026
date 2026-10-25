@@ -599,6 +599,13 @@
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2) !important;
         }
 
+        /* SPZ Inactive Wadir Spacer */
+        .spz-wadir-spacer {
+            height: 115pt;
+            width: 100%;
+            pointer-events: none;
+        }
+
         /* SPZ Authentic A4 Multi-Page System */
         .spz-page-sheet {
             background-color: #FFFFFF !important;
@@ -803,6 +810,9 @@
                 background: transparent !important;
                 box-shadow: none !important;
                 cursor: default !important;
+            }
+            .spz-wadir-spacer {
+                height: 155pt !important;
             }
             #view_editor_dokumen {
                 display: block !important;
@@ -1284,7 +1294,7 @@
                         </div>
 
                         <!-- Input Body Container -->
-                        <div id="popover_input_container" class="space-y-2 mb-3">
+                        <div id="popover_input_container" class="space-y-2 mb-3 max-h-[70vh] overflow-y-auto pr-1">
                             <!-- Diisi secara dinamis via JS -->
                         </div>
 
@@ -1905,7 +1915,7 @@
                                     <span id="wadir_auto_badge" class="text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20">Danop / Anggaran</span>
                                 </div>
                                 <label class="flex items-center gap-1.5 text-[10px] text-neutral-300 cursor-pointer select-none">
-                                    <input type="checkbox" id="field_ttd_wadir_active" onchange="updateTtdState(); updatePreview();" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5">
+                                    <input type="checkbox" id="field_ttd_wadir_active" onchange="updateTtdState(); updatePreview();" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5" checked>
                                     <span>Sertakan TTD Wakil Direktur III</span>
                                 </label>
                             </div>
@@ -2732,7 +2742,8 @@
                 ttd3Active: true,
                 ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
-                ttd3Nim: 'NIP. 198005072023211013'
+                ttd3Nim: 'NIP. 198005072023211013',
+                wadirActive: true
             },
             SUD: {
                 title: 'Surat Undangan',
@@ -3024,6 +3035,9 @@
             if (document.getElementById('field_ttd2_active')) document.getElementById('field_ttd2_active').checked = true;
             if (document.getElementById('field_ttd_mpm_active')) document.getElementById('field_ttd_mpm_active').checked = true;
             if (document.getElementById('field_ttd_bem_active')) document.getElementById('field_ttd_bem_active').checked = true;
+            if (document.getElementById('field_ttd_wadir_active')) {
+                document.getElementById('field_ttd_wadir_active').checked = (type === 'SPZ' ? true : (tpl.wadirActive !== undefined ? tpl.wadirActive : false));
+            }
             if (typeof updateTtdState === 'function') updateTtdState();
 
             if (type === 'SPZ') {
@@ -7255,7 +7269,12 @@
                                     <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
                                     <p style="margin: 0; font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
                                 </div>
-                            ` : ''}
+                            ` : `
+                                <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="font-family: sans-serif; text-align: center; margin: 8pt auto 10pt auto; padding: 7pt 14pt; max-width: 440px; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                    <span style="font-size: 9.5pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
+                                </div>
+                                <div class="spz-wadir-spacer"></div>
+                            `}
 
                             <!-- TINGKAT 4: TEMBUSAN (Tabel Bernomor Indent Sejajar Paragraf) -->
                             <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-bottom: 0; font-family: 'Times New Roman', serif;">
@@ -11168,6 +11187,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 const bemActive = document.getElementById('field_ttd_bem_active')?.checked ?? true;
                 const bemNama = document.getElementById('field_ttd_bem_nama')?.value || '';
                 const bemNim = document.getElementById('field_ttd_bem_nim_angka')?.value || (document.getElementById('field_ttd_bem_nim')?.value || '').replace(/[^0-9]/g, '');
+                const wadirActive = document.getElementById('field_ttd_wadir_active')?.checked ?? false;
+                const wadirJabatan = document.getElementById('field_ttd_wadir_jabatan')?.value || '';
+                const wadirNama = document.getElementById('field_ttd_wadir_nama')?.value || '';
+                const wadirNim = document.getElementById('field_ttd_wadir_nip_angka')?.value || (document.getElementById('field_ttd_wadir_nip')?.value || '').replace(/[^0-9]/g, '');
                 return `
                     <div class="space-y-2.5">
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
@@ -11236,6 +11259,37 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                     <input type="text" inputmode="numeric" value="${escapeHtml(bemNim)}" placeholder="2490343155" 
                                         oninput="handleNimInput('field_ttd_bem_nim_angka', 'field_ttd_bem_nim'); syncQuickEditToForm('field_ttd_bem_nim_angka', this.value);" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-[10.5px] text-amber-400 font-bold">Wakil Direktur III (Menyetujui)</label>
+                                <label class="flex items-center gap-1.5 text-[9.5px] text-neutral-400 cursor-pointer">
+                                    <input type="checkbox" ${wadirActive ? 'checked' : ''} onchange="syncQuickCheckboxToForm('field_ttd_wadir_active', this.checked); updateTtdState();" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3 h-3">
+                                    <span>Aktif</span>
+                                </label>
+                            </div>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="text-[9.5px] text-neutral-400 block mb-0.5">Jabatan</label>
+                                    <input type="text" value="${escapeHtml(wadirJabatan)}" 
+                                        oninput="syncQuickEditToForm('field_ttd_wadir_jabatan', this.value)" 
+                                        class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama & Gelar</label>
+                                        <input type="text" value="${escapeHtml(wadirNama)}" 
+                                            oninput="syncQuickEditToForm('field_ttd_wadir_nama', this.value)" 
+                                            class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIP</label>
+                                        <input type="text" inputmode="numeric" value="${escapeHtml(wadirNim)}" 
+                                            oninput="handleNipInput('field_ttd_wadir_nip_angka', 'field_ttd_wadir_nip'); syncQuickEditToForm('field_ttd_wadir_nip_angka', this.value);" 
+                                            class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -11740,6 +11794,27 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (qMain && formPembuka) qMain.value = formPembuka.value;
         }
 
+        function enableWadirAndOpenEdit(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const wadirCheck = document.getElementById('field_ttd_wadir_active');
+            if (wadirCheck) {
+                wadirCheck.checked = true;
+                if (typeof wadirCheck.onchange === 'function') {
+                    try { wadirCheck.onchange(); } catch (err) {}
+                }
+            }
+            if (typeof updateTtdState === 'function') updateTtdState();
+            updatePreview();
+            setTimeout(() => {
+                const wadirEl = document.querySelector('[data-edit-target="ttd_wadir_block"]');
+                if (wadirEl) openPreviewQuickEdit(wadirEl);
+            }, 60);
+        }
+        window.enableWadirAndOpenEdit = enableWadirAndOpenEdit;
+
         function syncQuickCheckboxToForm(targetId, checked) {
             const input = document.getElementById(targetId);
             if (input) {
@@ -11748,7 +11823,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     try { input.onchange(); } catch (err) {}
                 }
             }
+            if (typeof updateTtdState === 'function') updateTtdState();
             updatePreview();
+            if (currentQuickEditTarget) {
+                const selector = `[data-edit-target="${currentQuickEditTarget.targetId}"]`;
+                const newEl = document.querySelector(selector);
+                if (newEl) {
+                    newEl.classList.add('preview-editable-active');
+                    currentQuickEditElement = newEl;
+                }
+            }
         }
 
         function syncQuickEditToForm(targetId, val) {
