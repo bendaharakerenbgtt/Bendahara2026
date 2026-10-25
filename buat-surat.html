@@ -5211,28 +5211,53 @@
             const rawCat = (t.kategori || '').toLowerCase();
             const rawUraian = (t.uraian || '').toLowerCase();
             const rawKet = (t.keterangan || t.catatan || '').toLowerCase();
-            const combined = `${rawCat} ${rawUraian} ${rawKet}`.trim();
+            const combined = (rawCat + ' ' + rawUraian + ' ' + rawKet).trim();
 
-            const isBahanContext = combined.includes('sertifikat') || combined.includes('piagam') || 
-                                   combined.includes('bingkisan') || combined.includes('plakat') || 
-                                   combined.includes('cetak') || combined.includes('print') ||
-                                   combined.includes('banner') || combined.includes('spanduk') ||
-                                   combined.includes('snack') || combined.includes('makan') ||
-                                   combined.includes('konsumsi') || combined.includes('atk') ||
-                                   combined.includes('kertas');
-
-            if (!isBahanContext) {
-                if (combined.includes('sewa') || combined.includes('rental') || combined.includes('penginapan') || 
-                    combined.includes('villa') || combined.includes('gedung') || combined.includes('aula') || 
-                    combined.includes('lapangan') || rawCat.includes('sewa')) {
-                    return 'sewa';
-                }
-                if (combined.includes('fee') || combined.includes('honor') || combined.includes('bisyarah') || 
-                    combined.includes('narasumber') || combined.includes('pemateri') || combined.includes('jasa') ||
-                    combined.includes('trainer') || combined.includes('moderator') || rawCat.includes('jasa')) {
-                    return 'jasa';
-                }
+            // 1. Belanja Sewa
+            if (combined.includes('sewa') || combined.includes('rental') || combined.includes('penginapan') || 
+                combined.includes('villa') || combined.includes('gedung') || combined.includes('aula') || 
+                combined.includes('lapangan') || rawCat.includes('sewa')) {
+                return 'sewa';
             }
+
+            // 2. CEK MUTLAK Belanja Bahan (Barang Fisik & Konsumsi)
+            const bahanStrictKeywords = [
+                'stiker', 'sticker', 'pin', 'ganci', 'gantungan kunci', 'lencana', 'medali', 'piala', 'trophy', 'vandel',
+                'poster', 'pamflet', 'leaflet', 'flyer', 'brosur', 'backdrop', 'photobooth',
+                'amplop', 'map', 'kuitansi', 'kwitansi', 'nota', 'stempel', 'jilid', 'fotokopi', 'foto kopi', 'laminating',
+                'buku', 'kitab', 'modul', 'materi', 'jurnal', 'al-quran',
+                'lanyard', 'name tag', 'nametag', 'bingkai', 'frame', 'paper', 'kertas',
+                'snack', 'makan', 'makanan', 'konsumsi', 'kue', 'roti', 'nasi', 'box', 'prasmanan', 'catering', 'tumpeng',
+                'parcel', 'buah', 'mineral', 'aqua', 'minum', 'minuman', 'kopi', 'teh', 'sirup', 'galon', 'es krim', 'ice cream',
+                'sertifikat', 'piagam', 'bingkisan', 'hadiah', 'plakat', 'cinderamata', 'cenderamata', 'souvenir', 'merchandise',
+                'print', 'cetak', 'atk', 'banner', 'spanduk', 'baliho', 'sablon',
+                'id card', 'tali', 'casing', 'tinta', 'foil', 'kaos', 'baju', 'totebag', 'goodie bag', 'lakban', 'baterai',
+                'piring', 'sendok', 'garpu', 'plastik', 'cup', 'gelas', 'tissue', 'tisu', 'zipper'
+            ];
+
+            const isStrictlyBahan = bahanStrictKeywords.some(kw => combined.includes(kw));
+            if (isStrictlyBahan) {
+                return 'bahan';
+            }
+
+            // 3. Belanja Jasa
+            const isFeeJasa = combined.includes('fee') || combined.includes('honor') || 
+                              combined.includes('bisyarah') || combined.includes('insentif') ||
+                              combined.includes('jasa') || combined.includes('belanja jasa') ||
+                              rawCat.includes('jasa') || rawCat.includes('fee') ||
+                              rawUraian.includes('narasumber') || rawUraian.includes('pemateri') || 
+                              rawUraian.includes('pembicara') || rawUraian.includes('juri') || 
+                              rawUraian.includes('trainer') || rawUraian.includes('moderator');
+
+            if (isFeeJasa) {
+                return 'jasa';
+            }
+
+            if (combined.includes('belanja lainnya') || combined.includes('belanja lainya') || 
+                combined.includes('biaya lainnya') || combined.includes('biaya lainya')) {
+                return 'lainnya';
+            }
+
             return 'bahan';
         }
 
