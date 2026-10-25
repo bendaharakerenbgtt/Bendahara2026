@@ -599,13 +599,6 @@
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2) !important;
         }
 
-        /* SPZ Inactive Wadir Spacer */
-        .spz-wadir-spacer {
-            height: 115pt;
-            width: 100%;
-            pointer-events: none;
-        }
-
         /* SPZ Authentic A4 Multi-Page System */
         .spz-page-sheet {
             background-color: #FFFFFF !important;
@@ -810,9 +803,6 @@
                 background: transparent !important;
                 box-shadow: none !important;
                 cursor: default !important;
-            }
-            .spz-wadir-spacer {
-                height: 155pt !important;
             }
             #view_editor_dokumen {
                 display: block !important;
@@ -7252,7 +7242,7 @@
                                     `;
                                 }
                                 return `
-                                    <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; margin-bottom: ${isWadirActive ? '12pt' : '14pt'};">
+                                    <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; margin-bottom: 14pt;">
                                         <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
                                         <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; table-layout: fixed;">
                                             ${content}
@@ -7261,20 +7251,24 @@
                                 `;
                             })()}
 
-                            <!-- TINGKAT 3: MENYETUJUI WADIR III (TERPISAH & BISA DINONAKTIFKAN) -->
-                            ${isWadirActive ? `
-                                <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="font-family: 'Times New Roman', serif; text-align: center; margin-bottom: 14pt;">
-                                    <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold;">Menyetujui,</p>
-                                    <p style="margin: 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br></p>
-                                    <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
-                                    <p style="margin: 0; font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
-                                </div>
-                            ` : `
-                                <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="font-family: sans-serif; text-align: center; margin: 8pt auto 10pt auto; padding: 7pt 14pt; max-width: 440px; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
-                                    <span style="font-size: 9.5pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
-                                </div>
-                                <div class="spz-wadir-spacer"></div>
-                            `}
+                            <!-- TINGKAT 3: MENYETUJUI WADIR III (TERPISAH & BISA DINONAKTIFKAN DENGAN TINGGI TERKUNCI) -->
+                            <div id="spz_tingkat3_wadir_wrapper" style="height: 125pt; min-height: 125pt; margin-bottom: 14pt; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">
+                                ${isWadirActive ? `
+                                    <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="font-family: 'Times New Roman', serif; text-align: center;">
+                                        <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold; line-height: 1.25;">Menyetujui,</p>
+                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">${formatTtdJabatan(wadirJabatan)}</p>
+                                        <div style="height: 42pt;"></div>
+                                        <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
+                                        <p style="margin: 0; font-size: 10pt; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
+                                    </div>
+                                ` : `
+                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                        <span style="font-size: 9.5pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
+                                        <span style="font-size: 8.5pt; color: #b45309; margin-top: 3pt;">(Posisi tembusan di bawah tetap terkunci rapi)</span>
+                                    </div>
+                                    <div class="hidden print:block" style="height: 100%;"></div>
+                                `}
+                            </div>
 
                             <!-- TINGKAT 4: TEMBUSAN (Tabel Bernomor Indent Sejajar Paragraf) -->
                             <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-bottom: 0; font-family: 'Times New Roman', serif;">
