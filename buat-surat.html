@@ -2719,7 +2719,8 @@
                 ttd3Active: true,
                 ttd3Jabatan: 'Dosen Pembimbing\nUKM IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
-                ttd3Nim: 'NIP. 198005072023211013'
+                ttd3Nim: 'NIP. 198005072023211013',
+                wadirActive: false
             },
             SPZ: {
                 title: 'Surat Perizinan',
@@ -8744,11 +8745,11 @@
                             </p>
                         </div>
 
-                        <!-- PENGESAHAN FORMAT & JARAK PERSIS SPZ -->
-                        <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penandatangan Surat" data-edit-type="ttd" title="Klik untuk edit Penandatangan" style="font-family: 'Times New Roman', serif;">
-                            <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
+                        <!-- PENGESAHAN FORMAT & JARAK PERSIS SPZ (MODULAR 3 TINGKAT + TEMBUSAN) -->
+                        <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
+                        <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
                             <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 14pt; table-layout: fixed;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 0; table-layout: fixed;">
                                 <colgroup>
                                     <col style="width: 33.33%;">
                                     <col style="width: 33.34%;">
@@ -8775,10 +8776,12 @@
                                     </td>
                                 </tr>
                             </table>
+                        </div>
 
-                            <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
+                        <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
+                        <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
                             <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: ${isWadirActive ? '10pt' : '14pt'}; table-layout: fixed;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 0; table-layout: fixed;">
                                 <colgroup>
                                     <col style="width: 33.33%;">
                                     <col style="width: 33.34%;">
@@ -8810,41 +8813,50 @@
                                     </td>
                                 </tr>
                             </table>
+                        </div>
 
+                        <!-- BARIS 3: MENYETUJUI (WAKIL DIREKTUR III - DEFAULT OFF DI SBA) -->
+                        <div id="sba_tingkat3_wadir_wrapper" style="margin-top: 10pt; margin-bottom: 12pt; font-family: 'Times New Roman', serif;">
                             ${isWadirActive ? `
-                            <!-- BARIS 2.5: MENYETUJUI (WAKIL DIREKTUR III) -->
-                            <div style="text-align: center; margin-top: 10pt; margin-bottom: 12pt;">
-                                <p style="margin: 0 0 4pt 0; font-size: 12pt; font-weight: bold;">Menyetujui,</p>
-                                <p style="margin: 0; font-size: 11pt; line-height: 1.25;">
-                                    ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br><br>
-                                </p>
-                                <p style="margin: 0; line-height: 1.25;">
-                                    <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
-                                    <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
-                                </p>
-                            </div>` : ''}
+                                <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
+                                    <p style="margin: 0 0 4pt 0; font-size: 12pt; font-weight: bold;">Menyetujui,</p>
+                                    <p style="margin: 0; font-size: 11pt; line-height: 1.25;">
+                                        ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br><br>
+                                    </p>
+                                    <p style="margin: 0; line-height: 1.25;">
+                                        <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
+                                        <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
+                                    </p>
+                                </div>
+                            ` : `
+                                <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="padding: 10pt 16pt; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                    <span style="font-size: 9.5pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
+                                    <span style="font-size: 8.5pt; color: #b45309; margin-top: 2pt;">(Opsional: Default tidak aktif, klik untuk sertakan di lembar pengesahan)</span>
+                                </div>
+                                <div class="hidden print:block" style="height: 0;"></div>
+                            `}
+                        </div>
 
-                            <!-- BARIS 3: TEMBUSAN (Taro paling bawah lembar surat) -->
-                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: ${isWadirActive ? '16pt' : '140pt'};">
-                                <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
-                                <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
-                                    ${isWadirActive ? `
-                                    <tr>
-                                        <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
-                                        <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Wakil Direktur Bidang Kemahasiswaan dan Alumni</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="width: 22px; vertical-align: top; padding: 1pt 0;">2.</td>
-                                        <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Arsip</td>
-                                    </tr>
-                                    ` : `
-                                    <tr>
-                                        <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
-                                        <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Arsip</td>
-                                    </tr>
-                                    `}
-                                </table>
-                            </div>
+                        <!-- BARIS 4: TEMBUSAN (Taro paling bawah lembar surat) -->
+                        <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-top: ${isWadirActive ? '16pt' : '50pt'}; font-family: 'Times New Roman', serif;">
+                            <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
+                            <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
+                                ${isWadirActive ? `
+                                <tr>
+                                    <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
+                                    <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Wakil Direktur Bidang Kemahasiswaan dan Alumni</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 22px; vertical-align: top; padding: 1pt 0;">2.</td>
+                                    <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Arsip</td>
+                                </tr>
+                                ` : `
+                                <tr>
+                                    <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
+                                    <td style="vertical-align: top; padding: 1pt 0; white-space: nowrap;">Arsip</td>
+                                </tr>
+                                `}
+                            </table>
                         </div>
                     `;
                 } else if (key === 'nota') {
@@ -11800,7 +11812,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         <div class="flex items-center justify-between pb-1 border-b border-neutral-800">
                             <span class="text-[10px] text-neutral-400 font-mono">Tanda Tangan Tingkat 1</span>
                             <button type="button" onclick="quickResetTtdPjDefault()" class="text-[9.5px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 active:scale-95 transition-transform" title="Kembalikan nama ke Sarah Muthmainnah & Hafiz Alfariz">
-                                <i class="fa-solid fa-rotate-left"></i> Reset Contoh SPZ
+                                <i class="fa-solid fa-rotate-left"></i> ${currentSuratType === 'SBA' ? 'Reset Contoh SBA' : 'Reset Contoh SPZ'}
                             </button>
                         </div>
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
@@ -12729,6 +12741,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         window.handleQuickNip = handleQuickNip;
 
         function quickResetTtdPjDefault() {
+            const isSba = (currentSuratType === 'SBA');
+            const defaultT1Nama = isSba ? 'Faridah Rihadatul \'Aisy' : 'Sarah Muthmainnah Prayogo';
+            const defaultT1Nim = isSba ? '2470402026' : '2590331052';
+
             const t1Nama = document.getElementById('field_ttd1_nama');
             const t1NimAngka = document.getElementById('field_ttd1_nim_angka');
             const t1Nim = document.getElementById('field_ttd1_nim');
@@ -12736,9 +12752,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const t2NimAngka = document.getElementById('field_ttd2_nim_angka');
             const t2Nim = document.getElementById('field_ttd2_nim');
 
-            if (t1Nama) t1Nama.value = 'Sarah Muthmainnah Prayogo';
-            if (t1NimAngka) t1NimAngka.value = '2590331052';
-            if (t1Nim) t1Nim.value = 'NIM. 2590331052';
+            if (t1Nama) t1Nama.value = defaultT1Nama;
+            if (t1NimAngka) t1NimAngka.value = defaultT1Nim;
+            if (t1Nim) t1Nim.value = 'NIM. ' + defaultT1Nim;
             if (t2Nama) t2Nama.value = 'Hafiz Alfariz';
             if (t2NimAngka) t2NimAngka.value = '2490444040';
             if (t2Nim) t2Nim.value = 'NIM. 2490444040';
@@ -12750,8 +12766,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const qT1Nim = document.getElementById('quick_ttd1_nim');
             const qT2Nama = document.getElementById('quick_ttd2_nama');
             const qT2Nim = document.getElementById('quick_ttd2_nim');
-            if (qT1Nama) qT1Nama.value = 'Sarah Muthmainnah Prayogo';
-            if (qT1Nim) qT1Nim.value = '2590331052';
+            if (qT1Nama) qT1Nama.value = defaultT1Nama;
+            if (qT1Nim) qT1Nim.value = defaultT1Nim;
             if (qT2Nama) qT2Nama.value = 'Hafiz Alfariz';
             if (qT2Nim) qT2Nim.value = '2490444040';
         }
