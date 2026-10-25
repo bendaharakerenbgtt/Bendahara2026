@@ -1265,22 +1265,28 @@
                         <!-- Konten surat dirender secara dinamis di sini -->
                     </div>
 
-                    <!-- FLOATING QUICK-EDIT POPOVER DARI PRATINJAU -->
-                    <div id="preview_quick_edit_popover" class="hidden fixed z-50 p-4 rounded-2xl bg-neutral-900/95 border border-orange-500/50 shadow-2xl backdrop-blur-md text-neutral-100 w-[92vw] max-w-md print:hidden transition-all duration-200">
-                        <!-- Header Popover -->
-                        <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-neutral-800">
-                            <div class="flex items-center gap-2">
-                                <span class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs shrink-0">
-                                    <i class="fa-solid fa-pen-to-square"></i>
+                    <!-- FLOATING QUICK-EDIT POPOVER DARI PRATINJAU (DRAGGABLE & MOVABLE) -->
+                    <div id="preview_quick_edit_popover" class="hidden fixed z-50 p-4 rounded-2xl bg-neutral-900/95 border border-orange-500/50 shadow-2xl backdrop-blur-md text-neutral-100 w-[92vw] max-w-md print:hidden transition-all duration-150 select-text">
+                        <!-- Header Popover (Area Geser / Drag Handle) -->
+                        <div id="popover_drag_header" class="flex items-center justify-between pb-2 mb-2.5 border-b border-neutral-800 cursor-grab active:cursor-grabbing select-none" title="Klik dan tahan untuk menggeser posisi overlay ini">
+                            <div class="flex items-center gap-2 overflow-hidden pointer-events-none">
+                                <span class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs shrink-0 shadow-xs">
+                                    <i class="fa-solid fa-grip-vertical"></i>
                                 </span>
-                                <div>
-                                    <span class="text-xs font-bold text-white block leading-tight" id="popover_edit_title">Ubah Bagian Surat</span>
-                                    <span class="text-[10px] text-orange-400 font-mono" id="popover_edit_subtitle">Edit langsung dari pratinjau</span>
+                                <div class="truncate">
+                                    <span class="text-xs font-bold text-white block leading-tight truncate" id="popover_edit_title">Ubah Bagian Surat</span>
+                                    <span class="text-[10px] text-orange-400 font-mono truncate block" id="popover_edit_subtitle">Edit langsung dari pratinjau</span>
                                 </div>
                             </div>
-                            <button type="button" onclick="closePreviewQuickEdit()" class="w-6 h-6 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center transition-colors" title="Tutup (Esc)">
-                                <i class="fa-solid fa-xmark text-xs"></i>
-                            </button>
+                            <div class="flex items-center gap-1.5 shrink-0 pointer-events-auto">
+                                <button type="button" onclick="dockPopoverToSide()" class="px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-orange-400 flex items-center gap-1 text-[10px] font-mono transition-colors" title="Geser ke samping (agar tidak menutupi kertas)">
+                                    <i class="fa-solid fa-arrows-left-right-to-line text-[10px]"></i>
+                                    <span class="hidden sm:inline">Ke Samping</span>
+                                </button>
+                                <button type="button" onclick="closePreviewQuickEdit()" class="w-7 h-7 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center transition-colors" title="Tutup (Esc)">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Input Body Container -->
@@ -11153,26 +11159,141 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             highlightCorrespondingFormCard(targetId, idx, false);
         }
 
+        let isDraggingPopover = false;
+        let popoverDragStartX = 0;
+        let popoverDragStartY = 0;
+        let popoverInitialLeft = 0;
+        let popoverInitialTop = 0;
+        let popoverUserHasMoved = false;
+
+        function initPopoverDraggable() {
+            const popover = document.getElementById('preview_quick_edit_popover');
+            const dragHeader = document.getElementById('popover_drag_header');
+            if (!popover || !dragHeader || popover.__dragInitialized) return;
+            popover.__dragInitialized = true;
+
+            const onPointerDown = (e) => {
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) return;
+
+                isDraggingPopover = true;
+                popoverUserHasMoved = true;
+                dragHeader.classList.remove('cursor-grab');
+                dragHeader.classList.add('cursor-grabbing');
+                popover.classList.remove('transition-all');
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                popoverDragStartX = clientX;
+                popoverDragStartY = clientY;
+
+                const rect = popover.getBoundingClientRect();
+                popoverInitialLeft = rect.left;
+                popoverInitialTop = rect.top;
+
+                document.addEventListener('mousemove', onPointerMove, { passive: false });
+                document.addEventListener('mouseup', onPointerUp);
+                document.addEventListener('touchmove', onPointerMove, { passive: false });
+                document.addEventListener('touchend', onPointerUp);
+            };
+
+            const onPointerMove = (e) => {
+                if (!isDraggingPopover) return;
+                e.preventDefault();
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                const deltaX = clientX - popoverDragStartX;
+                const deltaY = clientY - popoverDragStartY;
+
+                let newLeft = popoverInitialLeft + deltaX;
+                let newTop = popoverInitialTop + deltaY;
+
+                const popRect = popover.getBoundingClientRect();
+                const maxLeft = window.innerWidth - popRect.width - 8;
+                const maxTop = window.innerHeight - popRect.height - 8;
+
+                newLeft = Math.max(8, Math.min(newLeft, maxLeft));
+                newTop = Math.max(8, Math.min(newTop, maxTop));
+
+                popover.style.left = `${Math.round(newLeft)}px`;
+                popover.style.top = `${Math.round(newTop)}px`;
+            };
+
+            const onPointerUp = () => {
+                if (!isDraggingPopover) return;
+                isDraggingPopover = false;
+                dragHeader.classList.remove('cursor-grabbing');
+                dragHeader.classList.add('cursor-grab');
+                popover.classList.add('transition-all');
+
+                document.removeEventListener('mousemove', onPointerMove);
+                document.removeEventListener('mouseup', onPointerUp);
+                document.removeEventListener('touchmove', onPointerMove);
+                document.removeEventListener('touchend', onPointerUp);
+            };
+
+            dragHeader.addEventListener('mousedown', onPointerDown);
+            dragHeader.addEventListener('touchstart', onPointerDown, { passive: false });
+        }
+        window.initPopoverDraggable = initPopoverDraggable;
+
+        function dockPopoverToSide() {
+            const popover = document.getElementById('preview_quick_edit_popover');
+            if (!popover) return;
+            popoverUserHasMoved = true;
+            const popRect = popover.getBoundingClientRect();
+            const rightMargin = 20;
+            const bottomMargin = 24;
+
+            const newLeft = window.innerWidth - popRect.width - rightMargin;
+            const newTop = window.innerHeight - popRect.height - bottomMargin;
+
+            popover.style.left = `${Math.max(16, Math.round(newLeft))}px`;
+            popover.style.top = `${Math.max(16, Math.round(newTop))}px`;
+            if (typeof showToast === 'function') showToast('Jendela edit digeser ke samping', 'info');
+        }
+        window.dockPopoverToSide = dockPopoverToSide;
+
         function closePreviewQuickEdit() {
             const popover = document.getElementById('preview_quick_edit_popover');
             if (popover) popover.classList.add('hidden');
             document.querySelectorAll('.preview-editable-active').forEach(el => el.classList.remove('preview-editable-active'));
             currentQuickEditTarget = null;
             currentQuickEditElement = null;
+            popoverUserHasMoved = false;
         }
 
         function positionQuickEditPopover(editable, popover) {
+            initPopoverDraggable();
+            if (popoverUserHasMoved) return; // Pertahankan posisi jika sudah digeser oleh pengguna
+
             const rect = editable.getBoundingClientRect();
             const popWidth = Math.min(window.innerWidth * 0.94, 460);
-            const popHeight = 320;
+            const popHeight = 360;
 
-            let left = rect.left + (rect.width / 2) - (popWidth / 2);
-            if (left < 16) left = 16;
-            if (left + popWidth > window.innerWidth - 16) left = window.innerWidth - popWidth - 16;
+            let left;
+            let top;
 
-            let top = rect.bottom + 10;
-            if (top + popHeight > window.innerHeight - 20) {
-                top = Math.max(16, rect.top - popHeight - 10);
+            // Jika di layar lebar dan ada ruang di samping kanan elemen kertas (tidak menutupi dokumen)
+            if (window.innerWidth >= 1100 && rect.right + popWidth + 24 <= window.innerWidth) {
+                left = rect.right + 16;
+                top = Math.max(16, Math.min(rect.top - 10, window.innerHeight - popHeight - 20));
+            } else if (window.innerWidth >= 1100 && rect.left - popWidth - 24 >= 16) {
+                // Ada ruang di sebelah kiri elemen
+                left = rect.left - popWidth - 16;
+                top = Math.max(16, Math.min(rect.top - 10, window.innerHeight - popHeight - 20));
+            } else {
+                // Di layar kecil / sempit: letakkan di bawah atau di atas
+                left = rect.left + (rect.width / 2) - (popWidth / 2);
+                if (left < 16) left = 16;
+                if (left + popWidth > window.innerWidth - 16) left = window.innerWidth - popWidth - 16;
+
+                top = rect.bottom + 10;
+                if (top + popHeight > window.innerHeight - 20) {
+                    top = Math.max(16, rect.top - popHeight - 10);
+                }
             }
 
             popover.style.left = `${Math.round(left)}px`;
