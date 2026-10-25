@@ -5788,8 +5788,8 @@
                 if (isSbaDokumentasiActive()) count++;
             } else if (currentSuratType === 'SPZ') {
                 unit = 'Lembar';
-                if (typeof isSpzLampiran1Active === 'function' && isSpzLampiran1Active()) count++;
-                if (typeof isSpzLampiran2Active === 'function' && isSpzLampiran2Active()) count++;
+                const spzPages = (typeof getSpzPagesStructure === 'function') ? getSpzPagesStructure() : [];
+                count = Math.max(0, spzPages.length - 2);
             } else {
                 unit = 'Lembar';
                 const el = document.getElementById('field_lampiran_angka');
@@ -5882,6 +5882,115 @@
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
+        }
+
+        function getSpzPagesStructure() {
+            const pages = [
+                { key: 'permohonan', label: 'Permohonan', icon: 'fa-file-lines', desc: 'Surat Permohonan Izin' },
+                { key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Pengesahan 6 Pihak & Tembusan' }
+            ];
+
+            const incPanitia = isSpzLampiran1Active();
+            if (incPanitia) {
+                const bCount = (typeof spzBarangList !== 'undefined' && spzBarangList && spzBarangList.length) ? spzBarangList.length : 0;
+                const pCount = (typeof spzPanitiaList !== 'undefined' && spzPanitiaList && spzPanitiaList.length) ? spzPanitiaList.length : 0;
+                const rCount = (typeof spzRundownList !== 'undefined' && spzRundownList && spzRundownList.length) ? spzRundownList.length : 0;
+
+                const bHeight = 45 + bCount * 24;
+                const pHeight = 45 + pCount * 24;
+                const rHeight = (rCount > 0) ? (45 + rCount * 24) : 0;
+                const totalContent = bHeight + pHeight + rHeight;
+
+                if (totalContent <= 560) {
+                    pages.push({ 
+                        key: 'lampiran_all', 
+                        label: 'Lampiran: Barang, Panitia & Rundown', 
+                        icon: 'fa-boxes-stacked', 
+                        desc: 'Lampiran: Barang, Panitia & Rundown',
+                        tables: ['barang', 'panitia', 'rundown'] 
+                    });
+                } else {
+                    // Cek jika Barang dan Panitia masih cukup bersamaan di 1 lembar
+                    if (bHeight + pHeight <= 540) {
+                        pages.push({ 
+                            key: 'lampiran_bp', 
+                            label: 'Lampiran: Barang & Panitia', 
+                            icon: 'fa-boxes-stacked', 
+                            desc: 'Lampiran: Barang Pinjaman & Panitia Kegiatan',
+                            tables: ['barang', 'panitia'] 
+                        });
+                    } else {
+                        // Pisah lembar Barang
+                        pages.push({ 
+                            key: 'lampiran_barang', 
+                            label: 'Lampiran: Barang Pinjaman', 
+                            icon: 'fa-boxes-stacked', 
+                            desc: 'Lampiran: Daftar Barang Pinjaman',
+                            tables: ['barang'] 
+                        });
+
+                        // Cek pemisahan panitia jika sangat banyak
+                        if (pCount > 16) {
+                            const chunks = Math.ceil(pCount / 14);
+                            for (let c = 0; c < chunks; c++) {
+                                pages.push({ 
+                                    key: 'lampiran_panitia_' + c, 
+                                    label: c === 0 ? 'Lampiran: Panitia Kegiatan' : 'Lampiran: Panitia (Lanjutan)', 
+                                    icon: 'fa-users',
+                                    desc: c === 0 ? 'Lampiran: Panitia Kegiatan' : 'Lampiran: Panitia Kegiatan (Lanjutan)',
+                                    tables: ['panitia'], 
+                                    chunk: { start: c * 14, end: Math.min((c + 1) * 14, pCount) } 
+                                });
+                            }
+                        } else {
+                            pages.push({ 
+                                key: 'lampiran_panitia', 
+                                label: 'Lampiran: Panitia Kegiatan', 
+                                icon: 'fa-users',
+                                desc: 'Lampiran: Panitia Kegiatan',
+                                tables: ['panitia'] 
+                            });
+                        }
+                    }
+
+                    // Pisah lembar Rundown
+                    if (rCount > 0) {
+                        if (rCount > 16) {
+                            const chunks = Math.ceil(rCount / 14);
+                            for (let c = 0; c < chunks; c++) {
+                                pages.push({ 
+                                    key: 'lampiran_rundown_' + c, 
+                                    label: c === 0 ? 'Lampiran: Susunan Kegiatan' : 'Lampiran: Rundown (Lanjutan)', 
+                                    icon: 'fa-list-check',
+                                    desc: c === 0 ? 'Lampiran: Susunan Rundown Kegiatan' : 'Lampiran: Susunan Rundown (Lanjutan)',
+                                    tables: ['rundown'], 
+                                    chunk: { start: c * 14, end: Math.min((c + 1) * 14, rCount) } 
+                                });
+                            }
+                        } else {
+                            pages.push({ 
+                                key: 'lampiran_rundown', 
+                                label: 'Lampiran: Susunan Kegiatan', 
+                                icon: 'fa-list-check',
+                                desc: 'Lampiran: Susunan Rundown Kegiatan',
+                                tables: ['rundown'] 
+                            });
+                        }
+                    }
+                }
+            }
+
+            const incSubbag = isSpzLampiran2Active();
+            if (incSubbag) {
+                pages.push({ 
+                    key: 'subbag_umum', 
+                    label: 'Lembar Persetujuan Subbag', 
+                    icon: 'fa-building-columns', 
+                    desc: 'Lembar Persetujuan Subbag Umum' 
+                });
+            }
+
+            return pages.map((p, i) => ({ ...p, id: i + 1 }));
         }
 
         function getSbaPagesStructure() {
@@ -6957,7 +7066,8 @@
                 subbagPerihal = subbagPerihal.replace(/perizinan/gi, 'Perizinan Peminjaman');
             }
 
-            const totalPages = 2 + (incPanitia ? 1 : 0) + (incSubbag ? 1 : 0);
+            const spzPagesList = (typeof getSpzPagesStructure === 'function') ? getSpzPagesStructure() : [];
+            const totalPages = spzPagesList.length || (2 + (incPanitia ? 1 : 0) + (incSubbag ? 1 : 0));
             let currentPageNum = 1;
 
             const spzKop = generateKopHtmlSpz();
@@ -7305,45 +7415,152 @@
             `;
             currentPageNum++;
 
-            // === HALAMAN 3: LAMPIRAN BARANG & PANITIA (JIKA AKTIF) ===
-            if (incPanitia) {
-                const barangRowsHtml = (spzBarangList.length > 0 ? spzBarangList : DEFAULT_SPZ_BARANG).map((b, idx) => `
-                    <tr class="preview-editable" data-edit-target="spz_barang_row" data-edit-idx="${idx}" data-edit-label="Barang Pinjaman Baris #${idx + 1}" data-edit-type="spz_barang" title="Klik untuk edit Barang Pinjaman Baris #${idx + 1}">
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}.</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(b.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(b.jumlah || '') || '&nbsp;'}</td>
-                    </tr>
-                `).join('');
+            // === SISTEM HALAMAN LAMPIRAN DINAMIS: OTOMATIS PECAH HALAMAN JIKA OVERFLOW / KELEBIHAN MARGIN ===
+            const lampiranPageConfigs = spzPagesList.filter(p => p.id >= 3 && p.key !== 'subbag_umum');
 
-                const panitiaRowsHtml = spzPanitiaList.map((p, idx) => `
-                    <tr class="preview-editable" data-edit-target="spz_panitia_row" data-edit-idx="${idx}" data-edit-label="Panitia Kegiatan Baris #${idx + 1}" data-edit-type="spz_panitia" title="Klik untuk edit Panitia Baris #${idx + 1}">
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(p.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${formatInlineRichText(p.nim || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(p.prodi || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${formatInlineRichText(p.delegasi || 'UKM LDK IMIP')}</td>
-                    </tr>
-                `).join('');
+            lampiranPageConfigs.forEach(lPage => {
+                const tablesToRender = lPage.tables || [];
+                const chunk = lPage.chunk;
+                let pageInnerHtml = '';
 
-                const rundownRowsHtml = spzRundownList.map((r, idx) => `
-                    <tr class="preview-editable" data-edit-target="spz_rundown_row" data-edit-idx="${idx}" data-edit-label="Rundown Acara Baris #${idx + 1}" data-edit-type="spz_rundown" title="Klik untuk edit Rundown Baris #${idx + 1}">
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}</td>
-                        <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(r.nama || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${formatInlineRichText(r.waktu || '') || '&nbsp;'}</td>
-                        <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(r.pj || '') || '&nbsp;'}</td>
-                    </tr>
-                `).join('');
+                // 1. TABEL BARANG
+                if (tablesToRender.includes('barang')) {
+                    const bList = (typeof spzBarangList !== 'undefined' && spzBarangList && spzBarangList.length > 0) ? spzBarangList : DEFAULT_SPZ_BARANG;
+                    const bRowsHtml = bList.map((item, idx) => `
+                        <tr class="preview-editable" data-edit-target="spz_barang_row" data-edit-idx="${idx}" data-edit-label="Barang Pinjaman Baris #${idx + 1}" data-edit-type="spz_barang" title="Klik untuk edit Barang Pinjaman Baris #${idx + 1}">
+                            <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${idx + 1}.</td>
+                            <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(item.nama || '') || '&nbsp;'}</td>
+                            <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(item.jumlah || '') || '&nbsp;'}</td>
+                        </tr>
+                    `).join('');
+
+                    pageInnerHtml += `
+                        <div class="preview-editable preview-table-section mb-2" data-edit-target="spz_barang_editor_container" data-edit-type="spz_barang_all" data-edit-label="Daftar Barang Pinjaman" title="Klik untuk kelola / edit Barang Pinjaman">
+                            <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
+                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed; background-color: transparent !important;">
+                                <thead>
+                                    <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Barang</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Jumlah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${bRowsHtml}
+                                </tbody>
+                            </table>
+                            <div class="print:hidden mb-2 flex items-center justify-between text-xs px-1">
+                                <button type="button" onclick="addQuickSpzBarangRow(${bList.length - 1})" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10.5px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah barang pinjaman baru">
+                                    <i class="fa-solid fa-plus text-[9px]"></i> Tambah Barang
+                                </button>
+                                <span class="text-[9.5px] text-neutral-400 font-mono">Total ${bList.length} Barang</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 2. TABEL PANITIA
+                if (tablesToRender.includes('panitia')) {
+                    const rawList = (typeof spzPanitiaList !== 'undefined' && spzPanitiaList && spzPanitiaList.length > 0) ? spzPanitiaList : DEFAULT_SPZ_PANITIA;
+                    const pList = chunk ? rawList.slice(chunk.start, chunk.end) : rawList;
+                    const offset = chunk ? chunk.start : 0;
+                    const pTitle = chunk && chunk.start > 0 ? 'Panitia Kegiatan (Lanjutan)' : 'Panitia Kegiatan';
+
+                    const pRowsHtml = pList.map((p, idx) => {
+                        const actualIdx = offset + idx;
+                        return `
+                            <tr class="preview-editable" data-edit-target="spz_panitia_row" data-edit-idx="${actualIdx}" data-edit-label="Panitia Kegiatan Baris #${actualIdx + 1}" data-edit-type="spz_panitia" title="Klik untuk edit Panitia Baris #${actualIdx + 1}">
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${actualIdx + 1}</td>
+                                <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(p.nama || '') || '&nbsp;'}</td>
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 1.5pt 2pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; white-space: nowrap !important;">${formatInlineRichText(p.nim || '') || '&nbsp;'}</td>
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(p.prodi || '') || '&nbsp;'}</td>
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${formatInlineRichText(p.delegasi || 'UKM LDK IMIP')}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    pageInnerHtml += `
+                        <div class="preview-editable preview-table-section mb-2" data-edit-target="spz_panitia_editor_container" data-edit-type="spz_panitia_all" data-edit-label="Daftar Panitia Kegiatan" title="Klik untuk kelola / edit Panitia Kegiatan">
+                            <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">${pTitle}</p>
+                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; background-color: transparent !important;">
+                                <thead>
+                                    <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Lengkap</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important; background-color: transparent !important;">NIM</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Program Studi</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important; background-color: transparent !important;">Delegasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${pRowsHtml}
+                                </tbody>
+                            </table>
+                            <div class="print:hidden mb-2 flex items-center justify-between text-xs px-1">
+                                <button type="button" onclick="addQuickSpzPanitiaRow(${rawList.length - 1})" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10.5px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah panitia kegiatan baru">
+                                    <i class="fa-solid fa-plus text-[9px]"></i> Tambah Panitia
+                                </button>
+                                <span class="text-[9.5px] text-neutral-400 font-mono">Total ${rawList.length} Panitia</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // 3. TABEL RUNDOWN
+                if (tablesToRender.includes('rundown')) {
+                    const rawList = (typeof spzRundownList !== 'undefined' && spzRundownList && spzRundownList.length > 0) ? spzRundownList : [];
+                    const rList = chunk ? rawList.slice(chunk.start, chunk.end) : rawList;
+                    const offset = chunk ? chunk.start : 0;
+                    const rTitle = chunk && chunk.start > 0 ? 'Susunan Kegiatan (Lanjutan)' : 'Susunan Kegiatan';
+
+                    const rRowsHtml = rList.map((r, idx) => {
+                        const actualIdx = offset + idx;
+                        return `
+                            <tr class="preview-editable" data-edit-target="spz_rundown_row" data-edit-idx="${actualIdx}" data-edit-label="Rundown Acara Baris #${actualIdx + 1}" data-edit-type="spz_rundown" title="Klik untuk edit Rundown Baris #${actualIdx + 1}">
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 3pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${actualIdx + 1}</td>
+                                <td style="border: 1px solid #000000 !important; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(r.nama || '') || '&nbsp;'}</td>
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important; white-space: nowrap !important;">${formatInlineRichText(r.waktu || '') || '&nbsp;'}</td>
+                                <td style="border: 1px solid #000000 !important; text-align: center; padding: 0.2pt 4pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.1 !important;">${formatInlineRichText(r.pj || '') || '&nbsp;'}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    pageInnerHtml += `
+                        <div class="preview-editable preview-table-section mb-2" data-edit-target="spz_rundown_editor_container" data-edit-type="spz_rundown_all" data-edit-label="Susunan Kegiatan (Rundown)" title="Klik untuk kelola / edit Susunan Kegiatan">
+                            <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">${rTitle}</p>
+                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed; background-color: transparent !important;">
+                                <thead>
+                                    <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Kegiatan</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Waktu</th>
+                                        <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Penanggung Jawab</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rRowsHtml}
+                                </tbody>
+                            </table>
+                            <div class="print:hidden mb-2 flex items-center justify-between text-xs px-1">
+                                <button type="button" onclick="addQuickSpzRundownRow(${rawList.length - 1})" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10.5px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah agenda kegiatan baru">
+                                    <i class="fa-solid fa-plus text-[9px]"></i> Tambah Baris Rundown
+                                </button>
+                                <span class="text-[9.5px] text-neutral-400 font-mono">Total ${rawList.length} Agenda</span>
+                            </div>
+                        </div>
+                    `;
+                }
 
                 pagesHtml += `
                     <div class="spz-sheet-badge print:hidden">
-                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; Lampiran 1: Barang, Panitia & Rundown</span>
+                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${currentPageNum} &bull; ${lPage.desc}</span>
                         <span class="text-[10px] font-mono text-orange-400 font-bold">${currentPageNum} / ${totalPages}</span>
                     </div>
                     <div class="spz-page-sheet" data-page="${currentPageNum}">
                         <!-- WATERMARK PERSIS DI TENGAH & TIDAK GEPENG -->
                         ${getSpzWatermarkHtml('135mm')}
 
-                        <!-- KONTEN HALAMAN 3 -->
+                        <!-- KONTEN HALAMAN LAMPIRAN -->
                         <div style="position: relative; z-index: 2;">
                             ${generateKopHtmlSpz('8pt')}
 
@@ -7352,69 +7569,14 @@
                                     <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
                                 </div>
 
-                                <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
-
-                                <!-- TABEL DAFTAR BARANG & JUMLAH -->
-                                <div class="preview-editable preview-table-section" data-edit-target="spz_barang_editor_container" data-edit-type="spz_barang_all" data-edit-label="Daftar Barang Pinjaman" title="Klik untuk kelola / edit Barang Pinjaman">
-                                    <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Lampiran</p>
-                                    <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed; background-color: transparent !important;">
-                                        <thead>
-                                            <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 10%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 65%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Barang</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Jumlah</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${barangRowsHtml}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- TABEL PANITIA KEGIATAN -->
-                                <div class="preview-editable preview-table-section" data-edit-target="spz_panitia_editor_container" data-edit-type="spz_panitia_all" data-edit-label="Daftar Panitia Kegiatan" title="Klik untuk kelola / edit Panitia Kegiatan">
-                                    <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Panitia Kegiatan</p>
-                                    <table class="spz-border-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6pt; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; background-color: transparent !important;">
-                                        <thead>
-                                            <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 28%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Lengkap</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 18%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important; background-color: transparent !important;">NIM</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 26%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Program Studi</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 22%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; white-space: nowrap !important; line-height: 1.2 !important; background-color: transparent !important;">Delegasi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${panitiaRowsHtml}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                ${spzRundownList && spzRundownList.length > 0 ? `
-                                <div class="preview-editable preview-table-section" data-edit-target="spz_rundown_editor_container" data-edit-type="spz_rundown_all" data-edit-label="Susunan Kegiatan (Rundown)" title="Klik untuk kelola / edit Susunan Kegiatan">
-                                    <p style="margin: 4pt 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Susunan Kegiatan</p>
-                                    <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; border: 1px solid #000000 !important; table-layout: fixed; background-color: transparent !important;">
-                                        <thead>
-                                            <tr style="background-color: transparent !important; font-weight: bold; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;">
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 3pt; width: 6%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">No</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 44%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Nama Kegiatan</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Waktu</th>
-                                                <th style="border: 1px solid #000000 !important; padding: 2pt 4pt; width: 25%; text-align: center; font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important; line-height: 1.2 !important; background-color: transparent !important;">Penanggung Jawab</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${rundownRowsHtml}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                ` : ''}
+                                ${pageInnerHtml}
                             </div>
                         </div>
                     </div>
                 `;
                 currentPageNum++;
-            }
-
+            });
+            
             // === HALAMAN 4: LEMBAR PERSETUJUAN SUBBAG UMUM (JIKA AKTIF) ===
             if (incSubbag) {
                 pagesHtml += `
@@ -8811,10 +8973,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (currentSuratType === 'SPM') return 2;
             if (currentSuratType === 'SBA') return getSbaPagesStructure().length;
             if (currentSuratType === 'SPZ') {
-                let pages = 2;
-                if (isSpzLampiran1Active()) pages++;
-                if (isSpzLampiran2Active()) pages++;
-                return pages;
+                return (typeof getSpzPagesStructure === 'function') ? getSpzPagesStructure().length : 4;
             }
             return 1;
         }
@@ -8839,17 +8998,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 tabs.push({ id: 1, label: 'Hal 1: Isi Surat', icon: 'fa-file-lines', badge: 'Lembar 1', desc: 'Kop, Fasilitas & Rincian Acara' });
                 tabs.push({ id: 2, label: 'Hal 2: Pengesahan', icon: 'fa-signature', badge: 'Lembar 2', desc: 'Penutup & 6 Tanda Tangan' });
                 
-                const hasL1 = isSpzLampiran1Active();
-                const hasL2 = isSpzLampiran2Active();
-                
-                let pNum = 3;
-                if (hasL1) {
-                    tabs.push({ id: pNum, label: `Hal ${pNum}: Lampiran 1`, icon: 'fa-boxes-stacked', badge: `Lembar ${pNum}`, desc: 'Barang, Panitia & Rundown' });
-                    pNum++;
-                }
-                if (hasL2) {
-                    tabs.push({ id: pNum, label: `Hal ${pNum}: Lampiran 2`, icon: 'fa-building-columns', badge: `Lembar ${pNum}`, desc: 'Persetujuan Subbag Umum' });
-                }
+                const spzPages = (typeof getSpzPagesStructure === 'function') ? getSpzPagesStructure() : [];
+                spzPages.slice(2).forEach(p => {
+                    tabs.push({ 
+                        id: p.id, 
+                        label: `Hal ${p.id}: ${p.label}`, 
+                        icon: p.icon || 'fa-boxes-stacked', 
+                        badge: `Lembar ${p.id}`, 
+                        desc: p.desc || p.label 
+                    });
+                });
             }
 
             return tabs;
@@ -11476,18 +11634,48 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (type === 'spz_barang' && idx !== undefined) {
                 const row = (spzBarangList && spzBarangList[idx]) ? spzBarangList[idx] : (DEFAULT_SPZ_BARANG[idx] || {});
                 return `
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 text-[10px] font-mono font-bold text-orange-400">
+                                Barang #${parseInt(idx) + 1} dari ${spzBarangList.length}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickSpzBarangRow(${idx})" class="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah barang baru di bawah ini">
+                                    <i class="fa-solid fa-plus text-[9px]"></i>
+                                    <span>Tambah Barang</span>
+                                </button>
+                                <button type="button" onclick="deleteQuickSpzBarangRow(${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-[10.5px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Hapus barang ini">
+                                    <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
                         <div>
                             <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Nama Barang Pinjaman (Baris #${parseInt(idx) + 1})</label>
-                            <input type="text" value="${escapeHtml(row.nama || '')}" placeholder="Nama Barang (opsional)" 
+                            <input type="text" value="${escapeHtml(row.nama || '')}" placeholder="Nama Barang Pinjaman" 
                                 oninput="handleQuickSpzBarang(${idx}, 'nama', this.value)" 
                                 class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
                         </div>
                         <div>
                             <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Jumlah</label>
-                            <input type="text" value="${escapeHtml(row.jumlah || '')}" placeholder="Jumlah (contoh: 1 Buah)" 
+                            <input type="text" value="${escapeHtml(row.jumlah || '')}" placeholder="Contoh: 1 Buah, 2 Unit" 
                                 oninput="handleQuickSpzBarang(${idx}, 'jumlah', this.value)" 
                                 class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 font-mono text-center rounded-lg text-white focus:border-orange-500">
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-neutral-800/60 text-[10px]">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="navigateQuickSpzBarang(${idx - 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    <i class="fa-solid fa-chevron-left text-[9px]"></i> Ke Barang #${idx}
+                                </button>
+                            ` : `<span class="text-neutral-600">Awal baris</span>`}
+                            <button type="button" onclick="openSpzBarangAllPopover()" class="text-orange-400/80 hover:text-orange-300 underline transition-colors">
+                                Kelola Semua
+                            </button>
+                            ${idx < spzBarangList.length - 1 ? `
+                                <button type="button" onclick="navigateQuickSpzBarang(${idx + 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    Ke Barang #${idx + 2} <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                </button>
+                            ` : `<span class="text-neutral-600">Akhir baris</span>`}
                         </div>
                     </div>
                 `;
@@ -11544,7 +11732,22 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (type === 'spz_panitia' && idx !== undefined) {
                 const row = (spzPanitiaList && spzPanitiaList[idx]) ? spzPanitiaList[idx] : (DEFAULT_SPZ_PANITIA[idx] || {});
                 return `
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 text-[10px] font-mono font-bold text-orange-400">
+                                Panitia #${parseInt(idx) + 1} dari ${spzPanitiaList.length}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickSpzPanitiaRow(${idx})" class="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah panitia baru di bawah ini">
+                                    <i class="fa-solid fa-plus text-[9px]"></i>
+                                    <span>Tambah Panitia</span>
+                                </button>
+                                <button type="button" onclick="deleteQuickSpzPanitiaRow(${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-[10.5px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Hapus panitia ini">
+                                    <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
                         <div>
                             <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Nama Lengkap (Baris #${parseInt(idx) + 1})</label>
                             <input type="text" value="${escapeHtml(row.nama || '')}" placeholder="Nama Lengkap" 
@@ -11570,6 +11773,21 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             <input type="text" value="${escapeHtml(row.delegasi !== undefined && row.delegasi !== '' ? row.delegasi : 'UKM LDK IMIP')}" placeholder="UKM LDK IMIP" 
                                 oninput="handleQuickSpzPanitia(${idx}, 'delegasi', this.value)" 
                                 class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-neutral-800/60 text-[10px]">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="navigateQuickSpzPanitia(${idx - 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    <i class="fa-solid fa-chevron-left text-[9px]"></i> Ke Panitia #${idx}
+                                </button>
+                            ` : `<span class="text-neutral-600">Awal baris</span>`}
+                            <button type="button" onclick="openSpzPanitiaAllPopover()" class="text-orange-400/80 hover:text-orange-300 underline transition-colors">
+                                Kelola Semua
+                            </button>
+                            ${idx < spzPanitiaList.length - 1 ? `
+                                <button type="button" onclick="navigateQuickSpzPanitia(${idx + 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    Ke Panitia #${idx + 2} <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                </button>
+                            ` : `<span class="text-neutral-600">Akhir baris</span>`}
                         </div>
                     </div>
                 `;
@@ -12058,6 +12276,196 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             closePreviewQuickEdit();
             highlightCorrespondingFormCard(targetId, idx, true);
         }
+
+        // -------------------------------------------------------------------------
+        // QUICK SPZ BARANG HELPERS (TAMBAH BARIS, HAPUS, NAVIGASI)
+        // -------------------------------------------------------------------------
+        function addQuickSpzBarangRow(afterIdx) {
+            if (!spzBarangList) spzBarangList = [];
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < spzBarangList.length) 
+                ? (afterIdx + 1) 
+                : spzBarangList.length;
+            const newRow = { nama: '', jumlah: '' };
+            spzBarangList.splice(insertPos, 0, newRow);
+
+            if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Barang pinjaman #${insertPos + 1} ditambahkan`, 'success');
+
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-edit-target="spz_barang_row"][data-edit-idx="${insertPos}"]`);
+                if (newEl) openPreviewQuickEdit(newEl);
+            }, 60);
+        }
+        window.addQuickSpzBarangRow = addQuickSpzBarangRow;
+
+        function deleteQuickSpzBarangRow(idx) {
+            if (!spzBarangList || spzBarangList.length === 0) return;
+            const delNum = idx + 1;
+            if (spzBarangList.length <= 1) {
+                spzBarangList = [{ nama: '', jumlah: '' }];
+                if (typeof showToast === 'function') showToast('Daftar barang dikosongkan (minimal 1 baris)', 'info');
+            } else {
+                spzBarangList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast(`Barang #${delNum} berhasil dihapus`, 'success');
+            }
+            if (typeof renderSpzBarangEditor === 'function') renderSpzBarangEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+
+            setTimeout(() => {
+                const targetIdx = Math.min(idx, spzBarangList.length - 1);
+                const nextEl = document.querySelector(`[data-edit-target="spz_barang_row"][data-edit-idx="${targetIdx}"]`);
+                if (nextEl) openPreviewQuickEdit(nextEl);
+                else closePreviewQuickEdit();
+            }, 60);
+        }
+        window.deleteQuickSpzBarangRow = deleteQuickSpzBarangRow;
+
+        function navigateQuickSpzBarang(targetIdx) {
+            if (!spzBarangList || targetIdx < 0 || targetIdx >= spzBarangList.length) return;
+            const targetEl = document.querySelector(`[data-edit-target="spz_barang_row"][data-edit-idx="${targetIdx}"]`);
+            if (targetEl) openPreviewQuickEdit(targetEl);
+        }
+        window.navigateQuickSpzBarang = navigateQuickSpzBarang;
+
+        function openSpzBarangAllPopover() {
+            const el = document.querySelector('[data-edit-type="spz_barang_all"]') || document.querySelector('[data-edit-target="spz_barang_row"]');
+            if (el) openPreviewQuickEdit(el);
+        }
+        window.openSpzBarangAllPopover = openSpzBarangAllPopover;
+
+        // -------------------------------------------------------------------------
+        // QUICK SPZ PANITIA HELPERS (TAMBAH BARIS, HAPUS, NAVIGASI)
+        // -------------------------------------------------------------------------
+        function addQuickSpzPanitiaRow(afterIdx) {
+            if (!spzPanitiaList) spzPanitiaList = [];
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < spzPanitiaList.length) 
+                ? (afterIdx + 1) 
+                : spzPanitiaList.length;
+            const newRow = { nama: '', nim: '', prodi: '', delegasi: 'UKM LDK IMIP' };
+            spzPanitiaList.splice(insertPos, 0, newRow);
+
+            if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Panitia kegiatan #${insertPos + 1} ditambahkan`, 'success');
+
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-edit-target="spz_panitia_row"][data-edit-idx="${insertPos}"]`);
+                if (newEl) openPreviewQuickEdit(newEl);
+            }, 60);
+        }
+        window.addQuickSpzPanitiaRow = addQuickSpzPanitiaRow;
+
+        function deleteQuickSpzPanitiaRow(idx) {
+            if (!spzPanitiaList || spzPanitiaList.length === 0) return;
+            const delNum = idx + 1;
+            if (spzPanitiaList.length <= 1) {
+                spzPanitiaList = [{ nama: '', nim: '', prodi: '', delegasi: 'UKM LDK IMIP' }];
+                if (typeof showToast === 'function') showToast('Daftar panitia dikosongkan (minimal 1 baris)', 'info');
+            } else {
+                spzPanitiaList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast(`Panitia #${delNum} berhasil dihapus`, 'success');
+            }
+            if (typeof renderSpzPanitiaEditor === 'function') renderSpzPanitiaEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+
+            setTimeout(() => {
+                const targetIdx = Math.min(idx, spzPanitiaList.length - 1);
+                const nextEl = document.querySelector(`[data-edit-target="spz_panitia_row"][data-edit-idx="${targetIdx}"]`);
+                if (nextEl) openPreviewQuickEdit(nextEl);
+                else closePreviewQuickEdit();
+            }, 60);
+        }
+        window.deleteQuickSpzPanitiaRow = deleteQuickSpzPanitiaRow;
+
+        function navigateQuickSpzPanitia(targetIdx) {
+            if (!spzPanitiaList || targetIdx < 0 || targetIdx >= spzPanitiaList.length) return;
+            const targetEl = document.querySelector(`[data-edit-target="spz_panitia_row"][data-edit-idx="${targetIdx}"]`);
+            if (targetEl) openPreviewQuickEdit(targetEl);
+        }
+        window.navigateQuickSpzPanitia = navigateQuickSpzPanitia;
+
+        function openSpzPanitiaAllPopover() {
+            const el = document.querySelector('[data-edit-type="spz_panitia_all"]') || document.querySelector('[data-edit-target="spz_panitia_row"]');
+            if (el) openPreviewQuickEdit(el);
+        }
+        window.openSpzPanitiaAllPopover = openSpzPanitiaAllPopover;
+
+        // -------------------------------------------------------------------------
+        // QUICK SPZ RUNDOWN HELPERS (TAMBAH BARIS, HAPUS, NAVIGASI)
+        // -------------------------------------------------------------------------
+        function addQuickSpzRundownRow(afterIdx) {
+            if (!spzRundownList) spzRundownList = [];
+            let nextWaktu = '';
+            const refIdx = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < spzRundownList.length) 
+                ? afterIdx 
+                : (spzRundownList.length - 1);
+            if (refIdx >= 0 && spzRundownList[refIdx]) {
+                const refItem = spzRundownList[refIdx];
+                const lastEnd = (typeof extractRundownEndTime === 'function') ? extractRundownEndTime(refItem.waktu || '') : '';
+                if (lastEnd && lastEnd !== 'selesai' && typeof addMinutesToTimeString === 'function') {
+                    const startPart = lastEnd;
+                    const endPart = addMinutesToTimeString(startPart, 30).replace('.', ':');
+                    nextWaktu = `${startPart.replace(':', '.')} - ${endPart.replace(':', '.')} WIB`;
+                }
+            }
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < spzRundownList.length) 
+                ? (afterIdx + 1) 
+                : spzRundownList.length;
+            const newRow = { nama: '', waktu: nextWaktu, pj: '' };
+            spzRundownList.splice(insertPos, 0, newRow);
+
+            if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Agenda rundown #${insertPos + 1} ditambahkan`, 'success');
+
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-edit-target="spz_rundown_row"][data-edit-idx="${insertPos}"]`);
+                if (newEl) openPreviewQuickEdit(newEl);
+            }, 60);
+        }
+        window.addQuickSpzRundownRow = addQuickSpzRundownRow;
+
+        function deleteQuickSpzRundownRow(idx) {
+            if (!spzRundownList || spzRundownList.length === 0) return;
+            const delNum = idx + 1;
+            if (spzRundownList.length <= 1) {
+                spzRundownList = [{ nama: '', waktu: '', pj: '' }];
+                if (typeof showToast === 'function') showToast('Agenda rundown dikosongkan (minimal 1 agenda)', 'info');
+            } else {
+                spzRundownList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast(`Rundown #${delNum} berhasil dihapus`, 'success');
+            }
+            if (typeof renderSpzRundownEditor === 'function') renderSpzRundownEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+
+            setTimeout(() => {
+                const targetIdx = Math.min(idx, spzRundownList.length - 1);
+                const nextEl = document.querySelector(`[data-edit-target="spz_rundown_row"][data-edit-idx="${targetIdx}"]`);
+                if (nextEl) openPreviewQuickEdit(nextEl);
+                else closePreviewQuickEdit();
+            }, 60);
+        }
+        window.deleteQuickSpzRundownRow = deleteQuickSpzRundownRow;
+
+        function navigateQuickSpzRundown(targetIdx) {
+            if (!spzRundownList || targetIdx < 0 || targetIdx >= spzRundownList.length) return;
+            const targetEl = document.querySelector(`[data-edit-target="spz_rundown_row"][data-edit-idx="${targetIdx}"]`);
+            if (targetEl) openPreviewQuickEdit(targetEl);
+        }
+        window.navigateQuickSpzRundown = navigateQuickSpzRundown;
+
+        function openSpzRundownAllPopover() {
+            const el = document.querySelector('[data-edit-type="spz_rundown_all"]') || document.querySelector('[data-edit-target="spz_rundown_row"]');
+            if (el) openPreviewQuickEdit(el);
+        }
+        window.openSpzRundownAllPopover = openSpzRundownAllPopover;
 
         function handleQuickSpzBarang(idx, field, val) {
             if (!spzBarangList || spzBarangList.length === 0) {
