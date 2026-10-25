@@ -1691,7 +1691,7 @@
                             <input type="hidden" id="field_ttd1_jabatan" value="Ketua Pelaksana">
                             <div>
                                 <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
-                                <input type="text" id="field_ttd1_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Sarah Muthmainnah Prayogo" value="">
+                                <input type="text" id="field_ttd1_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Sarah Muthmainnah Prayogo" value="Sarah Muthmainnah Prayogo">
                             </div>
                             <div>
                                 <div class="flex items-center justify-between mb-1">
@@ -1702,9 +1702,9 @@
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-neutral-400 pointer-events-none select-none">
                                         NIM.
                                     </span>
-                                    <input type="text" inputmode="numeric" id="field_ttd1_nim_angka" oninput="handleNimInput('field_ttd1_nim_angka', 'field_ttd1_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="2590331052" value="">
+                                    <input type="text" inputmode="numeric" id="field_ttd1_nim_angka" oninput="handleNimInput('field_ttd1_nim_angka', 'field_ttd1_nim')" class="form-input text-xs font-mono" style="padding-left: 56px !important;" placeholder="2590331052" value="2590331052">
                                 </div>
-                                <input type="hidden" id="field_ttd1_nim" value="">
+                                <input type="hidden" id="field_ttd1_nim" value="NIM. 2590331052">
                             </div>
                             </div>
                         </div>
@@ -1736,7 +1736,7 @@
                             </div>
                             <div>
                                 <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap</label>
-                                <input type="text" id="field_ttd2_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Nama lengkap Ketua Umum">
+                                <input type="text" id="field_ttd2_nama" oninput="updatePreview()" class="form-input text-xs" placeholder="Hafiz Alfariz" value="Hafiz Alfariz">
                             </div>
                             <div>
                                 <div class="flex items-center justify-between mb-1">
@@ -2724,8 +2724,8 @@
                 isiInti: 'Deskripsikan Kegiatan.',
                 penutup: 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.',
                 ttd1Jabatan: 'Ketua Pelaksana',
-                ttd1Nama: '',
-                ttd1Nim: '',
+                ttd1Nama: 'Sarah Muthmainnah Prayogo',
+                ttd1Nim: 'NIM. 2590331052',
                 ttd2Jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
@@ -6913,11 +6913,11 @@
                     ttd1Jabatan = cleanedSub ? `${lines[0]}\n${cleanedSub}` : lines[0];
                 }
             }
-            const ttd1Nama = document.getElementById('field_ttd1_nama').value.trim();
-            const ttd1Nim = document.getElementById('field_ttd1_nim').value.trim();
+            const ttd1Nama = (document.getElementById('field_ttd1_nama')?.value || '').trim() || 'Sarah Muthmainnah Prayogo';
+            const ttd1Nim = (document.getElementById('field_ttd1_nim')?.value || '').trim() || 'NIM. 2590331052';
             const ttd2Jabatan = (document.getElementById('field_ttd2_jabatan')?.value || '').trim() || 'Ketua UKM LDK IMIP\nPeriode 2026';
-            const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
-            const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
+            const ttd2Nama = (document.getElementById('field_ttd2_nama')?.value || '').trim() || 'Hafiz Alfariz';
+            const ttd2Nim = (document.getElementById('field_ttd2_nim')?.value || '').trim() || 'NIM. 2490444040';
             const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = (document.getElementById('field_ttd3_nama') && document.getElementById('field_ttd3_nama').value.trim()) || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             const ttd3Nim = (document.getElementById('field_ttd3_nim') && document.getElementById('field_ttd3_nim').value.trim()) || 'NIP. 198005072023211013';
@@ -11121,6 +11121,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 const ttd2Nim = document.getElementById('field_ttd2_nim_angka')?.value || (document.getElementById('field_ttd2_nim')?.value || '').replace(/[^0-9]/g, '');
                 return `
                     <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-1 border-b border-neutral-800">
+                            <span class="text-[10px] text-neutral-400 font-mono">Tanda Tangan Tingkat 1</span>
+                            <button type="button" onclick="quickResetTtdPjDefault()" class="text-[9.5px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 active:scale-95 transition-transform" title="Kembalikan nama ke Sarah Muthmainnah & Hafiz Alfariz">
+                                <i class="fa-solid fa-rotate-left"></i> Reset Contoh SPZ
+                            </button>
+                        </div>
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="text-[10.5px] text-orange-400 font-bold">Ketua Pelaksana</label>
@@ -11132,14 +11138,14 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
-                                    <input type="text" value="${escapeHtml(ttd1Nama)}" placeholder="Sarah Muthmainnah" 
-                                        oninput="syncQuickEditToForm('field_ttd1_nama', this.value)" 
+                                    <input type="text" id="quick_ttd1_nama" value="${escapeHtml(ttd1Nama)}" placeholder="Sarah Muthmainnah Prayogo" 
+                                        oninput="handleQuickFormText('field_ttd1_nama', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIM</label>
-                                    <input type="text" inputmode="numeric" value="${escapeHtml(ttd1Nim)}" placeholder="2490444021" 
-                                        oninput="handleNimInput('field_ttd1_nim_angka', 'field_ttd1_nim'); syncQuickEditToForm('field_ttd1_nim_angka', this.value);" 
+                                    <input type="text" inputmode="numeric" id="quick_ttd1_nim" value="${escapeHtml(ttd1Nim)}" placeholder="2590331052" 
+                                        oninput="handleQuickNim('field_ttd1_nim_angka', 'field_ttd1_nim', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
@@ -11155,14 +11161,14 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
-                                    <input type="text" value="${escapeHtml(ttd2Nama)}" placeholder="Hafiz Alfariz" 
-                                        oninput="syncQuickEditToForm('field_ttd2_nama', this.value)" 
+                                    <input type="text" id="quick_ttd2_nama" value="${escapeHtml(ttd2Nama)}" placeholder="Hafiz Alfariz" 
+                                        oninput="handleQuickFormText('field_ttd2_nama', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIM</label>
-                                    <input type="text" inputmode="numeric" value="${escapeHtml(ttd2Nim)}" placeholder="2490444040" 
-                                        oninput="handleNimInput('field_ttd2_nim_angka', 'field_ttd2_nim'); syncQuickEditToForm('field_ttd2_nim_angka', this.value);" 
+                                    <input type="text" inputmode="numeric" id="quick_ttd2_nim" value="${escapeHtml(ttd2Nim)}" placeholder="2490444040" 
+                                        oninput="handleQuickNim('field_ttd2_nim_angka', 'field_ttd2_nim', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
@@ -11199,13 +11205,13 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama Lengkap & Gelar</label>
                                     <input type="text" value="${escapeHtml(ttd3Nama)}" placeholder="Dr. H. Zainul Hakim, S.Ag., M.Pd.I." 
-                                        oninput="syncQuickEditToForm('field_ttd3_nama', this.value)" 
+                                        oninput="handleQuickFormText('field_ttd3_nama', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIP / NIDN</label>
                                     <input type="text" inputmode="numeric" value="${escapeHtml(ttd3Nim)}" placeholder="198005072023211013" 
-                                        oninput="handleNipInput('field_ttd3_nim_angka', 'field_ttd3_nim'); syncQuickEditToForm('field_ttd3_nim_angka', this.value);" 
+                                        oninput="handleQuickNip('field_ttd3_nim_angka', 'field_ttd3_nim', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
@@ -11222,13 +11228,13 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
                                     <input type="text" value="${escapeHtml(mpmNama)}" placeholder="Sheyla Aulya" 
-                                        oninput="syncQuickEditToForm('field_ttd_mpm_nama', this.value)" 
+                                        oninput="handleQuickFormText('field_ttd_mpm_nama', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIM</label>
                                     <input type="text" inputmode="numeric" value="${escapeHtml(mpmNim)}" placeholder="2491345088" 
-                                        oninput="handleNimInput('field_ttd_mpm_nim_angka', 'field_ttd_mpm_nim'); syncQuickEditToForm('field_ttd_mpm_nim_angka', this.value);" 
+                                        oninput="handleQuickNim('field_ttd_mpm_nim_angka', 'field_ttd_mpm_nim', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
@@ -11245,13 +11251,13 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
                                     <input type="text" value="${escapeHtml(bemNama)}" placeholder="Ujang Rahman" 
-                                        oninput="syncQuickEditToForm('field_ttd_bem_nama', this.value)" 
+                                        oninput="handleQuickFormText('field_ttd_bem_nama', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIM</label>
                                     <input type="text" inputmode="numeric" value="${escapeHtml(bemNim)}" placeholder="2490343155" 
-                                        oninput="handleNimInput('field_ttd_bem_nim_angka', 'field_ttd_bem_nim'); syncQuickEditToForm('field_ttd_bem_nim_angka', this.value);" 
+                                        oninput="handleQuickNim('field_ttd_bem_nim_angka', 'field_ttd_bem_nim', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
@@ -11268,20 +11274,20 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Jabatan</label>
                                     <input type="text" value="${escapeHtml(wadirJabatan)}" 
-                                        oninput="syncQuickEditToForm('field_ttd_wadir_jabatan', this.value)" 
+                                        oninput="handleQuickFormText('field_ttd_wadir_jabatan', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama & Gelar</label>
                                         <input type="text" value="${escapeHtml(wadirNama)}" 
-                                            oninput="syncQuickEditToForm('field_ttd_wadir_nama', this.value)" 
+                                            oninput="handleQuickFormText('field_ttd_wadir_nama', this.value)" 
                                             class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                     </div>
                                     <div>
                                         <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIP</label>
                                         <input type="text" inputmode="numeric" value="${escapeHtml(wadirNim)}" 
-                                            oninput="handleNipInput('field_ttd_wadir_nip_angka', 'field_ttd_wadir_nip'); syncQuickEditToForm('field_ttd_wadir_nip_angka', this.value);" 
+                                            oninput="handleQuickNip('field_ttd_wadir_nip_angka', 'field_ttd_wadir_nip', this.value)" 
                                             class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                     </div>
                                 </div>
@@ -11787,6 +11793,67 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const formPembuka = document.getElementById('field_pembuka');
             if (qMain && formPembuka) qMain.value = formPembuka.value;
         }
+
+        function handleQuickFormText(targetId, val) {
+            const el = document.getElementById(targetId);
+            if (el) {
+                el.value = val;
+                if (typeof el.oninput === 'function') {
+                    try { el.oninput(); } catch (err) {}
+                }
+            }
+            updatePreview();
+        }
+        window.handleQuickFormText = handleQuickFormText;
+
+        function handleQuickNim(angkaId, hiddenId, val) {
+            const clean = val.replace(/^NIM[\.\s]*/i, '').trim();
+            const angkaEl = document.getElementById(angkaId);
+            const hiddenEl = document.getElementById(hiddenId);
+            if (angkaEl) angkaEl.value = clean;
+            if (hiddenEl) hiddenEl.value = clean ? `NIM. ${clean}` : '';
+            updatePreview();
+        }
+        window.handleQuickNim = handleQuickNim;
+
+        function handleQuickNip(angkaId, hiddenId, val) {
+            const clean = val.replace(/^NIP[\.\s]*/i, '').trim();
+            const angkaEl = document.getElementById(angkaId);
+            const hiddenEl = document.getElementById(hiddenId);
+            if (angkaEl) angkaEl.value = clean;
+            if (hiddenEl) hiddenEl.value = clean ? `NIP. ${clean}` : '';
+            updatePreview();
+        }
+        window.handleQuickNip = handleQuickNip;
+
+        function quickResetTtdPjDefault() {
+            const t1Nama = document.getElementById('field_ttd1_nama');
+            const t1NimAngka = document.getElementById('field_ttd1_nim_angka');
+            const t1Nim = document.getElementById('field_ttd1_nim');
+            const t2Nama = document.getElementById('field_ttd2_nama');
+            const t2NimAngka = document.getElementById('field_ttd2_nim_angka');
+            const t2Nim = document.getElementById('field_ttd2_nim');
+
+            if (t1Nama) t1Nama.value = 'Sarah Muthmainnah Prayogo';
+            if (t1NimAngka) t1NimAngka.value = '2590331052';
+            if (t1Nim) t1Nim.value = 'NIM. 2590331052';
+            if (t2Nama) t2Nama.value = 'Hafiz Alfariz';
+            if (t2NimAngka) t2NimAngka.value = '2490444040';
+            if (t2Nim) t2Nim.value = 'NIM. 2490444040';
+
+            updatePreview();
+
+            // Refresh input popover jika sedang terbuka
+            const qT1Nama = document.getElementById('quick_ttd1_nama');
+            const qT1Nim = document.getElementById('quick_ttd1_nim');
+            const qT2Nama = document.getElementById('quick_ttd2_nama');
+            const qT2Nim = document.getElementById('quick_ttd2_nim');
+            if (qT1Nama) qT1Nama.value = 'Sarah Muthmainnah Prayogo';
+            if (qT1Nim) qT1Nim.value = '2590331052';
+            if (qT2Nama) qT2Nama.value = 'Hafiz Alfariz';
+            if (qT2Nim) qT2Nim.value = '2490444040';
+        }
+        window.quickResetTtdPjDefault = quickResetTtdPjDefault;
 
         function enableWadirAndOpenEdit(e) {
             if (e) {
