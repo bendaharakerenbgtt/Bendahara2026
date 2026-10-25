@@ -1917,8 +1917,8 @@
                             </div>
                             <div id="ttd_wadir_inputs" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 transition-opacity">
                                 <div>
-                                    <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Jabatan</label>
-                                    <input type="text" id="field_ttd_wadir_jabatan" value="Wakil Direktur&#10;Bidang Kemahasiswaan dan Alumni" oninput="updatePreview()" class="form-input text-xs font-sans" placeholder="Wakil Direktur Bidang Kemahasiswaan">
+                                    <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Jabatan (Bisa 2 Baris / Enter)</label>
+                                    <textarea id="field_ttd_wadir_jabatan" rows="2" oninput="updatePreview()" class="form-input text-xs font-sans leading-relaxed" placeholder="Wakil Direktur&#10;Bidang Kemahasiswaan dan Alumni">Wakil Direktur&#10;Bidang Kemahasiswaan dan Alumni</textarea>
                                 </div>
                                 <div>
                                     <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Nama Lengkap &amp; Gelar</label>
@@ -3510,10 +3510,23 @@
             return clean;
         }
 
+        function normalizeWadirJabatan(val) {
+            if (!val) return 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
+            let s = val.trim();
+            if (!s.includes('\n') && !s.includes('<br>')) {
+                s = s.replace(/Wakil\s+Direktur\s*(III)?\s*(?:Bidang\s*Kemahasiswaan|BidangKemahasiswaan)/i, (m, g1) => {
+                    return (g1 ? 'Wakil Direktur III' : 'Wakil Direktur') + '\nBidang Kemahasiswaan';
+                });
+            }
+            return s;
+        }
+        window.normalizeWadirJabatan = normalizeWadirJabatan;
+
         function formatTtdJabatan(text) {
             if (!text) return '';
             // Di tanda tangan: bold TIDAK DIBAWA, tetapi italic DIPERBOLEHKAN di mana saja
-            const clean = stripBoldMarkdown(text);
+            let clean = stripBoldMarkdown(text).trim();
+            clean = normalizeWadirJabatan(clean);
             return formatInlineRichText(clean).replace(/\n/g, '<br>');
         }
 
@@ -7489,7 +7502,7 @@
                                 ${isWadirActive ? `
                                     <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="font-family: 'Times New Roman', serif; text-align: center;">
                                         <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold; line-height: 1.25;">Menyetujui,</p>
-                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">${formatTtdJabatan(wadirJabatan)}</p>
+                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25;">${formatTtdJabatan(wadirJabatan)}</p>
                                         <div style="height: 42pt;"></div>
                                         <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
                                         <p style="margin: 0; font-size: 10pt; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
@@ -8802,7 +8815,7 @@
                             <!-- BARIS 2.5: MENYETUJUI (WAKIL DIREKTUR III) -->
                             <div style="text-align: center; margin-top: 10pt; margin-bottom: 12pt;">
                                 <p style="margin: 0 0 4pt 0; font-size: 12pt; font-weight: bold;">Menyetujui,</p>
-                                <p style="margin: 0; font-size: 11pt; line-height: 1.25; white-space: nowrap;">
+                                <p style="margin: 0; font-size: 11pt; line-height: 1.25;">
                                     ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br><br>
                                 </p>
                                 <p style="margin: 0; line-height: 1.25;">
@@ -10140,6 +10153,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             // 3. Masukkan data input yang tersimpan
             const d = doc.formData || {};
+            if (d['field_ttd_wadir_jabatan']) {
+                d['field_ttd_wadir_jabatan'] = normalizeWadirJabatan(d['field_ttd_wadir_jabatan']);
+            }
             if (d['field_ttd3_nama'] === 'Zainul Hakim, S.Ag.,M.Pd.I' || d['field_ttd3_nama'] === 'Zainul Hakim, S.Ag., M.Pd.I' || !d['field_ttd3_nama']) {
                 d['field_ttd3_nama'] = 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
             }
@@ -11899,10 +11915,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             </div>
                             <div class="space-y-2">
                                 <div>
-                                    <label class="text-[9.5px] text-neutral-400 block mb-0.5">Jabatan</label>
-                                    <input type="text" value="${escapeHtml(wadirJabatan)}" 
-                                        oninput="handleQuickFormText('field_ttd_wadir_jabatan', this.value)" 
-                                        class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                                    <label class="text-[9.5px] text-neutral-400 block mb-0.5">Jabatan (Tekan Enter untuk baris baru)</label>
+                                    <textarea rows="2" oninput="handleQuickFormText('field_ttd_wadir_jabatan', this.value)" 
+                                        class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 font-sans leading-relaxed">${escapeHtml(normalizeWadirJabatan(wadirJabatan))}</textarea>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
@@ -11941,10 +11956,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             </div>
                             <div class="space-y-2">
                                 <div>
-                                    <label class="text-[9.5px] text-neutral-400 block mb-0.5">Jabatan</label>
-                                    <input type="text" value="${escapeHtml(wadirJabatan)}" 
-                                        oninput="syncQuickEditToForm('field_ttd_wadir_jabatan', this.value)" 
-                                        class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                                    <label class="text-[9.5px] text-neutral-400 block mb-0.5">Jabatan (Tekan Enter untuk baris baru)</label>
+                                    <textarea rows="2" oninput="syncQuickEditToForm('field_ttd_wadir_jabatan', this.value)" 
+                                        class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 font-sans leading-relaxed">${escapeHtml(normalizeWadirJabatan(wadirJabatan))}</textarea>
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
