@@ -7999,29 +7999,72 @@
                             <div class="preview-editable" data-edit-target="field_penutup" data-edit-label="Paragraf Penutup" data-edit-type="textarea" title="Klik untuk edit Penutup">${penutupParas}</div>
 
                             <!-- TANDA TANGAN SECTION: MODULAR TINGKAT 1 (HORMAT KAMI) -->
-                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                <p style="margin: 0 0 10pt 0; text-align: center; font-size: 12pt; font-weight: bold;">Hormat Kami,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
-                                    <tr>
-                                        <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
-                                            ${formatTtdJabatan(ttd2Jabatan)}
-                                        </td>
-                                        <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
-                                            ${formatTtdJabatan(ttd1Jabatan)}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="vertical-align: top;">
-                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</p>
-                                            <p style="margin: 0;">${formatInlineRichText(ttd2Nim)}</p>
-                                        </td>
-                                        <td style="vertical-align: top;">
-                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</p>
-                                            <p style="margin: 0;">${formatInlineRichText(ttd1Nim)}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
+                            ${(() => {
+                                if (!isTtd1Active && !isTtd2Active) return '';
+                                let content = '';
+                                if (isTtd1Active && isTtd2Active) {
+                                    content = `
+                                        <colgroup>
+                                            <col style="width: 50%;">
+                                            <col style="width: 50%;">
+                                        </colgroup>
+                                        <tr>
+                                            <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
+                                                ${formatTtdJabatan(ttd2Jabatan)}
+                                            </td>
+                                            <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
+                                                ${formatTtdJabatan(ttd1Jabatan)}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: top;">
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</p>
+                                                <p style="margin: 0;">${formatInlineRichText(ttd2Nim)}</p>
+                                            </td>
+                                            <td style="vertical-align: top;">
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</p>
+                                                <p style="margin: 0;">${formatInlineRichText(ttd1Nim)}</p>
+                                            </td>
+                                        </tr>
+                                    `;
+                                } else if (isTtd2Active) {
+                                    content = `
+                                        <tr>
+                                            <td style="width: 100%; vertical-align: top; padding-bottom: 46pt; text-align: center;">
+                                                ${formatTtdJabatan(ttd2Jabatan)}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: top; text-align: center;">
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</p>
+                                                <p style="margin: 0;">${formatInlineRichText(ttd2Nim)}</p>
+                                            </td>
+                                        </tr>
+                                    `;
+                                } else {
+                                    content = `
+                                        <tr>
+                                            <td style="width: 100%; vertical-align: top; padding-bottom: 46pt; text-align: center;">
+                                                ${formatTtdJabatan(ttd1Jabatan)}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: top; text-align: center;">
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</p>
+                                                <p style="margin: 0;">${formatInlineRichText(ttd1Nim)}</p>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }
+                                return `
+                                    <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                        <p style="margin: 0 0 10pt 0; text-align: center; font-size: 12pt; font-weight: bold;">Hormat Kami,</p>
+                                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
+                                            ${content}
+                                        </table>
+                                    </div>
+                                `;
+                            })()}
 
                             <!-- TINGKAT 2: MENGETAHUI (DOSEN PEMBIMBING) -->
                             ${ttd3Active ? `
@@ -8224,14 +8267,65 @@
                             </div>
 
                             <!-- PENGESAHAN SPM: MODULAR SESUAI MASTER DOKUMEN -->
-                            <!-- TIER 1: PENANGGUNG JAWAB (KETUA UKM) -->
-                            <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
-                                <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Penanggung Jawab,</p>
-                                <p style="margin: 0; line-height: 1.25;">Ketua UKM LDK IMIP<br>Periode 2026</p>
-                                <div style="height: 44pt;"></div>
-                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
-                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
-                            </div>
+                            <!-- TIER 1: PENANGGUNG JAWAB -->
+                            ${(() => {
+                                if (!isTtd1Active && !isTtd2Active) return '';
+                                let content = '';
+                                if (isTtd1Active && isTtd2Active) {
+                                    content = `
+                                        <colgroup>
+                                            <col style="width: 48%;">
+                                            <col style="width: 4%;">
+                                            <col style="width: 48%;">
+                                        </colgroup>
+                                        <tr>
+                                            <td style="width: 48%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                                ${formatTtdJabatan(ttd2Jabatan)}
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
+                                            </td>
+                                            <td style="width: 4%;"></td>
+                                            <td style="width: 48%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                                ${formatTtdJabatan(ttd1Jabatan)}
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</p>
+                                            </td>
+                                        </tr>
+                                    `;
+                                } else if (isTtd2Active) {
+                                    content = `
+                                        <tr>
+                                            <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                                ${formatTtdJabatan(ttd2Jabatan)}
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
+                                            </td>
+                                        </tr>
+                                    `;
+                                } else {
+                                    content = `
+                                        <tr>
+                                            <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                                ${formatTtdJabatan(ttd1Jabatan)}
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</p>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }
+                                return `
+                                    <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
+                                        <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Penanggung Jawab,</p>
+                                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25; table-layout: fixed;">
+                                            ${content}
+                                        </table>
+                                    </div>
+                                `;
+                            })()}
 
                             <!-- TIER 2: MENGETAHUI (DOSEN & BEM) -->
                             <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; font-size: 12pt; margin-bottom: 14pt;">
@@ -8380,6 +8474,11 @@
             const bemNama = (document.getElementById('field_ttd_bem_nama')?.value || '').trim() || 'Ujang Rahman';
             const bemNim = (document.getElementById('field_ttd_bem_nim')?.value || '').trim() || 'NIM. 2490343155';
 
+            const isTtd1Active = document.getElementById('field_ttd1_active') ? document.getElementById('field_ttd1_active').checked : true;
+            const isTtd2Active = document.getElementById('field_ttd2_active') ? document.getElementById('field_ttd2_active').checked : true;
+            const isTtd3Active = document.getElementById('field_ttd3_active') ? document.getElementById('field_ttd3_active').checked : true;
+            const isMpmActive = document.getElementById('field_ttd_mpm_active') ? document.getElementById('field_ttd_mpm_active').checked : true;
+            const isBemActive = document.getElementById('field_ttd_bem_active') ? document.getElementById('field_ttd_bem_active').checked : true;
             const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : isSbaDanopDetected();
             const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
             const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
@@ -8816,74 +8915,160 @@
                         </div>
 
                         <!-- PENGESAHAN FORMAT & JARAK PERSIS SPZ (MODULAR 3 TINGKAT + TEMBUSAN) -->
-                        <!-- BARIS 1: PENANGGUNG JAWAB (2 PIHAK) -->
-                        <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
-                            <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 0; table-layout: fixed;">
-                                <colgroup>
-                                    <col style="width: 33.33%;">
-                                    <col style="width: 33.34%;">
-                                    <col style="width: 33.33%;">
-                                </colgroup>
-                                <tr>
-                                    <td style="width: 33.33%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
-                                    </td>
-                                    <td style="width: 33.34%; vertical-align: top;"></td>
-                                    <td style="width: 33.33%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top; line-height: 1.25;">
-                                        <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
-                                        <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
-                                    </td>
-                                    <td></td>
-                                    <td style="vertical-align: top; line-height: 1.25;">
-                                        <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
-                                        <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                        <!-- BARIS 1: PENANGGUNG JAWAB (MODULAR & DINAMIS SESUAI SPZ) -->
+                        ${(() => {
+                            if (!isTtd1Active && !isTtd2Active) return '';
+                            let content = '';
+                            if (isTtd1Active && isTtd2Active) {
+                                content = `
+                                    <colgroup>
+                                        <col style="width: 34%;">
+                                        <col style="width: 32%;">
+                                        <col style="width: 34%;">
+                                    </colgroup>
+                                    <tr>
+                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
+                                        </td>
+                                        <td style="width: 32%; vertical-align: top;"></td>
+                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
+                                        </td>
+                                        <td></td>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            } else if (isTtd2Active) {
+                                content = `
+                                    <tr>
+                                        <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                            ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            } else {
+                                content = `
+                                    <tr>
+                                        <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                            ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
+                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
+                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                            return `
+                                <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
+                                    <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
+                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; table-layout: fixed;">
+                                        ${content}
+                                    </table>
+                                </div>
+                            `;
+                        })()}
 
-                        <!-- BARIS 2: MENGETAHUI (3 PIHAK) -->
-                        <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
-                            <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
-                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; margin-bottom: 0; table-layout: fixed;">
-                                <colgroup>
-                                    <col style="width: 33.33%;">
-                                    <col style="width: 33.34%;">
-                                    <col style="width: 33.33%;">
-                                </colgroup>
-                                <tr>
-                                    <td style="width: 33.33%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(ttd3Jabatan)}<br><br><br><br><br>
-                                    </td>
-                                    <td style="width: 33.34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(mpmJabatan)}<br><br><br><br><br>
-                                    </td>
-                                    <td style="width: 33.33%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
-                                        ${formatTtdJabatan(bemJabatan)}<br><br><br><br><br>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="vertical-align: top; line-height: 1.25;">
-                                        <strong style="text-decoration: underline; font-size: 9.8pt; white-space: nowrap; letter-spacing: -0.2px;">${formatInlineRichText(ttd3Nama)}</strong><br>
-                                        <span style="font-size: 9.5pt; white-space: nowrap;">${formatInlineRichText(ttd3Nim)}</span>
-                                    </td>
-                                    <td style="vertical-align: top; line-height: 1.25;">
-                                        <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${formatInlineRichText(mpmNama)}</strong><br>
-                                        <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(mpmNim)}</span>
-                                    </td>
-                                    <td style="vertical-align: top; line-height: 1.25;">
-                                        <strong style="text-decoration: underline; font-size: 10.5pt; white-space: nowrap;">${formatInlineRichText(bemNama)}</strong><br>
-                                        <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(bemNim)}</span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                        <!-- BARIS 2: MENGETAHUI (MODULAR & DINAMIS SESUAI SPZ) -->
+                        ${(() => {
+                            const activeM = [];
+                            if (isTtd3Active) activeM.push({ role: 'dosen', jabatan: ttd3Jabatan, nama: ttd3Nama, nim: ttd3Nim, fsN: '9.8pt', fsNim: '9.5pt', ls: '-0.2px' });
+                            if (isMpmActive) activeM.push({ role: 'mpm', jabatan: mpmJabatan, nama: mpmNama, nim: mpmNim, fsN: '10.5pt', fsNim: '10pt', ls: 'normal' });
+                            if (isBemActive) activeM.push({ role: 'bem', jabatan: bemJabatan, nama: bemNama, nim: bemNim, fsN: '10.5pt', fsNim: '10pt', ls: 'normal' });
+                            if (activeM.length === 0) return '';
+
+                            let content = '';
+                            if (activeM.length === 3) {
+                                content = `
+                                    <colgroup>
+                                        <col style="width: 34%;">
+                                        <col style="width: 32%;">
+                                        <col style="width: 34%;">
+                                    </colgroup>
+                                    <tr>
+                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(activeM[0].jabatan)}<br><br><br><br><br>
+                                        </td>
+                                        <td style="width: 32%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(activeM[1].jabatan)}<br><br><br><br><br>
+                                        </td>
+                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(activeM[2].jabatan)}<br><br><br><br><br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: ${activeM[0].fsN}; white-space: nowrap; letter-spacing: ${activeM[0].ls};">${formatInlineRichText(activeM[0].nama)}</strong><br>
+                                            <span style="font-size: ${activeM[0].fsNim}; white-space: nowrap;">${formatInlineRichText(activeM[0].nim)}</span>
+                                        </td>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: ${activeM[1].fsN}; white-space: nowrap;">${formatInlineRichText(activeM[1].nama)}</strong><br>
+                                            <span style="font-size: ${activeM[1].fsNim}; white-space: nowrap;">${formatInlineRichText(activeM[1].nim)}</span>
+                                        </td>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: ${activeM[2].fsN}; white-space: nowrap;">${formatInlineRichText(activeM[2].nama)}</strong><br>
+                                            <span style="font-size: ${activeM[2].fsNim}; white-space: nowrap;">${formatInlineRichText(activeM[2].nim)}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            } else if (activeM.length === 2) {
+                                content = `
+                                    <colgroup>
+                                        <col style="width: 48%;">
+                                        <col style="width: 4%;">
+                                        <col style="width: 48%;">
+                                    </colgroup>
+                                    <tr>
+                                        <td style="width: 48%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(activeM[0].jabatan)}<br><br><br><br><br>
+                                        </td>
+                                        <td style="width: 4%;"></td>
+                                        <td style="width: 48%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            ${formatTtdJabatan(activeM[1].jabatan)}<br><br><br><br><br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: ${activeM[0].fsN}; white-space: nowrap; letter-spacing: ${activeM[0].ls};">${formatInlineRichText(activeM[0].nama)}</strong><br>
+                                            <span style="font-size: ${activeM[0].fsNim}; white-space: nowrap;">${formatInlineRichText(activeM[0].nim)}</span>
+                                        </td>
+                                        <td></td>
+                                        <td style="vertical-align: top; line-height: 1.25;">
+                                            <strong style="text-decoration: underline; font-size: ${activeM[1].fsN}; white-space: nowrap;">${formatInlineRichText(activeM[1].nama)}</strong><br>
+                                            <span style="font-size: ${activeM[1].fsNim}; white-space: nowrap;">${formatInlineRichText(activeM[1].nim)}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            } else if (activeM.length === 1) {
+                                content = `
+                                    <tr>
+                                        <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                            ${formatTtdJabatan(activeM[0].jabatan)}<br><br><br><br><br>
+                                            <strong style="text-decoration: underline; font-size: ${activeM[0].fsN}; white-space: nowrap; letter-spacing: ${activeM[0].ls};">${formatInlineRichText(activeM[0].nama)}</strong><br>
+                                            <span style="font-size: ${activeM[0].fsNim}; white-space: nowrap;">${formatInlineRichText(activeM[0].nim)}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+
+                            return `
+                                <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
+                                    <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
+                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; table-layout: fixed;">
+                                        ${content}
+                                    </table>
+                                </div>
+                            `;
+                        })()}
 
                         <!-- BARIS 3: MENYETUJUI (WAKIL DIREKTUR III - TINGGI TERKUNCI SEPERTI SPZ) -->
                         <div id="sba_tingkat3_wadir_wrapper" style="height: 125pt; min-height: 125pt; margin-bottom: 14pt; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; font-family: 'Times New Roman', serif;">
