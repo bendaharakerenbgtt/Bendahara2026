@@ -5998,37 +5998,37 @@
                 { key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' }
             ];
 
-            // AUTO-PAGINATION SBA RUNDOWN (PROPORSIONAL A4: MAKSIMAL 17 BARIS PER HALAMAN, SEIMBANG TANPA SISA BERLEBIH)
+            // AUTO-PAGINATION SBA RUNDOWN (KAPASITAS HALAMAN RESMI A4: MAKSIMAL 14 BARIS DI HALAMAN PERTAMA)
             const rCount = (typeof sbaRundownList !== 'undefined' && sbaRundownList && sbaRundownList.length) ? sbaRundownList.length : 0;
-            if (rCount <= 17) {
-                pages.push({
-                    key: 'rundown',
-                    label: 'Hasil Kegiatan',
-                    icon: 'fa-list-check',
+            if (rCount <= 14) {
+                pages.push({ 
+                    key: 'rundown', 
+                    label: 'Hasil Kegiatan', 
+                    icon: 'fa-list-check', 
                     desc: '1. Hasil Kegiatan (Rundown Acara)',
                     chunk: { start: 0, end: rCount }
                 });
             } else {
-                // Jika melebihi 17 baris, bagi proporsional agar halaman 1 & lanjutan seimbang
-                const firstPageLimit = 15;
-                pages.push({
-                    key: 'rundown',
-                    label: 'Hasil Kegiatan',
-                    icon: 'fa-list-check',
+                // Halaman pertama rundown memuat baris 1 s/d 14
+                pages.push({ 
+                    key: 'rundown', 
+                    label: 'Hasil Kegiatan', 
+                    icon: 'fa-list-check', 
                     desc: '1. Hasil Kegiatan (Rundown Acara)',
-                    chunk: { start: 0, end: firstPageLimit }
+                    chunk: { start: 0, end: 14 }
                 });
 
-                let remaining = rCount - firstPageLimit;
-                let currentStart = firstPageLimit;
+                // Halaman lanjutan berikutnya memuat hingga 18 baris per halaman
+                let remaining = rCount - 14;
+                let currentStart = 14;
                 let partNum = 2;
                 while (remaining > 0) {
                     const chunkSize = Math.min(remaining, 18);
                     pages.push({
                         key: 'rundown_part_' + partNum,
-                        label: 'Hasil Kegiatan (Hal ' + partNum + ')',
+                        label: `Hasil Kegiatan (Hal ${partNum})`,
                         icon: 'fa-list-check',
-                        desc: '1. Hasil Kegiatan (Rundown Acara Lanjutan Hal ' + partNum + ')',
+                        desc: `1. Hasil Kegiatan (Rundown Acara Lanjutan Hal ${partNum})`,
                         chunk: { start: currentStart, end: currentStart + chunkSize },
                         isContinued: true
                     });
@@ -8313,10 +8313,10 @@
                         const actualIdx = chunk.start + localIdx;
                         return `
                             <tr class="preview-editable" data-edit-target="sba_rundown_row" data-edit-idx="${actualIdx}" data-edit-label="Susunan Rundown Baris #${actualIdx + 1}" data-edit-type="rundown" title="Klik untuk edit Rundown Baris #${actualIdx + 1}">
-                                <td style="border: 1px solid #000; padding: 2.5pt 3pt; text-align: center; vertical-align: middle; font-size: 11pt;">${item.no || `${actualIdx + 1}.`}</td>
-                                <td style="border: 1px solid #000; padding: 2.5pt 5pt; text-align: left; vertical-align: middle; font-size: 11pt; line-height: 1.2;">${formatInlineRichText(item.rangkaian).replace(/\n/g, '<br>')}</td>
-                                <td style="border: 1px solid #000; padding: 2.5pt 4pt; text-align: center; vertical-align: middle; white-space: nowrap; font-size: 11pt;">${formatInlineRichText(item.waktu)}</td>
-                                <td style="border: 1px solid #000; padding: 2.5pt 5pt; text-align: center; vertical-align: middle; font-size: 11pt; line-height: 1.2;">${formatInlineRichText(item.pj).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 3pt; text-align: center; vertical-align: middle;">${item.no || `${actualIdx + 1}.`}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: left; vertical-align: middle;">${formatInlineRichText(item.rangkaian).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle; white-space: nowrap;">${formatInlineRichText(item.waktu)}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.pj).replace(/\n/g, '<br>')}</td>
                             </tr>
                         `;
                     }).join('');
@@ -8334,19 +8334,13 @@
                         </p>
 
                         <!-- TABEL RUNDOWN -->
-                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.2; margin-bottom: 4pt; table-layout: fixed;">
-                            <colgroup>
-                                <col style="width: 32px;">
-                                <col style="width: calc(100% - 32px - 110px - 185px);">
-                                <col style="width: 110px;">
-                                <col style="width: 185px;">
-                            </colgroup>
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 6pt;">
                             <thead class="preview-editable" data-edit-target="sba_rundown_editor_container" data-edit-type="sba_rundown_all" data-edit-label="Susunan Rundown Acara" title="Klik untuk kelola semua baris rundown">
                                 <tr style="text-align: center; font-weight: bold; cursor: pointer;">
-                                    <th style="border: 1px solid #000; padding: 3pt 2pt; width: 32px;">No</th>
-                                    <th style="border: 1px solid #000; padding: 3pt 5pt; text-align: center;">Rangkaian Kegiatan</th>
-                                    <th style="border: 1px solid #000; padding: 3pt 3pt; width: 110px;">Waktu</th>
-                                    <th style="border: 1px solid #000; padding: 3pt 5pt; width: 185px;">Penanggung Jawab</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 3pt; width: 36px;">No</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt;">Rangkaian Kegiatan</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 4pt; width: 130px;">Waktu</th>
+                                    <th style="border: 1px solid #000; padding: 4pt 6pt; width: 165px;">Penanggung Jawab</th>
                                 </tr>
                             </thead>
                             <tbody>
