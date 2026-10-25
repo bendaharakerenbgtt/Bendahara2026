@@ -8123,9 +8123,9 @@
                         <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Hasil Kegiatan</p>
 
                         <!-- TABEL RUNDOWN -->
-                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 12pt;">
-                            <thead>
-                                <tr style="text-align: center; font-weight: bold;">
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 6pt;">
+                            <thead class="preview-editable" data-edit-target="sba_rundown_editor_container" data-edit-type="sba_rundown_all" data-edit-label="Susunan Rundown Acara" title="Klik untuk kelola semua baris rundown">
+                                <tr style="text-align: center; font-weight: bold; cursor: pointer;">
                                     <th style="border: 1px solid #000; padding: 4pt 3pt; width: 36px;">No</th>
                                     <th style="border: 1px solid #000; padding: 4pt 6pt;">Rangkaian Kegiatan</th>
                                     <th style="border: 1px solid #000; padding: 4pt 4pt; width: 130px;">Waktu</th>
@@ -8136,6 +8136,12 @@
                                 ${rowsHtml}
                             </tbody>
                         </table>
+                        <div class="print:hidden mb-3 flex items-center justify-between text-xs px-1">
+                            <button type="button" onclick="addQuickSbaRundownRow(${sbaRundownList.length - 1})" class="px-2.5 py-1 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-all shadow-xs active:scale-95" title="Tambah baris kegiatan di akhir rundown">
+                                <i class="fa-solid fa-plus text-[10px]"></i> Tambah Baris Rundown
+                            </button>
+                            <span class="text-[10px] text-neutral-400 font-mono">Total ${sbaRundownList.length} Baris • Klik baris/header untuk edit</span>
+                        </div>
                     `;
                 } else if (key === 'output_eval') {
                     // HALAMAN 3: OUTPUT, HAMBATAN & EVALUASI
@@ -10712,6 +10718,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     titleEl.innerText = 'Ubah Wakil Direktur III (Menyetujui)';
                 } else if (type === 'rundown') {
                     titleEl.innerText = `Ubah Rundown Baris #${parseInt(idx) + 1}`;
+                } else if (type === 'sba_rundown_all' || targetId === 'sba_rundown_editor_container') {
+                    titleEl.innerText = 'Kelola Susunan Rundown SBA';
                 } else if (type === 'spz_barang_all' || targetId === 'spz_barang_editor_container') {
                     titleEl.innerText = 'Ubah Daftar Barang Pinjaman';
                 } else if (type === 'spz_panitia_all' || targetId === 'spz_panitia_editor_container') {
@@ -10753,7 +10761,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (subtitleEl) {
                 if (type === 'spz_barang_all') subtitleEl.innerText = 'Kelola semua barang pinjaman dan jumlahnya';
                 else if (type === 'spz_panitia_all') subtitleEl.innerText = 'Kelola data panitia, NIM, prodi & delegasi';
-                else if (type === 'spz_rundown_all') subtitleEl.innerText = 'Kelola jadwal rundown, waktu & penanggung jawab';
+                else if (type === 'spz_rundown_all' || type === 'sba_rundown_all') subtitleEl.innerText = 'Kelola susunan rundown, waktu & penanggung jawab';
                 else subtitleEl.innerText = `Komponen formulir aktif • Placeholder sesuai formulir asli`;
             }
 
@@ -11081,31 +11089,115 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 `;
             }
 
-            // 11. SUSUNAN RUNDOWN ACARA (SBA)
+            // 11. SUSUNAN RUNDOWN ACARA (SBA - PER BARIS)
             if (type === 'rundown' && idx !== undefined) {
                 const row = sbaRundownList[idx] || {};
                 return `
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
+                        <!-- Action Bar Atas: Tambah Baris & Hapus Baris -->
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 text-[10px] font-mono font-bold text-orange-400">
+                                Baris #${parseInt(idx) + 1} dari ${sbaRundownList.length}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickSbaRundownRow(${idx})" class="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah baris baru tepat di bawah baris ini">
+                                    <i class="fa-solid fa-plus text-[9px]"></i>
+                                    <span>Tambah Baris</span>
+                                </button>
+                                <button type="button" onclick="deleteQuickSbaRundownRow(${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-[10.5px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Hapus baris ini">
+                                    <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Rangkaian Kegiatan (Baris #${parseInt(idx) + 1})</label>
-                            <input type="text" value="${escapeHtml(row.rangkaian || '')}" placeholder="Contoh: Briefing, persiapan, absensi" 
+                            <input type="text" value="${escapeHtml(row.rangkaian || '')}" placeholder="Contoh: Sesi Dokumentasi, Pembukaan, Ishoma" 
                                 oninput="updateSbaRundownField(${idx}, 'rangkaian', this.value); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();" 
                                 class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Waktu (WIB)</label>
-                                <input type="text" value="${escapeHtml(row.waktu || '')}" placeholder="08.00 - 08.30 WIB" 
+                                <input type="text" value="${escapeHtml(row.waktu || '')}" placeholder="12.55 - 13.10 WIB" 
                                     oninput="updateSbaRundownField(${idx}, 'waktu', this.value);" 
                                     onblur="autoFormatRundownTimeOnBlur('sba', ${idx}, this); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();"
                                     class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg font-mono text-center text-white focus:border-orange-500">
                             </div>
                             <div>
                                 <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Penanggung Jawab</label>
-                                <input type="text" value="${escapeHtml(row.pj || '')}" placeholder="Contoh: Seluruh Panitia" 
+                                <input type="text" value="${escapeHtml(row.pj || '')}" placeholder="Contoh: HPD, Seluruh Panitia" 
                                     oninput="updateSbaRundownField(${idx}, 'pj', this.value); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();" 
                                     class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
                             </div>
+                        </div>
+
+                        <!-- Bar Navigasi Baris -->
+                        <div class="flex items-center justify-between pt-1 border-t border-neutral-800/60 text-[10px]">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="navigateQuickSbaRundown(${idx - 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    <i class="fa-solid fa-chevron-left text-[9px]"></i> Ke Baris #${idx}
+                                </button>
+                            ` : `<span class="text-neutral-600">Awal baris</span>`}
+                            <button type="button" onclick="openSbaRundownAllPopover()" class="text-orange-400/80 hover:text-orange-300 underline transition-colors">
+                                Kelola Semua (${sbaRundownList.length} Baris)
+                            </button>
+                            ${idx < sbaRundownList.length - 1 ? `
+                                <button type="button" onclick="navigateQuickSbaRundown(${idx + 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    Ke Baris #${idx + 2} <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                </button>
+                            ` : `<span class="text-neutral-600">Akhir baris</span>`}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 11B. SUSUNAN RUNDOWN ACARA (SBA - SEMUA BARIS)
+            if (type === 'sba_rundown_all' || targetId === 'sba_rundown_editor_container') {
+                const list = (sbaRundownList && sbaRundownList.length > 0) ? sbaRundownList : [];
+                const rowsHtml = list.map((item, i) => `
+                    <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-orange-400 font-mono">Baris #${i + 1}</span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="navigateQuickSbaRundown(${i})" class="text-[9.5px] text-neutral-400 hover:text-orange-300 font-mono flex items-center gap-1" title="Fokus edit baris ini">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </button>
+                                ${list.length > 1 ? `
+                                    <button type="button" onclick="deleteQuickSbaRundownRow(${i})" class="text-[9.5px] text-red-400 hover:text-red-300 font-mono flex items-center gap-1 ml-1" title="Hapus baris ini">
+                                        <i class="fa-solid fa-trash-can"></i> Hapus
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <input type="text" value="${escapeHtml(item.rangkaian || '')}" placeholder="Rangkaian Kegiatan" 
+                            oninput="updateSbaRundownField(${i}, 'rangkaian', this.value); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();" 
+                            class="form-input text-xs py-1.5 px-2 w-full bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <input type="text" value="${escapeHtml(item.waktu || '')}" placeholder="12.55 - 13.10 WIB" 
+                                oninput="updateSbaRundownField(${i}, 'waktu', this.value);" 
+                                onblur="autoFormatRundownTimeOnBlur('sba', ${i}, this); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();"
+                                class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-center text-white rounded-lg focus:border-orange-500">
+                            <input type="text" value="${escapeHtml(item.pj || '')}" placeholder="Penanggung Jawab" 
+                                oninput="updateSbaRundownField(${i}, 'pj', this.value); if(typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();" 
+                                class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                        </div>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between mb-0.5">
+                            <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-list-check text-orange-400"></i> Susunan Rundown SBA (${list.length} Baris)
+                            </label>
+                            <button type="button" onclick="addQuickSbaRundownRow(${list.length - 1})" class="text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-colors">
+                                <i class="fa-solid fa-plus text-[9px]"></i> Tambah Baris
+                            </button>
+                        </div>
+                        <div class="space-y-2 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+                            ${rowsHtml.length > 0 ? rowsHtml : '<p class="text-xs text-neutral-400 italic p-2">Belum ada baris rundown.</p>'}
                         </div>
                     </div>
                 `;
@@ -11531,7 +11623,22 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (type === 'spz_rundown' && idx !== undefined) {
                 const row = (spzRundownList && spzRundownList[idx]) ? spzRundownList[idx] : {};
                 return `
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 text-[10px] font-mono font-bold text-orange-400">
+                                Rundown #${parseInt(idx) + 1} dari ${spzRundownList.length}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickSpzRundown()" class="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah baris kegiatan baru">
+                                    <i class="fa-solid fa-plus text-[9px]"></i>
+                                    <span>Tambah Baris</span>
+                                </button>
+                                <button type="button" onclick="deleteQuickSpzRundown(${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-[10.5px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Hapus baris ini">
+                                    <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
                         <div>
                             <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Rangkaian Kegiatan (Baris #${parseInt(idx) + 1})</label>
                             <input type="text" value="${escapeHtml(row.nama || '')}" placeholder="Contoh: Briefing panitia, Pembukaan" 
@@ -11598,7 +11705,22 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (type === 'sba_pemasukan' && idx !== undefined) {
                 const row = (sbaPemasukanList && sbaPemasukanList[idx]) ? sbaPemasukanList[idx] : (DEFAULT_SBA_PEMASUKAN[idx] || {});
                 return `
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-mono font-bold text-emerald-400">
+                                Pemasukan #${parseInt(idx) + 1} dari ${sbaPemasukanList.length}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickSbaPemasukanRow(${idx})" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-[10.5px] font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah sumber pemasukan baru">
+                                    <i class="fa-solid fa-plus text-[9px]"></i>
+                                    <span>Tambah Sumber</span>
+                                </button>
+                                <button type="button" onclick="deleteQuickSbaPemasukanRow(${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-[10.5px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Hapus sumber ini">
+                                    <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
                         <div>
                             <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Sumber Pemasukan (Baris #${parseInt(idx) + 1})</label>
                             <input type="text" value="${escapeHtml(row.sumber || '')}" placeholder="Sumber Pemasukan (misal: Kas LDK IMIP, Danop Kemahasiswaan)" 
@@ -12057,6 +12179,154 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 container.innerHTML = generatePopoverInputHtml(currentQuickEditTarget.type, currentQuickEditTarget.targetId, currentQuickEditTarget.idx);
             }
         }
+
+        // -------------------------------------------------------------------------
+        // QUICK SBA RUNDOWN HELPERS (TAMBAH BARIS, HAPUS BARIS, NAVIGASI)
+        // -------------------------------------------------------------------------
+        function addQuickSbaRundownRow(afterIdx) {
+            if (!sbaRundownList) sbaRundownList = [];
+            let nextWaktu = '';
+            const refIdx = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < sbaRundownList.length) 
+                ? afterIdx 
+                : (sbaRundownList.length - 1);
+            if (refIdx >= 0 && sbaRundownList[refIdx]) {
+                const refItem = sbaRundownList[refIdx];
+                const lastEnd = (typeof extractRundownEndTime === 'function') ? extractRundownEndTime(refItem.waktu || '') : '';
+                if (lastEnd && lastEnd !== 'selesai' && typeof addMinutesToTimeString === 'function') {
+                    const startPart = lastEnd;
+                    const endPart = addMinutesToTimeString(startPart, 30).replace('.', ':');
+                    nextWaktu = `${startPart.replace(':', '.')} - ${endPart.replace(':', '.')} WIB`;
+                }
+            }
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < sbaRundownList.length) 
+                ? (afterIdx + 1) 
+                : sbaRundownList.length;
+            const newRow = { no: `${insertPos + 1}.`, rangkaian: '', waktu: nextWaktu, pj: '' };
+            sbaRundownList.splice(insertPos, 0, newRow);
+            sbaRundownList.forEach((r, i) => r.no = `${i + 1}.`);
+
+            if (typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Baris #${insertPos + 1} berhasil ditambahkan`, 'success');
+
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-edit-target="sba_rundown_row"][data-edit-idx="${insertPos}"]`);
+                if (newEl) {
+                    openPreviewQuickEdit(newEl);
+                } else {
+                    const popContainer = document.getElementById('popover_input_container');
+                    const titleEl = document.getElementById('popover_edit_title');
+                    if (titleEl) titleEl.innerText = `Ubah Rundown Baris #${insertPos + 1}`;
+                    if (popContainer) popContainer.innerHTML = generatePopoverInputHtml('rundown', 'sba_rundown_row', insertPos);
+                }
+            }, 60);
+        }
+        window.addQuickSbaRundownRow = addQuickSbaRundownRow;
+
+        function deleteQuickSbaRundownRow(idx) {
+            if (!sbaRundownList || sbaRundownList.length === 0) return;
+            const delNum = idx + 1;
+            if (sbaRundownList.length <= 1) {
+                sbaRundownList = [{ no: '1.', rangkaian: '', waktu: '', pj: '' }];
+                if (typeof showToast === 'function') showToast('Isian baris rundown dikosongkan (minimal 1 baris)', 'info');
+            } else {
+                sbaRundownList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast(`Baris #${delNum} berhasil dihapus`, 'success');
+            }
+            sbaRundownList.forEach((r, i) => r.no = `${i + 1}.`);
+            if (typeof renderSbaRundownEditor === 'function') renderSbaRundownEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+
+            setTimeout(() => {
+                const targetIdx = Math.min(idx, sbaRundownList.length - 1);
+                const nextEl = document.querySelector(`[data-edit-target="sba_rundown_row"][data-edit-idx="${targetIdx}"]`);
+                if (nextEl) {
+                    openPreviewQuickEdit(nextEl);
+                } else {
+                    closePreviewQuickEdit();
+                }
+            }, 60);
+        }
+        window.deleteQuickSbaRundownRow = deleteQuickSbaRundownRow;
+
+        function navigateQuickSbaRundown(targetIdx) {
+            if (!sbaRundownList || targetIdx < 0 || targetIdx >= sbaRundownList.length) return;
+            const targetEl = document.querySelector(`[data-edit-target="sba_rundown_row"][data-edit-idx="${targetIdx}"]`);
+            if (targetEl) {
+                openPreviewQuickEdit(targetEl);
+            } else {
+                const popContainer = document.getElementById('popover_input_container');
+                const titleEl = document.getElementById('popover_edit_title');
+                if (titleEl) titleEl.innerText = `Ubah Rundown Baris #${targetIdx + 1}`;
+                if (popContainer) popContainer.innerHTML = generatePopoverInputHtml('rundown', 'sba_rundown_row', targetIdx);
+            }
+        }
+        window.navigateQuickSbaRundown = navigateQuickSbaRundown;
+
+        function openSbaRundownAllPopover() {
+            const tableHeader = document.querySelector('[data-edit-type="sba_rundown_all"]') || document.querySelector('[data-edit-target="sba_rundown_row"]');
+            if (tableHeader) {
+                openPreviewQuickEdit(tableHeader);
+            } else {
+                const popover = document.getElementById('preview_quick_edit_popover');
+                const titleEl = document.getElementById('popover_edit_title');
+                const subtitleEl = document.getElementById('popover_edit_subtitle');
+                const container = document.getElementById('popover_input_container');
+                if (titleEl) titleEl.innerText = 'Kelola Susunan Rundown SBA';
+                if (subtitleEl) subtitleEl.innerText = 'Tambah, ubah, atau hapus baris rundown acara';
+                if (container) container.innerHTML = generatePopoverInputHtml('sba_rundown_all', 'sba_rundown_editor_container', 0);
+                if (popover) popover.classList.remove('hidden');
+            }
+        }
+        window.openSbaRundownAllPopover = openSbaRundownAllPopover;
+
+        // QUICK SBA PEMASUKAN HELPERS
+        function addQuickSbaPemasukanRow(afterIdx) {
+            if (!sbaPemasukanList) sbaPemasukanList = [];
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < sbaPemasukanList.length) 
+                ? (afterIdx + 1) 
+                : sbaPemasukanList.length;
+            const newRow = { no: `${insertPos + 1}.`, sumber: '', jumlah: 0 };
+            sbaPemasukanList.splice(insertPos, 0, newRow);
+            sbaPemasukanList.forEach((r, i) => r.no = `${i + 1}.`);
+
+            if (typeof renderSbaPemasukanEditor === 'function') renderSbaPemasukanEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Sumber pemasukan baru #${insertPos + 1} ditambahkan`, 'success');
+
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-edit-target="sba_pemasukan_row"][data-edit-idx="${insertPos}"]`);
+                if (newEl) openPreviewQuickEdit(newEl);
+            }, 60);
+        }
+        window.addQuickSbaPemasukanRow = addQuickSbaPemasukanRow;
+
+        function deleteQuickSbaPemasukanRow(idx) {
+            if (!sbaPemasukanList || sbaPemasukanList.length === 0) return;
+            const delNum = idx + 1;
+            if (sbaPemasukanList.length <= 1) {
+                sbaPemasukanList = [{ no: '1.', sumber: '', jumlah: 0 }];
+                if (typeof showToast === 'function') showToast('Sumber pemasukan dikosongkan (minimal 1 baris)', 'info');
+            } else {
+                sbaPemasukanList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast(`Pemasukan #${delNum} berhasil dihapus`, 'success');
+            }
+            sbaPemasukanList.forEach((r, i) => r.no = `${i + 1}.`);
+            if (typeof renderSbaPemasukanEditor === 'function') renderSbaPemasukanEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+
+            setTimeout(() => {
+                const targetIdx = Math.min(idx, sbaPemasukanList.length - 1);
+                const nextEl = document.querySelector(`[data-edit-target="sba_pemasukan_row"][data-edit-idx="${targetIdx}"]`);
+                if (nextEl) openPreviewQuickEdit(nextEl);
+                else closePreviewQuickEdit();
+            }, 60);
+        }
+        window.deleteQuickSbaPemasukanRow = deleteQuickSbaPemasukanRow;
 
         function handleQuickSbaPemasukan(idx, field, val) {
             if (!sbaPemasukanList || sbaPemasukanList.length === 0) {
