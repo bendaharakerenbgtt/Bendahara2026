@@ -795,7 +795,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner, #workspace_form_section, #page_stepper_tabs, .workspace-toolbar, #form_step_banner, #page_stepper_card, #preview_toolbar_top, #view_folder_dokumen, #editor_top_doc_bar, #modal_create_new_doc, #nav_btn_folder, #nav_btn_editor, #preview_quick_edit_popover {
+            header, aside, nav, footer, #mobile_bottom_nav, .print\:hidden, [class*="print:hidden"], .spz-sheet-badge, .mb-6, .lg\:col-span-5, #spz_master_download_banner, #workspace_form_section, #page_stepper_tabs, .workspace-toolbar, #form_step_banner, #page_stepper_card, #preview_toolbar_top, #view_folder_dokumen, #editor_top_doc_bar, #modal_create_new_doc, #nav_btn_folder, #nav_btn_editor, #preview_quick_edit_popover {
                 display: none !important;
             }
             .preview-editable {
@@ -5995,10 +5995,50 @@
 
         function getSbaPagesStructure() {
             const pages = [
-                { key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' },
-                { key: 'rundown', label: 'Hasil Kegiatan', icon: 'fa-list-check', desc: '1. Hasil Kegiatan (Rundown Acara)' },
-                { key: 'output_eval', label: 'Output Kegiatan', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' }
+                { key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' }
             ];
+
+            // AUTO-PAGINATION SBA RUNDOWN (KAPASITAS HALAMAN RESMI A4: MAKSIMAL 14 BARIS DI HALAMAN PERTAMA)
+            const rCount = (typeof sbaRundownList !== 'undefined' && sbaRundownList && sbaRundownList.length) ? sbaRundownList.length : 0;
+            if (rCount <= 14) {
+                pages.push({ 
+                    key: 'rundown', 
+                    label: 'Hasil Kegiatan', 
+                    icon: 'fa-list-check', 
+                    desc: '1. Hasil Kegiatan (Rundown Acara)',
+                    chunk: { start: 0, end: rCount }
+                });
+            } else {
+                // Halaman pertama rundown memuat baris 1 s/d 14
+                pages.push({ 
+                    key: 'rundown', 
+                    label: 'Hasil Kegiatan', 
+                    icon: 'fa-list-check', 
+                    desc: '1. Hasil Kegiatan (Rundown Acara)',
+                    chunk: { start: 0, end: 14 }
+                });
+
+                // Halaman lanjutan berikutnya memuat hingga 18 baris per halaman
+                let remaining = rCount - 14;
+                let currentStart = 14;
+                let partNum = 2;
+                while (remaining > 0) {
+                    const chunkSize = Math.min(remaining, 18);
+                    pages.push({
+                        key: 'rundown_part_' + partNum,
+                        label: `Hasil Kegiatan (Hal ${partNum})`,
+                        icon: 'fa-list-check',
+                        desc: `1. Hasil Kegiatan (Rundown Acara Lanjutan Hal ${partNum})`,
+                        chunk: { start: currentStart, end: currentStart + chunkSize },
+                        isContinued: true
+                    });
+                    currentStart += chunkSize;
+                    remaining -= chunkSize;
+                    partNum++;
+                }
+            }
+
+            pages.push({ key: 'output_eval', label: 'Output Kegiatan', icon: 'fa-comments', desc: '2. Output, Hambatan & Evaluasi' });
 
             if (isSbaKeuanganActive()) {
                 pages.push({ key: 'keuangan', label: 'Keuangan', icon: 'fa-money-bill-wave', desc: `Keuangan ${sbaJenisKegiatan}` });
@@ -8263,16 +8303,23 @@
                         ${eventBoxHtml ? `<div class="preview-editable" data-edit-target="card_detail_kegiatan" data-edit-label="Rincian Hari, Waktu &amp; Tempat" data-edit-type="detail_kegiatan" title="Klik untuk edit Rincian Acara">${eventBoxHtml}</div>` : ''}
                         <div class="preview-editable" data-edit-target="field_isi_inti" data-edit-label="Paragraf Isi Inti Berita Acara" data-edit-type="textarea" title="Klik untuk edit Paragraf Isi Inti">${intiParas}</div>
                     `;
-                } else if (key === 'rundown') {
-                    // HALAMAN 2: HASIL KEGIATAN (RUNDOWN ACARA)
-                    const rowsHtml = sbaRundownList.map((item, idx) => `
-                        <tr class="preview-editable" data-edit-target="sba_rundown_row" data-edit-idx="${idx}" data-edit-label="Susunan Rundown Baris #${idx + 1}" data-edit-type="rundown" title="Klik untuk edit Rundown Baris #${idx + 1}">
-                            <td style="border: 1px solid #000; padding: 4pt 3pt; text-align: center; vertical-align: middle;">${item.no || `${idx + 1}.`}</td>
-                            <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: left; vertical-align: middle;">${formatInlineRichText(item.rangkaian).replace(/\n/g, '<br>')}</td>
-                            <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle; white-space: nowrap;">${formatInlineRichText(item.waktu)}</td>
-                            <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.pj).replace(/\n/g, '<br>')}</td>
-                        </tr>
-                    `).join('');
+                } else if (key === 'rundown' || key.startsWith('rundown_part_')) {
+                    // HALAMAN HASIL KEGIATAN (RUNDOWN ACARA / LANJUTAN)
+                    const chunk = p.chunk || { start: 0, end: sbaRundownList.length };
+                    const currentRows = sbaRundownList.slice(chunk.start, chunk.end);
+                    const isContinued = p.isContinued;
+
+                    const rowsHtml = currentRows.map((item, localIdx) => {
+                        const actualIdx = chunk.start + localIdx;
+                        return `
+                            <tr class="preview-editable" data-edit-target="sba_rundown_row" data-edit-idx="${actualIdx}" data-edit-label="Susunan Rundown Baris #${actualIdx + 1}" data-edit-type="rundown" title="Klik untuk edit Rundown Baris #${actualIdx + 1}">
+                                <td style="border: 1px solid #000; padding: 4pt 3pt; text-align: center; vertical-align: middle;">${item.no || `${actualIdx + 1}.`}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: left; vertical-align: middle;">${formatInlineRichText(item.rangkaian).replace(/\n/g, '<br>')}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle; white-space: nowrap;">${formatInlineRichText(item.waktu)}</td>
+                                <td style="border: 1px solid #000; padding: 4pt 6pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.pj).replace(/\n/g, '<br>')}</td>
+                            </tr>
+                        `;
+                    }).join('');
 
                     pageContentHtml = `
                         <!-- NOMOR SURAT BRACKET -->
@@ -8282,7 +8329,9 @@
 
                         <!-- SUBJUDUL -->
                         <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hasil dan <em>Output</em> Kegiatan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
-                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Hasil Kegiatan</p>
+                        <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                            ${isContinued ? '1. Hasil Kegiatan (Lanjutan Rundown Acara)' : '1. Hasil Kegiatan'}
+                        </p>
 
                         <!-- TABEL RUNDOWN -->
                         <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 6pt;">
