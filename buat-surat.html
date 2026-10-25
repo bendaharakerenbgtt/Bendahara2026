@@ -11130,6 +11130,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 else if (type === 'sba_prestasi_row') subtitleEl.innerText = 'Ubah capaian, tingkat, bidang, nama & prodi';
                 else if (targetId === 'sba_hambatan_kegiatan') subtitleEl.innerText = 'Tulis tiap kendala per baris • Otomatis menjadi poin (•) saat tekan Enter';
                 else if (targetId === 'sba_evaluasi_kegiatan') subtitleEl.innerText = 'Tulis tiap evaluasi per baris • Otomatis menjadi poin (•) saat tekan Enter';
+                else if (type === 'detail_kegiatan' || targetId === 'card_detail_kegiatan') subtitleEl.innerText = 'Sesuaikan jadwal hari, tanggal, jam pelaksanaan, dan lokasi acara';
                 else subtitleEl.innerText = `Komponen formulir aktif • Placeholder sesuai formulir asli`;
             }
 
@@ -11372,35 +11373,80 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 `;
             }
 
-            // 8. RINCIAN ACARA (HARI, TANGGAL, WAKTU, TEMPAT)
+            // 8. RINCIAN ACARA (HARI, TANGGAL, WAKTU, TEMPAT - DENGAN PLACEHOLDER JELAS & PRESET CEPAT)
             if (type === 'detail_kegiatan' || targetId === 'card_detail_kegiatan') {
                 const valHari = document.getElementById('field_hari_tanggal')?.value || '';
                 const valWaktu = document.getElementById('field_waktu')?.value || '';
                 const valTempat = document.getElementById('field_tempat')?.value || '';
+                const startVal = document.getElementById('event_date_start')?.value || '';
+
                 return `
-                    <div class="space-y-2">
-                        <div>
-                            <label class="text-[10.5px] text-neutral-300 font-semibold block mb-0.5">Hari, Tanggal</label>
-                            <input type="text" value="${escapeHtml(valHari)}" placeholder="Minggu, 28 Juni 2026" 
+                    <div class="space-y-3">
+                        <!-- 1. HARI & TANGGAL -->
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-regular fa-calendar-check text-orange-400"></i> Hari, Tanggal
+                                </label>
+                                <div class="flex items-center gap-1.5">
+                                    <label class="cursor-pointer px-2 py-0.5 rounded-md bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Pilih tanggal dari kalender">
+                                        <i class="fa-regular fa-calendar text-[9px]"></i>
+                                        <span>Pilih Kalender</span>
+                                        <input type="date" value="${startVal}" onchange="quickApplyDateToHariTanggal(this.value)" class="sr-only">
+                                    </label>
+                                </div>
+                            </div>
+                            <input type="text" id="quick_field_hari_tanggal" value="${escapeHtml(valHari)}" 
+                                placeholder="Contoh: Minggu, 28 Juni 2026 (atau Sabtu – Minggu, 27 – 28 Juni 2026)" 
                                 oninput="syncQuickEditToForm('field_hari_tanggal', this.value)" 
-                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500 font-sans">
+                            <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                                <span class="text-[9.5px] text-neutral-400">Format cepat:</span>
+                                <button type="button" onclick="quickSetTodayHari()" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">Hari Ini</button>
+                                <button type="button" onclick="quickSetTomorrowHari()" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">Besok</button>
+                                <button type="button" onclick="quickSetWeekendHari()" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">Sabtu-Minggu</button>
+                            </div>
                         </div>
-                        <div>
-                            <label class="text-[10.5px] text-neutral-300 font-semibold block mb-0.5">Waktu / Pukul</label>
-                            <input type="text" value="${escapeHtml(valWaktu)}" placeholder="08.00 s/d 13.10 WIB" 
+
+                        <!-- 2. WAKTU / PUKUL -->
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-orange-400"></i> Waktu / Pukul
+                                </label>
+                                <div class="flex items-center gap-1 text-[10px]">
+                                    <button type="button" onclick="quickAppendUntilFinish()" class="px-2 py-0.5 rounded-md bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Set ke s.d. Selesai">
+                                        <i class="fa-solid fa-hourglass-end text-[8.5px]"></i> s.d. Selesai
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="text" id="quick_field_waktu" value="${escapeHtml(valWaktu)}" 
+                                placeholder="Contoh: 08.00 s/d 13.10 WIB (atau 08.00 WIB s.d. Selesai)" 
                                 oninput="syncQuickEditToForm('field_waktu', this.value)" 
-                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white font-mono focus:border-orange-500">
+                            <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                                <span class="text-[9.5px] text-neutral-400">Pilihan jam:</span>
+                                <button type="button" onclick="quickSetTimePreset('08.00 s/d 12.00 WIB')" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">08.00 - 12.00</button>
+                                <button type="button" onclick="quickSetTimePreset('08.00 s/d 16.00 WIB')" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">08.00 - 16.00</button>
+                                <button type="button" onclick="quickSetTimePreset('13.00 s/d 17.00 WIB')" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">13.00 - 17.00</button>
+                                <button type="button" onclick="quickSetTimePreset('19.30 s/d 21.30 WIB')" class="px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[9.5px] font-mono border border-neutral-700 transition-colors">19.30 - 21.30</button>
+                            </div>
                         </div>
-                        <div>
+
+                        <!-- 3. TEMPAT PELAKSANAAN -->
+                        <div class="space-y-1">
                             <div class="flex items-center justify-between mb-0.5">
-                                <label class="text-[10.5px] text-neutral-300 font-semibold">Tempat Pelaksanaan</label>
+                                <label class="text-[11px] font-bold text-neutral-200 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot text-orange-400"></i> Tempat Pelaksanaan
+                                </label>
                                 <button type="button" onclick="quickResetTempatSpz()" class="text-[9.5px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1">
                                     <i class="fa-solid fa-rotate-left text-[8.5px]"></i> Saran Polimedia
                                 </button>
                             </div>
-                            <textarea id="quick_detail_tempat" rows="2" placeholder="Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,&#10;Jl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,&#10;Jakarta Selatan 12630" 
+                            <textarea id="quick_detail_tempat" rows="2" 
+                                placeholder="Contoh: Masjid Ar-Rahman Politeknik Negeri Media Kreatif Jakarta,&#10;Jl. Srengseng Sawah, Kel. Srengseng Sawah, Kec. Jagakarsa,&#10;Jakarta Selatan 12630" 
                                 oninput="syncQuickEditToForm('field_tempat', this.value)" 
-                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">${escapeHtml(valTempat)}</textarea>
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500 font-sans leading-relaxed">${escapeHtml(valTempat)}</textarea>
                         </div>
                     </div>
                 `;
@@ -12627,6 +12673,105 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             }, 100);
         }
+
+        function quickApplyDateToHariTanggal(dateStr) {
+            if (!dateStr) return;
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return;
+            const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const day = (typeof INDO_DAYS !== 'undefined') ? INDO_DAYS[d.getDay()] : ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][d.getDay()];
+            const tgl = d.getDate();
+            const bln = (typeof INDO_MONTHS !== 'undefined') ? INDO_MONTHS[d.getMonth()] : ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][d.getMonth()];
+            const thn = d.getFullYear();
+            const formatted = `${day}, ${tgl} ${bln} ${thn}`;
+
+            const input = document.getElementById('quick_field_hari_tanggal');
+            if (input) input.value = formatted;
+            syncQuickEditToForm('field_hari_tanggal', formatted);
+
+            const formDateStart = document.getElementById('event_date_start');
+            if (formDateStart) formDateStart.value = dateStr;
+        }
+        window.quickApplyDateToHariTanggal = quickApplyDateToHariTanggal;
+
+        function quickSetTodayHari() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            quickApplyDateToHariTanggal(`${y}-${m}-${day}`);
+        }
+        window.quickSetTodayHari = quickSetTodayHari;
+
+        function quickSetTomorrowHari() {
+            const d = new Date();
+            d.setDate(d.getDate() + 1);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            quickApplyDateToHariTanggal(`${y}-${m}-${day}`);
+        }
+        window.quickSetTomorrowHari = quickSetTomorrowHari;
+
+        function quickSetWeekendHari() {
+            const d = new Date();
+            const dayOfWeek = d.getDay();
+            const distToSat = (6 - dayOfWeek + 7) % 7 || 7;
+            const sat = new Date(d);
+            sat.setDate(d.getDate() + distToSat);
+            const sun = new Date(sat);
+            sun.setDate(sat.getDate() + 1);
+
+            const sDay = (typeof INDO_DAYS !== 'undefined') ? INDO_DAYS[sat.getDay()] : 'Sabtu';
+            const sTgl = sat.getDate();
+            const sBln = (typeof INDO_MONTHS !== 'undefined') ? INDO_MONTHS[sat.getMonth()] : 'Juni';
+            const sThn = sat.getFullYear();
+
+            const eDay = (typeof INDO_DAYS !== 'undefined') ? INDO_DAYS[sun.getDay()] : 'Minggu';
+            const eTgl = sun.getDate();
+            const eBln = (typeof INDO_MONTHS !== 'undefined') ? INDO_MONTHS[sun.getMonth()] : 'Juni';
+            const eThn = sun.getFullYear();
+
+            let res = '';
+            if (sBln === eBln && sThn === eThn) {
+                res = `${sDay} – ${eDay}, ${sTgl} – ${eTgl} ${sBln} ${sThn}`;
+            } else {
+                res = `${sDay}, ${sTgl} ${sBln} s/d ${eDay}, ${eTgl} ${eBln} ${eThn}`;
+            }
+
+            const input = document.getElementById('quick_field_hari_tanggal');
+            if (input) input.value = res;
+            syncQuickEditToForm('field_hari_tanggal', res);
+        }
+        window.quickSetWeekendHari = quickSetWeekendHari;
+
+        function quickSetTimePreset(timeStr) {
+            const input = document.getElementById('quick_field_waktu');
+            if (input) input.value = timeStr;
+            syncQuickEditToForm('field_waktu', timeStr);
+        }
+        window.quickSetTimePreset = quickSetTimePreset;
+
+        function quickAppendUntilFinish() {
+            const input = document.getElementById('quick_field_waktu');
+            if (!input) return;
+            let val = input.value.trim();
+            if (!val) {
+                val = '08.00 WIB s.d. Selesai';
+            } else if (val.toLowerCase().includes('selesai')) {
+                // sudah ada selesai
+            } else {
+                const startMatch = val.match(/^(\d{1,2}[.:]\d{2})/);
+                if (startMatch) {
+                    val = `${startMatch[1].replace(':', '.')} WIB s.d. Selesai`;
+                } else {
+                    val = `${val} s.d. Selesai`;
+                }
+            }
+            input.value = val;
+            syncQuickEditToForm('field_waktu', val);
+        }
+        window.quickAppendUntilFinish = quickAppendUntilFinish;
 
         function handleBulletKeydown(e, textarea, targetFormId) {
             if (e.key === 'Enter' && !e.shiftKey) {
