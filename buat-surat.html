@@ -2334,6 +2334,45 @@
                             </button>
                         </div>
 
+                        <!-- BANNER STATUS KEUANGAN TERKAIT DATABASE (TERKUNCI) -->
+                        <div id="sba_keuangan_db_status_banner" class="hidden p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-link text-[11px]"></i> Terkait: <span id="sba_keuangan_linked_name" class="text-white">Kegiatan</span>
+                                </span>
+                                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                    <i class="fa-solid fa-lock text-[8.5px] mr-1"></i> Data Terkunci (Sinkron DB)
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-neutral-300 leading-relaxed">
+                                Rincian pemasukan &amp; pengeluaran tersinkronisasi langsung dari database kas kegiatan ini. Lampiran nota tetap dapat dikelola bebas.
+                            </p>
+                            <div class="flex items-center gap-2 pt-1.5 border-t border-emerald-500/20">
+                                <button type="button" onclick="switchToCustomKeuanganSba()" class="px-2.5 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                                    <i class="fa-solid fa-pen-to-square text-[10px]"></i> Beralih ke Input Manual (Bisa Edit)
+                                </button>
+                                <button type="button" onclick="bukaModalTambahkanKeuanganSba()" class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                                    <i class="fa-solid fa-rotate text-[10px]"></i> Ganti Kegiatan / Nota
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- BANNER STATUS KEUANGAN INPUT MANUAL (CUSTOM) -->
+                        <div id="sba_keuangan_custom_status_banner" class="hidden p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </span>
+                                <div>
+                                    <span class="text-xs font-bold text-blue-400 block">Mode: Input Manual / Custom</span>
+                                    <span class="text-[10.5px] text-neutral-300">Data keuangan dapat Anda ketik &amp; diedit bebas secara manual.</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="bukaModalTambahkanKeuanganSba()" class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 shrink-0 transition-colors">
+                                <i class="fa-solid fa-link text-[10px]"></i> Hubungkan ke Kegiatan
+                            </button>
+                        </div>
+
                         <!-- TOMBOL EXPORT RAB KEGIATAN -->
                         <div class="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="flex items-center gap-2 text-xs">
@@ -4802,6 +4841,57 @@
 
         let sbaJenisKegiatan = 'Agenda Kerja';
         let sbaSelectedProkerId = '';
+        let sbaSelectedProkerNama = '';
+
+        function getSbaLinkedProkerName() {
+            if (sbaSelectedProkerNama && sbaSelectedProkerNama.trim()) return sbaSelectedProkerNama;
+            if (!sbaSelectedProkerId || sbaSelectedProkerId === '__custom__') return '';
+            const p = (sbaDbProkers || []).find(item => item.id && item.id.toString() === sbaSelectedProkerId.toString());
+            return p ? (p.nama_proker || p.nama_kegiatan || ('Kegiatan #' + p.id)) : '';
+        }
+
+        function isSbaKeuanganDbLinked() {
+            return !!(sbaSelectedProkerId && sbaSelectedProkerId !== '__custom__');
+        }
+
+        function isSbaKeuanganCombined() {
+            const pCount = (typeof sbaPemasukanList !== 'undefined' && sbaPemasukanList) ? sbaPemasukanList.length : 1;
+            const effectiveCats = (typeof sbaPengeluaranCategories !== 'undefined' && sbaPengeluaranCategories && sbaPengeluaranCategories.length > 0)
+                ? sbaPengeluaranCategories
+                : [{ id: 'bahan', nama: 'Belanja Bahan', divisi: (typeof sbaPengeluaranDivisi !== 'undefined' ? sbaPengeluaranDivisi : []) }];
+            let expRowCount = 0;
+            effectiveCats.forEach(cat => {
+                expRowCount += 1;
+                (cat.divisi || []).forEach(div => {
+                    expRowCount += 1;
+                    expRowCount += (div.items || []).length;
+                });
+                expRowCount += 1;
+            });
+            return (pCount + expRowCount) <= 12;
+        }
+
+        function switchToCustomKeuanganSba() {
+            sbaSelectedProkerId = '__custom__';
+            sbaSelectedProkerNama = '';
+            toggleSbaKeuanganSections();
+            renderLetterPreview();
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true,
+                    background: '#111827',
+                    color: '#fff'
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Mode Input Manual aktif. Tabel keuangan sekarang dapat diedit bebas!'
+                });
+            }
+        }
         let sbaNotaLayoutStyle = 'grid'; // 'grid' | 'detailed'
         let sbaNotaDetails = [];
         let sbaDbProkers = [];
@@ -5110,10 +5200,14 @@
 
         function onSbaProkerSelectChange(prokerId) {
             sbaSelectedProkerId = prokerId;
-            if (!prokerId) return;
+            if (!prokerId || prokerId === '__custom__') {
+                sbaSelectedProkerNama = '';
+                return;
+            }
 
             const p = sbaDbProkers.find(item => item.id.toString() === prokerId.toString());
             if (!p) return;
+            sbaSelectedProkerNama = p.nama_proker || p.nama_kegiatan || ('Kegiatan #' + prokerId);
 
             const detectedJenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
             setSbaJenisKegiatan(detectedJenis);
@@ -5161,19 +5255,21 @@
             }
 
             const prokers = sbaDbProkers || [];
-            let selectedId = sbaSelectedProkerId || (prokers.length > 0 ? prokers[0].id : '');
+            let selectedId = sbaSelectedProkerId || (prokers.length > 0 ? prokers[0].id : '__custom__');
 
             const getProkerInfo = (pid) => {
                 if (!pid || pid === '__custom__') {
                     return {
-                        nama: 'Input Manual (Isi Sendiri)',
-                        jenis: sbaJenisKegiatan || 'Agenda Kerja',
+                        nama: 'Input Manual / Custom (Isi Sendiri)',
+                        jenis: 'Mode Custom',
                         totalOut: 0,
-                        notaCount: 0
+                        notaCount: 0,
+                        isCustom: true,
+                        desc: '✏️ <b>Mode Input Manual:</b> Tabel keuangan (pemasukan & pengeluaran) dapat diedit bebas secara manual baik lewat form maupun langsung klik di tabel surat.'
                     };
                 }
                 const p = prokers.find(item => item.id.toString() === pid.toString());
-                if (!p) return { nama: 'Kegiatan', jenis: 'Agenda Kerja', totalOut: 0, notaCount: 0 };
+                if (!p) return { nama: 'Kegiatan', jenis: 'Agenda Kerja', totalOut: 0, notaCount: 0, isCustom: false, desc: '' };
                 const jenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
                 const prokerTx = (sbaDbTransactions || []).filter(t => (t.proker_id && t.proker_id.toString() === p.id.toString()) || (t.id_kegiatan && t.id_kegiatan.toString() === p.id.toString()));
                 let totalKeluar = 0;
@@ -5188,7 +5284,9 @@
                     nama: p.nama_proker || p.nama_kegiatan || `Kegiatan #${p.id}`,
                     jenis: jenis,
                     totalOut: totalKeluar,
-                    notaCount: receipts.length
+                    notaCount: receipts.length,
+                    isCustom: false,
+                    desc: '🔒 <b>Data Terkunci:</b> Rincian pemasukan & belanja ditarik otomatis dari database kas kegiatan ini agar sinkron. Bukti nota kuitansi tetap dapat dikelola bebas.'
                 };
             };
 
@@ -5198,28 +5296,30 @@
             const prokerList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('program') || !(p.jenis || '').toLowerCase().includes('agenda'));
 
             let optionsHtml = '';
+            const isCustSel = (selectedId === '__custom__');
+            optionsHtml += `<option value="__custom__" ${isCustSel ? 'selected' : ''}>✍️ Input Manual / Kosongkan (Isi Sendiri - Bisa Diedit Bebas)</option>`;
+
             if (agendaList.length > 0) {
-                optionsHtml += '<optgroup label="Agenda Kerja">';
+                optionsHtml += '<optgroup label="Agenda Kerja (Data Terkunci / Sinkron Database)">';
                 agendaList.forEach(p => {
                     const nama = p.nama_proker || p.nama_kegiatan || `Agenda #${p.id}`;
                     const div = p.divisi ? ` (${p.divisi})` : '';
-                    const isSel = (p.id.toString() === selectedId.toString()) ? 'selected' : '';
+                    const isSel = (!isCustSel && p.id.toString() === selectedId.toString()) ? 'selected' : '';
                     optionsHtml += `<option value="${p.id}" ${isSel}>${escapeHtml(nama)}${escapeHtml(div)}</option>`;
                 });
                 optionsHtml += '</optgroup>';
             }
 
             if (prokerList.length > 0) {
-                optionsHtml += '<optgroup label="Program Kerja">';
+                optionsHtml += '<optgroup label="Program Kerja (Data Terkunci / Sinkron Database)">';
                 prokerList.forEach(p => {
                     const nama = p.nama_proker || p.nama_kegiatan || `Proker #${p.id}`;
                     const div = p.divisi ? ` (${p.divisi})` : '';
-                    const isSel = (p.id.toString() === selectedId.toString()) ? 'selected' : '';
+                    const isSel = (!isCustSel && p.id.toString() === selectedId.toString()) ? 'selected' : '';
                     optionsHtml += `<option value="${p.id}" ${isSel}>${escapeHtml(nama)}${escapeHtml(div)}</option>`;
                 });
                 optionsHtml += '</optgroup>';
-            }
-            optionsHtml += '<option value="__custom__">-- Input Manual / Kosongkan (Isi Sendiri) --</option>';
+            }`;
 
             Swal.fire({
                 title: '<div class="text-sm sm:text-base font-bold text-white flex items-center justify-center gap-2"><span class="text-emerald-400 text-lg"><i class="fa-solid fa-coins"></i></span><span>Tambahkan Halaman Keuangan SBA</span></div>',
@@ -5238,14 +5338,19 @@
                                 ${optionsHtml}
                             </select>
 
-                            <div id="modal_keu_info_box" class="p-2.5 rounded-lg bg-neutral-950/90 border border-neutral-800 flex items-center justify-between text-[10.5px]">
-                                <div class="pr-2">
-                                    <span id="modal_keu_info_jenis" class="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${initialInfo.jenis === 'Program Kerja' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-orange-500/20 text-orange-400'}">${initialInfo.jenis}</span>
-                                    <span id="modal_keu_info_nama" class="font-bold text-neutral-200 ml-1.5 block sm:inline mt-1 sm:mt-0">${escapeHtml(initialInfo.nama)}</span>
+                            <div id="modal_keu_info_box" class="p-2.5 rounded-lg bg-neutral-950/90 border border-neutral-800 flex flex-col gap-1.5 text-[10.5px]">
+                                <div class="flex items-center justify-between">
+                                    <div class="pr-2">
+                                        <span id="modal_keu_info_jenis" class="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${initialInfo.isCustom ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : (initialInfo.jenis === 'Program Kerja' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30')}">${initialInfo.jenis}</span>
+                                        <span id="modal_keu_info_nama" class="font-bold text-neutral-200 ml-1.5 inline-block">${escapeHtml(initialInfo.nama)}</span>
+                                    </div>
+                                    <div class="text-right font-mono shrink-0">
+                                        <span id="modal_keu_info_total" class="text-emerald-400 font-bold block">${initialInfo.isCustom ? 'Disusun Manual' : formatSbaRupiah(initialInfo.totalOut)}</span>
+                                        <span id="modal_keu_info_nota" class="text-[9.5px] text-neutral-400">${initialInfo.isCustom ? 'Form Nota Aktif' : `${initialInfo.notaCount} Nota Tersedia`}</span>
+                                    </div>
                                 </div>
-                                <div class="text-right font-mono shrink-0">
-                                    <span id="modal_keu_info_total" class="text-emerald-400 font-bold block">${formatSbaRupiah(initialInfo.totalOut)}</span>
-                                    <span id="modal_keu_info_nota" class="text-[9.5px] text-neutral-400">${initialInfo.notaCount} Nota Tersedia</span>
+                                <div id="modal_keu_info_desc" class="text-[10px] text-neutral-300 leading-relaxed pt-1 border-t border-neutral-800/80">
+                                    ${initialInfo.desc}
                                 </div>
                             </div>
                         </div>
@@ -5280,13 +5385,15 @@
                             const subtextEl = document.getElementById('modal_keu_nota_subtext');
                             const checkNota = document.getElementById('modal_keu_check_nota');
 
+                            const descEl = document.getElementById('modal_keu_info_desc');
                             if (jenisEl) {
                                 jenisEl.innerText = info.jenis;
-                                jenisEl.className = `text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${info.jenis === 'Program Kerja' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-orange-500/20 text-orange-400'}`;
+                                jenisEl.className = `text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${info.isCustom ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : (info.jenis === 'Program Kerja' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30')}`;
                             }
                             if (namaEl) namaEl.innerText = info.nama;
-                            if (totalEl) totalEl.innerText = formatSbaRupiah(info.totalOut);
-                            if (notaEl) notaEl.innerText = `${info.notaCount} Nota Tersedia`;
+                            if (totalEl) totalEl.innerText = info.isCustom ? 'Disusun Manual' : formatSbaRupiah(info.totalOut);
+                            if (notaEl) notaEl.innerText = info.isCustom ? 'Form Nota Aktif' : `${info.notaCount} Nota Tersedia`;
+                            if (descEl) descEl.innerHTML = info.desc;
                             if (subtextEl) {
                                 subtextEl.innerText = info.notaCount > 0 ? `Otomatis menarik ${info.notaCount} foto bukti nota dari database kegiatan ini` : 'Tersedia lembar lampiran nota untuk upload / input bukti kuitansi';
                             }
@@ -5319,6 +5426,31 @@
 
                     if (chosenPid && chosenPid !== '__custom__') {
                         applySelectedSbaProkerData(chosenPid, incNota ? 'all' : 'rab_only');
+                        sbaSelectedProkerId = chosenPid;
+                        sbaSelectedProkerNama = getSbaLinkedProkerName();
+                    } else {
+                        sbaSelectedProkerId = '__custom__';
+                        sbaSelectedProkerNama = '';
+                        if (!sbaPemasukanList || sbaPemasukanList.length === 0) {
+                            sbaPemasukanList = [{ no: '1.', sumber: 'Kas LDK IMIP', jumlah: 250000 }];
+                        }
+                        if (!sbaPengeluaranCategories || sbaPengeluaranCategories.length === 0) {
+                            sbaPengeluaranCategories = [{
+                                id: 'bahan',
+                                nama: 'Belanja Bahan',
+                                divisi: [{
+                                    divisiKode: 'A.',
+                                    divisiNama: 'Divisi Acara',
+                                    items: [{
+                                        uraian: 'Belanja Konsumsi / Perlengkapan',
+                                        unit: '1 paket',
+                                        hargaSatuan: 250000,
+                                        jumlah: 250000
+                                    }]
+                                }]
+                            }];
+                            syncSbaLegacyDivisi();
+                        }
                     }
 
                     toggleSbaKeuanganSections();
@@ -5641,6 +5773,7 @@
             if (!p) return;
 
             sbaSelectedProkerId = pid;
+            sbaSelectedProkerNama = p.nama_proker || p.nama_kegiatan || ('Kegiatan #' + pid);
             const selectEl = document.getElementById('sba_proker_select');
             if (selectEl) selectEl.value = pid;
 
@@ -5913,6 +6046,18 @@
             if (group) group.classList.toggle('hidden', !incKeu);
             const inactiveBanner = document.getElementById('sba_keuangan_inactive_banner');
             if (inactiveBanner) inactiveBanner.classList.toggle('hidden', incKeu);
+
+            const isLocked = isSbaKeuanganDbLinked();
+            const dbBanner = document.getElementById('sba_keuangan_db_status_banner');
+            const customBanner = document.getElementById('sba_keuangan_custom_status_banner');
+            const pNameLabel = document.getElementById('sba_keuangan_linked_name');
+            if (dbBanner) dbBanner.classList.toggle('hidden', !incKeu || !isLocked);
+            if (customBanner) customBanner.classList.toggle('hidden', !incKeu || isLocked);
+            if (pNameLabel) pNameLabel.innerText = getSbaLinkedProkerName() || 'Kegiatan Terkait';
+
+            if (typeof renderSbaPemasukanEditor === 'function') renderSbaPemasukanEditor();
+            if (typeof renderSbaPengeluaranEditor === 'function') renderSbaPengeluaranEditor();
+
             syncAutoLampiranCount();
             syncSbaLampiranManagerUI();
             if (typeof renderPageTabs === 'function') renderPageTabs();
@@ -6390,8 +6535,27 @@
             }
 
             if (isSbaKeuanganActive()) {
-                pages.push({ key: 'keuangan', label: 'Keuangan', icon: 'fa-money-bill-wave', desc: `Keuangan ${sbaJenisKegiatan}` });
-                pages.push({ key: 'rekapitulasi', label: 'Rekapitulasi', icon: 'fa-calculator', desc: '3. Rekapitulasi Kas Keuangan' });
+                if (isSbaKeuanganCombined()) {
+                    pages.push({ 
+                        key: 'keuangan', 
+                        label: 'Keuangan', 
+                        icon: 'fa-money-bill-wave', 
+                        desc: `Keuangan & Rekapitulasi ${sbaJenisKegiatan}` 
+                    });
+                } else {
+                    pages.push({ 
+                        key: 'keuangan', 
+                        label: 'Keuangan', 
+                        icon: 'fa-money-bill-wave', 
+                        desc: `Keuangan ${sbaJenisKegiatan} (Pemasukan & Belanja)` 
+                    });
+                    pages.push({ 
+                        key: 'rekapitulasi', 
+                        label: 'Rekapitulasi', 
+                        icon: 'fa-calculator', 
+                        desc: '3. Rekapitulasi Kas Keuangan' 
+                    });
+                }
             }
 
             pages.push({ key: 'pengesahan', label: 'Pengesahan', icon: 'fa-signature', desc: 'Penutup & Lembar Pengesahan' });
@@ -6701,17 +6865,24 @@
 
             checkAutoWadirDanop();
 
+            const isLockedPem = isSbaKeuanganDbLinked();
             container.innerHTML = sbaPemasukanList.map((item, idx) => `
-                <div class="p-2 rounded-xl bg-neutral-900/90 border border-neutral-800 flex items-center gap-2 text-xs">
+                <div class="p-2 rounded-xl bg-neutral-900/90 border border-neutral-800 flex items-center gap-2 text-xs ${isLockedPem ? 'opacity-85' : ''}">
                     <span class="font-mono text-neutral-400 text-[10px] w-5 text-center">${idx + 1}.</span>
-                    <input type="text" value="${escapeHtml(item.sumber || '')}" oninput="updateSbaPemasukanField(${idx}, 'sumber', this.value)" placeholder="Sumber Pemasukan (misal: Kas LDK IMIP, Danop Kemahasiswaan)" class="form-input text-xs py-1.5 px-2.5 flex-1">
+                    <input type="text" value="${escapeHtml(item.sumber || '')}" ${isLockedPem ? 'disabled' : ''} oninput="updateSbaPemasukanField(${idx}, 'sumber', this.value)" placeholder="Sumber Pemasukan (misal: Kas LDK IMIP, Danop Kemahasiswaan)" class="form-input text-xs py-1.5 px-2.5 flex-1 ${isLockedPem ? 'cursor-not-allowed bg-neutral-950/70 text-neutral-300' : ''}">
                     <div class="relative w-36">
                         <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-neutral-500 font-mono">Rp</span>
-                        <input type="number" value="${item.jumlah || 0}" oninput="updateSbaPemasukanField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1.5 pl-7 pr-2 font-mono text-right w-full">
+                        <input type="number" value="${item.jumlah || 0}" ${isLockedPem ? 'disabled' : ''} oninput="updateSbaPemasukanField(${idx}, 'jumlah', this.value)" placeholder="Jumlah" class="form-input text-xs py-1.5 pl-7 pr-2 font-mono text-right w-full ${isLockedPem ? 'cursor-not-allowed bg-neutral-950/70 text-neutral-300' : ''}">
                     </div>
-                    <button type="button" onclick="removeSbaPemasukanRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1.5 rounded hover:bg-neutral-800 transition-colors">
+                    ${!isLockedPem ? `
+                    <button type="button" onclick="removeSbaPemasukanRow(${idx})" class="text-neutral-500 hover:text-red-400 p-1.5 rounded hover:bg-neutral-800 transition-colors" title="Hapus Baris">
                         <i class="fa-solid fa-trash text-[11px]"></i>
                     </button>
+                    ` : `
+                    <span class="text-neutral-500 p-1.5" title="Data Terkunci (Sinkron DB)">
+                        <i class="fa-solid fa-lock text-[10px]"></i>
+                    </span>
+                    `}
                 </div>
             `).join('');
 
@@ -6809,23 +6980,29 @@
                             </div>
                             <div class="space-y-1.5 pl-2">
                                 ${(div.items || []).map((it, itIdx) => `
-                                    <div class="grid grid-cols-12 gap-1.5 items-center text-xs">
+                                    <div class="grid grid-cols-12 gap-1.5 items-center text-xs ${isLockedExp ? 'opacity-85' : ''}">
                                         <div class="col-span-5">
-                                            <input type="text" value="${escapeHtml(it.uraian || '')}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'uraian', this.value, ${catIdx})" placeholder="Uraian belanja (misal: Cue Card)" class="form-input text-xs py-1 px-2 w-full">
+                                            <input type="text" value="${escapeHtml(it.uraian || '')}" ${isLockedExp ? 'disabled' : ''} oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'uraian', this.value, ${catIdx})" placeholder="Uraian belanja (misal: Cue Card)" class="form-input text-xs py-1 px-2 w-full ${isLockedExp ? 'cursor-not-allowed bg-neutral-950/70 text-neutral-300' : ''}">
                                         </div>
                                         <div class="col-span-2">
-                                            <input type="text" value="${escapeHtml(it.unit || '')}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'unit', this.value, ${catIdx})" placeholder="2 lembar" class="form-input text-xs py-1 px-1.5 font-mono text-center w-full">
+                                            <input type="text" value="${escapeHtml(it.unit || '')}" ${isLockedExp ? 'disabled' : ''} oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'unit', this.value, ${catIdx})" placeholder="2 lembar" class="form-input text-xs py-1 px-1.5 font-mono text-center w-full ${isLockedExp ? 'cursor-not-allowed bg-neutral-950/70 text-neutral-300' : ''}">
                                         </div>
                                         <div class="col-span-2">
-                                            <input type="number" value="${it.hargaSatuan || 0}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'hargaSatuan', this.value, ${catIdx})" placeholder="Harga Satuan" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full">
+                                            <input type="number" value="${it.hargaSatuan || 0}" ${isLockedExp ? 'disabled' : ''} oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'hargaSatuan', this.value, ${catIdx})" placeholder="Harga Satuan" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full ${isLockedExp ? 'cursor-not-allowed bg-neutral-950/70 text-neutral-300' : ''}">
                                         </div>
                                         <div class="col-span-2">
-                                            <input type="number" value="${it.jumlah || 0}" oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'jumlah', this.value, ${catIdx})" placeholder="Jumlah" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full font-bold text-orange-400">
+                                            <input type="number" value="${it.jumlah || 0}" ${isLockedExp ? 'disabled' : ''} oninput="updateSbaDivisiItemField(${divIdx}, ${itIdx}, 'jumlah', this.value, ${catIdx})" placeholder="Jumlah" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full font-bold text-orange-400 ${isLockedExp ? 'cursor-not-allowed bg-neutral-950/70 text-neutral-300' : ''}">
                                         </div>
                                         <div class="col-span-1 text-center">
+                                            ${!isLockedExp ? `
                                             <button type="button" onclick="removeSbaDivisiItem(${divIdx}, ${itIdx}, ${catIdx})" class="text-neutral-500 hover:text-red-400 p-1">
                                                 <i class="fa-solid fa-xmark text-[10px]"></i>
                                             </button>
+                                            ` : `
+                                            <span class="text-neutral-500 p-1" title="Data Terkunci (Sinkron DB)">
+                                                <i class="fa-solid fa-lock text-[9px]"></i>
+                                            </span>
+                                            `}
                                         </div>
                                     </div>
                                 `).join('')}
@@ -9117,30 +9294,11 @@
                         `;
                     });
 
+                    const isLockedKeu = isSbaKeuanganDbLinked();
                     pageContentHtml = `
                         <!-- NOMOR SURAT BRACKET -->
                         <div style="margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                             <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
-                        </div>
-
-                        <!-- KEUANGAN HEADER CONTROLS (PRINT:HIDDEN) -->
-                        <div class="print:hidden" style="margin-bottom: 12pt; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6pt 10pt; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; font-family: 'Plus Jakarta Sans', sans-serif;">
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <span style="font-size: 9pt; font-weight: bold; color: #065f46; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fa-solid fa-coins" style="color: #10b981;"></i> Laporan Keuangan Aktif:
-                                </span>
-                                <span style="font-size: 8.5pt; font-weight: bold; padding: 1.5pt 6pt; border-radius: 5px; background: rgba(16, 185, 129, 0.2); color: #047857;">
-                                    ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}
-                                </span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <button type="button" onclick="bukaModalTambahkanKeuanganSba()" style="font-size: 8pt; font-weight: bold; padding: 3pt 8pt; border-radius: 6px; background: #3b82f6; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fa-solid fa-rotate"></i> Ganti Kegiatan / Nota
-                                </button>
-                                <button type="button" onclick="nonaktifkanKeuanganSba()" style="font-size: 8pt; font-weight: bold; padding: 3pt 8pt; border-radius: 6px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fa-solid fa-trash-can"></i> Sembunyikan Keuangan
-                                </button>
-                            </div>
                         </div>
 
                         <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
@@ -9165,10 +9323,46 @@
                         </table>
 
                         <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.4;">2. Pengeluaran</p>
-                        <div class="preview-editable" data-edit-target="card_sba_keuangan" data-edit-label="Rincian Pengeluaran" data-edit-type="sba_keuangan" title="Klik untuk edit Rincian Pengeluaran">
+                        <div class="preview-editable" data-edit-target="card_sba_keuangan" data-edit-label="Rincian Pengeluaran" data-edit-type="sba_keuangan" title="${isLockedKeu ? 'Data Keuangan Terkunci (Sinkron Database)' : 'Klik untuk edit Rincian Pengeluaran'}">
                             ${pengeluaranTablesHtml}
                         </div>
                     `;
+
+                    if (isSbaKeuanganCombined()) {
+                        const saldoSisa = totalPemasukan - totalPengeluaran;
+                        pageContentHtml += `
+                            <p style="margin: 12pt 0 6pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; line-height: 1.4;">3. Rekapitulasi Keuangan</p>
+
+                            <!-- TABEL REKAPITULASI (GABUNG HALAMAN KEUANGAN) -->
+                            <div class="preview-editable" data-edit-target="card_sba_rekapitulasi" data-edit-label="Tabel Rekapitulasi" data-edit-type="sba_rekap" title="${isLockedKeu ? 'Data Keuangan Terkunci (Sinkron Database)' : 'Klik untuk edit Rekapitulasi Keuangan'}">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35; margin-bottom: 8pt;">
+                                    <thead>
+                                        <tr style="text-align: center; font-weight: bold;">
+                                            <th style="border: 1px solid #000; padding: 4pt 3pt; width: 45px;">No</th>
+                                            <th style="border: 1px solid #000; padding: 4pt 6pt;">Keterangan</th>
+                                            <th style="border: 1px solid #000; padding: 4pt 6pt; width: 170px;">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">1.</td>
+                                            <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">Pemasukan</td>
+                                            <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(totalPemasukan)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">2.</td>
+                                            <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">Pengeluaran</td>
+                                            <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(totalPengeluaran)}</td>
+                                        </tr>
+                                        <tr style="font-weight: bold;">
+                                            <td colspan="2" style="border: 1px solid #000; padding: 4pt 8pt; text-align: center;">TOTAL</td>
+                                            <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right;">${formatSbaRupiah(saldoSisa)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    }
                 } else if (key === 'rekapitulasi') {
                     // HALAMAN 5: REKAPITULASI KEUANGAN
                     const totalPemasukan = getSbaTotalPemasukan();
@@ -9456,10 +9650,33 @@
                     `;
                 }
 
+                let sbaSheetTopControl = '';
+                if (key === 'keuangan') {
+                    const isDb = isSbaKeuanganDbLinked();
+                    const pName = getSbaLinkedProkerName();
+                    sbaSheetTopControl = `
+                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold ${isDb ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}">
+                                <i class="fa-solid ${isDb ? 'fa-link text-emerald-400' : 'fa-pen-to-square text-blue-400'} text-[9px]"></i>
+                                ${isDb ? `Terkait: <b style="color: #6ee7b7;">${escapeHtml(pName)}</b> (Data Terkunci)` : 'Mode: <b style="color: #93c5fd;">Input Manual (Custom)</b> (Bisa Diedit Bebas)'}
+                            </span>
+                            <button type="button" onclick="bukaModalTambahkanKeuanganSba()" class="px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold flex items-center gap-1 shadow-xs transition-colors" title="Ganti Kegiatan atau Opsi Nota">
+                                <i class="fa-solid fa-rotate text-[9px]"></i> Ganti Kegiatan / Nota
+                            </button>
+                            <button type="button" onclick="nonaktifkanKeuanganSba()" class="px-2 py-0.5 rounded bg-neutral-800 hover:bg-red-500/20 text-neutral-300 hover:text-red-400 text-[10px] font-bold flex items-center gap-1 transition-colors" title="Sembunyikan Halaman Keuangan">
+                                <i class="fa-solid fa-eye-slash text-[9px]"></i> Sembunyikan
+                            </button>
+                        </div>
+                    `;
+                }
+
                 // Push complete A4 sheet
                 htmlSheets.push(`
-                    <div class="spz-sheet-badge print:hidden">
-                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${pageNum} &bull; ${p.label}</span>
+                    <div class="spz-sheet-badge print:hidden" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; padding: 3px 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman ${pageNum} &bull; ${p.label}</span>
+                            ${sbaSheetTopControl}
+                        </div>
                         <span class="text-[10px] font-mono text-orange-400 font-bold">${pageNum} / ${totalPages}</span>
                     </div>
                     <div class="spz-page-sheet" data-page="${pageNum}">
@@ -11650,6 +11867,32 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const label = editable.getAttribute('data-edit-label') || 'Bagian Surat';
             const type = editable.getAttribute('data-edit-type') || 'text';
             const idx = editable.getAttribute('data-edit-idx');
+
+            if (isSbaKeuanganDbLinked() && (type === 'sba_pemasukan' || type === 'sba_keuangan' || type === 'sba_rekap' || targetId === 'card_sba_keuangan' || targetId === 'card_sba_rekapitulasi' || targetId === 'sba_pemasukan_row')) {
+                const pName = getSbaLinkedProkerName() || 'Kegiatan Terkait';
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Data Keuangan Terkunci',
+                        html: `Tabel keuangan ini tersinkronisasi otomatis dengan database <b>${escapeHtml(pName)}</b>.<br><br>Jika Anda ingin mengedit atau mengubah isi tabel secara manual, silakan ubah mode ke <b>Input Manual (Custom)</b>.`,
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fa-solid fa-pen-to-square mr-1"></i> Beralih ke Input Manual (Edit Bebas)',
+                        cancelButtonText: 'Tutup',
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#374151',
+                        customClass: {
+                            popup: 'rounded-2xl border border-neutral-700 bg-neutral-950 text-white',
+                            confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
+                            cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
+                        }
+                    }).then(res => {
+                        if (res.isConfirmed) {
+                            switchToCustomKeuanganSba();
+                        }
+                    });
+                }
+                return;
+            }
 
             currentQuickEditTarget = { targetId, label, type, idx };
 
