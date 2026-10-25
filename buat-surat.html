@@ -6271,29 +6271,39 @@
 
         function renderSbaPrestasiTableHtml() {
             if (!isSbaPrestasiActive() || !sbaPrestasiList || sbaPrestasiList.length === 0) return '';
+            const rowsHtml = sbaPrestasiList.map((item, idx) => `
+                <tr class="preview-editable" data-edit-target="sba_prestasi_row" data-edit-idx="${idx}" data-edit-label="Prestasi Baris #${idx + 1}" data-edit-type="sba_prestasi_row" title="Klik untuk edit Prestasi Baris #${idx + 1}">
+                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.capaian || '').replace(/\n/g, '<br>')}</td>
+                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.tingkat || '').replace(/\n/g, '<br>')}</td>
+                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.bidang || '').replace(/\n/g, '<br>')}</td>
+                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.namaNim || '').replace(/\n/g, '<br>')}</td>
+                    <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.prodi || '').replace(/\n/g, '<br>')}</td>
+                </tr>
+            `).join('');
+
             return `
-                <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 12pt; border: 1px solid #000; text-align: center;">
-                    <thead>
-                        <tr style="font-weight: bold;">
-                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 22%;">Capaian</th>
-                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 16%;">Tingkat</th>
-                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 20%;">Bidang/Cabang</th>
-                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 26%;">Nama dan NIM</th>
-                            <th style="border: 1px solid #000; padding: 4pt 4pt; width: 16%;">Prodi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sbaPrestasiList.map(item => `
-                            <tr>
-                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.capaian).replace(/\n/g, '<br>')}</td>
-                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.tingkat).replace(/\n/g, '<br>')}</td>
-                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.bidang).replace(/\n/g, '<br>')}</td>
-                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.namaNim).replace(/\n/g, '<br>')}</td>
-                                <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${formatInlineRichText(item.prodi).replace(/\n/g, '<br>')}</td>
+                <div class="preview-table-section mb-3">
+                    <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 4pt; border: 1px solid #000; text-align: center;">
+                        <thead class="preview-editable" data-edit-target="sba_prestasi_editor_container" data-edit-type="sba_prestasi_all" data-edit-label="Tabel Capaian & Prestasi" title="Klik untuk kelola semua baris prestasi">
+                            <tr style="font-weight: bold; cursor: pointer;">
+                                <th style="border: 1px solid #000; padding: 4pt 4pt; width: 22%;">Capaian</th>
+                                <th style="border: 1px solid #000; padding: 4pt 4pt; width: 16%;">Tingkat</th>
+                                <th style="border: 1px solid #000; padding: 4pt 4pt; width: 20%;">Bidang/Cabang</th>
+                                <th style="border: 1px solid #000; padding: 4pt 4pt; width: 26%;">Nama dan NIM</th>
+                                <th style="border: 1px solid #000; padding: 4pt 4pt; width: 16%;">Prodi</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                    <div class="print:hidden mb-2 flex items-center justify-between text-xs px-1">
+                        <button type="button" onclick="addQuickSbaPrestasiRow(${sbaPrestasiList.length - 1})" class="px-2.5 py-1 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-all shadow-xs active:scale-95" title="Tambah baris prestasi baru">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Tambah Baris Prestasi
+                        </button>
+                        <span class="text-[10px] text-neutral-400 font-mono">Total ${sbaPrestasiList.length} Baris • Klik baris/header untuk edit</span>
+                    </div>
+                </div>
             `;
         }
 
@@ -8390,9 +8400,7 @@
                             </p>
                         </div>
 
-                        <div class="preview-editable" data-edit-target="card_sba_output_evaluasi" data-edit-label="Prestasi Kegiatan" data-edit-type="sba_prestasi" title="Klik untuk edit Prestasi Kegiatan">
-                            ${renderSbaPrestasiTableHtml()}
-                        </div>
+                        ${renderSbaPrestasiTableHtml()}
 
                         <!-- PENGANTAR HAMBATAN & EVALUASI -->
                         <p style="margin: 0 0 12pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
@@ -10950,6 +10958,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     titleEl.innerText = 'Rincian Pengeluaran Keuangan';
                 } else if (type === 'sba_rekap' || targetId === 'card_sba_rekapitulasi') {
                     titleEl.innerText = 'Rekapitulasi Keuangan';
+                } else if (type === 'sba_prestasi_row') {
+                    titleEl.innerText = `Ubah Prestasi Kegiatan Baris #${parseInt(idx) + 1}`;
+                } else if (type === 'sba_prestasi_all') {
+                    titleEl.innerText = 'Kelola Tabel Prestasi Kegiatan';
                 } else if (type === 'sba_prestasi' || targetId === 'card_sba_output_evaluasi') {
                     titleEl.innerText = 'Prestasi Kegiatan';
                 } else if (targetId === 'sba_output_kegiatan') {
@@ -10970,6 +10982,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (type === 'spz_barang_all') subtitleEl.innerText = 'Kelola semua barang pinjaman dan jumlahnya';
                 else if (type === 'spz_panitia_all') subtitleEl.innerText = 'Kelola data panitia, NIM, prodi & delegasi';
                 else if (type === 'spz_rundown_all' || type === 'sba_rundown_all') subtitleEl.innerText = 'Kelola susunan rundown, waktu & penanggung jawab';
+                else if (type === 'sba_prestasi_all') subtitleEl.innerText = 'Kelola semua capaian prestasi, kejuaraan, nama peserta & prodi';
+                else if (type === 'sba_prestasi_row') subtitleEl.innerText = 'Ubah capaian, tingkat, bidang, nama & prodi';
                 else subtitleEl.innerText = `Komponen formulir aktif • Placeholder sesuai formulir asli`;
             }
 
@@ -11969,6 +11983,127 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 `;
             }
 
+            // 17B. KHUSUS SBA PRESTASI KEGIATAN (PER BARIS)
+            if (type === 'sba_prestasi_row' && idx !== undefined) {
+                const row = (sbaPrestasiList && sbaPrestasiList[idx]) ? sbaPrestasiList[idx] : (DEFAULT_SBA_PRESTASI[idx] || {});
+                return `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 text-[10px] font-mono font-bold text-orange-400">
+                                Prestasi #${parseInt(idx) + 1} dari ${sbaPrestasiList.length}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="addQuickSbaPrestasiRow(${idx})" class="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Tambah baris prestasi baru di bawah ini">
+                                    <i class="fa-solid fa-plus text-[9px]"></i>
+                                    <span>Tambah Baris</span>
+                                </button>
+                                <button type="button" onclick="deleteQuickSbaPrestasiRow(${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-[10.5px] font-bold text-red-400 hover:text-red-300 flex items-center gap-1 transition-all active:scale-95 shadow-xs" title="Hapus baris prestasi ini">
+                                    <i class="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Capaian / Penghargaan (Baris #${parseInt(idx) + 1})</label>
+                            <input type="text" value="${escapeHtml(row.capaian || '')}" placeholder="Contoh: Peserta Teraktif Ikhwan / Juara 1" 
+                                oninput="handleQuickSbaPrestasi(${idx}, 'capaian', this.value)" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Tingkat</label>
+                                <input type="text" value="${escapeHtml(row.tingkat || '')}" placeholder="UKM IMIP / Nasional" 
+                                    oninput="handleQuickSbaPrestasi(${idx}, 'tingkat', this.value)" 
+                                    class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Bidang / Cabang</label>
+                                <input type="text" value="${escapeHtml(row.bidang || '')}" placeholder="Pendidikan Agama Islam" 
+                                    oninput="handleQuickSbaPrestasi(${idx}, 'bidang', this.value)" 
+                                    class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Nama dan NIM Peserta</label>
+                            <textarea rows="2" placeholder="Abid Dziaulhaqi Faisholi&#10;(2570405001)" 
+                                oninput="handleQuickSbaPrestasi(${idx}, 'namaNim', this.value)" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white font-sans focus:border-orange-500">${escapeHtml(row.namaNim || '')}</textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-neutral-300 font-semibold block mb-0.5">Program Studi (Prodi)</label>
+                            <input type="text" value="${escapeHtml(row.prodi || '')}" placeholder="Penyiaran / Desain Grafis" 
+                                oninput="handleQuickSbaPrestasi(${idx}, 'prodi', this.value)" 
+                                class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-neutral-800/60 text-[10px]">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="navigateQuickSbaPrestasi(${idx - 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    <i class="fa-solid fa-chevron-left text-[9px]"></i> Ke Baris #${idx}
+                                </button>
+                            ` : `<span class="text-neutral-600">Awal baris</span>`}
+                            <button type="button" onclick="openSbaPrestasiAllPopover()" class="text-orange-400/80 hover:text-orange-300 underline transition-colors">
+                                Kelola Semua
+                            </button>
+                            ${idx < sbaPrestasiList.length - 1 ? `
+                                <button type="button" onclick="navigateQuickSbaPrestasi(${idx + 1})" class="text-neutral-400 hover:text-orange-400 flex items-center gap-1 transition-colors">
+                                    Ke Baris #${idx + 2} <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                </button>
+                            ` : `<span class="text-neutral-600">Akhir baris</span>`}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 17C. KHUSUS SBA SEMUA PRESTASI (KLIK DARI HEADER TABEL)
+            if (type === 'sba_prestasi_all' || targetId === 'sba_prestasi_editor_container') {
+                const list = (sbaPrestasiList && sbaPrestasiList.length > 0) ? sbaPrestasiList : DEFAULT_SBA_PRESTASI;
+                const rowsHtml = list.map((item, i) => `
+                    <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-orange-400 font-mono">Prestasi #${i + 1}</span>
+                            ${list.length > 1 ? `
+                                <button type="button" onclick="deleteQuickSbaPrestasiRow(${i})" class="text-[9.5px] text-red-400 hover:text-red-300 font-mono flex items-center gap-1" title="Hapus baris ini">
+                                    <i class="fa-solid fa-trash-can"></i> Hapus
+                                </button>
+                            ` : ''}
+                        </div>
+                        <input type="text" value="${escapeHtml(item.capaian || '')}" placeholder="Capaian / Penghargaan" 
+                            oninput="handleQuickSbaPrestasi(${i}, 'capaian', this.value)" 
+                            class="form-input text-xs py-1.5 px-2 w-full bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <input type="text" value="${escapeHtml(item.tingkat || '')}" placeholder="Tingkat" 
+                                oninput="handleQuickSbaPrestasi(${i}, 'tingkat', this.value)" 
+                                class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                            <input type="text" value="${escapeHtml(item.bidang || '')}" placeholder="Bidang/Cabang" 
+                                oninput="handleQuickSbaPrestasi(${i}, 'bidang', this.value)" 
+                                class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                        </div>
+                        <textarea rows="2" placeholder="Nama dan NIM" 
+                            oninput="handleQuickSbaPrestasi(${i}, 'namaNim', this.value)" 
+                            class="form-input text-xs py-1.5 px-2 w-full bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">${escapeHtml(item.namaNim || '')}</textarea>
+                        <input type="text" value="${escapeHtml(item.prodi || '')}" placeholder="Program Studi" 
+                            oninput="handleQuickSbaPrestasi(${i}, 'prodi', this.value)" 
+                            class="form-input text-xs py-1.5 px-2 w-full bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between mb-0.5">
+                            <label class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-trophy text-orange-400"></i> Tabel Capaian & Prestasi
+                            </label>
+                            <button type="button" onclick="addQuickSbaPrestasiRow(${list.length - 1})" class="text-[10.5px] font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-colors">
+                                <i class="fa-solid fa-plus text-[9px]"></i> Tambah Baris
+                            </button>
+                        </div>
+                        <div class="space-y-2 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+                            ${rowsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
             // 17. KHUSUS SBA PEMASUKAN
             if (type === 'sba_pemasukan' && idx !== undefined) {
                 const row = (sbaPemasukanList && sbaPemasukanList[idx]) ? sbaPemasukanList[idx] : (DEFAULT_SBA_PEMASUKAN[idx] || {});
@@ -12740,6 +12875,108 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         }
         window.openSbaRundownAllPopover = openSbaRundownAllPopover;
 
+        // QUICK SBA PRESTASI HELPERS
+        function handleQuickSbaPrestasi(idx, field, val) {
+            if (!sbaPrestasiList || sbaPrestasiList.length === 0) {
+                sbaPrestasiList = JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI));
+            }
+            if (!sbaPrestasiList[idx]) sbaPrestasiList[idx] = { capaian: '', tingkat: '', bidang: '', namaNim: '', prodi: '' };
+            sbaPrestasiList[idx][field] = val;
+            if (typeof renderSbaPrestasiEditor === 'function') renderSbaPrestasiEditor();
+
+            clearTimeout(quickEditDebounceTimer);
+            quickEditDebounceTimer = setTimeout(() => {
+                updatePreview();
+                const newEl = document.querySelector(`[data-edit-target="sba_prestasi_row"][data-edit-idx="${idx}"]`);
+                if (newEl) newEl.classList.add('preview-editable-active');
+            }, 80);
+        }
+        window.handleQuickSbaPrestasi = handleQuickSbaPrestasi;
+
+        function addQuickSbaPrestasiRow(afterIdx) {
+            if (!sbaPrestasiList) sbaPrestasiList = [];
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < sbaPrestasiList.length) 
+                ? (afterIdx + 1) 
+                : sbaPrestasiList.length;
+            const newRow = { capaian: '', tingkat: 'UKM IMIP', bidang: 'Pendidikan Agama Islam', namaNim: '', prodi: '' };
+            sbaPrestasiList.splice(insertPos, 0, newRow);
+
+            if (typeof renderSbaPrestasiEditor === 'function') renderSbaPrestasiEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Baris prestasi #${insertPos + 1} berhasil ditambahkan`, 'success');
+
+            setTimeout(() => {
+                const newEl = document.querySelector(`[data-edit-target="sba_prestasi_row"][data-edit-idx="${insertPos}"]`);
+                if (newEl) {
+                    openPreviewQuickEdit(newEl);
+                } else {
+                    const popContainer = document.getElementById('popover_input_container');
+                    const titleEl = document.getElementById('popover_edit_title');
+                    if (titleEl) titleEl.innerText = `Ubah Prestasi Kegiatan Baris #${insertPos + 1}`;
+                    if (popContainer) popContainer.innerHTML = generatePopoverInputHtml('sba_prestasi_row', 'sba_prestasi_row', insertPos);
+                }
+            }, 60);
+        }
+        window.addQuickSbaPrestasiRow = addQuickSbaPrestasiRow;
+
+        function deleteQuickSbaPrestasiRow(idx) {
+            if (!sbaPrestasiList || sbaPrestasiList.length === 0) return;
+            const delNum = idx + 1;
+            if (sbaPrestasiList.length <= 1) {
+                sbaPrestasiList = [{ capaian: '', tingkat: 'UKM IMIP', bidang: '', namaNim: '', prodi: '' }];
+                if (typeof showToast === 'function') showToast('Isian baris prestasi dikosongkan (minimal 1 baris)', 'info');
+            } else {
+                sbaPrestasiList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast(`Baris prestasi #${delNum} berhasil dihapus`, 'success');
+            }
+            if (typeof renderSbaPrestasiEditor === 'function') renderSbaPrestasiEditor();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+
+            setTimeout(() => {
+                const targetIdx = Math.min(idx, sbaPrestasiList.length - 1);
+                const nextEl = document.querySelector(`[data-edit-target="sba_prestasi_row"][data-edit-idx="${targetIdx}"]`);
+                if (nextEl) {
+                    openPreviewQuickEdit(nextEl);
+                } else {
+                    closePreviewQuickEdit();
+                }
+            }, 60);
+        }
+        window.deleteQuickSbaPrestasiRow = deleteQuickSbaPrestasiRow;
+
+        function navigateQuickSbaPrestasi(targetIdx) {
+            if (!sbaPrestasiList || targetIdx < 0 || targetIdx >= sbaPrestasiList.length) return;
+            const targetEl = document.querySelector(`[data-edit-target="sba_prestasi_row"][data-edit-idx="${targetIdx}"]`);
+            if (targetEl) {
+                openPreviewQuickEdit(targetEl);
+            } else {
+                const popContainer = document.getElementById('popover_input_container');
+                const titleEl = document.getElementById('popover_edit_title');
+                if (titleEl) titleEl.innerText = `Ubah Prestasi Kegiatan Baris #${targetIdx + 1}`;
+                if (popContainer) popContainer.innerHTML = generatePopoverInputHtml('sba_prestasi_row', 'sba_prestasi_row', targetIdx);
+            }
+        }
+        window.navigateQuickSbaPrestasi = navigateQuickSbaPrestasi;
+
+        function openSbaPrestasiAllPopover() {
+            const tableHeader = document.querySelector('[data-edit-type="sba_prestasi_all"]') || document.querySelector('[data-edit-target="sba_prestasi_row"]');
+            if (tableHeader) {
+                openPreviewQuickEdit(tableHeader);
+            } else {
+                const popover = document.getElementById('preview_quick_edit_popover');
+                const titleEl = document.getElementById('popover_edit_title');
+                const subtitleEl = document.getElementById('popover_edit_subtitle');
+                const container = document.getElementById('popover_input_container');
+                if (titleEl) titleEl.innerText = 'Kelola Tabel Prestasi Kegiatan';
+                if (subtitleEl) subtitleEl.innerText = 'Tambah, ubah, atau hapus baris prestasi kegiatan';
+                if (container) container.innerHTML = generatePopoverInputHtml('sba_prestasi_all', 'sba_prestasi_editor_container', 0);
+                if (popover) popover.classList.remove('hidden');
+            }
+        }
+        window.openSbaPrestasiAllPopover = openSbaPrestasiAllPopover;
+
         // QUICK SBA PEMASUKAN HELPERS
         function addQuickSbaPemasukanRow(afterIdx) {
             if (!sbaPemasukanList) sbaPemasukanList = [];
@@ -12835,6 +13072,15 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     if (rows && rows[idx]) targetEl = rows[idx];
                     else targetEl = container;
                 }
+            } else if ((targetId === 'sba_prestasi_row' || targetId === 'sba_prestasi_editor_container') && idx !== undefined) {
+                const container = document.getElementById('sba_prestasi_editor_container');
+                if (container) {
+                    const rows = container.children;
+                    if (rows && rows[idx]) targetEl = rows[idx];
+                    else targetEl = container;
+                }
+            } else if (targetId === 'sba_prestasi_editor_container') {
+                targetEl = document.getElementById('sba_prestasi_editor_container') || document.getElementById('sba_prestasi_editor_wrapper');
             } else if (targetId === 'sba_pemasukan_row' && idx !== undefined) {
                 const container = document.getElementById('sba_pemasukan_editor_container');
                 if (container) {
