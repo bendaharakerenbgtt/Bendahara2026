@@ -979,6 +979,15 @@
         </div>
 
 
+        <div class="flex items-center gap-1.5 bg-neutral-900/90 border border-neutral-800 p-1 rounded-xl">
+            <button type="button" id="nav_btn_folder" onclick="switchToFolderView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-400 hover:text-white transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-folder-open text-xs"></i> <span class="hidden sm:inline">Folder Surat</span>
+            </button>
+            <button type="button" id="nav_btn_editor" onclick="switchToEditorView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-pen-nib text-xs"></i> <span class="hidden sm:inline">Editor Dokumen</span>
+            </button>
+        </div>
+
         <div class="flex items-center gap-2">
             <button type="button" onclick="toggleTheme(event)" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-orange-500 hover:bg-neutral-800 transition-colors" title="Ubah Tema">
                 <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
@@ -11092,7 +11101,25 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
         // Pemicu Simpan Otomatis (Debounced Auto-Save)
         function triggerAutoSave() {
-            if (isProgrammaticLoading || !activeDocumentId) return;
+            if (isProgrammaticLoading) return;
+            if (!activeDocumentId) {
+                const newId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+                activeDocumentId = newId;
+                setActiveDocumentId(newId);
+                const docs = getSavedDocuments();
+                const autoTitle = generateAutoDocTitleFromData(currentSuratType, collectCurrentFormData()) || `Surat ${currentSuratType} Baru`;
+                docs.unshift({
+                    id: newId,
+                    title: autoTitle,
+                    isTitleManual: false,
+                    type: currentSuratType,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    formData: collectCurrentFormData()
+                });
+                saveDocumentsList(docs);
+                return;
+            }
 
             const statusEl = document.getElementById('doc_auto_save_status');
             if (statusEl) {
@@ -11810,15 +11837,132 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         }
 
         // Bersihkan data seed dummy terdahulu agar pengguna mulai dari folder kosong murni
-        function cleanupOldSeedsIfAny() {
+        function seedInitialDocumentsIfEmpty() {
             const existing = getSavedDocuments();
-            const cleaned = existing.filter(d => d.id !== 'doc_seed_spz_2026' && d.id !== 'doc_seed_spm_2026');
-            if (cleaned.length !== existing.length) {
-                saveDocumentsList(cleaned);
-                const currentActive = localStorage.getItem(ACTIVE_DOC_ID_KEY);
-                if (currentActive === 'doc_seed_spz_2026' || currentActive === 'doc_seed_spm_2026') {
-                    setActiveDocumentId(cleaned.length > 0 ? cleaned[0].id : null);
-                }
+            if (existing.length === 0) {
+                const now = new Date();
+                const nowIso = now.toISOString();
+
+                // 1. Seed SBA Resmi 2026 (Studi Banding 2026)
+                const sbaDoc = {
+                    id: 'doc_seed_sba_2026',
+                    title: '034_SBA Studi Banding 2026',
+                    type: 'SBA',
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    formData: {
+                        field_nomor_surat: '034/SBA/E1/UKM IMIP/VII/2026',
+                        field_nomor_urut: '034',
+                        field_lampiran: '-',
+                        field_tanggal_surat: 'Jakarta, 2 Juli 2026',
+                        field_nama_acara: 'Studi Banding 2026',
+                        field_hari_tanggal: 'Minggu, 28 Juni 2026',
+                        field_waktu: '08.00 s/d 13.10 WIB',
+                        field_tempat: 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220',
+                        field_pembuka: `Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **Studi Banding 2026** pada:`,
+                        field_isi_inti: `**Studi Banding 2026** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`,
+                        field_penutup: 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.',
+                        field_ttd1_active: true,
+                        field_ttd1_jabatan: 'Ketua Pelaksana\nStudi Banding 2026',
+                        field_ttd1_nama: 'Fadly Ahmad Chandi',
+                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd2_active: true,
+                        field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
+                        field_ttd2_nama: 'Hafiz Alfariz',
+                        field_ttd2_nim: 'NIM. 2490444040',
+                        field_ttd3_active: true,
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_nim: 'NIP. 198005072023211013',
+                        field_use_kop: true,
+                        sbaRundownList: JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN)),
+                        sbaPrestasiList: JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI)),
+                        sbaPemasukanList: JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN)),
+                        sbaPengeluaranCategories: (typeof DEFAULT_SBA_PENGELUARAN_CATEGORIES !== 'undefined') ? JSON.parse(JSON.stringify(DEFAULT_SBA_PENGELUARAN_CATEGORIES)) : []
+                    }
+                };
+
+                // 2. Seed SPZ Resmi 2026
+                const spzDoc = {
+                    id: 'doc_seed_spz_2026',
+                    title: '042_SPZ Permohonan Peminjaman Fasilitas',
+                    type: 'SPZ',
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    formData: {
+                        field_nomor_surat: '042/SPZ/E1/UKM IMIP/IX/2026',
+                        field_nomor_urut: '042',
+                        field_lampiran: '3 Lembar',
+                        field_lampiran_angka: '3',
+                        field_tanggal_surat: `Jakarta, ${formatIndoDate(now)}`,
+                        spz_input_fasilitas: 'Gedung Serbaguna & Sound System',
+                        field_nama_acara: 'Mabit Muharrik LDK IMIP 2026',
+                        field_hari_tanggal: 'Sabtu - Ahad, 24 - 25 Oktober 2026',
+                        field_waktu: '16.00 WIB s/d 06.00 WIB',
+                        field_tempat: 'Gedung Serbaguna & Ruang Teater Kampus Polimedia',
+                        field_isi_inti: 'Kegiatan Malam Bina Iman dan Taqwa (Mabit) dalam rangka pembinaan ruhiyah dan karakter kader Muharrik LDK IMIP 2026.',
+                        field_ttd1_active: true,
+                        field_ttd1_jabatan: 'Ketua Pelaksana\nMabit Muharrik 2026',
+                        field_ttd1_nama: 'Fadly Ahmad Chandi',
+                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd2_active: true,
+                        field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
+                        field_ttd2_nama: 'Hafiz Alfariz',
+                        field_ttd2_nim: 'NIM. 2490444040',
+                        field_ttd3_active: true,
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_nim: 'NIP. 198005072023211013',
+                        field_use_kop: true,
+                        spz_no_hp: '085775628607',
+                        spz_batas_waktu: '06.00 WIB',
+                        spz_inc_lampiran_panitia: true,
+                        spz_inc_subbag_umum: true,
+                        spzBarangList: JSON.parse(JSON.stringify(DEFAULT_SPZ_BARANG)),
+                        spzPanitiaList: JSON.parse(JSON.stringify(DEFAULT_SPZ_PANITIA)),
+                        spzRundownList: JSON.parse(JSON.stringify(DEFAULT_SPZ_RUNDOWN))
+                    }
+                };
+
+                // 3. Seed SPM Resmi 2026
+                const spmDoc = {
+                    id: 'doc_seed_spm_2026',
+                    title: '042_SPM Pemunduran Open House 2026',
+                    type: 'SPM',
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    formData: {
+                        field_nomor_surat: '042/SPM/E1/UKM IMIP/IX/2026',
+                        field_nomor_urut: '042',
+                        field_lampiran: '-',
+                        field_tanggal_surat: 'Jakarta, 08 September 2026',
+                        field_perihal: 'Surat Permohonan Pemunduran Open House',
+                        field_tujuan: 'Yth. Majelis Permusyawaratan Mahasiswa\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
+                        field_nama_acara: 'Open House LDK IMIP 2026',
+                        field_hari_tanggal: 'Jum’at, 18 September 2026',
+                        field_waktu: '13.30 WIB s.d. Selesai',
+                        field_tempat: 'Auditorium Hall Polimedia Jakarta',
+                        field_pembuka: SURAT_TEMPLATES.SPM.pembuka,
+                        field_isi_inti: SURAT_TEMPLATES.SPM.isiInti,
+                        field_penutup: SURAT_TEMPLATES.SPM.penutup,
+                        field_ttd1_active: true,
+                        field_ttd1_jabatan: 'Ketua Pelaksana\nOpen House 2026',
+                        field_ttd1_nama: 'Fadly Ahmad Chandi',
+                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd2_active: true,
+                        field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
+                        field_ttd2_nama: 'Hafiz Alfariz',
+                        field_ttd2_nim: 'NIM. 2490444040',
+                        field_ttd3_active: true,
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_nim: 'NIP. 198005072023211013',
+                        field_use_kop: true
+                    }
+                };
+
+                saveDocumentsList([sbaDoc, spzDoc, spmDoc]);
+                setActiveDocumentId('doc_seed_sba_2026');
             }
         }
 
@@ -14570,8 +14714,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             });
 
-            // Inisialisasi Sistem Folder Dokumen & Draf (bersihkan mock seed agar mulai kosong murni)
-            cleanupOldSeedsIfAny();
+            // Inisialisasi Sistem Folder Dokumen & Draf
+            seedInitialDocumentsIfEmpty();
             const savedDocs = getSavedDocuments();
             const lastActiveId = localStorage.getItem(ACTIVE_DOC_ID_KEY);
             const targetDoc = savedDocs.find(d => d.id === lastActiveId) || (savedDocs.length > 0 ? savedDocs[0] : null);
@@ -14580,10 +14724,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 setActiveDocumentId(targetDoc.id);
                 loadFormDataIntoInputs(targetDoc);
             } else {
-                setActiveDocumentId(null);
                 const now = new Date();
                 document.getElementById('field_tanggal_surat').value = `Jakarta, ${formatIndoDate(now)}`;
-                selectSuratType('SPZ');
+                selectSuratType('SBA');
             }
 
             if (typeof renderPageTabs === 'function') renderPageTabs();
@@ -14591,20 +14734,23 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             if (typeof updateTtdState === 'function') updateTtdState();
 
-            // Cek URL params untuk menentukan tampilan awal
+            // Cek URL params / hash untuk menentukan tampilan awal
             const urlParams = new URLSearchParams(window.location.search);
             const urlDocId = urlParams.get('doc');
             const urlNew = urlParams.get('new');
             const urlType = urlParams.get('type');
+            const isFolderRequested = (window.location.hash === '#folder' || urlParams.get('view') === 'folder');
 
             if (urlDocId && savedDocs.some(d => d.id === urlDocId)) {
                 openDocument(urlDocId);
             } else if (urlNew || urlType) {
-                const initType = (urlType ? urlType.toUpperCase() : 'SPZ');
-                createNewDocument(['SPM','SBA','SPZ','SUD'].includes(initType) ? initType : 'SPZ', `Surat ${initType} Baru`);
-            } else {
-                // Default sesuai permintaan pengguna: buka Folder Dokumen (kosong untuk pengguna baru)
+                const initType = (urlType ? urlType.toUpperCase() : 'SBA');
+                createNewDocument(['SPM','SBA','SPZ','SUD'].includes(initType) ? initType : 'SBA', `Surat ${initType} Baru`);
+            } else if (isFolderRequested) {
                 switchToFolderView();
+            } else {
+                // Default: langsung tampilkan Editor Dokumen (dengan draf aktif SBA Studi Banding 2026)
+                switchToEditorView();
             }
         });
     </script>
