@@ -929,18 +929,22 @@
                 return false;
             });
 
-            // Render all UI components
-            renderHeroBanner();
-            renderStatCards();
-            renderDivisionAnalytics();
-            renderPilarOrmawa();
-            renderTransactionsTable();
+            try {
+                // Render all UI components
+                renderHeroBanner();
+                renderStatCards();
+                renderDivisionAnalytics();
+                renderPilarOrmawa();
+                renderTransactionsTable();
+            } catch (err) {
+                console.error('Error rendering detail components:', err);
+            } finally {
+                document.getElementById('loading_state').classList.add('hidden');
+                document.getElementById('content_container').classList.remove('hidden');
+                document.getElementById('error_state').classList.add('hidden');
 
-            document.getElementById('loading_state').classList.add('hidden');
-            document.getElementById('content_container').classList.remove('hidden');
-            document.getElementById('error_state').classList.add('hidden');
-
-            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
         }
 
         // Quick select dropdown
@@ -1052,7 +1056,7 @@
         }
 
         // 3. Render Pengeluaran Berdasarkan Divisi (Diagram Batang Interaktif)
-        function renderDivisionOverview() {
+        function renderDivisionAnalytics() {
             const outTxs = prokerTransactions.filter(t => (t.jenis || '').toLowerCase().trim() !== 'masuk');
             const totalOut = outTxs.reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
@@ -1418,7 +1422,7 @@
 
         // Update Center Text Donat dan Card Legenda Sesuai Kategori Aktif
         function updatePilarDoughnutVisuals() {
-            if (pilarDoughnutInstance) {
+            if (pilarDoughnutInstance && pilarDoughnutInstance.data && pilarDoughnutInstance.data.datasets && pilarDoughnutInstance.data.datasets[0]) {
                 const isLight = document.documentElement.classList.contains('light-mode');
                 pilarDoughnutInstance.data.datasets[0].borderColor = isLight ? '#FFFFFF' : '#171717';
                 pilarDoughnutInstance.update();
