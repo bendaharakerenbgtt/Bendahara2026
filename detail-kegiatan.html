@@ -552,56 +552,35 @@
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-orange-500 selection:text-white">
 
     <!-- TOP HEADER NAVBAR (IDENTIK DENGAN LIHAT-KEGIATAN & RIWAYAT-TRANSAKSI) -->
-    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] px-4 sm:px-6 h-14 flex items-center justify-between">
-        <a href="lihat-kegiatan.html" id="header_back_btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-[#FF7300] transition-all duration-300 active:scale-95 font-bold shadow-inner">
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] px-3 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
+        <a href="lihat-kegiatan.html" id="header_back_btn" class="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] sm:text-[10.5px] font-mono text-neutral-400 hover:text-[#FF7300] transition-all duration-300 active:scale-95 font-bold shadow-inner shrink-0">
             <span>←</span> <span class="hidden sm:inline">Daftar </span><span>Kegiatan</span>
         </a>
 
-        <div class="flex items-center gap-2 sm:gap-2.5">
+        <div class="flex items-center gap-1.5 sm:gap-2.5">
             <!-- Selector Ganti Kegiatan Cepat -->
-            <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[10px] sm:text-xs font-mono font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-[#FF7300]/40 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-[#FF7300] cursor-pointer transition-colors max-w-[130px] sm:max-w-xs truncate" title="Pindah Cepat ke Kegiatan Lain">
+            <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[10px] sm:text-xs font-mono font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-[#FF7300]/40 rounded-xl px-2 sm:px-2.5 py-1 sm:py-1.5 focus:outline-none focus:border-[#FF7300] cursor-pointer transition-colors max-w-[110px] xs:max-w-[140px] sm:max-w-xs truncate" title="Pindah Cepat ke Kegiatan Lain">
             </select>
 
             <!-- Tombol Refresh Data -->
-            <button type="button" onclick="loadActivityData(true)" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer theme-circle-btn" title="Perbarui Data dari Spreadsheet">
-                <i id="refresh_icon" class="fa-solid fa-arrows-rotate text-[11px]"></i>
+            <button type="button" onclick="loadActivityData(true)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer theme-circle-btn shrink-0" title="Perbarui Data dari Spreadsheet">
+                <i id="refresh_icon" class="fa-solid fa-arrows-rotate text-[10px] sm:text-[11px]"></i>
             </button>
 
             <!-- Tombol Ubah Tema -->
-            <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Mode Warna">
-                <i id="themeIcon" class="fa-solid fa-moon text-amber-400 text-xs"></i>
+            <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer shrink-0" title="Ubah Mode Warna">
+                <i id="themeIcon" class="fa-solid fa-moon text-amber-400 text-[10px] sm:text-xs"></i>
             </button>
 
             <!-- Kategori Header (Desktop) -->
-            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold hidden md:inline">
+            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold hidden md:inline ml-1">
                 Detail Laporan
             </span>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER (IDENTIK DENGAN LIHAT-KEGIATAN & RIWAYAT-TRANSAKSI: max-w-4xl) -->
-    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-5 w-full flex-grow flex flex-col gap-3 sm:gap-4">
-
-        <!-- COMPACT SCREEN HEADER (MOBILE & DESKTOP ALIGNED) -->
-        <div class="screen-header-wrap flex items-center justify-between gap-3 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
-            <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF7300]/20 via-[#EA580C]/15 to-transparent border border-[#FF7300]/35 flex items-center justify-center text-sm shadow-xs shrink-0">
-                    <i class="fa-solid fa-file-invoice-dollar text-[#FF7300]"></i>
-                </div>
-                <div class="flex flex-col min-w-0">
-                    <h1 class="screen-title text-sm sm:text-base font-extrabold font-sans tracking-tight leading-none flex items-center gap-1.5 truncate">
-                        Laporan Keuangan <span class="text-[#FF7300]">Kegiatan</span>
-                    </h1>
-                    <p class="screen-subtitle text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 truncate">Pertanggungjawaban LPJ & Kas Ormawa 2026</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2 shrink-0">
-                <button type="button" onclick="exportProkerToWord()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF7300]/15 hover:bg-[#FF7300]/25 border border-[#FF7300]/35 text-[#FF7300] hover:text-white text-[10px] font-mono font-bold transition-all active:scale-95 shadow-xs cursor-pointer" title="Export Laporan Pertanggungjawaban (Word .doc)">
-                    <i class="fa-solid fa-file-word text-xs"></i> <span class="hidden sm:inline">Export LPJ</span><span class="sm:hidden">LPJ</span>
-                </button>
-            </div>
-        </div>
+    <!-- MAIN CONTAINER (LEBAR MAKSIMAL 1440px UNTUK DESKTOP & LEGA DI HP) -->
+    <main class="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-6 w-full flex-grow flex flex-col gap-3.5 sm:gap-5">
 
         <!-- LOADING STATE OVERLAY -->
         <div id="loading_state" class="py-20 text-center space-y-3">
@@ -613,45 +592,45 @@
         <div id="content_container" class="hidden space-y-4 sm:space-y-6">
 
             <!-- 1. HERO BANNER KEGIATAN -->
-            <div class="glass-card rounded-2xl p-4 sm:p-6 border border-neutral-800 relative overflow-hidden shadow-xl">
+            <div class="glass-card rounded-2xl p-3.5 sm:p-5 md:p-6 border border-neutral-800 relative overflow-hidden shadow-xl">
                 <!-- Background Accent Glow -->
                 <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-                    <div class="space-y-2">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 relative z-10">
+                    <div class="space-y-1.5 sm:space-y-2 min-w-0">
                         <!-- Badges Row -->
                         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                            <span id="badge_jenis" class="text-[9.5px] sm:text-[10px] font-black font-mono uppercase px-2.5 py-0.5 rounded-md bg-orange-500/20 text-orange-400 border border-orange-500/30">Program Kerja</span>
-                            <span id="badge_status" class="text-[9.5px] sm:text-[10px] font-bold font-mono uppercase px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
+                            <span id="badge_jenis" class="text-[9px] sm:text-[10px] font-black font-mono uppercase px-2 py-0.5 rounded-md bg-orange-500/20 text-orange-400 border border-orange-500/30">Program Kerja</span>
+                            <span id="badge_status" class="text-[9px] sm:text-[10px] font-bold font-mono uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Sedang Berjalan
                             </span>
-                            <span id="badge_divisi" class="text-[9.5px] sm:text-[10px] font-medium font-mono text-neutral-400 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800">
-                                <i class="fa-solid fa-building-columns text-[9px] text-orange-400 mr-1"></i> Divisi Pelaksana
+                            <span id="badge_divisi" class="text-[9px] sm:text-[10px] font-medium font-mono text-neutral-400 px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800">
+                                <i class="fa-solid fa-building-columns text-[8.5px] text-orange-400 mr-1"></i> Divisi Pelaksana
                             </span>
                         </div>
 
                         <!-- Activity Title (Gaya Baru: Laporan Keuangan [Nama]) -->
-                        <h2 id="activity_title" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug">
+                        <h1 id="activity_title" class="text-base sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug">
                             Laporan Keuangan <span class="bg-gradient-to-r from-[#FF7300] to-[#FFA500] bg-clip-text text-transparent">Kegiatan</span>
-                        </h2>
+                        </h1>
 
                         <!-- Activity Meta Description -->
-                        <p id="activity_meta" class="text-[11px] sm:text-xs text-neutral-400 max-w-2xl leading-relaxed flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 font-mono">
+                        <p id="activity_meta" class="text-[10px] sm:text-xs text-neutral-400 max-w-2xl leading-relaxed flex flex-wrap items-center gap-x-2.5 sm:gap-x-4 gap-y-1 font-mono">
                             <span><i class="fa-regular fa-calendar text-orange-400 mr-1"></i> <span id="meta_tanggal">Tanggal</span></span>
-                            <span>•</span>
+                            <span class="text-neutral-600">•</span>
                             <span><i class="fa-solid fa-user text-amber-400 mr-1"></i> Ketua: <span id="meta_ketua">Ketua Pelaksana</span></span>
-                            <span>•</span>
+                            <span class="text-neutral-600">•</span>
                             <span><i class="fa-solid fa-wallet text-emerald-400 mr-1"></i> Anggaran: <span id="meta_anggaran">Rp 0</span></span>
                         </p>
                     </div>
 
                     <!-- Quick Action Buttons -->
-                    <div class="flex flex-wrap items-center gap-2 shrink-0 pt-1 sm:pt-0">
-                        <button type="button" onclick="exportProkerToWord()" class="hero-action-btn flex-1 sm:flex-initial px-3.5 py-2 rounded-xl text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-orange-400 transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer">
-                            <i class="fa-solid fa-file-word text-blue-400"></i> Unduh LPJ (.doc)
+                    <div class="flex items-center gap-2 shrink-0 w-full md:w-auto pt-1 md:pt-0">
+                        <button type="button" onclick="exportProkerToWord()" class="hero-action-btn flex-1 md:flex-initial px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                            <i class="fa-solid fa-file-word text-blue-400"></i> <span>Unduh LPJ (.doc)</span>
                         </button>
-                        <button type="button" onclick="window.print()" class="hero-action-btn flex-1 sm:flex-initial px-3.5 py-2 rounded-xl text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer">
-                            <i class="fa-solid fa-print text-neutral-400"></i> Cetak PDF
+                        <button type="button" onclick="window.print()" class="hero-action-btn flex-1 md:flex-initial px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-white transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                            <i class="fa-solid fa-print text-neutral-400"></i> <span>Cetak PDF</span>
                         </button>
                     </div>
                 </div>
@@ -659,11 +638,11 @@
 
             <!-- 2. KARTU STATISTIK KEUANGAN UTAMA (BERSIH & SIMETRIS 4 KOLOM) -->
             <!-- Total Pengeluaran | Total Pemasukan | Sisa Saldo | Jumlah Transaksi -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
                 
                 <!-- CARD 1: TOTAL PENGELUARAN -->
-                <div onclick="setTypeFilter('KELUAR', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-rose-500/50 group" title="Klik untuk filter tabel ke Pengeluaran">
-                    <div class="flex items-center justify-between gap-1 mb-2">
+                <div onclick="setTypeFilter('KELUAR', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3 sm:p-4 lg:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-rose-500/50 group" title="Klik untuk filter tabel ke Pengeluaran">
+                    <div class="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-rose-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-arrow-up text-xs shrink-0"></i> Pengeluaran
                         </span>
@@ -671,23 +650,23 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1">
-                            <h3 id="stat_total_pengeluaran_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight group-hover:text-rose-400 transition-colors">
+                            <h3 id="stat_total_pengeluaran_compact" class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black text-white tracking-tight group-hover:text-rose-400 transition-colors">
                                 Rp0
                             </h3>
                         </div>
-                        <p id="stat_total_pengeluaran_full" class="text-[10px] sm:text-xs font-mono text-neutral-400 mt-1 truncate">
+                        <p id="stat_total_pengeluaran_full" class="text-[9.5px] sm:text-[11px] font-mono text-neutral-400 mt-0.5 sm:mt-1 truncate">
                             Rp 0
                         </p>
                     </div>
-                    <div class="mt-3 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400">
+                    <div class="mt-2.5 sm:mt-3 pt-1.5 sm:pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[8.5px] sm:text-[9.5px] font-mono text-neutral-400">
                         <span>Serapan</span>
                         <span id="stat_serapan_anggaran" class="font-bold text-white">0%</span>
                     </div>
                 </div>
 
                 <!-- CARD 2: TOTAL PEMASUKAN -->
-                <div onclick="setTypeFilter('MASUK', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-emerald-500/50 group" title="Klik untuk filter tabel ke Pemasukan">
-                    <div class="flex items-center justify-between gap-1 mb-2">
+                <div onclick="setTypeFilter('MASUK', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3 sm:p-4 lg:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-emerald-500/50 group" title="Klik untuk filter tabel ke Pemasukan">
+                    <div class="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-emerald-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-arrow-down text-xs shrink-0"></i> Pemasukan
                         </span>
@@ -695,23 +674,23 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1">
-                            <h3 id="stat_total_pemasukan_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-emerald-400 tracking-tight group-hover:brightness-125 transition-colors">
+                            <h3 id="stat_total_pemasukan_compact" class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black text-emerald-400 tracking-tight group-hover:brightness-125 transition-colors">
                                 Rp0
                             </h3>
                         </div>
-                        <p id="stat_total_pemasukan_full" class="text-[10px] sm:text-xs font-mono text-neutral-400 mt-1 truncate">
+                        <p id="stat_total_pemasukan_full" class="text-[9.5px] sm:text-[11px] font-mono text-neutral-400 mt-0.5 sm:mt-1 truncate">
                             Rp 0
                         </p>
                     </div>
-                    <div class="mt-3 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400">
+                    <div class="mt-2.5 sm:mt-3 pt-1.5 sm:pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[8.5px] sm:text-[9.5px] font-mono text-neutral-400">
                         <span>Sumber Dana</span>
                         <span id="stat_sumber_dana_count" class="font-bold text-emerald-400">0 Sumber</span>
                     </div>
                 </div>
 
                 <!-- CARD 3: SISA SALDO KEGIATAN -->
-                <div class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg">
-                    <div class="flex items-center justify-between gap-1 mb-2">
+                <div class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3 sm:p-4 lg:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg">
+                    <div class="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-amber-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-scale-balanced text-xs shrink-0"></i> Sisa Saldo
                         </span>
@@ -719,23 +698,23 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1">
-                            <h3 id="stat_sisa_saldo_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-amber-400 tracking-tight">
+                            <h3 id="stat_sisa_saldo_compact" class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black text-amber-400 tracking-tight">
                                 Rp0
                             </h3>
                         </div>
-                        <p id="stat_sisa_saldo_full" class="text-[10px] sm:text-xs font-mono text-neutral-400 mt-1 truncate">
+                        <p id="stat_sisa_saldo_full" class="text-[9.5px] sm:text-[11px] font-mono text-neutral-400 mt-0.5 sm:mt-1 truncate">
                             Rp 0
                         </p>
                     </div>
-                    <div class="mt-3 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400">
+                    <div class="mt-2.5 sm:mt-3 pt-1.5 sm:pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[8.5px] sm:text-[9.5px] font-mono text-neutral-400">
                         <span>Status Buku</span>
                         <span id="stat_buku_status_text" class="font-bold text-white">Sesuai Mutasi</span>
                     </div>
                 </div>
 
                 <!-- CARD 4: JUMLAH TRANSAKSI -->
-                <div onclick="setTypeFilter('ALL', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-sky-500/50 group" title="Klik untuk menampilkan Semua Transaksi">
-                    <div class="flex items-center justify-between gap-1 mb-2">
+                <div onclick="setTypeFilter('ALL', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3 sm:p-4 lg:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-sky-500/50 group" title="Klik untuk menampilkan Semua Transaksi">
+                    <div class="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-sky-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-receipt text-xs shrink-0"></i> Transaksi
                         </span>
@@ -743,16 +722,16 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1.5">
-                            <h3 id="stat_jumlah_transaksi" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight group-hover:text-sky-400 transition-colors">
+                            <h3 id="stat_jumlah_transaksi" class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black text-white tracking-tight group-hover:text-sky-400 transition-colors">
                                 0
                             </h3>
                             <span class="text-[10px] sm:text-xs font-bold text-neutral-400">Total</span>
                         </div>
-                        <p id="stat_transaksi_breakdown" class="text-[10px] sm:text-xs font-mono text-neutral-400 mt-1 truncate">
+                        <p id="stat_transaksi_breakdown" class="text-[9.5px] sm:text-[11px] font-mono text-neutral-400 mt-0.5 sm:mt-1 truncate">
                             0 Keluar • 0 Masuk
                         </p>
                     </div>
-                    <div class="mt-3 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400">
+                    <div class="mt-2.5 sm:mt-3 pt-1.5 sm:pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[8.5px] sm:text-[9.5px] font-mono text-neutral-400">
                         <span>Rata-rata Keluar</span>
                         <span id="stat_avg_pengeluaran" class="font-bold text-white">Rp 0 / trx</span>
                     </div>
@@ -761,18 +740,18 @@
             </div>
 
             <!-- 3. PENGELUARAN BERDASARKAN DIVISI & PENGELUARAN BERDASARKAN KATEGORI (DIAGRAM BATANG & DIAGRAM DONAT) -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
                 
-                <!-- DIAGRAM BATANG: PENGELUARAN PER DIVISI (6 COLS) -->
-                <div class="lg:col-span-6 surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-4 sm:p-5 shadow-lg flex flex-col justify-between">
-                    <div class="flex items-center justify-between pb-3 border-b border-neutral-800 mb-3 sm:mb-4">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                <!-- DIAGRAM BATANG: PENGELUARAN PER DIVISI -->
+                <div class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 shadow-lg flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-3 border-b border-neutral-800 mb-2 sm:mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
                                 <i class="fa-solid fa-chart-column text-xs"></i>
                             </div>
                             <h3 class="text-xs sm:text-sm font-black text-white tracking-tight">Pengeluaran Berdasarkan Divisi</h3>
                         </div>
-                        <span id="chart_divisi_count_badge" class="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-neutral-800 text-neutral-300 shrink-0">0 Divisi</span>
+                        <span id="chart_divisi_count_badge" class="px-2 py-0.5 rounded text-[8.5px] sm:text-[9.5px] font-mono font-bold bg-neutral-800 text-neutral-300 shrink-0">0 Divisi</span>
                     </div>
 
                     <!-- Canvas Diagram Batang -->
@@ -780,17 +759,17 @@
                         <canvas id="divisionBarChart"></canvas>
                     </div>
 
-                    <div class="pt-3 border-t border-neutral-800/80 mt-2 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400">
+                    <div class="pt-2.5 sm:pt-3 border-t border-neutral-800/80 mt-2 flex items-center justify-between text-[8.5px] sm:text-[9.5px] font-mono text-neutral-400">
                         <span><i class="fa-solid fa-hand-pointer text-orange-400 mr-1"></i> Klik batang untuk filter rincian</span>
                         <span class="text-neutral-500">Auto Update</span>
                     </div>
                 </div>
 
-                <!-- DIAGRAM DONAT: PENGELUARAN BERDASARKAN KATEGORI (6 COLS) -->
-                <div class="lg:col-span-6 surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-4 sm:p-5 shadow-lg flex flex-col justify-between">
-                    <div class="flex items-center justify-between pb-3 border-b border-neutral-800 mb-3 sm:mb-4">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <!-- DIAGRAM DONAT: PENGELUARAN BERDASARKAN KATEGORI -->
+                <div class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 shadow-lg flex flex-col justify-between">
+                    <div class="flex items-center justify-between pb-3 border-b border-neutral-800 mb-2 sm:mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
                                 <i class="fa-solid fa-chart-pie text-xs"></i>
                             </div>
                             <h3 class="text-xs sm:text-sm font-black text-white tracking-tight">Pengeluaran berdasarkan kategori</h3>
@@ -798,8 +777,8 @@
                     </div>
 
                     <!-- Donut Canvas with Centered Stat -->
-                    <div class="relative flex items-center justify-center my-auto py-2">
-                        <div class="chart-wrapper h-[210px] sm:h-[230px] flex items-center justify-center">
+                    <div class="relative flex items-center justify-center my-auto py-1 sm:py-2">
+                        <div class="chart-wrapper h-[200px] sm:h-[230px] flex items-center justify-center">
                             <canvas id="pilarDoughnutChart"></canvas>
                         </div>
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4">
@@ -810,32 +789,32 @@
                     </div>
 
                     <!-- Clean 3-Pillar Legend Beneath (Clickable Filter Cards) -->
-                    <div class="pt-3 border-t border-neutral-800/80 mt-2 grid grid-cols-3 gap-2 text-center font-mono">
-                        <div id="pilar_card_bahan" onclick="toggleCategoryFilter('Belanja Bahan')" class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-orange-500/50 transition-all select-none">
+                    <div class="pt-2.5 sm:pt-3 border-t border-neutral-800/80 mt-2 grid grid-cols-3 gap-1.5 sm:gap-2 text-center font-mono">
+                        <div id="pilar_card_bahan" onclick="toggleCategoryFilter('Belanja Bahan')" class="p-1.5 sm:p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-orange-500/50 transition-all select-none">
                             <div class="flex items-center justify-center gap-1.5 mb-0.5">
-                                <span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span>
-                                <span class="text-[9.5px] sm:text-[10px] font-bold text-orange-400">Bahan</span>
+                                <span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#FF7300] shrink-0"></span>
+                                <span class="text-[9px] sm:text-[10px] font-bold text-orange-400">Bahan</span>
                             </div>
                             <span id="pilar_bahan_persen" class="text-xs sm:text-sm font-black text-white block">0%</span>
-                            <span id="pilar_bahan_nominal" class="text-[8.5px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
+                            <span id="pilar_bahan_nominal" class="text-[8px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
                         </div>
 
-                        <div id="pilar_card_sewa" onclick="toggleCategoryFilter('Belanja Sewa')" class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-sky-500/50 transition-all select-none">
+                        <div id="pilar_card_sewa" onclick="toggleCategoryFilter('Belanja Sewa')" class="p-1.5 sm:p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-sky-500/50 transition-all select-none">
                             <div class="flex items-center justify-center gap-1.5 mb-0.5">
-                                <span class="w-2 h-2 rounded-full bg-[#38BDF8] shrink-0"></span>
-                                <span class="text-[9.5px] sm:text-[10px] font-bold text-sky-400">Sewa</span>
+                                <span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#38BDF8] shrink-0"></span>
+                                <span class="text-[9px] sm:text-[10px] font-bold text-sky-400">Sewa</span>
                             </div>
                             <span id="pilar_sewa_persen" class="text-xs sm:text-sm font-black text-white block">0%</span>
-                            <span id="pilar_sewa_nominal" class="text-[8.5px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
+                            <span id="pilar_sewa_nominal" class="text-[8px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
                         </div>
 
-                        <div id="pilar_card_jasa" onclick="toggleCategoryFilter('Belanja Jasa')" class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-emerald-500/50 transition-all select-none">
+                        <div id="pilar_card_jasa" onclick="toggleCategoryFilter('Belanja Jasa')" class="p-1.5 sm:p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-emerald-500/50 transition-all select-none">
                             <div class="flex items-center justify-center gap-1.5 mb-0.5">
-                                <span class="w-2 h-2 rounded-full bg-[#34D399] shrink-0"></span>
-                                <span class="text-[9.5px] sm:text-[10px] font-bold text-emerald-400">Jasa</span>
+                                <span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#34D399] shrink-0"></span>
+                                <span class="text-[9px] sm:text-[10px] font-bold text-emerald-400">Jasa</span>
                             </div>
                             <span id="pilar_jasa_persen" class="text-xs sm:text-sm font-black text-white block">0%</span>
-                            <span id="pilar_jasa_nominal" class="text-[8.5px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
+                            <span id="pilar_jasa_nominal" class="text-[8px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
                         </div>
                     </div>
                 </div>
@@ -843,21 +822,31 @@
             </div>
 
             <!-- 5. TABEL DAFTAR SEMUA TRANSAKSI KEGIATAN -->
-            <div id="transactions_section" class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-4 sm:p-5 shadow-lg space-y-3 sm:space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+            <div id="transactions_section" class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 shadow-lg space-y-3 sm:space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-neutral-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
                             <i class="fa-solid fa-list-check text-xs"></i>
                         </div>
                         <div>
                             <h3 class="text-xs sm:text-sm font-black text-white">Rincian Transaksi Penggunaan Dana</h3>
-                            <p class="text-[9px] sm:text-[10px] text-neutral-400 font-mono">Riwayat mutasi keluar dan masuk kegiatan ini</p>
+                            <p class="text-[8.5px] sm:text-[9.5px] text-neutral-400 font-mono">Riwayat mutasi keluar dan masuk kegiatan ini</p>
                         </div>
                     </div>
 
                     <!-- Filter Jenis Transaksi (Semua | Pengeluaran | Pemasukan) -->
-                    <div id="tx_type_segmented_group" class="inline-flex p-1 bg-neutral-950 border border-neutral-800 rounded-xl text-[10px] sm:text-[10.5px] font-mono font-bold shrink-0 self-start sm:self-auto shadow-xs">
-                        <button type="button" id="filter_type_all" onclick="setTypeFilter('ALL')" class="active-type-btn px-2.5 sm:px-3 py-1 rounded-lg text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs transition-all cursor-pointer" title="Tampilkan Semua Transaksi">
+                    <div id="tx_type_segmented_group" class="grid grid-cols-3 sm:inline-flex p-1 bg-neutral-950 border border-neutral-800 rounded-xl text-[10px] sm:text-[10.5px] font-mono font-bold w-full sm:w-auto shadow-xs">
+                        <button type="button" id="filter_type_all" onclick="setTypeFilter('ALL')" class="active-type-btn px-2 sm:px-3 py-1 rounded-lg text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs transition-all cursor-pointer text-center" title="Tampilkan Semua Transaksi">
+                            Semua
+                        </button>
+                        <button type="button" id="filter_type_keluar" onclick="setTypeFilter('KELUAR')" class="px-2 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1" title="Tampilkan Hanya Pengeluaran">
+                            <i class="fa-solid fa-arrow-up text-[9px] text-rose-400"></i> Pengeluaran
+                        </button>
+                        <button type="button" id="filter_type_masuk" onclick="setTypeFilter('MASUK')" class="px-2 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1" title="Tampilkan Hanya Pemasukan">
+                            <i class="fa-solid fa-arrow-down text-[9px] text-emerald-400"></i> Pemasukan
+                        </button>
+                    </div>
+                </div>
                             Semua
                         </button>
                         <button type="button" id="filter_type_keluar" onclick="setTypeFilter('KELUAR')" class="px-2.5 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center gap-1" title="Tampilkan Hanya Pengeluaran">
@@ -2027,7 +2016,7 @@
             const btnMasuk = document.getElementById('filter_type_masuk');
             if (!btnAll || !btnKeluar || !btnMasuk) return;
 
-            const baseClass = "px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold transition-all cursor-pointer";
+            const baseClass = "px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold transition-all cursor-pointer text-center flex items-center justify-center gap-1";
             const inactiveClass = "text-neutral-400 hover:text-white";
             const activeClass = "active-type-btn text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs";
 
