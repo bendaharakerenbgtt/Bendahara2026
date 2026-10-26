@@ -772,6 +772,23 @@
             return `Divisi ${clean}`;
         }
 
+        // Format tanggal agar ramah dibaca (mengubah format ISO 2026-09-09T... jadi 9 September 2026)
+        function formatReadableDate(raw, short = false) {
+            if (!raw) return short ? '-' : '2026';
+            const str = String(raw).trim();
+            if (/^\d{4}-\d{2}-\d{2}(T|\b)/.test(str)) {
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    return d.toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: short ? 'short' : 'long',
+                        year: 'numeric'
+                    });
+                }
+            }
+            return str;
+        }
+
         function getReceiptUrl(tx) {
             if (!tx) return null;
             const candidates = [tx.bukti, tx.keterangan, tx.catatan, tx.uraian];
@@ -988,7 +1005,7 @@
             document.getElementById('badge_jenis').innerText = p.jenis || 'Program Kerja';
             document.getElementById('badge_divisi').innerHTML = `<i class="fa-solid fa-building-columns text-[9px] text-orange-400 mr-1"></i> ${escapeHtml(p.divisi || 'Divisi Pelaksana')}`;
 
-            document.getElementById('meta_tanggal').innerText = p.estimasi_tanggal || '2026';
+            document.getElementById('meta_tanggal').innerText = formatReadableDate(p.estimasi_tanggal || p.tanggal || '2026');
             document.getElementById('meta_ketua').innerText = getMemberName(p.id_anggota || p.ketua);
             const anggaran = Number(p.anggaran !== undefined && p.anggaran !== "" && p.anggaran !== null ? p.anggaran : (p.estimasi_dana || 0));
             document.getElementById('meta_anggaran').innerText = formatFullRupiah(anggaran);
@@ -1611,7 +1628,7 @@
                 return `
                 <tr class="table-row border-b border-neutral-800/60 hover:bg-neutral-800/30 transition-colors">
                     <td class="py-2.5 sm:py-3 px-3 font-mono text-[10.5px] sm:text-[11px] text-neutral-400 whitespace-nowrap">
-                        ${t.tanggal || '-'}
+                        ${formatReadableDate(t.tanggal, true)}
                     </td>
                     <td class="py-2.5 sm:py-3 px-3">
                         <div class="font-semibold text-white line-clamp-2 text-[11px] sm:text-xs" title="${escapeHtml(desc)}">
