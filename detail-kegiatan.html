@@ -465,7 +465,7 @@
 
             </div>
 
-            <!-- 3. PENGELUARAN BERDASARKAN DIVISI & 3 PILAR BELANJA (DIAGRAM BATANG & DIAGRAM DONAT) -->
+            <!-- 3. PENGELUARAN BERDASARKAN DIVISI & PENGELUARAN BERDASARKAN KATEGORI (DIAGRAM BATANG & DIAGRAM DONAT) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                 
                 <!-- DIAGRAM BATANG: PENGELUARAN PER DIVISI (6 COLS) -->
@@ -489,12 +489,12 @@
                     </div>
 
                     <div class="pt-3 border-t border-neutral-800/80 mt-2 flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400">
-                        <span><i class="fa-solid fa-circle-info text-orange-400 mr-1"></i> Diurutkan dari alokasi terbesar</span>
+                        <span><i class="fa-solid fa-hand-pointer text-orange-400 mr-1"></i> Klik batang untuk filter rincian</span>
                         <span class="text-neutral-500">Auto Update</span>
                     </div>
                 </div>
 
-                <!-- DIAGRAM DONAT: 3 PILAR BELANJA ORMAWA (6 COLS) -->
+                <!-- DIAGRAM DONAT: PENGELUARAN BERDASARKAN KATEGORI (6 COLS) -->
                 <div class="lg:col-span-6 surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-4 sm:p-5 shadow-lg flex flex-col justify-between">
                     <div class="flex items-center justify-between pb-3 border-b border-neutral-800 mb-3 sm:mb-4">
                         <div class="flex items-center gap-2.5">
@@ -502,8 +502,8 @@
                                 <i class="fa-solid fa-chart-pie text-xs"></i>
                             </div>
                             <div>
-                                <h3 class="text-xs sm:text-sm font-black text-white tracking-tight">3 Pilar Belanja Ormawa Polimedia</h3>
-                                <p class="text-[9px] sm:text-[10px] text-neutral-400 font-mono">Standarisasi pertanggungjawaban LPJ</p>
+                                <h3 class="text-xs sm:text-sm font-black text-white tracking-tight">Pengeluaran berdasarkan kategori</h3>
+                                <p class="text-[9px] sm:text-[10px] text-neutral-400 font-mono">Bahan, sewa, dan jasa kegiatan</p>
                             </div>
                         </div>
                         <span class="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-neutral-800 text-neutral-300 shrink-0">Bahan • Sewa • Jasa</span>
@@ -514,15 +514,16 @@
                         <div class="chart-wrapper h-[210px] sm:h-[230px] flex items-center justify-center">
                             <canvas id="pilarDoughnutChart"></canvas>
                         </div>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                            <span class="text-[9px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Total Belanja</span>
-                            <span id="doughnut_center_total" class="text-xs sm:text-sm font-black text-white font-mono mt-0.5">Rp 0</span>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4">
+                            <span id="doughnut_center_label" class="text-[9px] font-mono text-neutral-400 uppercase font-bold tracking-wider transition-colors duration-200">Total Belanja</span>
+                            <span id="doughnut_center_total" class="text-xs sm:text-sm font-black text-white font-mono mt-0.5 transition-colors duration-200">Rp 0</span>
+                            <span id="doughnut_center_sub" class="hidden text-[8.5px] font-mono text-neutral-400 mt-0.5 transition-all duration-200">0% dari total</span>
                         </div>
                     </div>
 
-                    <!-- Clean 3-Pillar Legend Beneath -->
+                    <!-- Clean 3-Pillar Legend Beneath (Clickable Filter Cards) -->
                     <div class="pt-3 border-t border-neutral-800/80 mt-2 grid grid-cols-3 gap-2 text-center font-mono">
-                        <div class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60">
+                        <div id="pilar_card_bahan" onclick="toggleCategoryFilter('Belanja Bahan')" class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-orange-500/50 transition-all select-none">
                             <div class="flex items-center justify-center gap-1.5 mb-0.5">
                                 <span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span>
                                 <span class="text-[9.5px] sm:text-[10px] font-bold text-orange-400">Bahan</span>
@@ -531,7 +532,7 @@
                             <span id="pilar_bahan_nominal" class="text-[8.5px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
                         </div>
 
-                        <div class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60">
+                        <div id="pilar_card_sewa" onclick="toggleCategoryFilter('Belanja Sewa')" class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-sky-500/50 transition-all select-none">
                             <div class="flex items-center justify-center gap-1.5 mb-0.5">
                                 <span class="w-2 h-2 rounded-full bg-[#38BDF8] shrink-0"></span>
                                 <span class="text-[9.5px] sm:text-[10px] font-bold text-sky-400">Sewa</span>
@@ -540,7 +541,7 @@
                             <span id="pilar_sewa_nominal" class="text-[8.5px] sm:text-[9.5px] text-neutral-400 truncate block">Rp 0</span>
                         </div>
 
-                        <div class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60">
+                        <div id="pilar_card_jasa" onclick="toggleCategoryFilter('Belanja Jasa')" class="p-2 rounded-xl bg-neutral-950/60 border border-neutral-800/60 cursor-pointer hover:border-emerald-500/50 transition-all select-none">
                             <div class="flex items-center justify-center gap-1.5 mb-0.5">
                                 <span class="w-2 h-2 rounded-full bg-[#34D399] shrink-0"></span>
                                 <span class="text-[9.5px] sm:text-[10px] font-bold text-emerald-400">Jasa</span>
@@ -554,7 +555,7 @@
             </div>
 
             <!-- 5. TABEL DAFTAR SEMUA TRANSAKSI KEGIATAN -->
-            <div class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-4 sm:p-5 shadow-lg space-y-3 sm:space-y-4">
+            <div id="transactions_section" class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-4 sm:p-5 shadow-lg space-y-3 sm:space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
@@ -572,11 +573,14 @@
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
                             <input type="text" id="tx_search_input" oninput="filterTransactionsTable()" placeholder="Cari barang, divisi, atau PJ..." class="w-full pl-8 pr-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-orange-500 transition-colors">
                         </div>
-                        <select id="tx_divisi_filter" onchange="filterTransactionsTable()" class="bg-neutral-950 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-orange-500 transition-colors cursor-pointer">
+                        <select id="tx_divisi_filter" onchange="handleSelectDivisionChange(this.value)" class="bg-neutral-950 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-orange-500 transition-colors cursor-pointer">
                             <option value="ALL">Semua Divisi Kepanitiaan</option>
                         </select>
                     </div>
                 </div>
+
+                <!-- Container Filter Chips Aktif -->
+                <div id="active_filter_chips" class="hidden"></div>
 
                 <!-- Table Container with Horizontal Scroll -->
                 <div class="overflow-x-auto rounded-xl border border-neutral-800 -mx-1 sm:mx-0">
@@ -689,6 +693,9 @@
         let allMembersList = [];
         let divisionChartInstance = null;
         let pilarDoughnutInstance = null;
+        let activeDivisionFilter = null; // null or string e.g. 'Divisi Korlap'
+        let activeCategoryFilter = null; // null or 'Belanja Bahan' | 'Belanja Sewa' | 'Belanja Jasa'
+        let currentPilarTotals = { bahan: 0, sewa: 0, jasa: 0, totalOut: 0 };
 
         // Theme Toggle Functionality
         function toggleTheme(event) {
@@ -785,6 +792,22 @@
                 if (urlMatch) return urlMatch[0];
             }
             return null;
+        }
+
+        // Helper Kategorisasi Pengeluaran (Bahan vs Sewa vs Jasa)
+        function getTransactionCategory(t) {
+            if (!t) return 'Belanja Bahan';
+            const cat = (t.kategori || '').toLowerCase();
+            const uraian = (t.uraian || t.keterangan || t.catatan || '').toLowerCase();
+            const combined = cat + ' ' + uraian;
+
+            if (combined.includes('sewa') || combined.includes('rental') || combined.includes('booking tempat')) {
+                return 'Belanja Sewa';
+            } else if (combined.includes('jasa') || combined.includes('honor') || combined.includes('narasumber') || combined.includes('juri')) {
+                return 'Belanja Jasa';
+            } else {
+                return 'Belanja Bahan';
+            }
         }
 
         // Open Receipt Modal
@@ -1035,8 +1058,8 @@
             document.getElementById('stat_avg_pengeluaran').innerText = `${formatCompactRupiah(avgOut)} / trx`;
         }
 
-        // 3. Render Pengeluaran Berdasarkan Divisi (Diagram Batang & Rincian)
-        function renderDivisionAnalytics() {
+        // 3. Render Pengeluaran Berdasarkan Divisi (Diagram Batang Interaktif)
+        function renderDivisionOverview() {
             const outTxs = prokerTransactions.filter(t => (t.jenis || '').toLowerCase().trim() !== 'masuk');
             const totalOut = outTxs.reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
 
@@ -1069,11 +1092,6 @@
             const sortedDivs = Object.values(divMap).sort((a, b) => b.nominal - a.nominal);
             document.getElementById('chart_divisi_count_badge').innerText = `${sortedDivs.length} Divisi Kepanitiaan`;
 
-            // Render Chart.js Horizontal Bar Chart
-            renderDivisionBarChart(sortedDivs, totalOut);
-
-
-
             // Populate Division Filter in Transactions Table
             const filterSelect = document.getElementById('tx_divisi_filter');
             if (filterSelect) {
@@ -1084,10 +1102,16 @@
                     opt.innerText = `${d.name} (${d.count})`;
                     filterSelect.appendChild(opt);
                 });
+                if (activeDivisionFilter) {
+                    filterSelect.value = activeDivisionFilter;
+                }
             }
+
+            // Render Chart.js Horizontal Bar Chart
+            renderDivisionBarChart(sortedDivs, totalOut);
         }
 
-        // Render Chart.js Horizontal Bar Chart
+        // Render Chart.js Horizontal Bar Chart dengan Fitur Highlight & Dimming on Click
         function renderDivisionBarChart(sortedDivs, totalOut) {
             const canvas = document.getElementById('divisionBarChart');
             if (!canvas) return;
@@ -1112,13 +1136,27 @@
                         label: 'Pengeluaran (Rp)',
                         data: dataValues,
                         backgroundColor: function(context) {
-                            const chart = context.chart;
-                            const {ctx, chartArea} = chart;
-                            if (!chartArea) return '#FF7300';
-                            const grad = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-                            grad.addColorStop(0, '#FF7300');
-                            grad.addColorStop(1, '#FFA500');
-                            return grad;
+                            const idx = context.dataIndex;
+                            if (idx === undefined) return '#FF7300';
+                            const divName = labels[idx];
+                            if (!activeDivisionFilter) return '#FF7300';
+
+                            const isL = document.documentElement.classList.contains('light-mode');
+                            const dimmed = isL ? 'rgba(255, 115, 0, 0.16)' : 'rgba(255, 115, 0, 0.13)';
+                            return (divName === activeDivisionFilter) ? '#FF7300' : dimmed;
+                        },
+                        borderColor: function(context) {
+                            const idx = context.dataIndex;
+                            if (idx === undefined || !activeDivisionFilter) return 'transparent';
+                            const divName = labels[idx];
+                            const isL = document.documentElement.classList.contains('light-mode');
+                            const dimmedBorder = isL ? 'rgba(255, 115, 0, 0.25)' : 'rgba(255, 115, 0, 0.2)';
+                            return (divName === activeDivisionFilter) ? '#FFA500' : dimmedBorder;
+                        },
+                        borderWidth: function(context) {
+                            const idx = context.dataIndex;
+                            if (idx === undefined || !activeDivisionFilter) return 0;
+                            return (labels[idx] === activeDivisionFilter) ? 2 : 1;
                         },
                         borderRadius: 6,
                         borderSkipped: false,
@@ -1129,6 +1167,19 @@
                     indexAxis: 'y', // Diagram batang horizontal
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(evt, activeEls) {
+                        if (activeEls && activeEls.length > 0) {
+                            const idx = activeEls[0].index;
+                            const clickedDiv = labels[idx];
+                            toggleDivisionFilter(clickedDiv);
+                        } else {
+                            if (activeDivisionFilter) toggleDivisionFilter(null);
+                        }
+                    },
+                    onHover: function(event, chartElement) {
+                        const target = event.native ? event.native.target : event.chart.canvas;
+                        if (target) target.style.cursor = chartElement.length ? 'pointer' : 'default';
+                    },
                     plugins: {
                         legend: {
                             display: false
@@ -1145,7 +1196,9 @@
                                 label: function(context) {
                                     const val = context.parsed.x || 0;
                                     const pct = totalOut > 0 ? ((val / totalOut) * 100).toFixed(1) : 0;
-                                    return ` Alokasi: ${formatFullRupiah(val)} (${pct}%)`;
+                                    const divName = labels[context.dataIndex] || '';
+                                    const isSel = (divName === activeDivisionFilter);
+                                    return ` Alokasi: ${formatFullRupiah(val)} (${pct}%)${isSel ? ' [Aktif]' : ''}`;
                                 }
                             }
                         }
@@ -1184,25 +1237,39 @@
             });
         }
 
-        function updateChartTheme() {
-            const isLight = document.documentElement.classList.contains('light-mode');
-            const tickColor = isLight ? '#334155' : '#94A3B8';
-            const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+        // Toggle Filter Divisi dari Klik Bar Chart atau Klik Dropdown/Badge
+        function toggleDivisionFilter(divName) {
+            if (!divName || activeDivisionFilter === divName) {
+                activeDivisionFilter = null;
+            } else {
+                activeDivisionFilter = divName;
+            }
 
             if (divisionChartInstance) {
-                divisionChartInstance.options.scales.x.ticks.color = tickColor;
-                divisionChartInstance.options.scales.x.grid.color = gridColor;
-                divisionChartInstance.options.scales.y.ticks.color = tickColor;
                 divisionChartInstance.update();
             }
 
-            if (pilarDoughnutInstance) {
-                pilarDoughnutInstance.data.datasets[0].borderColor = isLight ? '#FFFFFF' : '#171717';
-                pilarDoughnutInstance.update();
+            const select = document.getElementById('tx_divisi_filter');
+            if (select) {
+                select.value = activeDivisionFilter || 'ALL';
+            }
+
+            filterTransactionsTable();
+
+            if (activeDivisionFilter) {
+                scrollToTransactions();
             }
         }
 
-        // 4. Render 3 Pilar Belanja Ormawa (Diagram Donat & Legenda)
+        function handleSelectDivisionChange(val) {
+            activeDivisionFilter = (val === 'ALL') ? null : val;
+            if (divisionChartInstance) {
+                divisionChartInstance.update();
+            }
+            filterTransactionsTable();
+        }
+
+        // 4. Render Pengeluaran Berdasarkan Kategori (Diagram Donat Interaktif & Legenda)
         function renderPilarOrmawa() {
             const outTxs = prokerTransactions.filter(t => (t.jenis || '').toLowerCase().trim() !== 'masuk');
             const totalOut = outTxs.reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
@@ -1213,18 +1280,22 @@
 
             outTxs.forEach(t => {
                 const nom = Number(t.nominal) || 0;
-                const cat = (t.kategori || '').toLowerCase();
-                const uraian = (t.uraian || t.keterangan || '').toLowerCase();
-                const combined = cat + ' ' + uraian;
-
-                if (combined.includes('sewa') || combined.includes('rental') || combined.includes('booking tempat')) {
+                const cat = getTransactionCategory(t);
+                if (cat === 'Belanja Sewa') {
                     totalSewa += nom;
-                } else if (combined.includes('jasa') || combined.includes('honor') || combined.includes('narasumber') || combined.includes('juri')) {
+                } else if (cat === 'Belanja Jasa') {
                     totalJasa += nom;
                 } else {
                     totalBahan += nom;
                 }
             });
+
+            currentPilarTotals = {
+                bahan: totalBahan,
+                sewa: totalSewa,
+                jasa: totalJasa,
+                totalOut: totalOut
+            };
 
             const pctBahan = totalOut > 0 ? Math.round((totalBahan / totalOut) * 100) : 0;
             const pctSewa = totalOut > 0 ? Math.round((totalSewa / totalOut) * 100) : 0;
@@ -1236,7 +1307,6 @@
             const elSewaPct = document.getElementById('pilar_sewa_persen');
             const elJasaNom = document.getElementById('pilar_jasa_nominal');
             const elJasaPct = document.getElementById('pilar_jasa_persen');
-            const elCenterTotal = document.getElementById('doughnut_center_total');
 
             if (elBahanNom) elBahanNom.innerText = formatFullRupiah(totalBahan);
             if (elBahanPct) elBahanPct.innerText = `${pctBahan}%`;
@@ -1244,10 +1314,10 @@
             if (elSewaPct) elSewaPct.innerText = `${pctSewa}%`;
             if (elJasaNom) elJasaNom.innerText = formatFullRupiah(totalJasa);
             if (elJasaPct) elJasaPct.innerText = `${pctJasa}%`;
-            if (elCenterTotal) elCenterTotal.innerText = formatCompactRupiah(totalOut);
 
             // Render Doughnut Chart
             renderPilarDoughnutChart(totalBahan, totalSewa, totalJasa, totalOut);
+            updatePilarDoughnutVisuals();
         }
 
         function renderPilarDoughnutChart(totalBahan, totalSewa, totalJasa, totalOut) {
@@ -1262,11 +1332,10 @@
             const isLight = document.documentElement.classList.contains('light-mode');
             const borderColor = isLight ? '#FFFFFF' : '#171717';
 
-            // If zero total, show a neutral slice so doughnut is not empty
+            // Data slices: Bahan, Sewa, Jasa
             const chartData = (totalOut > 0) ? [totalBahan, totalSewa, totalJasa] : [1, 0, 0];
-            const bgColors = (totalOut > 0) 
-                ? ['#FF7300', '#38BDF8', '#34D399'] 
-                : ['#374151', '#4B5563', '#6B7280'];
+            const baseColors = ['#FF7300', '#38BDF8', '#34D399'];
+            const hoverColors = ['#EA580C', '#0284C7', '#059669'];
 
             pilarDoughnutInstance = new Chart(ctx, {
                 type: 'doughnut',
@@ -1274,16 +1343,41 @@
                     labels: ['Belanja Bahan', 'Belanja Sewa', 'Belanja Jasa'],
                     datasets: [{
                         data: chartData,
-                        backgroundColor: bgColors,
-                        hoverBackgroundColor: ['#EA580C', '#0284C7', '#059669'],
+                        backgroundColor: function(context) {
+                            const idx = context.dataIndex;
+                            if (idx === undefined || totalOut === 0) return baseColors[idx || 0];
+                            if (!activeCategoryFilter) return baseColors[idx];
+
+                            const isL = document.documentElement.classList.contains('light-mode');
+                            const dimmedColors = isL 
+                                ? ['rgba(255, 115, 0, 0.16)', 'rgba(56, 189, 248, 0.16)', 'rgba(52, 211, 153, 0.16)']
+                                : ['rgba(255, 115, 0, 0.13)', 'rgba(56, 189, 248, 0.13)', 'rgba(52, 211, 153, 0.13)'];
+
+                            const targetIdx = ['Belanja Bahan', 'Belanja Sewa', 'Belanja Jasa'].indexOf(activeCategoryFilter);
+                            return (idx === targetIdx) ? baseColors[idx] : dimmedColors[idx];
+                        },
+                        hoverBackgroundColor: hoverColors,
                         borderColor: borderColor,
                         borderWidth: 3,
-                        cutout: '72%'
+                        cutout: '70%'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(evt, activeEls) {
+                        if (activeEls && activeEls.length > 0) {
+                            const idx = activeEls[0].index;
+                            const cat = ['Belanja Bahan', 'Belanja Sewa', 'Belanja Jasa'][idx];
+                            toggleCategoryFilter(cat);
+                        } else {
+                            if (activeCategoryFilter) toggleCategoryFilter(null);
+                        }
+                    },
+                    onHover: function(event, chartElement) {
+                        const target = event.native ? event.native.target : event.chart.canvas;
+                        if (target) target.style.cursor = chartElement.length ? 'pointer' : 'default';
+                    },
                     plugins: {
                         legend: {
                             display: false
@@ -1296,18 +1390,142 @@
                             borderWidth: 1,
                             padding: 8,
                             boxPadding: 4,
+                            caretPadding: 6,
                             callbacks: {
                                 label: function(context) {
                                     if (totalOut === 0) return ' Belum ada pengeluaran';
                                     const val = context.parsed || 0;
                                     const pct = totalOut > 0 ? ((val / totalOut) * 100).toFixed(1) : 0;
-                                    return ` ${context.label}: ${formatFullRupiah(val)} (${pct}%)`;
+                                    const catName = ['Belanja Bahan', 'Belanja Sewa', 'Belanja Jasa'][context.dataIndex];
+                                    const isSel = (catName === activeCategoryFilter);
+                                    return ` ${context.label}: ${formatFullRupiah(val)} (${pct}%)${isSel ? ' [Aktif]' : ''}`;
                                 }
                             }
                         }
                     }
                 }
             });
+        }
+
+        // Toggle Filter Kategori dari Klik Slice Donat atau Klik Card Legenda
+        function toggleCategoryFilter(catName) {
+            if (!catName || activeCategoryFilter === catName) {
+                activeCategoryFilter = null;
+            } else {
+                activeCategoryFilter = catName;
+            }
+
+            updatePilarDoughnutVisuals();
+            filterTransactionsTable();
+
+            if (activeCategoryFilter) {
+                scrollToTransactions();
+            }
+        }
+
+        // Update Center Text Donat dan Card Legenda Sesuai Kategori Aktif
+        function updatePilarDoughnutVisuals() {
+            if (pilarDoughnutInstance) {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                pilarDoughnutInstance.data.datasets[0].borderColor = isLight ? '#FFFFFF' : '#171717';
+                pilarDoughnutInstance.update();
+            }
+
+            const elLabel = document.getElementById('doughnut_center_label');
+            const elTotal = document.getElementById('doughnut_center_total');
+            const elSub = document.getElementById('doughnut_center_sub');
+            const totalOut = currentPilarTotals.totalOut || 0;
+
+            if (!activeCategoryFilter) {
+                if (elLabel) {
+                    elLabel.innerText = 'TOTAL BELANJA';
+                    elLabel.className = 'text-[9px] font-mono text-neutral-400 uppercase font-bold tracking-wider transition-colors duration-200';
+                }
+                if (elTotal) {
+                    elTotal.innerText = formatCompactRupiah(totalOut);
+                    elTotal.className = 'text-xs sm:text-sm font-black text-white font-mono mt-0.5 transition-colors duration-200';
+                }
+                if (elSub) elSub.classList.add('hidden');
+            } else {
+                let catNominal = 0;
+                let colorClass = 'text-orange-400';
+                let shortName = 'BAHAN';
+
+                if (activeCategoryFilter === 'Belanja Bahan') {
+                    catNominal = currentPilarTotals.bahan;
+                    colorClass = 'text-orange-400';
+                    shortName = 'BELANJA BAHAN';
+                } else if (activeCategoryFilter === 'Belanja Sewa') {
+                    catNominal = currentPilarTotals.sewa;
+                    colorClass = 'text-sky-400';
+                    shortName = 'BELANJA SEWA';
+                } else if (activeCategoryFilter === 'Belanja Jasa') {
+                    catNominal = currentPilarTotals.jasa;
+                    colorClass = 'text-emerald-400';
+                    shortName = 'BELANJA JASA';
+                }
+
+                const pct = totalOut > 0 ? Math.round((catNominal / totalOut) * 100) : 0;
+
+                if (elLabel) {
+                    elLabel.innerText = shortName;
+                    elLabel.className = `text-[9px] font-mono ${colorClass} uppercase font-bold tracking-wider transition-colors duration-200`;
+                }
+                if (elTotal) {
+                    elTotal.innerText = formatCompactRupiah(catNominal);
+                    elTotal.className = `text-xs sm:text-sm font-black ${colorClass} font-mono mt-0.5 transition-colors duration-200`;
+                }
+                if (elSub) {
+                    elSub.classList.remove('hidden');
+                    elSub.innerText = `${pct}% dari total • Klik reset`;
+                }
+            }
+
+            // Update 3 Legend Cards below donut (Highlight selected, dim others)
+            const cardBahan = document.getElementById('pilar_card_bahan');
+            const cardSewa = document.getElementById('pilar_card_sewa');
+            const cardJasa = document.getElementById('pilar_card_jasa');
+
+            const allPillarCards = [
+                { el: cardBahan, name: 'Belanja Bahan', activeClasses: ['ring-2', 'ring-orange-500', 'bg-orange-500/15', 'border-orange-500/50'] },
+                { el: cardSewa, name: 'Belanja Sewa', activeClasses: ['ring-2', 'ring-sky-500', 'bg-sky-500/15', 'border-sky-500/50'] },
+                { el: cardJasa, name: 'Belanja Jasa', activeClasses: ['ring-2', 'ring-emerald-500', 'bg-emerald-500/15', 'border-emerald-500/50'] }
+            ];
+
+            allPillarCards.forEach(item => {
+                if (!item.el) return;
+                // Remove all possible active classes
+                ['ring-2', 'ring-orange-500', 'bg-orange-500/15', 'border-orange-500/50',
+                 'ring-sky-500', 'bg-sky-500/15', 'border-sky-500/50',
+                 'ring-emerald-500', 'bg-emerald-500/15', 'border-emerald-500/50',
+                 'opacity-30', 'opacity-100', 'scale-[0.98]'].forEach(cls => item.el.classList.remove(cls));
+
+                if (!activeCategoryFilter) {
+                    item.el.classList.add('opacity-100');
+                } else if (item.name === activeCategoryFilter) {
+                    item.el.classList.add('opacity-100');
+                    item.activeClasses.forEach(cls => item.el.classList.add(cls));
+                } else {
+                    item.el.classList.add('opacity-30', 'scale-[0.98]');
+                }
+            });
+        }
+
+        function updateChartTheme() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const tickColor = isLight ? '#334155' : '#94A3B8';
+            const gridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+
+            if (divisionChartInstance) {
+                divisionChartInstance.options.scales.x.ticks.color = tickColor;
+                divisionChartInstance.options.scales.x.grid.color = gridColor;
+                divisionChartInstance.options.scales.y.ticks.color = tickColor;
+                divisionChartInstance.update();
+            }
+
+            if (pilarDoughnutInstance) {
+                updatePilarDoughnutVisuals();
+            }
         }
 
         // 5. Render Tabel Rincian Semua Transaksi
@@ -1321,21 +1539,32 @@
             if (!tbody) return;
 
             const search = (document.getElementById('tx_search_input')?.value || '').toLowerCase().trim();
-            const selectedDiv = document.getElementById('tx_divisi_filter')?.value || 'ALL';
 
             const filtered = prokerTransactions.filter(t => {
                 const isExpense = (t.jenis || '').toLowerCase().trim() !== 'masuk';
                 const div = formatDivisiName(t.divisi);
                 const pj = getMemberName(t.user_id || t.id_anggota || t.pj);
                 const desc = (t.uraian || t.keterangan || t.catatan || '').toLowerCase();
+                const cat = getTransactionCategory(t);
 
-                if (selectedDiv !== 'ALL' && div !== selectedDiv) return false;
+                // Division filter
+                if (activeDivisionFilter && div !== activeDivisionFilter) return false;
 
+                // Category filter (khusus belanja/pengeluaran)
+                if (activeCategoryFilter) {
+                    if (!isExpense) return false;
+                    if (cat !== activeCategoryFilter) return false;
+                }
+
+                // Text search
                 if (search) {
-                    return desc.includes(search) || div.toLowerCase().includes(search) || pj.toLowerCase().includes(search);
+                    return desc.includes(search) || div.toLowerCase().includes(search) || pj.toLowerCase().includes(search) || cat.toLowerCase().includes(search);
                 }
                 return true;
             });
+
+            // Update Active Filter Indicator Chips
+            renderActiveFilterChips(prokerTransactions.length, filtered.length);
 
             if (filtered.length === 0) {
                 tbody.innerHTML = '';
@@ -1352,6 +1581,12 @@
                 const desc = t.uraian || t.keterangan || t.catatan || 'Kebutuhan Acara';
                 const receiptUrl = getReceiptUrl(t);
                 const nom = Number(t.nominal) || 0;
+                const cat = getTransactionCategory(t);
+
+                let catBadgeStyle = 'text-orange-400 bg-orange-500/10 border-orange-500/25';
+                if (cat === 'Belanja Sewa') catBadgeStyle = 'text-sky-400 bg-sky-500/10 border-sky-500/25';
+                if (cat === 'Belanja Jasa') catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
+                if (!isExpense) catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
 
                 return `
                 <tr class="table-row border-b border-neutral-800/60 hover:bg-neutral-800/30 transition-colors">
@@ -1362,14 +1597,18 @@
                         <div class="font-semibold text-white line-clamp-2 text-[11px] sm:text-xs" title="${escapeHtml(desc)}">
                             ${escapeHtml(desc)}
                         </div>
-                        <div class="text-[9.5px] sm:text-[10px] font-mono text-neutral-400 mt-0.5">
-                            <span class="text-orange-400 font-bold">${t.kategori || (isExpense ? 'Belanja Bahan' : 'Pemasukan')}</span> • <span class="text-neutral-500">${t.metode || 'Tunai'}</span>
+                        <div class="text-[9.5px] sm:text-[10px] font-mono text-neutral-400 mt-1 flex items-center gap-1.5 flex-wrap">
+                            <button type="button" onclick="toggleCategoryFilter('${escapeHtml(cat)}')" class="px-1.5 py-0.5 rounded border ${catBadgeStyle} font-bold text-[9px] hover:brightness-125 transition-all cursor-pointer" title="Klik untuk filter kategori ini">
+                                ${escapeHtml(isExpense ? cat : 'Pemasukan')}
+                            </button>
+                            <span class="text-neutral-500">•</span>
+                            <span class="text-neutral-400">${escapeHtml(t.metode || 'Tunai')}</span>
                         </div>
                     </td>
                     <td class="py-2.5 sm:py-3 px-3 font-mono text-[10.5px] sm:text-[11px] text-neutral-300 whitespace-nowrap">
-                        <span class="px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-[9.5px] sm:text-[10px] font-semibold">
+                        <button type="button" onclick="toggleDivisionFilter('${escapeHtml(div)}')" class="px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 text-[9.5px] sm:text-[10px] font-semibold cursor-pointer transition-colors" title="Klik untuk filter divisi ini">
                             ${escapeHtml(div)}
-                        </span>
+                        </button>
                     </td>
                     <td class="py-2.5 sm:py-3 px-3 font-mono text-[10.5px] sm:text-[11px] text-neutral-300 whitespace-nowrap">
                         <span class="flex items-center gap-1.5">
@@ -1391,6 +1630,70 @@
                 </tr>
                 `;
             }).join('');
+        }
+
+        // Render Filter Chips Indicator
+        function renderActiveFilterChips(totalCount, matchCount) {
+            const container = document.getElementById('active_filter_chips');
+            if (!container) return;
+
+            if (!activeDivisionFilter && !activeCategoryFilter) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            container.classList.remove('hidden');
+            let chipsHtml = `<div class="flex flex-wrap items-center gap-2 pt-1 pb-1">
+                <span class="text-[10px] font-mono text-neutral-400 flex items-center gap-1"><i class="fa-solid fa-filter text-orange-400"></i> Filter Aktif:</span>`;
+
+            if (activeDivisionFilter) {
+                chipsHtml += `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-400 text-[10px] sm:text-[10.5px] font-mono font-bold">
+                    <span><i class="fa-solid fa-users text-[9px] mr-1"></i>${escapeHtml(activeDivisionFilter)}</span>
+                    <button type="button" onclick="toggleDivisionFilter(null)" class="hover:text-white transition-colors cursor-pointer ml-0.5" title="Hapus filter divisi"><i class="fa-solid fa-xmark text-xs"></i></button>
+                </span>`;
+            }
+
+            if (activeCategoryFilter) {
+                let catClass = 'text-orange-400 bg-orange-500/15 border-orange-500/30';
+                if (activeCategoryFilter === 'Belanja Sewa') catClass = 'text-sky-400 bg-sky-500/15 border-sky-500/30';
+                if (activeCategoryFilter === 'Belanja Jasa') catClass = 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30';
+
+                chipsHtml += `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border ${catClass} text-[10px] sm:text-[10.5px] font-mono font-bold">
+                    <span><i class="fa-solid fa-tag text-[9px] mr-1"></i>${escapeHtml(activeCategoryFilter)}</span>
+                    <button type="button" onclick="toggleCategoryFilter(null)" class="hover:text-white transition-colors cursor-pointer ml-0.5" title="Hapus filter kategori"><i class="fa-solid fa-xmark text-xs"></i></button>
+                </span>`;
+            }
+
+            chipsHtml += `
+                <button type="button" onclick="clearAllFilters()" class="text-[10px] font-mono text-neutral-400 hover:text-white underline underline-offset-2 ml-1 cursor-pointer transition-colors">
+                    Reset Semua (${matchCount}/${totalCount} transaksi)
+                </button>
+            </div>`;
+
+            container.innerHTML = chipsHtml;
+        }
+
+        function clearAllFilters() {
+            activeDivisionFilter = null;
+            activeCategoryFilter = null;
+            const searchInput = document.getElementById('tx_search_input');
+            if (searchInput) searchInput.value = '';
+            const sel = document.getElementById('tx_divisi_filter');
+            if (sel) sel.value = 'ALL';
+
+            if (divisionChartInstance) divisionChartInstance.update();
+            updatePilarDoughnutVisuals();
+            filterTransactionsTable();
+        }
+
+        function scrollToTransactions() {
+            const section = document.getElementById('transactions_section');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         // Export Proker LPJ to Word (.doc)
