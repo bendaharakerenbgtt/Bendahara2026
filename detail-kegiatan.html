@@ -558,6 +558,33 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 115, 0, 0.6);
         }
+
+        /* Media Print Rules - Hide UI web chrome if printed directly */
+        @media print {
+            header,
+            .mobile-bottom-nav,
+            .hero-action-btn,
+            #tx_type_segmented_group,
+            #tx_search_input,
+            #tx_divisi_filter,
+            #active_filter_chips,
+            #receipt_modal,
+            button {
+                display: none !important;
+            }
+            body {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+                padding-bottom: 0 !important;
+            }
+            .glass-card,
+            .surface-card {
+                background: #FFFFFF !important;
+                border: 1px solid #E2E8F0 !important;
+                box-shadow: none !important;
+                color: #000000 !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col justify-between selection:bg-orange-500 selection:text-white">
@@ -637,11 +664,11 @@
 
                     <!-- Quick Action Buttons -->
                     <div class="flex items-center gap-2 shrink-0 w-full md:w-auto pt-1 md:pt-0">
-                        <button type="button" onclick="exportProkerToWord()" class="hero-action-btn flex-1 md:flex-initial px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
+                        <button type="button" onclick="exportProkerToWord()" class="hero-action-btn flex-1 md:flex-initial px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer" title="Unduh Dokumen Laporan / RAB Format Word (.doc)">
                             <i class="fa-solid fa-file-word text-blue-400"></i> <span>Unduh LPJ (.doc)</span>
                         </button>
-                        <button type="button" onclick="window.print()" class="hero-action-btn flex-1 md:flex-initial px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-white transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer">
-                            <i class="fa-solid fa-print text-neutral-400"></i> <span>Cetak PDF</span>
+                        <button type="button" onclick="printProkerReport()" class="hero-action-btn flex-1 md:flex-initial px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-white transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer" title="Cetak Dokumen Resmi Laporan / RAB (PDF)">
+                            <i class="fa-solid fa-print text-orange-400"></i> <span>Cetak PDF</span>
                         </button>
                     </div>
                 </div>
@@ -1172,7 +1199,7 @@
 
         function formatDivisiName(raw) {
             if (!raw || String(raw).trim() === '' || String(raw).trim().toUpperCase() === 'NULL') {
-                return 'Divisi Umum / Acara';
+                return 'Divisi Umum';
             }
             const clean = String(raw).trim();
             if (/^(divisi|departemen|biro)\s+/i.test(clean)) {
@@ -1504,8 +1531,8 @@
             });
 
             if (Object.keys(divMap).length === 0) {
-                divMap['Divisi Umum / Acara'] = {
-                    name: 'Divisi Umum / Acara',
+                divMap['Divisi Umum'] = {
+                    name: 'Divisi Umum',
                     nominal: 0,
                     count: 0,
                     items: []
@@ -2306,63 +2333,698 @@
             }
         }
 
-        // Export Proker LPJ to Word (.doc)
-        function exportProkerToWord() {
-            if (!currentProker) return;
-            const pName = currentProker.nama_proker || currentProker.nama_kegiatan || 'Kegiatan';
-            const outTxs = prokerTransactions.filter(t => (t.jenis || '').toLowerCase().trim() !== 'masuk');
-            const inTxs = prokerTransactions.filter(t => (t.jenis || '').toLowerCase().trim() === 'masuk');
-            const totalOut = outTxs.reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
-            const totalIn = inTxs.reduce((sum, t) => sum + (Number(t.nominal) || 0), 0);
+        // ==========================================
+        // LPJ & RAB FINANCIAL REPORT EXPORT & PRINT SYSTEM
+        // ==========================================
+        function escapeHtmlLPJ(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-            let rowsOutHtml = outTxs.map((t, idx) => `
+        function cleanTitle(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\(?Bukti:\s*https?:\/\/[^\s)]+\)?/gi, '')
+                .replace(/https?:\/\/[^\s]+/gi, '')
+                .replace(/\(\s*\)/g, '')
+                .trim();
+        }
+
+        function capitalizeUnit(str) {
+            if (!str) return "-";
+            return str.replace(/\b\w+/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1));
+        }
+
+        function formatUnitDisplay(unitVal, item) {
+            let s = unitVal !== undefined && unitVal !== null ? String(unitVal).trim() : "";
+            if (s.toUpperCase() === "NULL" || s === "-") s = "";
+
+            if (item) {
+                const uraian = String(item.uraian || "").toLowerCase();
+                const ket = String(item.keterangan || item.catatan || "").toLowerCase();
+                const kat = String(item.kategori || "").toLowerCase();
+                const combined = `${uraian} ${ket} ${kat}`;
+
+                const isSewaTempat = combined.includes("sewa") || 
+                                     combined.includes("tempat") || 
+                                     combined.includes("wammy") || 
+                                     combined.includes("villa") || 
+                                     combined.includes("gedung") || 
+                                     combined.includes("aula") || 
+                                     combined.includes("penginapan");
+
+                if (/^\d+(\.\d+)?$/.test(s)) {
+                    if (isSewaTempat) return `${s} Day`;
+                }
+
+                if (/^\d+(\.\d+)?\s*hari$/i.test(s)) {
+                    return s.replace(/hari/i, 'Day').trim();
+                }
+
+                if (!s) {
+                    const matchDay = combined.match(/(\d+)\s*(?:day|hari)/i);
+                    if (matchDay) return `${matchDay[1]} Day`;
+                    if (isSewaTempat) return "3 Day";
+                }
+            } else {
+                if (s === "3") return "3 Day";
+                if (/^\d+(\.\d+)?\s*hari$/i.test(s)) {
+                    return s.replace(/hari/i, 'Day').trim();
+                }
+            }
+
+            if (!s) return "-";
+            return capitalizeUnit(s);
+        }
+
+        function formatEnglishItalics(rawText) {
+            if (!rawText || typeof rawText !== 'string') return rawText || '';
+            let text = escapeHtmlLPJ(rawText);
+
+            const multiWordPhrases = [
+                'coffee break', 'live streaming', 'sound system', 'goodie bag', 'goody bag',
+                'door prize', 'name tag', 'id card', 'co card', 'co-card', 'sharing session',
+                'talk show', 'technical meeting', 'guest star', 'bubble wrap', 'tote bag',
+                'paper bag', 'master of ceremony', 'keynote speaker', 'screen projector',
+                'clip on', 'clip-on', 'wireless mic', 'google meet', 'google form',
+                'admin fee', 'top up', 'top-up', 'dress code', 'dresscode', 'roll banner',
+                'mini banner', 'x banner', 'x-banner', 'live stream'
+            ];
+
+            const singleWords = [
+                'booth', 'photobooth', 'layout', 'banner', 'backdrop', 'stand', 'fee',
+                'snack', 'snacks', 'break', 'catering', 'caterer', 'cocard', 'nametag',
+                'lanyard', 'lanyards', 'print', 'printing', 'hardcopy', 'softcopy',
+                'streaming', 'stream', 'zoom', 'gmeet', 'obs', 'link', 'broadcast',
+                'online', 'offline', 'hybrid', 'rundown', 'souvenir', 'merchandise',
+                'merch', 'totebag', 'sticker', 'stickers', 'tumbler', 'doorprize',
+                'prize', 'reward', 'voucher', 'gift', 'soundsystem', 'mic', 'wireless',
+                'speaker', 'audio', 'projector', 'infocus', 'screen', 'hdmi', 'converter',
+                'adapter', 'cable', 'lighting', 'spotlight', 'shuttle', 'rental',
+                'drive', 'cloud', 'gdrive', 'feed', 'reels', 'story', 'design', 'designer',
+                'pamphlet', 'poster', 'flyer', 'workshop', 'talkshow', 'webinar',
+                'coaching', 'briefing', 'venue', 'hall', 'ballroom', 'vip', 'vvip',
+                'jersey', 'tshirt', 't-shirt', 'packaging', 'pouch', 'mc', 'moderator',
+                'cash', 'cashback', 'topup', 'ewallet', 'e-wallet', 'timeline', 'deadline',
+                'feedback', 'followup', 'follow-up', 'review', 'trophy', 'plaque',
+                'stage', 'property', 'props', 'fullboard', 'halfboard'
+            ];
+
+            const allTerms = [...multiWordPhrases, ...singleWords].sort((a, b) => b.length - a.length);
+            const pattern = new RegExp('\\b(' + allTerms.map(t => t.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|') + ')\\b', 'gi');
+
+            return text.replace(pattern, '<i>$1</i>');
+        }
+
+        function formatUnitLPJ(unitVal, item) {
+            const rawDisplay = formatUnitDisplay(unitVal, item);
+            if (!rawDisplay || rawDisplay === '-') return '-';
+
+            const englishUnits = [
+                'pcs', 'piece', 'pieces', 'pack', 'packs', 'package', 'packages',
+                'box', 'boxes', 'day', 'days', 'ball', 'balls', 'cup', 'cups',
+                'roll', 'rolls', 'set', 'sets', 'can', 'cans', 'bottle', 'bottles',
+                'tube', 'tubes', 'pouch', 'pouches', 'rim', 'rims', 'ream', 'reams',
+                'dozen', 'dozens', 'gross', 'carton', 'cartons', 'unit', 'units',
+                'pair', 'pairs', 'bag', 'bags', 'jar', 'jars', 'slice', 'slices',
+                'plate', 'plates', 'person', 'persons', 'pax', 'night', 'nights'
+            ];
+
+            const escaped = escapeHtmlLPJ(rawDisplay);
+            const pattern = new RegExp('\\b(' + englishUnits.join('|') + ')\\b', 'gi');
+            return escaped.replace(pattern, '<i>$1</i>');
+        }
+
+        function formatRupiahLPJ(amount) {
+            const num = Math.round((Number(amount) || 0) * 100) / 100;
+            const isNeg = num < 0;
+            const absNum = Math.abs(num);
+            const parts = absNum.toFixed(2).split('.');
+            const intStr = Number(parts[0]).toLocaleString('id-ID');
+            const decStr = parts[1];
+            return (isNeg ? '-' : '') + `Rp${intStr},${decStr}`;
+        }
+
+        function formatHargaSatuanLPJ(priceVal, nominalVal) {
+            const numPrice = Number(priceVal) || 0;
+            if (numPrice > 0) return formatRupiahLPJ(numPrice);
+            const numNom = Number(nominalVal) || 0;
+            if (numNom > 0) return formatRupiahLPJ(numNom);
+            return "-";
+        }
+
+        function getIncomeCategoryLabel(t) {
+            const rawCat = (t.kategori || '').trim();
+            const rawDesc = (t.uraian || t.keterangan || t.catatan || '').trim();
+            const combined = `${rawCat} ${rawDesc}`.toLowerCase();
+
+            if (combined.includes('iuran')) return 'Iuran Kepanitiaan';
+            if (combined.includes('donasi')) return 'Donasi';
+            if (combined.includes('danus') || combined.includes('usaha') || combined.includes('penjualan')) return 'Danusan';
+            if (combined.includes('sponsor')) return 'Sponsorship';
+            if (combined.includes('kas') || combined.includes('operasional')) return 'Kas LDK IMIP';
+            if (rawCat && rawCat.toUpperCase() !== 'NULL') {
+                if (/^kas/i.test(rawCat)) return 'Kas LDK IMIP';
+                return cleanTitle(rawCat);
+            }
+            return 'Kas LDK IMIP';
+        }
+
+        function getGroupLetter(index) {
+            if (index < 26) return String.fromCharCode(65 + index);
+            const first = String.fromCharCode(65 + Math.floor(index / 26) - 1);
+            const second = String.fromCharCode(65 + (index % 26));
+            return `${first}${second}`;
+        }
+
+        function sanitizeFilename(name) {
+            return (name || 'Laporan_Keuangan')
+                .replace(/[^a-zA-Z0-9_-]/g, '_')
+                .replace(/_+/g, '_')
+                .substring(0, 60);
+        }
+
+        function getProkerReportData() {
+            if (!currentProker) return null;
+            const p = currentProker;
+
+            const inTxs = [];
+            const outTxs = [];
+
+            prokerTransactions.forEach(t => {
+                const j = (t.jenis || "").trim().toLowerCase();
+                if (j === "masuk") {
+                    inTxs.push(t);
+                } else {
+                    outTxs.push(t);
+                }
+            });
+
+            const ketuaNama = getMemberName(p.id_anggota || p.ketua || p.pj);
+
+            // Grouping Expense into Belanja Bahan, Belanja Sewa, Belanja Jasa
+            const bahanDivMap = {};
+            const sewaDivMap = {};
+            const jasaDivMap = {};
+            let totalBahan = 0;
+            let totalSewa = 0;
+            let totalJasa = 0;
+
+            outTxs.forEach(t => {
+                const nom = Number(t.nominal) || 0;
+                const div = formatDivisiName(t.divisi);
+                const catType = getTransactionCategory(t);
+                if (catType === 'Belanja Sewa') {
+                    if (!sewaDivMap[div]) sewaDivMap[div] = [];
+                    sewaDivMap[div].push(t);
+                    totalSewa += nom;
+                } else if (catType === 'Belanja Jasa') {
+                    if (!jasaDivMap[div]) jasaDivMap[div] = [];
+                    jasaDivMap[div].push(t);
+                    totalJasa += nom;
+                } else {
+                    if (!bahanDivMap[div]) bahanDivMap[div] = [];
+                    bahanDivMap[div].push(t);
+                    totalBahan += nom;
+                }
+            });
+
+            if (outTxs.length === 0 && Number(p.pengeluaran) > 0) {
+                totalBahan = Number(p.pengeluaran);
+                bahanDivMap["Divisi Umum"] = [{
+                    uraian: p.nama_proker || p.nama_kegiatan || "Pengeluaran Kegiatan",
+                    unit: "1 Kegiatan",
+                    harga_satuan: totalBahan,
+                    nominal: totalBahan
+                }];
+            }
+
+            const effPengeluaran = totalBahan + totalSewa + totalJasa;
+
+            // Grouping Income by Category
+            const inCatMap = {};
+            inTxs.forEach(t => {
+                const label = getIncomeCategoryLabel(t);
+                inCatMap[label] = (inCatMap[label] || 0) + (Number(t.nominal) || 0);
+            });
+
+            // Aturan LPJ: Total pemasukan disamakan dengan pengeluaran jika pemasukan tercatat masih kurang
+            const currentRecordedIncome = Object.values(inCatMap).reduce((sum, val) => sum + (Number(val) || 0), 0);
+            if (currentRecordedIncome < effPengeluaran) {
+                const shortage = effPengeluaran - currentRecordedIncome;
+                inCatMap['Kas LDK IMIP'] = (inCatMap['Kas LDK IMIP'] || 0) + shortage;
+            } else if (currentRecordedIncome === 0 && effPengeluaran === 0) {
+                const fallbackIn = Number(p.pemasukan !== undefined && Number(p.pemasukan) > 0 ? p.pemasukan : 0);
+                if (fallbackIn > 0) {
+                    inCatMap['Kas LDK IMIP'] = fallbackIn;
+                }
+            }
+
+            let inCategories = Object.keys(inCatMap)
+                .filter(label => (inCatMap[label] || 0) > 0)
+                .map(label => ({
+                    label: label,
+                    nominal: inCatMap[label]
+                }));
+
+            inCategories.sort((a, b) => {
+                const priority = (name) => {
+                    if (/kas/i.test(name)) return 1;
+                    if (/iuran/i.test(name)) return 2;
+                    if (/donasi/i.test(name)) return 3;
+                    if (/danus/i.test(name)) return 4;
+                    if (/sponsor/i.test(name)) return 5;
+                    return 6;
+                };
+                const pa = priority(a.label);
+                const pb = priority(b.label);
+                if (pa !== pb) return pa - pb;
+                return a.label.localeCompare(b.label);
+            });
+
+            const effPemasukan = inCategories.reduce((sum, item) => sum + item.nominal, 0);
+            const effSaldo = effPemasukan - effPengeluaran;
+
+            return {
+                proker: p,
+                nama_proker: p.nama_proker || p.nama_kegiatan || "Program Kerja",
+                divisi: p.divisi || p.departemen || "-",
+                ketua: ketuaNama,
+                tanggal: formatReadableDate(p.estimasi_tanggal || p.tanggal),
+                tahun: p.tahun || new Date().getFullYear(),
+                inCategories: inCategories,
+                bahanDivMap: bahanDivMap,
+                sewaDivMap: sewaDivMap,
+                jasaDivMap: jasaDivMap,
+                totalBahan: totalBahan,
+                totalSewa: totalSewa,
+                totalJasa: totalJasa,
+                effPemasukan: effPemasukan,
+                effPengeluaran: effPengeluaran,
+                effSaldo: effSaldo
+            };
+        }
+
+        function renderExpenseRowsHtml(divMap) {
+            const divKeys = Object.keys(divMap || {});
+            if (divKeys.length === 0) return '';
+
+            let rowsHtml = '';
+            divKeys.forEach((divName, divIdx) => {
+                const items = divMap[divName] || [];
+                const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                const letter = getGroupLetter(divIdx);
+
+                rowsHtml += `
+                    <tr style="font-weight: bold;">
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${letter}</td>
+                        <td colspan="3" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 76%;">${escapeHtmlLPJ(divName)}</td>
+                        <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 18%;">${formatRupiahLPJ(divSubtotal)}</td>
+                    </tr>
+                `;
+
+                items.forEach(item => {
+                    const itemNominal = Number(item.nominal) || 0;
+                    const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                        ? item.uraian 
+                        : (item.keterangan || item.catatan || 'Pengeluaran');
+                    const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                    const unitFormatted = formatUnitLPJ(item.unit, item);
+                    const hargaSatuanDisplay = formatHargaSatuanLPJ(item.harga_satuan, item.nominal);
+
+                    rowsHtml += `
+                        <tr>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;"></td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; font-style: normal;">${formatEnglishItalics(cleanUraian)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; font-style: normal;">${unitFormatted}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${escapeHtmlLPJ(hargaSatuanDisplay)}</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(itemNominal)}</td>
+                        </tr>
+                    `;
+                });
+            });
+            return rowsHtml;
+        }
+
+        function generateWordReportHtml(data) {
+            // 1. Pemasukan Table
+            const inRowsHtml = (data.inCategories || []).map((cat, idx) => `
                 <tr>
-                    <td style="border: 1px solid black; padding: 4.5pt; text-align: center;">${idx + 1}</td>
-                    <td style="border: 1px solid black; padding: 4.5pt;">${escapeHtml(t.uraian || t.keterangan || 'Pengeluaran')}</td>
-                    <td style="border: 1px solid black; padding: 4.5pt; text-align: center;">${escapeHtml(formatDivisiName(t.divisi))}</td>
-                    <td style="border: 1px solid black; padding: 4.5pt; text-align: center;">${escapeHtml(getMemberName(t.user_id || t.pj))}</td>
-                    <td style="border: 1px solid black; padding: 4.5pt; text-align: right;">${formatFullRupiah(t.nominal)}</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">${idx + 1}</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left; width: 64%;">${formatEnglishItalics(cat.label)}</td>
+                    <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right; width: 30%;">${formatRupiahLPJ(cat.nominal)}</td>
                 </tr>
             `).join('');
 
-            const html = `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                <head><meta charset='utf-8'><title>Laporan Keuangan ${escapeHtml(pName)}</title>
-                <style>body { font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; } table { width: 100%; border-collapse: collapse; margin-top: 10pt; }</style>
-                </head>
-                <body>
-                    <h2 style="text-align: center; text-transform: uppercase; margin-bottom: 4pt;">LAPORAN KEUANGAN KEGIATAN</h2>
-                    <h3 style="text-align: center; margin-top: 0;">${escapeHtml(pName)}</h3>
-                    <p style="text-align: center; font-size: 10pt;">Unit Kegiatan Mahasiswa LDK IMIP Politeknik Negeri Media Kreatif Jakarta</p>
-                    <hr/>
-                    <p><b>Total Pengeluaran:</b> ${formatFullRupiah(totalOut)}<br/><b>Total Pemasukan:</b> ${formatFullRupiah(totalIn)}<br/><b>Sisa Saldo:</b> ${formatFullRupiah(totalIn - totalOut)}</p>
-                    <table border="1">
+            const inTableHtml = `
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">PEMASUKAN</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">JUMLAH</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${inRowsHtml}
+                        <tr style="font-weight: bold;">
+                            <td colspan="2" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.effPemasukan)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // 2. Pengeluaran Sections: Belanja Bahan, Belanja Sewa, Belanja Jasa
+            let expSubIdx = 1;
+            let expenseTablesHtml = '';
+
+            const bahanKeys = Object.keys(data.bahanDivMap || {});
+            if (bahanKeys.length > 0) {
+                expenseTablesHtml += `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 6pt; margin-bottom: 4pt; margin-left: 36pt;">
+                        2.${expSubIdx++} Belanja Bahan
+                    </p>
+                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
                         <thead>
-                            <tr style="background-color: #f2f2f2; font-weight: bold;">
-                                <th style="border: 1px solid black; padding: 4.5pt; width: 5%;">No</th>
-                                <th style="border: 1px solid black; padding: 4.5pt; width: 45%;">Uraian / Kebutuhan</th>
-                                <th style="border: 1px solid black; padding: 4.5pt; width: 20%;">Divisi</th>
-                                <th style="border: 1px solid black; padding: 4.5pt; width: 15%;">Penanggung Jawab</th>
-                                <th style="border: 1px solid black; padding: 4.5pt; width: 15%;">Nominal</th>
+                            <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">URAIAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">UNIT</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">HARGA SATUAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">JUMLAH</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${rowsOutHtml}
+                            ${renderExpenseRowsHtml(data.bahanDivMap)}
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalBahan)}</td>
+                            </tr>
                         </tbody>
                     </table>
-                </body>
-                </html>
+                `;
+            }
+
+            const sewaKeys = Object.keys(data.sewaDivMap || {});
+            if (sewaKeys.length > 0) {
+                expenseTablesHtml += `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 8pt; margin-bottom: 4pt; margin-left: 36pt;">
+                        2.${expSubIdx++} Belanja Sewa
+                    </p>
+                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">URAIAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">UNIT</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">HARGA SATUAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">JUMLAH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderExpenseRowsHtml(data.sewaDivMap)}
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalSewa)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            const jasaKeys = Object.keys(data.jasaDivMap || {});
+            if (jasaKeys.length > 0) {
+                expenseTablesHtml += `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 8pt; margin-bottom: 4pt; margin-left: 36pt;">
+                        2.${expSubIdx++} Belanja Jasa
+                    </p>
+                    <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                        <thead>
+                            <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 44%;">URAIAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 14%;">UNIT</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">HARGA SATUAN</th>
+                                <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 18%;">JUMLAH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderExpenseRowsHtml(data.jasaDivMap)}
+                            <tr style="font-weight: bold;">
+                                <td colspan="4" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL</td>
+                                <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.totalJasa)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (!expenseTablesHtml) {
+                expenseTablesHtml = `
+                    <p style="font-family: 'Times New Roman', serif; font-size: 10.5pt; font-style: italic; margin-left: 36pt; margin-bottom: 14pt;">
+                        Tidak ada transaksi pengeluaran.
+                    </p>
+                `;
+            }
+
+            // 3. Rekapitulasi Keuangan Table
+            const rekapTableHtml = `
+                <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 14pt; font-family: 'Times New Roman', serif; font-size: 10.5pt;">
+                    <thead>
+                        <tr style="font-weight: bold; background-color: #FFFFFF; mso-yfti-tblheader: no;">
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 6%;">NO</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 64%;">KETERANGAN</th>
+                            <th style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center; width: 30%;">JUMLAH</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">1</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left;">Pemasukan</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.effPemasukan)}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">2</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: left;">Pengeluaran</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.effPengeluaran)}</td>
+                        </tr>
+                        <tr style="font-weight: bold;">
+                            <td colspan="2" style="border: 1px solid black; padding: 4.5pt 6pt; text-align: center;">TOTAL SALDO</td>
+                            <td style="border: 1px solid black; padding: 4.5pt 6pt; text-align: right;">${formatRupiahLPJ(data.effSaldo)}</td>
+                        </tr>
+                    </tbody>
+                </table>
             `;
 
-            const blob = new Blob(['\ufeff', html], { type: 'application/msword;charset=utf-8' });
+            return `<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset='utf-8'>
+    <title>Laporan Keuangan - ${escapeHtmlLPJ(data.nama_proker)}</title>
+    <!--[if gte mso 9]>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+            <w:Compatibility>
+                <w:BreakWrappedTables/>
+                <w:SnapToGridInCell/>
+                <w:WrapTextWithPunct/>
+                <w:UseAsianBreakRules/>
+                <w:DontGrowAutofit/>
+            </w:Compatibility>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page Section1 {
+            size: 210mm 297mm;
+            margin: 20mm 20mm 20mm 20mm;
+            mso-header-margin: 35.4pt;
+            mso-footer-margin: 35.4pt;
+            mso-paper-source: 0;
+        }
+        div.Section1 { page: Section1; }
+        @page {
+            size: A4 portrait;
+            margin: 20mm 20mm 20mm 20mm;
+            mso-page-orientation: portrait;
+        }
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            color: #000000;
+            line-height: 1.35;
+            background: #FFFFFF;
+            margin: 0;
+            padding: 0;
+            mso-pagination: widow-orphan;
+        }
+        thead {
+            display: table-row-group;
+        }
+        p { margin: 0; padding: 0; }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            mso-pagination: widow-orphan;
+        }
+        tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            mso-yfti-tblheader: no;
+        }
+        @media print {
+            thead {
+                display: table-row-group;
+            }
+            tr {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="Section1">
+        <p style="font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold; margin-bottom: 6pt;">
+            J. Laporan Keuangan
+        </p>
+
+        <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 4pt; margin-bottom: 5pt; margin-left: 18pt;">
+            1. Pemasukan
+        </p>
+        ${inTableHtml}
+
+        <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 5pt; margin-left: 18pt;">
+            2. Pengeluaran
+        </p>
+        ${expenseTablesHtml}
+
+        <p style="font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold; margin-top: 10pt; margin-bottom: 5pt; margin-left: 18pt;">
+            3. Rekapitulasi Keuangan
+        </p>
+        ${rekapTableHtml}
+    </div>
+</body>
+</html>`;
+        }
+
+        // Unduh LPJ / RAB dalam format Word (.doc)
+        function exportProkerToWord() {
+            const data = getProkerReportData();
+            if (!data) return;
+
+            const htmlContent = generateWordReportHtml(data);
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword;charset=utf-8'
+            });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Laporan_Keuangan_${pName.replace(/[^a-zA-Z0-9_\-]/g, '_')}.doc`;
+            a.download = `Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'File Word Berhasil Diunduh!',
+                    html: `
+                        <div class="text-xs text-neutral-700 dark:text-neutral-300 text-left space-y-2 mt-2">
+                            <div>📄 Berkas: <b>Laporan_Keuangan_${sanitizeFilename(data.nama_proker)}.doc</b></div>
+                            <div class="p-2.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 rounded-xl text-[11px] leading-relaxed text-blue-800 dark:text-blue-200">
+                                💻 <b>PC / Laptop:</b> Buka langsung dengan Microsoft Word atau WPS Office.<br>
+                                📱 <b>Buka di HP (Android):</b> Gunakan aplikasi <b>WPS Office</b> atau <b>Microsoft 365</b>. Atau gunakan tombol <b>Cetak PDF</b> agar langsung tampil sempurna di HP.
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonText: 'Oke, Mengerti',
+                    confirmButtonColor: '#FF7300'
+                });
+            }
+        }
+
+        // Cetak Dokumen Resmi LPJ / RAB (Bukan cetak tampilan web)
+        function printProkerReport() {
+            const data = getProkerReportData();
+            if (!data) return;
+
+            const htmlContent = generateWordReportHtml(data);
+            printHtmlDirectly(htmlContent, `Laporan Keuangan - ${data.nama_proker}`);
+        }
+
+        function printHtmlDirectly(htmlContent, docTitle) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.open();
+                    printWindow.document.write(htmlContent);
+                    if (docTitle) printWindow.document.title = docTitle;
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 500);
+                    return;
+                }
+            }
+
+            let iframe = document.getElementById('lpj_print_frame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'lpj_print_frame';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.visibility = 'hidden';
+                document.body.appendChild(iframe);
+            }
+
+            try {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(htmlContent);
+                if (docTitle) doc.title = docTitle;
+                doc.close();
+
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }, 350);
+            } catch (err) {
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'warning', title: 'Pop-up Terblokir', text: 'Izinkan pop-up browser untuk mencetak/menyimpan PDF.' });
+                    } else {
+                        alert('Izinkan pop-up browser untuk mencetak/menyimpan PDF.');
+                    }
+                    return;
+                }
+                printWindow.document.open();
+                printWindow.document.write(htmlContent);
+                if (docTitle) printWindow.document.title = docTitle;
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                }, 450);
+            }
         }
 
         function escapeHtml(str) {
