@@ -672,10 +672,10 @@
 
                         <!-- Quick Action Buttons: Sejajar di Kanan Atas dengan Logo Badges -->
                         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                            <!-- Tombol Unduh LPJ (.doc): Icon di HP, Teks di Desktop -->
-                            <button type="button" onclick="exportProkerToWord()" class="hero-action-btn w-8 h-8 sm:w-auto px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer shrink-0 active:scale-95" title="Unduh Dokumen Laporan / RAB Format Word (.doc)">
-                                <i class="fa-solid fa-file-word text-blue-400 text-xs shrink-0"></i> 
-                                <span class="hidden sm:inline">Unduh LPJ (.doc)</span>
+                            <!-- Tombol Unduh LPJ & Export RAB: Icon di HP, Teks di Desktop -->
+                            <button type="button" onclick="bukaModalExportProkerDetail()" class="hero-action-btn w-8 h-8 sm:w-auto px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-[10.5px] sm:text-xs font-bold text-neutral-200 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 hover:text-orange-400 transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer shrink-0 active:scale-95" title="Unduh Dokumen LPJ & Export RAB Kegiatan">
+                                <i class="fa-solid fa-download text-orange-400 text-xs shrink-0"></i> 
+                                <span class="hidden sm:inline">Unduh LPJ & RAB</span>
                             </button>
 
                             <!-- Tombol Cetak PDF: Icon di HP, Teks di Desktop -->
@@ -3079,6 +3079,229 @@
                     confirmButtonColor: '#FF7300'
                 });
             }
+        }
+
+        // Generate format CSV untuk olah angka Spreadsheet / Excel
+        function generateCsvReport(data) {
+            let csv = '\ufeff'; // UTF-8 BOM
+            csv += `"LAPORAN KEUANGAN REALISASI ANGGARAN & RAB"\n`;
+            csv += `"Program Kerja:","${(data.nama_proker || '').replace(/"/g, '""')}"\n`;
+            csv += `"Divisi:","${(data.divisi || '').replace(/"/g, '""')}"\n`;
+            csv += `"Ketua Pelaksana:","${(data.ketua || '').replace(/"/g, '""')}"\n`;
+            csv += `"Tanggal:","${data.tanggal}"\n\n`;
+
+            // 1. Pemasukan
+            csv += `"1. Pemasukan"\n`;
+            csv += `"NO","SUMBER PEMASUKAN","JUMLAH"\n`;
+            if (data.inCategories.length === 0) {
+                csv += `"-","Nihil","Rp0,00"\n`;
+            } else {
+                data.inCategories.forEach((cat, idx) => {
+                    csv += `"${idx + 1}","${cat.label.replace(/"/g, '""')}","${formatRupiahLPJ(cat.nominal)}"\n`;
+                });
+            }
+            csv += `"TOTAL PEMASUKAN","","${formatRupiahLPJ(data.effPemasukan)}"\n\n`;
+
+            // 2. Pengeluaran
+            csv += `"2. Pengeluaran"\n`;
+            let csvExpIdx = 1;
+
+            // 2.1 Belanja Bahan
+            const bahanDivKeys = Object.keys(data.bahanDivMap || {});
+            if (bahanDivKeys.length > 0) {
+                csv += `"2.${csvExpIdx++} Belanja Bahan"\n`;
+                csv += `"NO","URAIAN","UNIT","HARGA SATUAN","JUMLAH"\n`;
+                bahanDivKeys.forEach((divName, divIdx) => {
+                    const items = data.bahanDivMap[divName] || [];
+                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                    const letter = getGroupLetter(divIdx);
+                    csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
+                    items.forEach(item => {
+                        const itemNominal = Number(item.nominal) || 0;
+                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                            ? item.uraian 
+                            : (item.keterangan || item.catatan || 'Pengeluaran');
+                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                        csv += `"-","${cleanUraian.replace(/"/g, '""')}","${item.volume || 1} ${item.satuan || 'pkt'}","${formatRupiahLPJ(item.harga_satuan || itemNominal)}","${formatRupiahLPJ(itemNominal)}"\n`;
+                    });
+                });
+            }
+
+            // 2.2 Belanja Sewa
+            const sewaDivKeys = Object.keys(data.sewaDivMap || {});
+            if (sewaDivKeys.length > 0) {
+                csv += `"2.${csvExpIdx++} Belanja Sewa"\n`;
+                csv += `"NO","URAIAN","UNIT","HARGA SATUAN","JUMLAH"\n`;
+                sewaDivKeys.forEach((divName, divIdx) => {
+                    const items = data.sewaDivMap[divName] || [];
+                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                    const letter = getGroupLetter(divIdx);
+                    csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
+                    items.forEach(item => {
+                        const itemNominal = Number(item.nominal) || 0;
+                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                            ? item.uraian 
+                            : (item.keterangan || item.catatan || 'Pengeluaran');
+                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                        csv += `"-","${cleanUraian.replace(/"/g, '""')}","${item.volume || 1} ${item.satuan || 'pkt'}","${formatRupiahLPJ(item.harga_satuan || itemNominal)}","${formatRupiahLPJ(itemNominal)}"\n`;
+                    });
+                });
+            }
+
+            // 2.3 Belanja Jasa
+            const jasaDivKeys = Object.keys(data.jasaDivMap || {});
+            if (jasaDivKeys.length > 0) {
+                csv += `"2.${csvExpIdx++} Belanja Jasa"\n`;
+                csv += `"NO","URAIAN","UNIT","HARGA SATUAN","JUMLAH"\n`;
+                jasaDivKeys.forEach((divName, divIdx) => {
+                    const items = data.jasaDivMap[divName] || [];
+                    const divSubtotal = items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0);
+                    const letter = getGroupLetter(divIdx);
+                    csv += `"${letter}","${divName.replace(/"/g, '""')}","","","${formatRupiahLPJ(divSubtotal)}"\n`;
+                    items.forEach(item => {
+                        const itemNominal = Number(item.nominal) || 0;
+                        const rawUraian = item.uraian && item.uraian.trim() !== '' && item.uraian.toUpperCase() !== 'NULL' 
+                            ? item.uraian 
+                            : (item.keterangan || item.catatan || 'Pengeluaran');
+                        const cleanUraian = cleanTitle(rawUraian) || 'Pengeluaran';
+                        csv += `"-","${cleanUraian.replace(/"/g, '""')}","${item.volume || 1} ${item.satuan || 'pkt'}","${formatRupiahLPJ(item.harga_satuan || itemNominal)}","${formatRupiahLPJ(itemNominal)}"\n`;
+                    });
+                });
+            }
+
+            csv += `"TOTAL PENGELUARAN","","","","${formatRupiahLPJ(data.effPengeluaran)}"\n\n`;
+
+            // 3. Rekapitulasi
+            csv += `"3. Rekapitulasi"\n`;
+            csv += `"URAIAN","JUMLAH"\n`;
+            csv += `"Pemasukan","${formatRupiahLPJ(data.effPemasukan)}"\n`;
+            csv += `"Pengeluaran","${formatRupiahLPJ(data.effPengeluaran)}"\n`;
+            csv += `"TOTAL SALDO","${formatRupiahLPJ(data.effSaldo)}"\n`;
+
+            return csv;
+        }
+
+        // Unduh Laporan format CSV (Excel)
+        function exportProkerToCsv() {
+            const data = getProkerReportData();
+            if (!data) return;
+
+            const csvContent = generateCsvReport(data);
+            const blob = new Blob([csvContent], {
+                type: 'text/csv;charset=utf-8;'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Laporan_RAB_${sanitizeFilename(data.nama_proker)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'File CSV Berhasil Diunduh!',
+                    text: `Laporan_RAB_${sanitizeFilename(data.nama_proker)}.csv siap dibuka di Excel / Google Sheets.`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        }
+
+        // Modal Pilihan Download Lengkap & Export RAB Per Kegiatan
+        function bukaModalExportProkerDetail() {
+            const p = currentProker;
+            if (!p) return;
+
+            const pName = p.nama_proker || p.nama_kegiatan || 'Kegiatan';
+            const divName = formatDivisiName(p.divisi);
+            const ketuaName = getMemberName(p.id_anggota || p.ketua);
+
+            if (typeof Swal === 'undefined') {
+                exportProkerToWord();
+                return;
+            }
+
+            Swal.fire({
+                title: '<div class="text-sm sm:text-base font-bold text-neutral-900 dark:text-neutral-100 font-sans flex items-center justify-center gap-2"><span>📑</span><span>Unduh LPJ & Export RAB</span></div>',
+                html: `
+                    <div class="text-left font-sans text-xs text-neutral-700 dark:text-neutral-300 flex flex-col gap-3">
+                        <div class="p-2.5 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl">
+                            <div class="text-orange-600 dark:text-orange-400 font-bold text-xs uppercase flex items-center gap-1.5">
+                                <span>📌</span> <span>${escapeHtmlLPJ(pName)}</span>
+                            </div>
+                            <div class="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 font-mono">
+                                Divisi: <b>${escapeHtmlLPJ(divName)}</b> • Ketua: <b>${escapeHtmlLPJ(ketuaName)}</b>
+                            </div>
+                        </div>
+
+                        <!-- OPSI DOKUMEN LAPORAN & RAB -->
+                        <div class="border-2 border-orange-500/30 dark:border-orange-500/40 bg-orange-50/30 dark:bg-orange-950/20 rounded-xl p-3 flex flex-col gap-2">
+                            <div class="flex items-center justify-between pb-1.5 border-b border-orange-200 dark:border-orange-800/40">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-md bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-xs">📑</span>
+                                    <h4 class="font-black text-xs text-orange-800 dark:text-orange-300 uppercase tracking-tight">Dokumen LPJ & Realisasi RAB</h4>
+                                </div>
+                                <span class="text-[8px] font-mono font-bold bg-orange-500/15 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full border border-orange-500/30">RESMI</span>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5 pt-0.5">
+                                <!-- Pilihan 1: Word (.doc) LPJ & RAB -->
+                                <button type="button" onclick="exportProkerToWord(); Swal.close();" class="w-full flex items-center justify-between p-2.5 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-850 border border-neutral-200 dark:border-neutral-800 hover:border-blue-500/40 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0">W</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-neutral-800 dark:text-neutral-200 text-xs">Microsoft Word (.doc) LPJ & RAB</span>
+                                                <span class="text-[8px] font-mono text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.2 rounded">MS Word / WPS</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Format tabel lengkap ber-Kop Surat dan lembar pengesahan</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/40 px-2 py-1 rounded shrink-0">Unduh .doc</span>
+                                </button>
+
+                                <!-- Pilihan 2: PDF Langsung Siap Cetak -->
+                                <button type="button" onclick="printProkerReport(); Swal.close();" class="w-full flex items-center justify-between p-2.5 bg-white dark:bg-neutral-900 hover:bg-amber-50 dark:hover:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-500/70 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold text-sm shrink-0">🖨️</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-extrabold text-neutral-900 dark:text-neutral-100 text-xs">Cetak / Simpan PDF RAB</span>
+                                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-500 px-1.5 py-0.2 rounded-full shadow-xs">⭐ REKOMENDASI HP</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-600 dark:text-neutral-400 truncate">Format resmi tabel siap kirim & cetak (anti-geser)</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700 px-2 py-1 rounded shrink-0">Buka PDF</span>
+                                </button>
+
+                                <!-- Pilihan 3: CSV Spreadsheet -->
+                                <button type="button" onclick="exportProkerToCsv(); Swal.close();" class="w-full flex items-center justify-between p-2.5 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-850 border border-neutral-200 dark:border-neutral-800 hover:border-emerald-500/40 rounded-xl transition-all cursor-pointer group text-left shadow-xs">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-sm shrink-0">X</span>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-neutral-800 dark:text-neutral-200 text-xs">Spreadsheet CSV (.csv) RAB</span>
+                                                <span class="text-[8px] font-mono text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.2 rounded">Excel / Sheets</span>
+                                            </div>
+                                            <div class="text-[9.5px] text-neutral-500 dark:text-neutral-400 truncate">Tabel data angka per pos belanja untuk olah spreadsheet</div>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/40 px-2 py-1 rounded shrink-0">Unduh .csv</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl max-w-md w-[95%] sm:w-full bg-white dark:bg-[#0F1623]'
+                }
+            });
         }
 
         // Cetak Dokumen Resmi LPJ / RAB (Bukan cetak tampilan web)
