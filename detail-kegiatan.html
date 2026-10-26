@@ -319,6 +319,17 @@
             color: #0F172A !important;
         }
 
+        /* Mobile Transaction Cards in Light Mode */
+        html.light-mode .tx-mobile-card {
+            background-color: #FFFFFF !important;
+            border-color: #FED7AA !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        html.light-mode .tx-mobile-card:hover {
+            border-color: #FDBA74 !important;
+        }
+
         /* Mobile bottom nav Light Mode */
         html.light-mode .mobile-bottom-nav {
             background-color: rgba(255, 255, 255, 0.95) !important;
@@ -847,16 +858,6 @@
                         </button>
                     </div>
                 </div>
-                            Semua
-                        </button>
-                        <button type="button" id="filter_type_keluar" onclick="setTypeFilter('KELUAR')" class="px-2.5 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center gap-1" title="Tampilkan Hanya Pengeluaran">
-                            <i class="fa-solid fa-arrow-up text-[9px] text-rose-400"></i> Pengeluaran
-                        </button>
-                        <button type="button" id="filter_type_masuk" onclick="setTypeFilter('MASUK')" class="px-2.5 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center gap-1" title="Tampilkan Hanya Pemasukan">
-                            <i class="fa-solid fa-arrow-down text-[9px] text-emerald-400"></i> Pemasukan
-                        </button>
-                    </div>
-                </div>
 
                 <!-- Search & Divisi Filter Controls -->
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -872,9 +873,9 @@
                 <!-- Container Filter Chips Aktif -->
                 <div id="active_filter_chips" class="hidden"></div>
 
-                <!-- Table Container with Horizontal Scroll -->
-                <div class="overflow-x-auto rounded-xl border border-neutral-800 -mx-1 sm:mx-0">
-                    <table class="w-full text-left border-collapse text-xs min-w-[600px] sm:min-w-full">
+                <!-- DESKTOP / TABLET: Table View (Hidden on Mobile) -->
+                <div class="hidden sm:block overflow-x-auto rounded-xl border border-neutral-800">
+                    <table class="w-full text-left border-collapse text-xs min-w-full">
                         <thead>
                             <tr class="table-header bg-neutral-950/80 border-b border-neutral-800 text-[9.5px] sm:text-[10px] font-mono uppercase text-neutral-400 font-bold">
                                 <th class="py-2.5 sm:py-3 px-3">Tanggal</th>
@@ -889,6 +890,11 @@
                             <!-- Di-render dinamis via JS -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- MOBILE: Modern Responsive Card List (Visible only on Mobile < 640px) -->
+                <div id="transactions_mobile_list" class="sm:hidden space-y-2.5">
+                    <!-- Di-render dinamis via JS -->
                 </div>
 
                 <div id="tx_empty_state" class="hidden py-8 text-center text-xs text-neutral-400 font-mono italic">
@@ -2041,6 +2047,7 @@
 
         function filterTransactionsTable() {
             const tbody = document.getElementById('transactions_table_body');
+            const mobileList = document.getElementById('transactions_mobile_list');
             const emptyEl = document.getElementById('tx_empty_state');
             if (!tbody) return;
 
@@ -2078,12 +2085,14 @@
 
             if (filtered.length === 0) {
                 tbody.innerHTML = '';
+                if (mobileList) mobileList.innerHTML = '';
                 if (emptyEl) emptyEl.classList.remove('hidden');
                 return;
             }
 
             if (emptyEl) emptyEl.classList.add('hidden');
 
+            // 1. Render Desktop Table Rows
             tbody.innerHTML = filtered.map(t => {
                 const isExpense = (t.jenis || '').toLowerCase().trim() !== 'masuk';
                 const div = formatDivisiName(t.divisi);
@@ -2145,6 +2154,77 @@
                 </tr>
                 `;
             }).join('');
+
+            // 2. Render Mobile Responsive Cards View (< 640px)
+            if (mobileList) {
+                mobileList.innerHTML = filtered.map(t => {
+                    const isExpense = (t.jenis || '').toLowerCase().trim() !== 'masuk';
+                    const div = formatDivisiName(t.divisi);
+                    const pj = getMemberName(t.user_id || t.id_anggota || t.pj);
+                    const desc = t.uraian || t.keterangan || t.catatan || 'Kebutuhan Acara';
+                    const receiptUrl = getReceiptUrl(t);
+                    const nom = Number(t.nominal) || 0;
+                    const cat = getTransactionCategory(t);
+
+                    let catBadgeStyle = 'text-orange-400 bg-orange-500/10 border-orange-500/25';
+                    if (cat === 'Belanja Sewa') catBadgeStyle = 'text-sky-400 bg-sky-500/10 border-sky-500/25';
+                    if (cat === 'Belanja Jasa') catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
+
+                    return `
+                    <div class="tx-mobile-card p-3 rounded-xl bg-neutral-950/60 border border-neutral-800/80 space-y-2 hover:border-neutral-700 transition-all">
+                        <!-- Baris Atas: Tanggal & Divisi -->
+                        <div class="flex items-center justify-between text-[10px] font-mono">
+                            <span class="text-neutral-400 flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar text-[9px] text-neutral-500"></i>
+                                ${formatReadableDate(t.tanggal, true)}
+                            </span>
+                            <button type="button" onclick="toggleDivisionFilter('${escapeHtml(div)}')" class="px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 text-[9.5px] font-semibold text-neutral-300 cursor-pointer transition-colors max-w-[150px] truncate" title="Filter divisi ${escapeHtml(div)}">
+                                ${escapeHtml(div)}
+                            </button>
+                        </div>
+
+                        <!-- Baris Utama: Deskripsi & Nominal -->
+                        <div class="flex items-start justify-between gap-2.5">
+                            <div class="font-bold text-white text-xs leading-snug flex-1">
+                                ${escapeHtml(desc)}
+                            </div>
+                            <div class="text-right font-mono font-black text-xs whitespace-nowrap shrink-0 ${isExpense ? 'text-rose-400' : 'text-emerald-400'}">
+                                ${isExpense ? '-' : '+'}${formatFullRupiah(nom)}
+                            </div>
+                        </div>
+
+                        <!-- Baris Bawah: Kategori, Metode, PJ & Tombol Nota -->
+                        <div class="flex items-center justify-between pt-2 border-t border-neutral-800/60 text-[9.5px] font-mono">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${isExpense ? `
+                                <button type="button" onclick="toggleCategoryFilter('${escapeHtml(cat)}')" class="px-1.5 py-0.5 rounded border ${catBadgeStyle} font-bold text-[9px] hover:brightness-125 transition-all cursor-pointer">
+                                    ${escapeHtml(cat)}
+                                </button>
+                                ` : `
+                                <button type="button" onclick="setTypeFilter('MASUK')" class="px-1.5 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/25 font-bold text-[9px] hover:brightness-125 transition-all cursor-pointer">
+                                    Pemasukan
+                                </button>
+                                `}
+                                <span class="text-neutral-400 bg-neutral-900/80 px-1.5 py-0.5 rounded border border-neutral-800/50 text-[9px]">${escapeHtml(t.metode || 'Tunai')}</span>
+                                <span class="text-neutral-400 flex items-center gap-1 text-[9.5px]">
+                                    <i class="fa-solid fa-user-tag text-[8.5px] text-amber-400"></i> ${escapeHtml(pj)}
+                                </span>
+                            </div>
+
+                            <div class="shrink-0 ml-1">
+                                ${receiptUrl ? `
+                                    <button type="button" onclick="previewReceipt('${escapeHtml(receiptUrl)}', '${escapeHtml(desc)}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-[#FF7300] border border-orange-500/30 text-[9.5px] font-bold font-mono transition-all cursor-pointer">
+                                        <i class="fa-solid fa-image text-[9px]"></i> Nota
+                                    </button>
+                                ` : `
+                                    <span class="text-[9.5px] text-neutral-600 font-mono">-</span>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
         }
 
         // Render Filter Chips Indicator
