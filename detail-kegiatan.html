@@ -275,6 +275,27 @@
             box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.12) !important;
         }
 
+        /* Type Filter Segmented Switcher in Light Mode */
+        html.light-mode #tx_type_segmented_group {
+            background-color: #FFFFFF !important;
+            border-color: #FED7AA !important;
+        }
+
+        html.light-mode #tx_type_segmented_group button {
+            color: #64748B !important;
+        }
+
+        html.light-mode #tx_type_segmented_group button:hover {
+            color: #0F172A !important;
+            background-color: #FFF7ED !important;
+        }
+
+        html.light-mode #tx_type_segmented_group button.active-type-btn {
+            background: linear-gradient(to right, #FF7300, #EA580C) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 1px 3px rgba(255, 115, 0, 0.25) !important;
+        }
+
         /* Table Light Mode */
         html.light-mode tr.table-header {
             background-color: #FFF7ED !important;
@@ -521,7 +542,7 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 
                 <!-- CARD 1: TOTAL PENGELUARAN -->
-                <div class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg">
+                <div onclick="setTypeFilter('KELUAR', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-rose-500/50 group" title="Klik untuk filter tabel ke Pengeluaran">
                     <div class="flex items-center justify-between gap-1 mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-rose-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-arrow-up text-xs shrink-0"></i> Pengeluaran
@@ -530,7 +551,7 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1">
-                            <h3 id="stat_total_pengeluaran_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                            <h3 id="stat_total_pengeluaran_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight group-hover:text-rose-400 transition-colors">
                                 Rp0
                             </h3>
                         </div>
@@ -545,7 +566,7 @@
                 </div>
 
                 <!-- CARD 2: TOTAL PEMASUKAN -->
-                <div class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg">
+                <div onclick="setTypeFilter('MASUK', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-emerald-500/50 group" title="Klik untuk filter tabel ke Pemasukan">
                     <div class="flex items-center justify-between gap-1 mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-emerald-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-arrow-down text-xs shrink-0"></i> Pemasukan
@@ -554,7 +575,7 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1">
-                            <h3 id="stat_total_pemasukan_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-emerald-400 tracking-tight">
+                            <h3 id="stat_total_pemasukan_compact" class="text-lg sm:text-2xl md:text-3xl font-black text-emerald-400 tracking-tight group-hover:brightness-125 transition-colors">
                                 Rp0
                             </h3>
                         </div>
@@ -593,7 +614,7 @@
                 </div>
 
                 <!-- CARD 4: JUMLAH TRANSAKSI -->
-                <div class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg">
+                <div onclick="setTypeFilter('ALL', true)" class="surface-card stat-card-glow rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer hover:border-sky-500/50 group" title="Klik untuk menampilkan Semua Transaksi">
                     <div class="flex items-center justify-between gap-1 mb-2">
                         <span class="text-[9px] sm:text-[10px] font-black font-mono tracking-wider uppercase text-sky-400 flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-receipt text-xs shrink-0"></i> Transaksi
@@ -602,7 +623,7 @@
                     </div>
                     <div>
                         <div class="flex items-baseline gap-1.5">
-                            <h3 id="stat_jumlah_transaksi" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                            <h3 id="stat_jumlah_transaksi" class="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight group-hover:text-sky-400 transition-colors">
                                 0
                             </h3>
                             <span class="text-[10px] sm:text-xs font-bold text-neutral-400">Total</span>
@@ -714,16 +735,29 @@
                         </div>
                     </div>
 
-                    <!-- Search & Filter Controls -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <div class="relative flex-1 sm:w-60">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
-                            <input type="text" id="tx_search_input" oninput="filterTransactionsTable()" placeholder="Cari barang, divisi, atau PJ..." class="w-full pl-8 pr-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-orange-500 transition-colors">
-                        </div>
-                        <select id="tx_divisi_filter" onchange="handleSelectDivisionChange(this.value)" class="bg-neutral-950 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-orange-500 transition-colors cursor-pointer">
-                            <option value="ALL">Semua Divisi Kepanitiaan</option>
-                        </select>
+                    <!-- Filter Jenis Transaksi (Semua | Pengeluaran | Pemasukan) -->
+                    <div id="tx_type_segmented_group" class="inline-flex p-1 bg-neutral-950 border border-neutral-800 rounded-xl text-[10px] sm:text-[10.5px] font-mono font-bold shrink-0 self-start sm:self-auto shadow-xs">
+                        <button type="button" id="filter_type_all" onclick="setTypeFilter('ALL')" class="active-type-btn px-2.5 sm:px-3 py-1 rounded-lg text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs transition-all cursor-pointer" title="Tampilkan Semua Transaksi">
+                            Semua
+                        </button>
+                        <button type="button" id="filter_type_keluar" onclick="setTypeFilter('KELUAR')" class="px-2.5 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center gap-1" title="Tampilkan Hanya Pengeluaran">
+                            <i class="fa-solid fa-arrow-up text-[9px] text-rose-400"></i> Pengeluaran
+                        </button>
+                        <button type="button" id="filter_type_masuk" onclick="setTypeFilter('MASUK')" class="px-2.5 sm:px-3 py-1 rounded-lg text-neutral-400 hover:text-white transition-all cursor-pointer flex items-center gap-1" title="Tampilkan Hanya Pemasukan">
+                            <i class="fa-solid fa-arrow-down text-[9px] text-emerald-400"></i> Pemasukan
+                        </button>
                     </div>
+                </div>
+
+                <!-- Search & Divisi Filter Controls -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
+                        <input type="text" id="tx_search_input" oninput="filterTransactionsTable()" placeholder="Cari uraian, barang, divisi, atau PJ..." class="w-full pl-8 pr-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-orange-500 transition-colors">
+                    </div>
+                    <select id="tx_divisi_filter" onchange="handleSelectDivisionChange(this.value)" class="bg-neutral-950 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-orange-500 transition-colors cursor-pointer sm:w-auto">
+                        <option value="ALL">Semua Divisi Kepanitiaan</option>
+                    </select>
                 </div>
 
                 <!-- Container Filter Chips Aktif -->
@@ -842,6 +876,7 @@
         let pilarDoughnutInstance = null;
         let activeDivisionFilter = null; // null or string e.g. 'Divisi Korlap'
         let activeCategoryFilter = null; // null or 'Belanja Bahan' | 'Belanja Sewa' | 'Belanja Jasa'
+        let activeTypeFilter = 'ALL'; // 'ALL' | 'KELUAR' | 'MASUK'
         let currentPilarTotals = { bahan: 0, sewa: 0, jasa: 0, totalOut: 0 };
 
         // =========================================================
@@ -1707,6 +1742,11 @@
                 activeCategoryFilter = catName;
                 // Kunci 1 filter saja: otomatis lepas filter divisi
                 activeDivisionFilter = null;
+                // Kategori belanja adalah pengeluaran, jika sedang filter pemasukan, alihkan ke pengeluaran
+                if (activeTypeFilter === 'MASUK') {
+                    activeTypeFilter = 'KELUAR';
+                    updateTypeFilterButtons();
+                }
             }
 
             // Kembalikan diagram batang ke tampilan default (semua batang menyala penuh)
@@ -1835,7 +1875,59 @@
 
         // 5. Render Tabel Rincian Semua Transaksi
         function renderTransactionsTable() {
+            updateTypeFilterButtons();
             filterTransactionsTable();
+        }
+
+        function setTypeFilter(type, shouldScroll = false) {
+            if (activeTypeFilter === type && type !== 'ALL') {
+                // Klik tombol aktif yang sama -> reset ke ALL (toggle)
+                activeTypeFilter = 'ALL';
+            } else {
+                activeTypeFilter = type;
+            }
+
+            // Jika filter Pemasukan dipilih, lepaskan filter kategori donat (karena kategori donat hanya untuk belanja)
+            if (activeTypeFilter === 'MASUK' && activeCategoryFilter) {
+                activeCategoryFilter = null;
+                updatePilarDoughnutVisuals();
+            }
+
+            updateTypeFilterButtons();
+            filterTransactionsTable();
+
+            if (shouldScroll) {
+                scrollToTransactions();
+            }
+        }
+
+        function updateTypeFilterButtons() {
+            const btnAll = document.getElementById('filter_type_all');
+            const btnKeluar = document.getElementById('filter_type_keluar');
+            const btnMasuk = document.getElementById('filter_type_masuk');
+            if (!btnAll || !btnKeluar || !btnMasuk) return;
+
+            const baseClass = "px-2.5 sm:px-3 py-1 rounded-lg text-[10px] sm:text-[10.5px] font-mono font-bold transition-all cursor-pointer";
+            const inactiveClass = "text-neutral-400 hover:text-white";
+            const activeClass = "active-type-btn text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] shadow-xs";
+
+            btnAll.className = `${baseClass} ${activeTypeFilter === 'ALL' ? activeClass : inactiveClass}`;
+            btnKeluar.className = `${baseClass} ${activeTypeFilter === 'KELUAR' ? activeClass : inactiveClass}`;
+            btnMasuk.className = `${baseClass} ${activeTypeFilter === 'MASUK' ? activeClass : inactiveClass}`;
+
+            if (activeTypeFilter === 'ALL') {
+                btnAll.classList.add('active-type-btn');
+                btnKeluar.classList.remove('active-type-btn');
+                btnMasuk.classList.remove('active-type-btn');
+            } else if (activeTypeFilter === 'KELUAR') {
+                btnKeluar.classList.add('active-type-btn');
+                btnAll.classList.remove('active-type-btn');
+                btnMasuk.classList.remove('active-type-btn');
+            } else if (activeTypeFilter === 'MASUK') {
+                btnMasuk.classList.add('active-type-btn');
+                btnAll.classList.remove('active-type-btn');
+                btnKeluar.classList.remove('active-type-btn');
+            }
         }
 
         function filterTransactionsTable() {
@@ -1851,6 +1943,10 @@
                 const pj = getMemberName(t.user_id || t.id_anggota || t.pj);
                 const desc = (t.uraian || t.keterangan || t.catatan || '').toLowerCase();
                 const cat = getTransactionCategory(t);
+
+                // Type filter: Pemasukan vs Pengeluaran
+                if (activeTypeFilter === 'KELUAR' && !isExpense) return false;
+                if (activeTypeFilter === 'MASUK' && isExpense) return false;
 
                 // Division filter
                 if (activeDivisionFilter && div !== activeDivisionFilter) return false;
@@ -1891,7 +1987,6 @@
                 let catBadgeStyle = 'text-orange-400 bg-orange-500/10 border-orange-500/25';
                 if (cat === 'Belanja Sewa') catBadgeStyle = 'text-sky-400 bg-sky-500/10 border-sky-500/25';
                 if (cat === 'Belanja Jasa') catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
-                if (!isExpense) catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
 
                 return `
                 <tr class="table-row border-b border-neutral-800/60 hover:bg-neutral-800/30 transition-colors">
@@ -1903,9 +1998,15 @@
                             ${escapeHtml(desc)}
                         </div>
                         <div class="text-[9.5px] sm:text-[10px] font-mono text-neutral-400 mt-1 flex items-center gap-1.5 flex-wrap">
-                            <button type="button" onclick="toggleCategoryFilter('${escapeHtml(cat)}')" class="px-1.5 py-0.5 rounded border ${catBadgeStyle} font-bold text-[9px] hover:brightness-125 transition-all cursor-pointer" title="Klik untuk filter kategori ini">
-                                ${escapeHtml(isExpense ? cat : 'Pemasukan')}
+                            ${isExpense ? `
+                            <button type="button" onclick="toggleCategoryFilter('${escapeHtml(cat)}')" class="px-1.5 py-0.5 rounded border ${catBadgeStyle} font-bold text-[9px] hover:brightness-125 transition-all cursor-pointer" title="Klik untuk filter kategori ${escapeHtml(cat)}">
+                                ${escapeHtml(cat)}
                             </button>
+                            ` : `
+                            <button type="button" onclick="setTypeFilter('MASUK')" class="px-1.5 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/25 font-bold text-[9px] hover:brightness-125 transition-all cursor-pointer" title="Klik untuk filter Pemasukan">
+                                Pemasukan
+                            </button>
+                            `}
                             <span class="text-neutral-500">•</span>
                             <span class="text-neutral-400">${escapeHtml(t.metode || 'Tunai')}</span>
                         </div>
@@ -1942,7 +2043,7 @@
             const container = document.getElementById('active_filter_chips');
             if (!container) return;
 
-            if (!activeDivisionFilter && !activeCategoryFilter) {
+            if (!activeDivisionFilter && !activeCategoryFilter && activeTypeFilter === 'ALL') {
                 container.classList.add('hidden');
                 container.innerHTML = '';
                 return;
@@ -1951,6 +2052,19 @@
             container.classList.remove('hidden');
             let chipsHtml = `<div class="flex flex-wrap items-center gap-2 pt-1 pb-1">
                 <span class="text-[10px] font-mono text-neutral-400 flex items-center gap-1"><i class="fa-solid fa-filter text-orange-400"></i> Filter Aktif:</span>`;
+
+            if (activeTypeFilter !== 'ALL') {
+                const isKeluar = activeTypeFilter === 'KELUAR';
+                const typeLabel = isKeluar ? 'Pengeluaran' : 'Pemasukan';
+                const typeIcon = isKeluar ? 'fa-arrow-up' : 'fa-arrow-down';
+                const typeStyle = isKeluar ? 'text-rose-400 bg-rose-500/15 border-rose-500/30' : 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30';
+
+                chipsHtml += `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border ${typeStyle} text-[10px] sm:text-[10.5px] font-mono font-bold">
+                    <span><i class="fa-solid ${typeIcon} text-[9px] mr-1"></i>${typeLabel}</span>
+                    <button type="button" onclick="setTypeFilter('ALL')" class="hover:text-white transition-colors cursor-pointer ml-0.5" title="Hapus filter jenis"><i class="fa-solid fa-xmark text-xs"></i></button>
+                </span>`;
+            }
 
             if (activeDivisionFilter) {
                 chipsHtml += `
@@ -1984,11 +2098,13 @@
         function clearAllFilters() {
             activeDivisionFilter = null;
             activeCategoryFilter = null;
+            activeTypeFilter = 'ALL';
             const searchInput = document.getElementById('tx_search_input');
             if (searchInput) searchInput.value = '';
             const sel = document.getElementById('tx_divisi_filter');
             if (sel) sel.value = 'ALL';
 
+            updateTypeFilterButtons();
             if (divisionChartInstance) divisionChartInstance.update();
             updatePilarDoughnutVisuals();
             filterTransactionsTable();
