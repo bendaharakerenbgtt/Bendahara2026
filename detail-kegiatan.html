@@ -342,72 +342,181 @@
             opacity: 0.9;
         }
 
-        /* Unified Kabinet Button Styles (Identik dengan dasboard.html) */
-        .kabinet-circle-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            padding: 0;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94A3B8;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-        }
-        .kabinet-circle-btn:hover {
-            border-color: #FF7300;
-            color: #FFFFFF;
-            transform: scale(1.06);
-        }
-        html.light-mode .kabinet-circle-btn {
-            background: #FFF7ED !important;
-            border: 1.5px solid #FED7AA !important;
-            color: #C2410C !important;
-            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.06) !important;
-        }
-        html.light-mode .kabinet-circle-btn:hover {
-            background: #FFEDD5 !important;
-            border-color: #FB923C !important;
-            color: #EA580C !important;
+        /* Standard Header & Navigation Styles (Identik dengan lihat-kegiatan.html & riwayat-transaksi.html) */
+        header {
+            border-bottom-color: #262626 !important;
+            background-color: rgba(8, 12, 20, 0.88) !important;
+            transition: background-color 0.4s ease, border-color 0.4s ease;
         }
 
-        .theme-toggle-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            padding: 0;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #f1f5f9;
-            font-size: 13.5px;
+        html.light-mode header {
+            background-color: rgba(255, 247, 237, 0.94) !important;
+            border-bottom-color: #FED7AA !important;
+        }
+
+        html.light-mode #header_back_btn {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+            color: #9A3412 !important;
+        }
+
+        html.light-mode #header_back_btn:hover {
+            background-color: #FFEDD5 !important;
+            border-color: #FF7300 !important;
+            color: #FF7300 !important;
+        }
+
+        html.light-mode #quick_proker_select {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+            color: #0F172A !important;
+        }
+
+        html.light-mode #quick_proker_select:focus {
+            border-color: #FF7300 !important;
+        }
+
+        html.light-mode header button.theme-circle-btn,
+        html.light-mode header #themeToggleBtn {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+            color: #9A3412 !important;
+        }
+
+        html.light-mode header button.theme-circle-btn:hover,
+        html.light-mode header #themeToggleBtn:hover {
+            background-color: #FFEDD5 !important;
+            border-color: #FF7300 !important;
+        }
+
+        /* Screen Title Header & Subtitle High Contrast Rules */
+        .screen-title {
+            color: #ffffff;
+        }
+        html.light-mode .screen-title {
+            color: #0F172A !important;
+        }
+        html.light-mode .screen-subtitle {
+            color: #64748B !important;
+        }
+        html.light-mode .screen-header-wrap {
+            border-bottom-color: rgba(254, 215, 170, 0.85) !important;
+        }
+
+        /* Mobile Bottom Nav (Standard IMIP) */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(10, 14, 23, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 115, 0, 0.25);
+            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(255, 115, 0, 0.1);
+            z-index: 1000;
+            padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
+            align-items: center;
+            justify-content: space-around;
+            touch-action: manipulation;
+        }
+
+        html.light-mode .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top: 1.5px solid rgba(254, 215, 170, 0.95) !important;
+            box-shadow: 0 -4px 20px rgba(255, 115, 0, 0.12), 0 -1px 4px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            padding: 4px 2px;
+            color: #94a3b8;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .bottom-nav-item * {
+            pointer-events: none;
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .bottom-nav-item .nav-icon-wrap {
+            width: 34px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.25s ease;
+            position: relative;
         }
-        .theme-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: #FF7300;
-            transform: scale(1.06);
+
+        .bottom-nav-item .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            margin-top: 2px;
+            transition: color 0.2s ease, font-weight 0.2s ease;
+            white-space: nowrap;
         }
-        html.light-mode .theme-toggle-btn {
+
+        .bottom-nav-item.active {
+            color: #FF7300;
+        }
+        .bottom-nav-item.active .nav-icon-wrap {
+            background: rgba(255, 115, 0, 0.2);
+            color: #FF7300;
+            box-shadow: 0 0 14px rgba(255, 115, 0, 0.35);
+            border: 1px solid rgba(255, 115, 0, 0.3);
+        }
+        .bottom-nav-item.active .nav-label {
+            color: #FF7300;
+            font-weight: 800;
+        }
+
+        html.light-mode .bottom-nav-item {
+            color: #64748b;
+        }
+        html.light-mode .bottom-nav-item.active {
+            color: #ea580c !important;
+        }
+        html.light-mode .bottom-nav-item.active .nav-icon-wrap {
             background: #FFF7ED !important;
-            border: 1.5px solid #FED7AA !important;
-            color: #C2410C !important;
-            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.06) !important;
+            border-color: #FDBA74 !important;
+            color: #ea580c !important;
         }
-        html.light-mode .theme-toggle-btn:hover {
-            background: #FFEDD5 !important;
-            border-color: #FB923C !important;
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav {
+                display: flex !important;
+            }
+            body {
+                padding-bottom: 84px !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-bottom-nav {
+                display: none !important;
+            }
         }
 
         /* Chart Canvas Container */
@@ -440,48 +549,59 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-orange-500 selection:text-white pb-16 sm:pb-0">
+<body class="min-h-screen antialiased flex flex-col justify-between selection:bg-orange-500 selection:text-white">
 
-    <!-- TOP HEADER NAVBAR -->
-    <header class="sticky top-0 z-40 backdrop-blur-xl bg-neutral-950/70 border-b border-neutral-900 px-3.5 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between">
-        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <a href="lihat-kegiatan.html" class="kabinet-circle-btn shrink-0" title="Kembali ke Daftar Kegiatan">
-                <i class="fa-solid fa-arrow-left text-xs"></i>
-            </a>
-            <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                <div class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-xs shrink-0">
-                    <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
-                </div>
-                <div class="min-w-0">
-                    <h1 class="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1 truncate">
-                        Laporan <span class="bg-gradient-to-r from-[#FF7300] to-[#FFA500] bg-clip-text text-transparent">Keuangan Kegiatan</span>
-                    </h1>
-                    <p class="text-[8.5px] sm:text-[9px] text-neutral-400 font-mono truncate">Transparansi Anggaran Ormawa 2026</p>
-                </div>
-            </div>
-        </div>
+    <!-- TOP HEADER NAVBAR (IDENTIK DENGAN LIHAT-KEGIATAN & RIWAYAT-TRANSAKSI) -->
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] px-4 sm:px-6 h-14 flex items-center justify-between">
+        <a href="lihat-kegiatan.html" id="header_back_btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-[#FF7300] transition-all duration-300 active:scale-95 font-bold shadow-inner">
+            <span>←</span> <span class="hidden sm:inline">Daftar </span><span>Kegiatan</span>
+        </a>
 
-        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            <!-- Selector Ganti Kegiatan Cepat (Tanpa Placeholder) -->
-            <div class="relative">
-                <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[11px] sm:text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 rounded-xl px-2.5 sm:px-3 py-1.5 focus:outline-none focus:border-orange-500 cursor-pointer transition-colors max-w-[130px] sm:max-w-xs truncate">
-                </select>
-            </div>
+        <div class="flex items-center gap-2 sm:gap-2.5">
+            <!-- Selector Ganti Kegiatan Cepat -->
+            <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[10px] sm:text-xs font-mono font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-[#FF7300]/40 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-[#FF7300] cursor-pointer transition-colors max-w-[130px] sm:max-w-xs truncate" title="Pindah Cepat ke Kegiatan Lain">
+            </select>
 
             <!-- Tombol Refresh Data -->
-            <button type="button" onclick="loadActivityData(true)" class="kabinet-circle-btn" title="Perbarui Data dari Spreadsheet">
-                <i id="refresh_icon" class="fa-solid fa-arrows-rotate text-xs"></i>
+            <button type="button" onclick="loadActivityData(true)" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer theme-circle-btn" title="Perbarui Data dari Spreadsheet">
+                <i id="refresh_icon" class="fa-solid fa-arrows-rotate text-[11px]"></i>
             </button>
 
-            <!-- Tombol Ubah Tema (Identik dengan dasboard.html) -->
-            <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="theme-toggle-btn" title="Ubah Mode Warna">
-                <i id="themeIcon" class="fa-solid fa-moon text-amber-400"></i>
+            <!-- Tombol Ubah Tema -->
+            <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Mode Warna">
+                <i id="themeIcon" class="fa-solid fa-moon text-amber-400 text-xs"></i>
             </button>
+
+            <!-- Kategori Header (Desktop) -->
+            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold hidden md:inline">
+                Detail Laporan
+            </span>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-1 space-y-4 sm:space-y-6">
+    <!-- MAIN CONTAINER (IDENTIK DENGAN LIHAT-KEGIATAN & RIWAYAT-TRANSAKSI: max-w-4xl) -->
+    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-5 w-full flex-grow flex flex-col gap-3 sm:gap-4">
+
+        <!-- COMPACT SCREEN HEADER (MOBILE & DESKTOP ALIGNED) -->
+        <div class="screen-header-wrap flex items-center justify-between gap-3 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF7300]/20 via-[#EA580C]/15 to-transparent border border-[#FF7300]/35 flex items-center justify-center text-sm shadow-xs shrink-0">
+                    <i class="fa-solid fa-file-invoice-dollar text-[#FF7300]"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <h1 class="screen-title text-sm sm:text-base font-extrabold font-sans tracking-tight leading-none flex items-center gap-1.5 truncate">
+                        Laporan Keuangan <span class="text-[#FF7300]">Kegiatan</span>
+                    </h1>
+                    <p class="screen-subtitle text-[9.5px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5 truncate">Pertanggungjawaban LPJ & Kas Ormawa 2026</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="exportProkerToWord()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF7300]/15 hover:bg-[#FF7300]/25 border border-[#FF7300]/35 text-[#FF7300] hover:text-white text-[10px] font-mono font-bold transition-all active:scale-95 shadow-xs cursor-pointer" title="Export Laporan Pertanggungjawaban (Word .doc)">
+                    <i class="fa-solid fa-file-word text-xs"></i> <span class="hidden sm:inline">Export LPJ</span><span class="sm:hidden">LPJ</span>
+                </button>
+            </div>
+        </div>
 
         <!-- LOADING STATE OVERLAY -->
         <div id="loading_state" class="py-20 text-center space-y-3">
@@ -809,27 +929,27 @@
         <p class="text-[10px] text-neutral-600 font-mono">LDK IMIP SYSTEM © 2026</p>
     </footer>
 
-    <!-- MODERN MOBILE BOTTOM NAVIGATION DOCK -->
-    <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-40 bg-neutral-950/92 backdrop-blur-xl border-t border-neutral-900 flex items-center justify-around py-2 sm:hidden shadow-2xl">
-        <a href="dasboard.html" class="flex flex-col items-center text-neutral-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-house text-sm"></i>
-            <span class="text-[8.5px] font-mono mt-0.5">Beranda</span>
+    <!-- MODERN MOBILE BOTTOM NAVIGATION DOCK (IDENTIK DENGAN LIHAT-KEGIATAN & DASBOARD) -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah">
+        <a href="dasboard.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-house"></i></div>
+            <span class="nav-label">Beranda</span>
         </a>
-        <a href="pembayaran-kas.html" class="flex flex-col items-center text-neutral-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-wallet text-sm"></i>
-            <span class="text-[8.5px] font-mono mt-0.5">Bayar Kas</span>
+        <a href="pembayaran-kas.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+            <span class="nav-label">Bayar Kas</span>
         </a>
-        <a href="lihat-kegiatan.html" class="flex flex-col items-center text-[#FF7300] font-bold">
-            <i class="fa-solid fa-calendar-check text-sm"></i>
-            <span class="text-[8.5px] font-mono mt-0.5">Kegiatan</span>
+        <a href="lihat-kegiatan.html" class="bottom-nav-item active">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-calendar-check"></i></div>
+            <span class="nav-label">Kegiatan</span>
         </a>
-        <a href="riwayat-transaksi.html" class="flex flex-col items-center text-neutral-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
-            <span class="text-[8.5px] font-mono mt-0.5">Rekap</span>
+        <a href="riwayat-transaksi.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <span class="nav-label">Rekap</span>
         </a>
-        <button type="button" onclick="toggleTheme(event)" class="flex flex-col items-center text-neutral-400 hover:text-white transition-colors">
-            <i class="fa-solid fa-sun text-orange-500 text-sm"></i>
-            <span class="text-[8.5px] font-mono mt-0.5">Mode</span>
+        <button type="button" onclick="toggleTheme(event)" class="bottom-nav-item" id="mobileThemeBtn" title="Ubah Tema">
+            <div class="nav-icon-wrap"><i id="mobileThemeIcon" class="fa-solid fa-moon text-amber-400"></i></div>
+            <span class="nav-label" id="mobileThemeLabel">Mode</span>
         </button>
     </nav>
 
@@ -892,11 +1012,11 @@
                 document.documentElement.classList.add('light-mode');
                 document.body.classList.add('light-mode');
                 if (btn) {
-                    btn.innerHTML = '<i class="fa-solid fa-sun text-orange-500"></i>';
+                    btn.innerHTML = '<i class="fa-solid fa-sun text-orange-500 text-xs"></i>';
                     btn.setAttribute('title', 'Mode Terang (Klik untuk ubah ke Gelap)');
                 }
                 if (mobileIcon) {
-                    mobileIcon.className = 'fa-solid fa-sun text-orange-500';
+                    mobileIcon.className = 'fa-solid fa-sun text-orange-500 text-sm';
                 }
                 if (mobileLabel) {
                     mobileLabel.innerText = 'Terang';
@@ -905,11 +1025,11 @@
                 document.documentElement.classList.remove('light-mode');
                 document.body.classList.remove('light-mode');
                 if (btn) {
-                    btn.innerHTML = '<i class="fa-solid fa-moon text-amber-400"></i>';
+                    btn.innerHTML = '<i class="fa-solid fa-moon text-amber-400 text-xs"></i>';
                     btn.setAttribute('title', 'Mode Gelap (Klik untuk ubah ke Terang)');
                 }
                 if (mobileIcon) {
-                    mobileIcon.className = 'fa-solid fa-moon text-amber-400';
+                    mobileIcon.className = 'fa-solid fa-moon text-amber-400 text-sm';
                 }
                 if (mobileLabel) {
                     mobileLabel.innerText = 'Gelap';
