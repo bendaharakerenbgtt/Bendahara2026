@@ -1234,17 +1234,22 @@
             });
         }
 
-        // Toggle Filter Divisi dari Klik Bar Chart atau Klik Dropdown/Badge
+        // Toggle Filter Divisi dari Klik Bar Chart atau Klik Dropdown/Badge (Single Active Filter)
         function toggleDivisionFilter(divName) {
             if (!divName || activeDivisionFilter === divName) {
                 activeDivisionFilter = null;
             } else {
                 activeDivisionFilter = divName;
+                // Kunci 1 filter saja: otomatis lepas filter kategori
+                activeCategoryFilter = null;
             }
 
             if (divisionChartInstance) {
                 divisionChartInstance.update();
             }
+
+            // Kembalikan diagram donat ke tampilan default (tidak meredup)
+            updatePilarDoughnutVisuals();
 
             const select = document.getElementById('tx_divisi_filter');
             if (select) {
@@ -1260,6 +1265,11 @@
 
         function handleSelectDivisionChange(val) {
             activeDivisionFilter = (val === 'ALL') ? null : val;
+            if (activeDivisionFilter) {
+                // Kunci 1 filter saja: otomatis lepas filter kategori
+                activeCategoryFilter = null;
+                updatePilarDoughnutVisuals();
+            }
             if (divisionChartInstance) {
                 divisionChartInstance.update();
             }
@@ -1404,12 +1414,25 @@
             });
         }
 
-        // Toggle Filter Kategori dari Klik Slice Donat atau Klik Card Legenda
+        // Toggle Filter Kategori dari Klik Slice Donat atau Klik Card Legenda (Single Active Filter)
         function toggleCategoryFilter(catName) {
             if (!catName || activeCategoryFilter === catName) {
                 activeCategoryFilter = null;
             } else {
                 activeCategoryFilter = catName;
+                // Kunci 1 filter saja: otomatis lepas filter divisi
+                activeDivisionFilter = null;
+            }
+
+            // Kembalikan diagram batang ke tampilan default (semua batang menyala penuh)
+            if (divisionChartInstance) {
+                divisionChartInstance.update();
+            }
+
+            // Reset dropdown divisi ke ALL
+            const select = document.getElementById('tx_divisi_filter');
+            if (select) {
+                select.value = 'ALL';
             }
 
             updatePilarDoughnutVisuals();
@@ -1688,7 +1711,7 @@
 
         function scrollToTransactions() {
             const section = document.getElementById('transactions_section');
-            if (section) {
+            if (section && typeof section.scrollIntoView === 'function') {
                 section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
