@@ -962,9 +962,9 @@
     <!-- TOP HEADER NAVBAR -->
     <header class="sticky top-0 z-40 backdrop-blur-xl bg-neutral-950/70 border-b border-neutral-900 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <button type="button" id="header_back_btn" onclick="handleHeaderBackClick()" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 transition-colors" title="Kembali ke Dashboard">
+            <a href="folder-surat.html" id="header_back_btn" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 transition-colors" title="Kembali ke Folder Surat">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
-            </button>
+            </a>
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shadow-xs">
                     <i class="fa-solid fa-envelope-open-text text-sm"></i>
@@ -979,14 +979,7 @@
         </div>
 
 
-        <div class="flex items-center gap-1.5 bg-neutral-900/90 border border-neutral-800 p-1 rounded-xl">
-            <button type="button" id="nav_btn_folder" onclick="switchToFolderView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-400 hover:text-white transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-folder-open text-xs"></i> <span class="hidden sm:inline">Folder Surat</span>
-            </button>
-            <button type="button" id="nav_btn_editor" onclick="switchToEditorView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-pen-nib text-xs"></i> <span class="hidden sm:inline">Editor Dokumen</span>
-            </button>
-        </div>
+        
 
         <div class="flex items-center gap-2">
             <button type="button" onclick="toggleTheme(event)" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-orange-500 hover:bg-neutral-800 transition-colors" title="Ubah Tema">
@@ -999,74 +992,9 @@
     <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6">
         
         <!-- ========================================== -->
-        <!-- VIEW 1: FOLDER & ARSIP DOKUMEN SURAT       -->
+        <!-- VIEW: EDITOR DOKUMEN SURAT                 -->
         <!-- ========================================== -->
-        <div id="view_folder_dokumen" class="space-y-6">
-            <!-- ACTION BUTTONS (KIRI) -->
-            <div class="flex flex-wrap items-center gap-2.5 pb-1">
-                <button type="button" onclick="openCreateNewDocModal()" class="px-4 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md flex items-center gap-2 active:scale-95 transition-all">
-                    <i class="fa-solid fa-plus"></i> Buat Surat Baru
-                </button>
-                <button type="button" onclick="document.getElementById('import_json_input').click()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs">
-                    <i class="fa-solid fa-file-import text-blue-400"></i> Impor JSON
-                </button>
-                <button type="button" onclick="exportAllDocumentsJson()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs">
-                    <i class="fa-solid fa-file-export text-emerald-400"></i> Backup Semua
-                </button>
-            </div>
-
-            <!-- SEARCH & FILTER TOOLBAR -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-2xl bg-neutral-900/80 border border-neutral-800">
-                <!-- Search input -->
-                <div class="relative flex-1 max-w-md">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
-                    <input type="text" id="doc_search_input" oninput="filterDocumentsList()" placeholder="Cari nama surat, perihal, atau nomor..." class="w-full pl-9 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-orange-500 transition-colors">
-                </div>
-
-                <!-- Filter tabs by letter type -->
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                    <button type="button" onclick="filterDocsByType('ALL')" id="filter_doc_ALL" class="doc-filter-btn active px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
-                        Semua (<span id="count_filter_all">0</span>)
-                    </button>
-                    <button type="button" onclick="filterDocsByType('SPZ')" id="filter_doc_SPZ" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
-                        SPZ (<span id="count_filter_spz">0</span>)
-                    </button>
-                    <button type="button" onclick="filterDocsByType('SPM')" id="filter_doc_SPM" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
-                        SPM (<span id="count_filter_spm">0</span>)
-                    </button>
-                    <button type="button" onclick="filterDocsByType('SBA')" id="filter_doc_SBA" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
-                        SBA (<span id="count_filter_sba">0</span>)
-                    </button>
-                    <button type="button" onclick="filterDocsByType('SUD')" id="filter_doc_SUD" class="doc-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold text-neutral-300 hover:text-white border border-neutral-800 transition-all whitespace-nowrap">
-                        SUD (<span id="count_filter_sud">0</span>)
-                    </button>
-                </div>
-            </div>
-
-            <!-- DOCUMENTS GRID CONTAINER -->
-            <div id="documents_cards_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Di-render dinamis via JavaScript -->
-            </div>
-
-            <!-- EMPTY STATE -->
-            <div id="documents_empty_state" class="hidden text-center py-16 px-4 rounded-2xl bg-neutral-900/40 border border-dashed border-neutral-800">
-                <div class="w-16 h-16 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 mx-auto mb-3 text-2xl">
-                    <i class="fa-solid fa-folder-open text-orange-400/80"></i>
-                </div>
-                <h4 class="text-sm font-bold text-white mb-1">Tidak Ada Dokumen Surat Ditemukan</h4>
-                <p class="text-xs text-neutral-400 max-w-sm mx-auto mb-4">
-                    Dokumen dengan kata kunci ini tidak ada, atau Anda belum membuat surat dalam kategori ini.
-                </p>
-                <button type="button" onclick="openCreateNewDocModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 transition-all shadow-sm">
-                    <i class="fa-solid fa-plus"></i> Buat Dokumen Baru
-                </button>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 2: EDITOR DOKUMEN SURAT (GOOGLE DOCS) -->
-        <!-- ========================================== -->
-        <div id="view_editor_dokumen" class="space-y-6 hidden">
+        <div id="view_editor_dokumen" class="space-y-6">
 
             <!-- GOOGLE DOCS TOP BAR DOKUMEN -->
             <div id="editor_top_doc_bar" class="relative z-30 p-3 sm:p-4 rounded-2xl bg-neutral-900/90 border border-neutral-800 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
@@ -1074,6 +1002,11 @@
                 <div class="flex items-center gap-3 min-w-0 flex-1">
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
+                            <a href="folder-surat.html" class="px-2 py-1 rounded-lg text-xs font-bold text-neutral-400 hover:text-orange-400 hover:bg-neutral-800/60 transition-all flex items-center gap-1.5 shrink-0" title="Buka Folder Surat">
+                                <i class="fa-solid fa-folder-open text-xs text-orange-400"></i>
+                                <span class="hidden sm:inline">Folder</span>
+                            </a>
+                            <span class="text-neutral-700 font-mono text-xs shrink-0">/</span>
                             <input type="text" id="active_doc_title" oninput="handleActiveDocTitleChange(this.value)" class="bg-neutral-950/60 hover:bg-neutral-950 focus:bg-neutral-950 border border-transparent hover:border-neutral-700 focus:border-orange-500 rounded-lg px-2.5 py-1 text-sm sm:text-base font-black text-white focus:outline-none transition-all truncate w-full max-w-md" value="SPZ Permohonan Peminjaman Fasilitas" title="Klik untuk mengubah nama dokumen (gaya Google Docs)">
                             <span id="active_doc_badge" class="px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">SPZ</span>
                         </div>
@@ -11171,47 +11104,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
         // Tangani Tombol Kembali di Header Navbar
         function handleHeaderBackClick() {
-            const editorView = document.getElementById('view_editor_dokumen');
-            if (editorView && !editorView.classList.contains('hidden')) {
-                // Jika sedang di Editor Dokumen, kembali ke Folder Dokumen Surat
-                switchToFolderView();
-            } else {
-                // Jika sedang di Folder Dokumen Surat, kembali ke Dashboard Utama
-                window.location.href = 'dasboard.html';
-            }
+            window.location.href = 'folder-surat.html';
         }
 
-        // Beralih ke Tampilan Folder Surat
+        // Beralih ke Halaman Folder Surat Resmi
         function switchToFolderView(pushHistory = true) {
-            document.title = 'Pembuatan Surat Resmi — DanaIMIP';
-            const folderView = document.getElementById('view_folder_dokumen');
-            const editorView = document.getElementById('view_editor_dokumen');
-            const btnFolder = document.getElementById('nav_btn_folder');
-            const btnEditor = document.getElementById('nav_btn_editor');
-            const headerBackBtn = document.getElementById('header_back_btn');
-
-            if (folderView) folderView.classList.remove('hidden');
-            if (editorView) editorView.classList.add('hidden');
-
-            if (btnFolder) {
-                btnFolder.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm transition-all flex items-center gap-1.5';
-            }
-            if (btnEditor) {
-                btnEditor.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5';
-            }
-
-            if (headerBackBtn) {
-                headerBackBtn.title = 'Kembali ke Dashboard';
-            }
-
-            if (pushHistory && window.location.hash !== '#folder') {
-                try {
-                    history.pushState({ view: 'folder' }, '', '#folder');
-                } catch(e) {}
-            }
-
-            renderDocumentsGrid();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.location.href = 'folder-surat.html';
         }
 
         // Beralih ke Tampilan Editor Dokumen
@@ -14736,21 +14634,30 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             // Cek URL params / hash untuk menentukan tampilan awal
             const urlParams = new URLSearchParams(window.location.search);
-            const urlDocId = urlParams.get('doc');
+            const urlDocId = urlParams.get('doc') || urlParams.get('id');
             const urlNew = urlParams.get('new');
             const urlType = urlParams.get('type');
             const isFolderRequested = (window.location.hash === '#folder' || urlParams.get('view') === 'folder');
+
+            if (isFolderRequested) {
+                window.location.replace('folder-surat.html');
+                return;
+            }
 
             if (urlDocId && savedDocs.some(d => d.id === urlDocId)) {
                 openDocument(urlDocId);
             } else if (urlNew || urlType) {
                 const initType = (urlType ? urlType.toUpperCase() : 'SBA');
                 createNewDocument(['SPM','SBA','SPZ','SUD'].includes(initType) ? initType : 'SBA', `Surat ${initType} Baru`);
-            } else if (isFolderRequested) {
-                switchToFolderView();
             } else {
                 // Default: langsung tampilkan Editor Dokumen (dengan draf aktif SBA Studi Banding 2026)
                 switchToEditorView();
+            }
+
+            if (urlParams.get('print') === '1') {
+                setTimeout(() => {
+                    if (typeof quickPrintSurat === 'function') quickPrintSurat();
+                }, 600);
             }
         });
     </script>
