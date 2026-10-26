@@ -877,29 +877,10 @@
             const titleInput = document.getElementById('new_doc_title_input');
             const title = (titleInput && titleInput.value.trim()) || `Surat ${selectedType} Baru`;
 
-            const newId = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-            const newDoc = {
-                id: newId,
-                title: title,
-                isTitleManual: true,
-                type: selectedType,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                formData: {
-                    field_nomor_surat: '',
-                    field_perihal: title,
-                    field_nama_acara: ''
-                }
-            };
-
-            const docs = getSavedDocuments();
-            docs.unshift(newDoc);
-            saveDocumentsList(docs);
-            setActiveDocumentId(newId);
             closeCreateNewDocModal();
 
-            // Redirect ke editor surat
-            window.location.href = `buat-surat.html?id=${encodeURIComponent(newId)}`;
+            // Redirect ke editor surat agar langsung dibuat dengan template resmi lengkap
+            window.location.href = `buat-surat.html?new=1&type=${encodeURIComponent(selectedType)}&title=${encodeURIComponent(title)}`;
         }
 
         // Theme Toggle Functionality
