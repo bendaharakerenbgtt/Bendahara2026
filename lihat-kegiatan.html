@@ -5135,6 +5135,10 @@
 
             // Action Buttons for Public
             let actionsHtml = `
+                <a href="detail-kegiatan.html?id=${encodeURIComponent(proker.id)}" onclick="event.stopPropagation();" class="bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/35 text-orange-400 font-mono text-[8.5px] sm:text-[9.5px] font-bold px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg transition-all active:scale-95 flex items-center gap-1 shadow-xs" title="Lihat Detail Penggunaan Kegiatan">
+                    <i class="fa-solid fa-chart-pie text-xs"></i>
+                    <span>Detail</span>
+                </a>
                 <button type="button" onclick="bukaModalExportProker('${proker.id}'); event.stopPropagation();" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 hover:border-orange-500/40 text-orange-500 dark:text-orange-400 font-mono text-[8.5px] sm:text-[9.5px] font-bold px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1 shadow-xs" title="Export Laporan Keuangan RAB (Word / CSV)">
                     <svg class="w-3.5 h-3.5 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -5173,12 +5177,15 @@
                         </div>
 
                         <!-- BARIS 2: Judul Proker (Full Width, tidak terhimpit tombol) -->
-                        <div onclick="toggleProkerAccordion('${proker.id}')" class="cursor-pointer">
-                            <h3 class="proker-card-title text-xs sm:text-sm uppercase tracking-tight truncate">${proker.nama_proker}</h3>
+                        <div onclick="window.location.href='detail-kegiatan.html?id=' + encodeURIComponent('${proker.id}')" class="cursor-pointer group/title">
+                            <h3 class="proker-card-title text-xs sm:text-sm uppercase tracking-tight truncate flex items-center justify-between">
+                                <span>${proker.nama_proker}</span>
+                                <i class="fa-solid fa-arrow-right text-[10px] text-orange-500 opacity-0 group-hover/title:opacity-100 group-hover/title:translate-x-1 transition-all"></i>
+                            </h3>
                         </div>
 
                         <!-- BARIS 3: Rincian Kesamping (Divisi | Ketua | Estimasi) -->
-                        <div onclick="toggleProkerAccordion('${proker.id}')" class="cursor-pointer proker-meta-strip ${effAnggaran > 0 ? 'grid-cols-3' : 'grid-cols-2'}">
+                        <div onclick="window.location.href='detail-kegiatan.html?id=' + encodeURIComponent('${proker.id}')" class="cursor-pointer proker-meta-strip ${effAnggaran > 0 ? 'grid-cols-3' : 'grid-cols-2'}">
                             <div class="proker-meta-col" title="${rawDivisi}">
                                 <span class="proker-meta-label">
                                     <i class="fa-solid fa-building-columns text-[7.5px] text-orange-500"></i> Divisi
@@ -5201,7 +5208,7 @@
                         </div>
 
                         <!-- PRATINJAU KEUANGAN SEBELUM DIPENCET: PEMASUKAN, PENGELUARAN, SALDO (SLEEK STRIP, NO TRUNCATION) -->
-                        <div onclick="toggleProkerAccordion('${proker.id}')" class="proker-stat-strip cursor-pointer">
+                        <div onclick="window.location.href='detail-kegiatan.html?id=' + encodeURIComponent('${proker.id}')" class="proker-stat-strip cursor-pointer" title="Klik untuk melihat Detail Penggunaan">
                             <div class="proker-stat-pill stat-pill-pemasukan">
                                 <span class="stat-pill-label">
                                     <span class="stat-pill-dot bg-emerald-500"></span> MASUK
