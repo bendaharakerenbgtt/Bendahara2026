@@ -321,6 +321,74 @@
             opacity: 0.9;
         }
 
+        /* Unified Kabinet Button Styles (Identik dengan dasboard.html) */
+        .kabinet-circle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #94A3B8;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .kabinet-circle-btn:hover {
+            border-color: #FF7300;
+            color: #FFFFFF;
+            transform: scale(1.06);
+        }
+        html.light-mode .kabinet-circle-btn {
+            background: #FFF7ED !important;
+            border: 1.5px solid #FED7AA !important;
+            color: #C2410C !important;
+            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.06) !important;
+        }
+        html.light-mode .kabinet-circle-btn:hover {
+            background: #FFEDD5 !important;
+            border-color: #FB923C !important;
+            color: #EA580C !important;
+        }
+
+        .theme-toggle-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f1f5f9;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #FF7300;
+            transform: scale(1.06);
+        }
+        html.light-mode .theme-toggle-btn {
+            background: #FFF7ED !important;
+            border: 1.5px solid #FED7AA !important;
+            color: #C2410C !important;
+            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.06) !important;
+        }
+        html.light-mode .theme-toggle-btn:hover {
+            background: #FFEDD5 !important;
+            border-color: #FB923C !important;
+        }
+
         /* Chart Canvas Container */
         .chart-wrapper {
             position: relative;
@@ -356,7 +424,7 @@
     <!-- TOP HEADER NAVBAR -->
     <header class="sticky top-0 z-40 backdrop-blur-xl bg-neutral-950/70 border-b border-neutral-900 px-3.5 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <a href="lihat-kegiatan.html" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 transition-colors shrink-0" title="Kembali ke Daftar Kegiatan">
+            <a href="lihat-kegiatan.html" class="kabinet-circle-btn shrink-0" title="Kembali ke Daftar Kegiatan">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
             </a>
             <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
@@ -372,22 +440,21 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <!-- Selector Ganti Kegiatan Cepat -->
+        <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            <!-- Selector Ganti Kegiatan Cepat (Tanpa Placeholder) -->
             <div class="relative">
-                <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[11px] sm:text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 rounded-xl px-2 sm:px-3 py-1.5 focus:outline-none focus:border-orange-500 cursor-pointer transition-colors max-w-[125px] sm:max-w-xs truncate">
-                    <option value="" disabled selected>Pilih Kegiatan...</option>
+                <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[11px] sm:text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-orange-500/40 rounded-xl px-2.5 sm:px-3 py-1.5 focus:outline-none focus:border-orange-500 cursor-pointer transition-colors max-w-[130px] sm:max-w-xs truncate">
                 </select>
             </div>
 
             <!-- Tombol Refresh Data -->
-            <button type="button" onclick="loadActivityData(true)" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 transition-colors cursor-pointer" title="Perbarui Data dari Spreadsheet">
+            <button type="button" onclick="loadActivityData(true)" class="kabinet-circle-btn" title="Perbarui Data dari Spreadsheet">
                 <i id="refresh_icon" class="fa-solid fa-arrows-rotate text-xs"></i>
             </button>
 
-            <!-- Tombol Ubah Tema -->
-            <button type="button" onclick="toggleTheme(event)" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-orange-500 hover:bg-neutral-800 transition-colors cursor-pointer" title="Ubah Tema">
-                <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
+            <!-- Tombol Ubah Tema (Identik dengan dasboard.html) -->
+            <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="theme-toggle-btn" title="Ubah Mode Warna">
+                <i id="themeIcon" class="fa-solid fa-moon text-amber-400"></i>
             </button>
         </div>
     </header>
@@ -777,35 +844,142 @@
         let activeCategoryFilter = null; // null or 'Belanja Bahan' | 'Belanja Sewa' | 'Belanja Jasa'
         let currentPilarTotals = { bahan: 0, sewa: 0, jasa: 0, totalOut: 0 };
 
-        // Theme Toggle Functionality
-        function toggleTheme(event) {
-            if (event) event.preventDefault();
-            const isLight = document.documentElement.classList.contains('light-mode');
+        // =========================================================
+        // THEME SYSTEM & RIPPLE ANIMATION (Identik dengan dasboard.html)
+        // =========================================================
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            const mobileIcon = document.getElementById('mobileThemeIcon');
+            const mobileLabel = document.getElementById('mobileThemeLabel');
+            const isLight = (theme === 'light');
+
             if (isLight) {
-                document.documentElement.classList.remove('light-mode');
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            } else {
                 document.documentElement.classList.add('light-mode');
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
+                document.body.classList.add('light-mode');
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-sun text-orange-500"></i>';
+                    btn.setAttribute('title', 'Mode Terang (Klik untuk ubah ke Gelap)');
+                }
+                if (mobileIcon) {
+                    mobileIcon.className = 'fa-solid fa-sun text-orange-500';
+                }
+                if (mobileLabel) {
+                    mobileLabel.innerText = 'Terang';
+                }
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-moon text-amber-400"></i>';
+                    btn.setAttribute('title', 'Mode Gelap (Klik untuk ubah ke Terang)');
+                }
+                if (mobileIcon) {
+                    mobileIcon.className = 'fa-solid fa-moon text-amber-400';
+                }
+                if (mobileLabel) {
+                    mobileLabel.innerText = 'Gelap';
+                }
             }
-            syncThemeIcons();
+
             updateChartTheme();
         }
 
-        function syncThemeIcons() {
-            const isLight = document.documentElement.classList.contains('light-mode');
-            const icon = document.getElementById('themeIcon');
-            if (icon) {
-                if (isLight) {
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                } else {
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
+        function triggerThemeAnimation(newTheme, event) {
+            // 1. Create expanding liquid ripple element
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#FAF5EF' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn && typeof btn.getBoundingClientRect === 'function') {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
                 }
             }
+            
+            ripple.style.width = '10px';
+            ripple.style.height = '10px';
+            ripple.style.left = `${posX - 5}px`;
+            ripple.style.top = `${posY - 5}px`;
+            ripple.style.transform = 'scale(0)';
+            ripple.style.opacity = '1';
+            
+            // 2. Create central icon overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transition = 'opacity 0.4s ease-out';
+            overlay.style.opacity = '0';
+            
+            const icon = document.createElement('div');
+            icon.style.fontSize = '6rem';
+            icon.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            icon.style.transform = 'scale(0) rotate(-45deg)';
+            icon.style.filter = newTheme === 'light' ? 'drop-shadow(0 0 20px rgba(255, 115, 0, 0.4))' : 'drop-shadow(0 0 20px rgba(245, 158, 11, 0.4))';
+            icon.innerText = newTheme === 'light' ? '☀️' : '🌙';
+            
+            overlay.appendChild(icon);
+            document.body.appendChild(ripple);
+            document.body.appendChild(overlay);
+            
+            ripple.offsetWidth;
+            overlay.offsetWidth;
+            
+            const limit = Math.max(
+                Math.hypot(posX, posY),
+                Math.hypot(window.innerWidth - posX, posY),
+                Math.hypot(posX, window.innerHeight - posY),
+                Math.hypot(window.innerWidth - posX, window.innerHeight - posY)
+            );
+            const scaleFactor = (limit * 2) / 10;
+            
+            ripple.style.transform = `scale(${scaleFactor})`;
+            overlay.style.opacity = '1';
+            icon.style.transform = 'scale(1.5) rotate(0deg)';
+            
+            setTimeout(() => {
+                applyTheme(newTheme);
+            }, 380);
+            
+            setTimeout(() => {
+                ripple.style.opacity = '0';
+                overlay.style.opacity = '0';
+                icon.style.transform = 'scale(0.8) rotate(45deg)';
+                setTimeout(() => {
+                    ripple.remove();
+                    overlay.remove();
+                }, 400);
+            }, 650);
+        }
+
+        function toggleTheme(e) {
+            const event = e || window.event;
+            const currentTheme = localStorage.getItem('theme') || (document.documentElement.classList.contains('light-mode') ? 'light' : 'dark');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+        }
+
+        function syncThemeIcons() {
+            const currentTheme = localStorage.getItem('theme') || (document.documentElement.classList.contains('light-mode') ? 'light' : 'dark');
+            applyTheme(currentTheme);
         }
 
         // Format compact rupiah (e.g. Rp 2,3 jt, Rp 789 rb)
@@ -1049,11 +1223,11 @@
             }
         }
 
-        // Quick select dropdown
+        // Quick select dropdown (Tanpa placeholder dummy)
         function populateQuickSelect(prokers, selectedId) {
             const select = document.getElementById('quick_proker_select');
             if (!select) return;
-            select.innerHTML = '<option value="" disabled>Pilih Kegiatan...</option>';
+            select.innerHTML = '';
             prokers.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p.id;
