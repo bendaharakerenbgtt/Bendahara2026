@@ -1007,8 +1007,8 @@
                                 <span class="hidden sm:inline">Folder</span>
                             </a>
                             <span class="text-neutral-700 font-mono text-xs shrink-0">/</span>
-                            <input type="text" id="active_doc_title" oninput="handleActiveDocTitleChange(this.value)" class="bg-neutral-950/60 hover:bg-neutral-950 focus:bg-neutral-950 border border-transparent hover:border-neutral-700 focus:border-orange-500 rounded-lg px-2.5 py-1 text-sm sm:text-base font-black text-white focus:outline-none transition-all truncate w-full max-w-md" value="SPZ Permohonan Peminjaman Fasilitas" title="Klik untuk mengubah nama dokumen (gaya Google Docs)">
-                            <span id="active_doc_badge" class="px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">SPZ</span>
+                            <input type="text" id="active_doc_title" oninput="handleActiveDocTitleChange(this.value)" class="bg-neutral-950/60 hover:bg-neutral-950 focus:bg-neutral-950 border border-transparent hover:border-neutral-700 focus:border-orange-500 rounded-lg px-2.5 py-1 text-sm sm:text-base font-black text-white focus:outline-none transition-all truncate w-full max-w-md" value="034_SBA Studi Banding 2026" title="Klik untuk mengubah nama dokumen (gaya Google Docs)">
+                            <span id="active_doc_badge" class="px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">SBA</span>
                         </div>
                         <div class="flex items-center gap-2 mt-0.5 px-2.5">
                             <span id="doc_auto_save_status" class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
@@ -2698,11 +2698,11 @@
                 title: 'Surat Berita Acara',
                 kode: 'SBA',
                 nomorSurat: '034/SBA/E1/UKM IMIP/VII/2026',
-                lampiran: '-',
-                keuanganActive: false,
-                notaActive: false,
+                lampiran: '2 Halaman',
+                keuanganActive: true,
+                notaActive: true,
                 tanggalSurat: 'Jakarta, 2 Juli 2026',
-                perihal: 'Surat Berita Acara Studi Banding 2026',
+                perihal: 'Surat Berita Acara Studi Banding',
                 tujuan: '',
                 incEvent: true,
                 namaAcara: 'Studi Banding 2026',
@@ -2710,7 +2710,7 @@
                 waktu: '08.00 s/d 13.10 WIB',
                 tempat: 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220',
                 pembuka: 'Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **Studi Banding 2026** pada:',
-                isiInti: '**Studi Banding 2026** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.',
+                isiInti: '**Studi Banding** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.',
                 penutup: 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.',
                 ttd1Jabatan: 'Ketua Pelaksana\nStudi Banding 2026',
                 ttd1Nama: 'Faridah Rihadatul ‘Aisy',
@@ -2720,7 +2720,7 @@
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
                 ttd3Jabatan: 'Dosen Pembimbing\nUKM IMIP',
-                ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                ttd3Nama: 'Zainul Hakim, S.Ag.,M.Pd.I',
                 ttd3Nim: 'NIP. 198005072023211013',
                 wadirActive: false
             },
@@ -2823,6 +2823,17 @@
 
             const prevTypeBadge = document.getElementById('preview_type_badge');
             if (prevTypeBadge) prevTypeBadge.innerText = type;
+
+            const activeDocBadge = document.getElementById('active_doc_badge');
+            if (activeDocBadge) {
+                activeDocBadge.innerText = type;
+                activeDocBadge.className = `px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase shrink-0 ${
+                    type === 'SPZ' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+                    type === 'SPM' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                    type === 'SBA' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                    'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                }`;
+            }
 
             // Toggle SPZ specific UI elements
             const spzBanner = document.getElementById('spz_master_download_banner');
@@ -3399,8 +3410,9 @@
             if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
                 namaAcara = `${namaAcara} 2026`;
             }
+            const namaAcaraTanpaTahun = namaAcara.replace(/\s*20\d{2}\b/g, '').trim() || namaAcara;
 
-            // 1. Deskripsi Kegiatan (field_isi_inti) - Otomatis tambahkan 2026 / nama acara lengkap tapi tetap bisa diedit
+            // 1. Deskripsi Kegiatan (field_isi_inti) - Sesuai PDF Stuban: nama kegiatan tanpa tahun di-bold di awal
             const isiEl = document.getElementById('field_isi_inti');
             if (isiEl) {
                 const currentIsi = isiEl.value.trim();
@@ -3409,7 +3421,7 @@
                     currentIsi.startsWith('**Studi Banding') || currentIsi.startsWith('Studi Banding');
 
                 if (isDefaultDesc) {
-                    isiEl.value = `**${namaAcara}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
+                    isiEl.value = `**${namaAcaraTanpaTahun}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
                 }
             }
 
@@ -3425,7 +3437,7 @@
                 }
             }
 
-            // 3. Hal / Perihal (field_perihal)
+            // 3. Hal / Perihal (field_perihal) - Sesuai PDF Stuban: tanpa tahun 2026 di belakangnya
             const perihalEl = document.getElementById('field_perihal');
             if (perihalEl) {
                 const currentPerihal = perihalEl.value.trim();
@@ -3433,7 +3445,7 @@
                     currentPerihal.startsWith('Surat Berita Acara');
 
                 if (isDefaultPerihal) {
-                    perihalEl.value = `Surat Berita Acara ${namaAcara}`;
+                    perihalEl.value = `Surat Berita Acara ${namaAcaraTanpaTahun}`;
                 }
             }
         }
@@ -3445,7 +3457,8 @@
                 if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
                     namaAcara = `${namaAcara} 2026`;
                 }
-                const defaultText = `**${namaAcara}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
+                const namaAcaraTanpaTahun = namaAcara.replace(/\s*20\d{2}\b/g, '').trim() || namaAcara;
+                const defaultText = `**${namaAcaraTanpaTahun}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
                 if (!val || val.trim() === '' || val.trim() === defaultText) {
                     isSbaIsiIntiManuallyEdited = false;
                 } else {
@@ -3479,7 +3492,8 @@
                 if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
                     namaAcara = `${namaAcara} 2026`;
                 }
-                const defaultPerihal = `Surat Berita Acara ${namaAcara}`;
+                const namaAcaraTanpaTahun = namaAcara.replace(/\s*20\d{2}\b/g, '').trim() || namaAcara;
+                const defaultPerihal = `Surat Berita Acara ${namaAcaraTanpaTahun}`;
                 if (!val || val.trim() === '' || val.trim() === defaultPerihal) {
                     isSbaPerihalManuallyEdited = false;
                 } else {
@@ -6743,7 +6757,7 @@
 
             return `
                 <div class="preview-table-section mb-3">
-                    <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 4pt; border: 1px solid #000; text-align: center;">
+                    <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.25; margin-bottom: 4pt; border: 1px solid #000; text-align: center;">
                         <thead class="preview-editable" data-edit-target="sba_prestasi_editor_container" data-edit-type="sba_prestasi_all" data-edit-label="Tabel Capaian & Prestasi" title="Klik untuk kelola semua baris prestasi">
                             <tr style="font-weight: bold; cursor: pointer;">
                                 <th style="border: 1px solid #000; padding: 4pt 4pt; width: 22%;">Capaian</th>
@@ -7473,55 +7487,27 @@
                 return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran foto dokumentasi.</p>';
             }
 
-            const row1 = sbaDokumentasiList.slice(0, 3);
-            const row2 = sbaDokumentasiList.slice(3, 5);
-            const remaining = sbaDokumentasiList.slice(5);
             const borderStyle = sbaDokumentasiBorder ? 'border: 1px solid #111; padding: 2px;' : 'border: none; padding: 0;';
+            const rows = [];
+            for (let i = 0; i < sbaDokumentasiList.length; i += 2) {
+                rows.push(sbaDokumentasiList.slice(i, i + 2));
+            }
 
             return `
-                <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8pt;">
-                    <!-- Baris 1: Max 3 Foto -->
-                    <div style="display: grid; grid-template-columns: repeat(${row1.length}, 1fr); gap: 10px; align-items: center; justify-items: center;">
-                        ${row1.map(src => {
-                            const did = getGoogleDriveFileId(src);
-                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
-                            return `
-                            <div style="width: 100%; height: 56mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
-                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 56mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-
-                    <!-- Baris 2: Max 2 Foto (Besar & Center) -->
-                    ${row2.length > 0 ? `
-                    <div style="display: flex; justify-content: center; gap: 14px; align-items: center;">
-                        ${row2.map(src => {
-                            const did = getGoogleDriveFileId(src);
-                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
-                            return `
-                            <div style="flex: 0 1 48%; max-width: 48%; height: 58mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
-                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 58mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    ` : ''}
-
-                    <!-- Baris Tambahan (Jika ada lebih dari 5) -->
-                    ${remaining.length > 0 ? `
-                    <div style="display: grid; grid-template-columns: repeat(${Math.min(remaining.length, 3)}, 1fr); gap: 10px; align-items: center; justify-items: center;">
-                        ${remaining.map(src => {
-                            const did = getGoogleDriveFileId(src);
-                            const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
-                            return `
-                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
-                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 50mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    ` : ''}
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6pt;">
+                    ${rows.map(rowItems => `
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; align-items: center; justify-items: center;">
+                            ${rowItems.map(src => {
+                                const did = getGoogleDriveFileId(src);
+                                const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
+                                return `
+                                <div style="width: 100%; height: 55mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
+                                    <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 55mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `).join('')}
                 </div>
             `;
         }
@@ -8820,7 +8806,8 @@
             if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(namaAcara)) {
                 namaAcara = `${namaAcara} 2026`;
             }
-            const perihal = document.getElementById('field_perihal').value.trim() || `Surat Berita Acara ${namaAcara}`;
+            const namaAcaraTanpaTahun = namaAcara.replace(/\s*20\d{2}\b/g, '').trim() || namaAcara;
+            const perihal = document.getElementById('field_perihal').value.trim() || `Surat Berita Acara ${namaAcaraTanpaTahun}`;
             const tanggalSurat = document.getElementById('field_tanggal_surat').value.trim() || 'Jakarta, 2 Juli 2026';
             const hariTanggal = document.getElementById('field_hari_tanggal').value.trim() || 'Minggu, 28 Juni 2026';
             const waktu = document.getElementById('field_waktu').value.trim() || '08.00 s/d 13.10 WIB';
@@ -8838,12 +8825,11 @@
                 elPembuka.value = pembuka;
             }
 
-            let rawIsiInti = (document.getElementById('field_isi_inti')?.value || '').trim() || `**${namaAcara}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
-            if (rawIsiInti.includes('**Studi Banding** antara') || rawIsiInti.includes('Studi Banding antara')) {
-                rawIsiInti = rawIsiInti.replace(/(\*\*)?Studi Banding(\*\*)?\s+antara/i, `**${namaAcara}** antara`);
+            let rawIsiInti = (document.getElementById('field_isi_inti')?.value || '').trim() || `**${namaAcaraTanpaTahun}** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`;
+            if (rawIsiInti.includes('**Studi Banding 2026** antara') || rawIsiInti.includes('**Studi Banding** antara') || rawIsiInti.includes('Studi Banding antara')) {
+                rawIsiInti = rawIsiInti.replace(/(\*\*)?Studi Banding(?:\s+20\d{2})?(\*\*)?\s+antara/i, `**${namaAcaraTanpaTahun}** antara`);
             }
-            if (namaAcara) rawIsiInti = autoBoldPhrase(rawIsiInti, namaAcara);
-            if (rawNamaAcara) rawIsiInti = autoBoldPhrase(rawIsiInti, rawNamaAcara);
+            if (namaAcaraTanpaTahun) rawIsiInti = autoBoldPhrase(rawIsiInti, namaAcaraTanpaTahun);
             const isiInti = rawIsiInti;
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.';
 
@@ -8860,7 +8846,7 @@
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
             const ttd3Jabatan = (document.getElementById('field_ttd3_jabatan')?.value || '').trim() || 'Dosen Pembimbing\nUKM IMIP';
-            const ttd3Nama = (document.getElementById('field_ttd3_nama')?.value || '').trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
+            const ttd3Nama = (document.getElementById('field_ttd3_nama')?.value || '').trim() || 'Zainul Hakim, S.Ag.,M.Pd.I';
             const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim() || 'NIP. 198005072023211013';
 
             const mpmJabatan = (document.getElementById('field_ttd_mpm_jabatan')?.value || '').trim() || 'Ketua Umum MPM\nPoliMedia Periode 2026';
@@ -8997,7 +8983,7 @@
                         </p>
 
                         <!-- TABEL RUNDOWN -->
-                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.25; margin-bottom: 6pt;">
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.25; margin-bottom: 6pt;">
                             <thead class="preview-editable" data-edit-target="sba_rundown_editor_container" data-edit-type="sba_rundown_all" data-edit-label="Susunan Rundown Acara" title="Klik untuk kelola semua baris rundown">
                                 <tr style="text-align: center; font-weight: bold; cursor: pointer;">
                                     <th style="border: 1px solid #000; padding: 4pt 3pt; width: 36px;">No</th>
@@ -9226,7 +9212,7 @@
                             <p style="margin: 0 0 6pt 0; margin-left: 18pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: normal; line-height: 1.4;">${subHeading}</p>
 
                             <!-- TABEL ${escapeHtml(cat.nama || 'BELANJA')} -->
-                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.3; margin-bottom: 12pt;">
+                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.3; margin-bottom: 12pt;">
                                 <thead>
                                     <tr style="text-align: center; font-weight: bold;">
                                         <th style="border: 1px solid #000; padding: 4pt 3pt; width: 40px;">No</th>
@@ -9258,7 +9244,7 @@
                         <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Pemasukan</p>
 
                         <!-- TABEL PEMASUKAN -->
-                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.3; margin-bottom: 16pt;">
+                        <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.3; margin-bottom: 16pt;">
                             <thead>
                                 <tr style="text-align: center; font-weight: bold;">
                                     <th style="border: 1px solid #000; padding: 4pt 3pt; width: 45px;">No</th>
@@ -9288,7 +9274,7 @@
 
                             <!-- TABEL REKAPITULASI (GABUNG HALAMAN KEUANGAN) -->
                             <div class="preview-editable" data-edit-target="card_sba_rekapitulasi" data-edit-label="Tabel Rekapitulasi" data-edit-type="sba_rekap" title="${isLockedKeu ? 'Data Keuangan Terkunci (Sinkron Database)' : 'Klik untuk edit Rekapitulasi Keuangan'}">
-                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35; margin-bottom: 8pt;">
+                                <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35; margin-bottom: 8pt;">
                                     <thead>
                                         <tr style="text-align: center; font-weight: bold;">
                                             <th style="border: 1px solid #000; padding: 4pt 3pt; width: 45px;">No</th>
@@ -9332,7 +9318,7 @@
 
                         <!-- TABEL REKAPITULASI -->
                         <div class="preview-editable" data-edit-target="card_sba_rekapitulasi" data-edit-label="Tabel Rekapitulasi" data-edit-type="sba_rekap" title="Klik untuk edit Rekapitulasi Keuangan">
-                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35; margin-bottom: 16pt;">
+                            <table class="spz-border-table" style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35; margin-bottom: 16pt;">
                                 <thead>
                                     <tr style="text-align: center; font-weight: bold;">
                                         <th style="border: 1px solid #000; padding: 4pt 3pt; width: 45px;">No</th>
@@ -9374,36 +9360,36 @@
                             </p>
                         </div>
 
-                        <!-- PENGESAHAN FORMAT & JARAK PERSIS SPZ (MODULAR 3 TINGKAT + TEMBUSAN) -->
-                        <!-- BARIS 1: PENANGGUNG JAWAB (MODULAR & DINAMIS SESUAI SPZ) -->
+                        <!-- PENGESAHAN FORMAT & JARAK PERSIS PDF STUBAN (FONT 12PT SERAGAM) -->
+                        <!-- BARIS 1: PENANGGUNG JAWAB -->
                         ${(() => {
                             if (!isTtd1Active && !isTtd2Active) return '';
                             let content = '';
                             if (isTtd1Active && isTtd2Active) {
                                 content = `
                                     <colgroup>
-                                        <col style="width: 34%;">
-                                        <col style="width: 32%;">
-                                        <col style="width: 34%;">
+                                        <col style="width: 35%;">
+                                        <col style="width: 30%;">
+                                        <col style="width: 35%;">
                                     </colgroup>
                                     <tr>
-                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 35%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 32%; vertical-align: top;"></td>
-                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 30%; vertical-align: top;"></td>
+                                        <td style="width: 35%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                            <span style="font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
                                         </td>
                                         <td></td>
                                         <td style="vertical-align: top; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
+                                            <strong style="text-decoration: underline; font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
+                                            <span style="font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
                                         </td>
                                     </tr>
                                 `;
@@ -9412,8 +9398,8 @@
                                     <tr>
                                         <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
                                             ${formatTtdJabatan(ttd2Jabatan)}<br><br><br><br><br>
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
+                                            <strong style="text-decoration: underline; font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd2Nama)}</strong><br>
+                                            <span style="font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd2Nim)}</span>
                                         </td>
                                     </tr>
                                 `;
@@ -9422,8 +9408,8 @@
                                     <tr>
                                         <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
                                             ${formatTtdJabatan(ttd1Jabatan)}<br><br><br><br><br>
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
+                                            <strong style="text-decoration: underline; font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</strong><br>
+                                            <span style="font-size: 12pt; white-space: nowrap;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</span>
                                         </td>
                                     </tr>
                                 `;
@@ -9431,37 +9417,38 @@
                             return `
                                 <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
                                     <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Penanggung Jawab,</p>
-                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; table-layout: fixed;">
+                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; table-layout: fixed;">
                                         ${content}
                                     </table>
                                 </div>
                             `;
                         })()}
 
-                        <!-- BARIS 2: MENGETAHUI (MODULAR & DINAMIS SESUAI SPZ) -->
+                        <!-- BARIS 2: MENGETAHUI -->
                         ${(() => {
                             const activeM = [];
-                            if (isTtd3Active) activeM.push({ role: 'dosen', jabatan: ttd3Jabatan, nama: ttd3Nama, nim: ttd3Nim, fsN: '9.8pt', fsNim: '9.5pt', ls: '-0.2px' });
-                            if (isMpmActive) activeM.push({ role: 'mpm', jabatan: mpmJabatan, nama: mpmNama, nim: mpmNim, fsN: '10.5pt', fsNim: '10pt', ls: 'normal' });
-                            if (isBemActive) activeM.push({ role: 'bem', jabatan: bemJabatan, nama: bemNama, nim: bemNim, fsN: '10.5pt', fsNim: '10pt', ls: 'normal' });
+                            const isLongDosen = ttd3Nama.length > 26;
+                            if (isTtd3Active) activeM.push({ role: 'dosen', jabatan: ttd3Jabatan, nama: ttd3Nama, nim: ttd3Nim, fsN: isLongDosen ? '10.5pt' : '12pt', fsNim: '12pt', ls: isLongDosen ? '-0.2px' : 'normal' });
+                            if (isMpmActive) activeM.push({ role: 'mpm', jabatan: mpmJabatan, nama: mpmNama, nim: mpmNim, fsN: '12pt', fsNim: '12pt', ls: 'normal' });
+                            if (isBemActive) activeM.push({ role: 'bem', jabatan: bemJabatan, nama: bemNama, nim: bemNim, fsN: '12pt', fsNim: '12pt', ls: 'normal' });
                             if (activeM.length === 0) return '';
 
                             let content = '';
                             if (activeM.length === 3) {
                                 content = `
                                     <colgroup>
-                                        <col style="width: 34%;">
-                                        <col style="width: 32%;">
-                                        <col style="width: 34%;">
+                                        <col style="width: 35%;">
+                                        <col style="width: 30%;">
+                                        <col style="width: 35%;">
                                     </colgroup>
                                     <tr>
-                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 35%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${formatTtdJabatan(activeM[0].jabatan)}<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 32%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 30%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${formatTtdJabatan(activeM[1].jabatan)}<br><br><br><br><br>
                                         </td>
-                                        <td style="width: 34%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                        <td style="width: 35%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
                                             ${formatTtdJabatan(activeM[2].jabatan)}<br><br><br><br><br>
                                         </td>
                                     </tr>
@@ -9523,7 +9510,7 @@
                             return `
                                 <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; margin-bottom: 12pt;">
                                     <p style="margin: 0 0 8pt 0; text-align: center; font-weight: bold; font-size: 12pt;">Mengetahui,</p>
-                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 11pt; table-layout: fixed;">
+                                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; table-layout: fixed;">
                                         ${content}
                                     </table>
                                 </div>
@@ -9534,11 +9521,11 @@
                         <div id="sba_tingkat3_wadir_wrapper" style="height: 125pt; min-height: 125pt; margin-bottom: 14pt; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; font-family: 'Times New Roman', serif;">
                             ${isWadirActive ? `
                                 <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
-                                    <p style="margin: 0 0 2pt 0; font-size: 11pt; font-weight: bold; line-height: 1.25;">Menyetujui,</p>
-                                    <p style="margin: 0; font-size: 11pt; line-height: 1.25;">${formatTtdJabatan(wadirJabatan)}</p>
+                                    <p style="margin: 0 0 2pt 0; font-size: 12pt; font-weight: bold; line-height: 1.25;">Menyetujui,</p>
+                                    <p style="margin: 0; font-size: 12pt; line-height: 1.25;">${formatTtdJabatan(wadirJabatan)}</p>
                                     <div style="height: 42pt;"></div>
-                                    <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
-                                    <p style="margin: 0; font-size: 10pt; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
+                                    <p style="margin: 0; font-size: 12pt; font-weight: bold; text-decoration: underline; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
+                                    <p style="margin: 0; font-size: 12pt; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
                                 </div>
                             ` : `
                                 <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
@@ -9550,9 +9537,9 @@
                         </div>
 
                         <!-- BARIS 4: TEMBUSAN (Tabel Bernomor Indent Sejajar Paragraf - Posisi Terkunci) -->
-                        <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-bottom: 0; font-family: 'Times New Roman', serif;">
-                            <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
-                            <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
+                        <div style="font-size: 12pt; line-height: 1.35; text-align: left; margin-bottom: 0; font-family: 'Times New Roman', serif;">
+                            <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt;">Tembusan :</p>
+                            <table style="margin-left: 18pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.35;">
                                 ${isWadirActive ? `
                                 <tr>
                                     <td style="width: 22px; vertical-align: top; padding: 1pt 0;">1.</td>
@@ -10878,8 +10865,58 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (!doc) return;
             isProgrammaticLoading = true;
 
+            if (doc.title && /_SBA\b/i.test(doc.title) && doc.type !== 'SBA') {
+                doc.type = 'SBA';
+            }
+
             // 1. Pilih jenis surat terlebih dahulu
             selectSuratType(doc.type || 'SPM');
+
+            // 3. Masukkan data input yang tersimpan
+            const d = doc.formData || {};
+            if (d['field_ttd_wadir_jabatan']) {
+                d['field_ttd_wadir_jabatan'] = normalizeWadirJabatan(d['field_ttd_wadir_jabatan']);
+            }
+            if (doc.type === 'SBA') {
+                if (d['field_ttd3_nama'] === 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.' || !d['field_ttd3_nama']) {
+                    d['field_ttd3_nama'] = 'Zainul Hakim, S.Ag.,M.Pd.I';
+                }
+                if (d['field_nomor_surat'] && d['field_nomor_surat'].includes('/SPZ/')) {
+                    d['field_nomor_surat'] = '034/SBA/E1/UKM IMIP/VII/2026';
+                    d['field_nomor_urut'] = '034';
+                    if (doc.title && doc.title.startsWith('025_SBA')) {
+                        doc.title = doc.title.replace(/^025_SBA/, '034_SBA');
+                    }
+                }
+                const rawAc = (d['field_nama_acara'] || '').trim();
+                let ac = rawAc || 'Studi Banding 2026';
+                if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(ac)) {
+                    ac = `${ac} 2026`;
+                }
+                const acTanpaTahun = ac.replace(/\s*20\d{2}\b/g, '').trim() || ac;
+                d['field_nama_acara'] = ac;
+
+                if (d['field_pembuka']) {
+                    d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], 'Unit Kegiatan Mahasiswa LDK IMIP');
+                    if (ac) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], ac);
+                    if (rawAc) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], rawAc);
+                }
+                if (d['field_isi_inti']) {
+                    if (d['field_isi_inti'].includes('**Studi Banding 2026** antara') || d['field_isi_inti'].includes('**Studi Banding** antara') || d['field_isi_inti'].includes('Studi Banding antara')) {
+                        d['field_isi_inti'] = d['field_isi_inti'].replace(/(\*\*)?Studi Banding(?:\s+20\d{2})?(\*\*)?\s+antara/i, `**${acTanpaTahun}** antara`);
+                    }
+                    if (acTanpaTahun) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], acTanpaTahun);
+                }
+                if (d['field_perihal']) {
+                    if (d['field_perihal'] === 'Surat Berita Acara Studi Banding 2026' || d['field_perihal'] === `Surat Berita Acara ${ac}`) {
+                        d['field_perihal'] = `Surat Berita Acara ${acTanpaTahun}`;
+                    }
+                }
+            } else {
+                if (d['field_ttd3_nama'] === 'Zainul Hakim, S.Ag.,M.Pd.I' || d['field_ttd3_nama'] === 'Zainul Hakim, S.Ag., M.Pd.I' || !d['field_ttd3_nama']) {
+                    d['field_ttd3_nama'] = 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
+                }
+            }
 
             // 2. Set judul dokumen di bar editor & window title
             isDocTitleManuallyEdited = Boolean(doc.isTitleManual);
@@ -10901,41 +10938,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const lastModEl = document.getElementById('doc_last_modified_text');
             if (lastModEl) {
                 lastModEl.innerText = formatRelativeTime(doc.updatedAt);
-            }
-
-            // 3. Masukkan data input yang tersimpan
-            const d = doc.formData || {};
-            if (d['field_ttd_wadir_jabatan']) {
-                d['field_ttd_wadir_jabatan'] = normalizeWadirJabatan(d['field_ttd_wadir_jabatan']);
-            }
-            if (d['field_ttd3_nama'] === 'Zainul Hakim, S.Ag.,M.Pd.I' || d['field_ttd3_nama'] === 'Zainul Hakim, S.Ag., M.Pd.I' || !d['field_ttd3_nama']) {
-                d['field_ttd3_nama'] = 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
-            }
-            if (doc.type === 'SBA') {
-                const rawAc = (d['field_nama_acara'] || '').trim();
-                let ac = rawAc || 'Studi Banding 2026';
-                if (!/(?:^|[^\d])20\d{2}(?:[^\d]|$)/.test(ac)) {
-                    ac = `${ac} 2026`;
-                }
-                d['field_nama_acara'] = ac;
-
-                if (d['field_pembuka']) {
-                    d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], 'Unit Kegiatan Mahasiswa LDK IMIP');
-                    if (ac) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], ac);
-                    if (rawAc) d['field_pembuka'] = autoBoldPhrase(d['field_pembuka'], rawAc);
-                }
-                if (d['field_isi_inti']) {
-                    if (d['field_isi_inti'].includes('**Studi Banding** antara') || d['field_isi_inti'].includes('Studi Banding antara')) {
-                        d['field_isi_inti'] = d['field_isi_inti'].replace(/(\*\*)?Studi Banding(\*\*)?\s+antara/i, `**${ac}** antara`);
-                    }
-                    if (ac) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], ac);
-                    if (rawAc) d['field_isi_inti'] = autoBoldPhrase(d['field_isi_inti'], rawAc);
-                }
-                if (d['field_perihal']) {
-                    if (d['field_perihal'] === 'Surat Berita Acara Studi Banding') {
-                        d['field_perihal'] = `Surat Berita Acara ${ac}`;
-                    }
-                }
             }
             for (const key in d) {
                 if (key === 'spzBarangList' || key === 'spzPanitiaList' || key === 'spzRundownList' || key === 'isSpzPembukaManual' || key === 'isSpzTempatManuallyEdited' ||
@@ -11042,6 +11044,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (d.isSbaPerihalManuallyEdited !== undefined) isSbaPerihalManuallyEdited = Boolean(d.isSbaPerihalManuallyEdited);
             }
 
+            if (typeof handleTanggalSuratInput === 'function') handleTanggalSuratInput();
             if (typeof toggleEventDetails === 'function') toggleEventDetails();
             if (typeof toggleTtd3 === 'function') toggleTtd3();
             if (typeof updateTtdState === 'function') updateTtdState();
@@ -11051,6 +11054,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (!isDocTitleManuallyEdited && typeof syncAutoDocTitle === 'function') {
                 syncAutoDocTitle();
             }
+            triggerAutoSave();
         }
 
         // Pemicu Simpan Otomatis (Debounced Auto-Save)
@@ -11776,28 +11780,32 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     formData: {
                         field_nomor_surat: '034/SBA/E1/UKM IMIP/VII/2026',
                         field_nomor_urut: '034',
-                        field_lampiran: '-',
+                        field_lampiran: '2 Halaman',
                         field_tanggal_surat: 'Jakarta, 2 Juli 2026',
+                        field_perihal: 'Surat Berita Acara Studi Banding',
                         field_nama_acara: 'Studi Banding 2026',
                         field_hari_tanggal: 'Minggu, 28 Juni 2026',
                         field_waktu: '08.00 s/d 13.10 WIB',
                         field_tempat: 'Masjid Ulul Albab Kampus B UNJ, JL. Pemuda, No. 10, Rawamangun, RT.8/RW.5, Rawamangun, Kec. Pulo Gadung, Kota Jakarta Timur, Daerah Khusus Ibukota Jakarta 13220',
                         field_pembuka: `Melalui surat ini kami sampaikan bahwa **Unit Kegiatan Mahasiswa LDK IMIP** Politeknik Negeri Media Kreatif Jakarta telah melaksanakan kegiatan **Studi Banding 2026** pada:`,
-                        field_isi_inti: `**Studi Banding 2026** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`,
+                        field_isi_inti: `**Studi Banding** antara LDK IMIP dan MAF PGSD UNJ ini diselenggarakan sebagai wadah untuk saling berbagi insight, bertukar pikiran, serta mengevaluasi program kerja masing-masing organisasi. Melalui forum diskusi yang interaktif, kedua belah pihak dapat saling mengadopsi inovasi strategis dan praktik terbaik guna meningkatkan kualitas pengurusan serta mempererat tali silaturahmi antar lembaga.`,
                         field_penutup: 'Demikian surat Berita Acara ini dibuat dan disahkan dengan penuh tanggung jawab agar dipergunakan semestinya. Atas perhatiannya, kami sampaikan terimakasih.',
                         field_ttd1_active: true,
                         field_ttd1_jabatan: 'Ketua Pelaksana\nStudi Banding 2026',
-                        field_ttd1_nama: 'Fadly Ahmad Chandi',
-                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd1_nama: 'Faridah Rihadatul ‘Aisy',
+                        field_ttd1_nim: 'NIM. 2470402026',
                         field_ttd2_active: true,
                         field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
                         field_ttd2_nama: 'Hafiz Alfariz',
                         field_ttd2_nim: 'NIM. 2490444040',
                         field_ttd3_active: true,
-                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
-                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nUKM IMIP',
+                        field_ttd3_nama: 'Zainul Hakim, S.Ag.,M.Pd.I',
                         field_ttd3_nim: 'NIP. 198005072023211013',
                         field_use_kop: true,
+                        sba_inc_keuangan: true,
+                        sba_inc_nota: true,
+                        sba_inc_dok: true,
                         sbaRundownList: JSON.parse(JSON.stringify(DEFAULT_SBA_RUNDOWN)),
                         sbaPrestasiList: JSON.parse(JSON.stringify(DEFAULT_SBA_PRESTASI)),
                         sbaPemasukanList: JSON.parse(JSON.stringify(DEFAULT_SBA_PEMASUKAN)),
