@@ -1166,22 +1166,9 @@
                 </div>
             </div>
 
-            <!-- TABS PER HALAMAN WITH SCROLL CONTROLS -->
-            <div class="mt-3 pt-3 border-t border-neutral-800/80 flex items-center gap-1.5 relative">
-                <!-- Tombol Geser Kiri -->
-                <button type="button" id="btn_scroll_tab_left" onclick="scrollPageTabs('left')" class="shrink-0 w-8 h-8 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-all shadow-xs active:scale-95" title="Geser Tab ke Kiri">
-                    <i class="fa-solid fa-chevron-left text-xs"></i>
-                </button>
-
-                <!-- Container Tab dengan Smooth Scroll & Drag -->
-                <div class="flex-1 flex items-center gap-2 overflow-x-auto py-1 scroll-smooth select-none" id="page_stepper_tabs" style="scrollbar-width: thin; scrollbar-color: rgba(249, 115, 22, 0.4) transparent;">
-                    <!-- Injected via JS -->
-                </div>
-
-                <!-- Tombol Geser Kanan -->
-                <button type="button" id="btn_scroll_tab_right" onclick="scrollPageTabs('right')" class="shrink-0 w-8 h-8 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-all shadow-xs active:scale-95" title="Geser Tab ke Kanan">
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                </button>
+            <!-- TABS PER HALAMAN (FULL WIDTH SMOOTH SCROLL) -->
+            <div class="mt-3 pt-3 border-t border-neutral-800/80 flex items-center gap-2 overflow-x-auto py-1 scroll-smooth select-none w-full" id="page_stepper_tabs" style="scrollbar-width: thin; scrollbar-color: rgba(249, 115, 22, 0.4) transparent;">
+                <!-- Injected via JS -->
             </div>
         </div>
 
@@ -9698,6 +9685,9 @@
                     initPreviewClickToEdit();
                 }
             }
+            if (typeof renderPageTabs === 'function') {
+                renderPageTabs();
+            }
             if (typeof applyActivePageVisibility === 'function') {
                 applyActivePageVisibility();
             }
@@ -10443,9 +10433,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (indBadge) indBadge.innerText = 'Semua Halaman (Lengkap)';
                 if (prevTitle) prevTitle.innerText = `Pratinjau Kertas A4 • Semua Halaman (Total ${total} Lembar)`;
                 if (stepNum) stepNum.innerText = '★';
-                if (stepTitle) stepTitle.innerText = 'Semua Formulir Isian Aktif';
-                if (stepDesc) stepDesc.innerText = 'Menampilkan seluruh halaman lembar A4 dan kartu formulir isian dari awal hingga akhir.';
-                if (modeDesc) modeDesc.innerText = 'Menampilkan seluruh halaman lembar A4 dan formulir isian secara lengkap.';
+                if (stepTitle) stepTitle.innerText = 'Floating Editor Aktif';
+                if (stepDesc) stepDesc.innerText = 'Menampilkan seluruh halaman lembar A4 secara lengkap. Klik teks atau bagian lembar untuk mengedit.';
+                if (modeDesc) modeDesc.innerText = 'Menampilkan seluruh halaman lembar A4 secara lengkap. Klik langsung teks atau gambar pada lembar untuk mengedit via Floating Popover.';
                 if (btnPrev) btnPrev.disabled = true;
                 if (btnPrevText) btnPrevText.innerText = 'Halaman Sebelumnya';
                 if (btnNextText) btnNextText.innerText = 'Fokus Halaman 1';
@@ -10454,10 +10444,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 if (indBadge) indBadge.innerText = `Halaman ${currentActivePage} dari ${total}`;
                 if (prevTitle) prevTitle.innerText = `Pratinjau Kertas A4 • Halaman ${currentActivePage} dari ${total}`;
                 if (stepNum) stepNum.innerText = currentActivePage;
-                if (modeDesc) modeDesc.innerText = 'Isi surat per halaman dengan pratinjau lembar A4 fokus tepat di atas formulir isian.';
+                if (modeDesc) modeDesc.innerText = `Fokus pratinjau lembar A4 Halaman ${currentActivePage}. Klik langsung teks di lembar untuk mengedit.`;
 
-                let titleTxt = `Formulir Pengisian: Halaman ${currentActivePage}`;
-                let descTxt = 'Isi data formulir di bawah ini untuk memperbarui lembar halaman di atas.';
+                let titleTxt = `Halaman ${currentActivePage} dari ${total}`;
+                let descTxt = 'Klik langsung pada bagian lembar di atas untuk mengedit via Floating Popover.';
 
                 if (currentSuratType === 'SBA') {
                     const sbaPages = getSbaPagesStructure();
@@ -11182,6 +11172,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 openCreateNewDocModal();
             } else {
                 updatePreview();
+                if (typeof renderPageTabs === 'function') renderPageTabs();
+                if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -11374,6 +11366,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             setActiveDocumentId(docId);
             loadFormDataIntoInputs(doc);
+            if (typeof renderPageTabs === 'function') renderPageTabs();
+            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             switchToEditorView();
         }
 
