@@ -433,7 +433,43 @@
                 const raw = localStorage.getItem(DOCS_STORAGE_KEY);
                 if (!raw) return [];
                 const parsed = JSON.parse(raw);
-                return Array.isArray(parsed) ? parsed : [];
+                let docs = Array.isArray(parsed) ? parsed : [];
+                let hasChanges = false;
+                docs.forEach(doc => {
+                    if (!doc) return;
+                    const isSbaDoc = (doc.type === 'SBA') ||
+                        (doc.title && /(?:_SBA\b|SBA|Berita\s*Acara|STUBAN|Studi\s*Banding)/i.test(doc.title)) ||
+                        (doc.formData && doc.formData.field_perihal && /Berita\s*Acara/i.test(doc.formData.field_perihal)) ||
+                        (doc.formData && doc.formData.field_nama_acara && /Studi\s*Banding/i.test(doc.formData.field_nama_acara));
+                    
+                    if (isSbaDoc) {
+                        if (doc.type !== 'SBA') {
+                            doc.type = 'SBA';
+                            hasChanges = true;
+                        }
+                        if (doc.title && doc.title.startsWith('025_SBA')) {
+                            doc.title = doc.title.replace(/^025_SBA/, '034_SBA');
+                            hasChanges = true;
+                        }
+                        if (doc.formData) {
+                            if (!doc.formData.field_nomor_surat || doc.formData.field_nomor_surat.includes('/SPZ/')) {
+                                doc.formData.field_nomor_surat = '034/SBA/E1/UKM IMIP/VII/2026';
+                                doc.formData.field_nomor_urut = '034';
+                                hasChanges = true;
+                            }
+                            if (!doc.formData.field_ttd3_nama || !doc.formData.field_ttd3_nama.includes('Dr. H.')) {
+                                doc.formData.field_ttd3_nama = 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
+                                hasChanges = true;
+                            }
+                        }
+                    }
+                });
+                if (hasChanges) {
+                    try {
+                        localStorage.setItem(DOCS_STORAGE_KEY, JSON.stringify(docs));
+                    } catch (e) {}
+                }
+                return docs;
             } catch (e) {
                 console.error('Gagal membaca dokumen dari localStorage:', e);
                 return [];
