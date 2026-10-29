@@ -565,6 +565,18 @@
             background-color: rgba(249, 115, 22, 0.15) !important;
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.25) !important;
         }
+        /* Galeri dokumentasi & nota tidak memakai outline dashed besar agar tampilan foto bersih tanpa grid luar */
+        .preview-editable[data-edit-type="sba_dok"]:hover,
+        .preview-editable[data-edit-type="sba_nota"]:hover {
+            outline: none !important;
+            background-color: transparent !important;
+        }
+        .preview-editable[data-edit-type="sba_dok"].preview-editable-active,
+        .preview-editable[data-edit-type="sba_nota"].preview-editable-active {
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
         /* Mengatasi limitasi Chromium: CSS outline pada <tr> tidak muncul pada collapsed table */
         tr.preview-editable {
             cursor: pointer !important;
@@ -2540,6 +2552,15 @@
                                 <!-- Rendered via JS -->
                             </div>
                             <span class="text-[9.5px] text-neutral-400 mt-1 block">Foto dokumentasi akan disusun rapi di lembar lampiran SBA setelah nota keuangan.</span>
+
+                            <!-- Toggle Garis Bingkai Foto (Grid Border) -->
+                            <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/60 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors mt-2">
+                                <div class="flex flex-col pr-2">
+                                    <span class="text-xs font-bold text-neutral-200">Garis Bingkai Foto (Grid Border)</span>
+                                    <span class="text-[9.5px] text-neutral-400">Tampilkan garis border hitam membingkai setiap foto dokumentasi</span>
+                                </div>
+                                <input type="checkbox" id="sba_dok_border_toggle" onchange="toggleSbaDokumentasiBorder(this.checked)" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -7458,6 +7479,17 @@
             updatePreview();
         }
 
+        let sbaDokumentasiBorder = false;
+
+        function toggleSbaDokumentasiBorder(val) {
+            sbaDokumentasiBorder = Boolean(val);
+            updatePreview();
+            if (typeof saveDocumentStateDebounced === 'function') {
+                saveDocumentStateDebounced();
+            }
+        }
+        window.toggleSbaDokumentasiBorder = toggleSbaDokumentasiBorder;
+
         function renderSbaDokumentasiGridHtml() {
             if (!sbaDokumentasiList || sbaDokumentasiList.length === 0) {
                 return '<p style="text-align: center; color: #888; font-style: italic; margin-top: 30pt; font-family: \'Times New Roman\', serif; font-size: 12pt;">Tidak ada lampiran foto dokumentasi.</p>';
@@ -7466,6 +7498,7 @@
             const row1 = sbaDokumentasiList.slice(0, 3);
             const row2 = sbaDokumentasiList.slice(3, 5);
             const remaining = sbaDokumentasiList.slice(5);
+            const borderStyle = sbaDokumentasiBorder ? 'border: 1px solid #111; padding: 2px;' : 'border: none; padding: 0;';
 
             return `
                 <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8pt;">
@@ -7475,8 +7508,8 @@
                             const did = getGoogleDriveFileId(src);
                             const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
                             return `
-                            <div style="width: 100%; height: 56mm; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #111; padding: 2px;">
-                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 55mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            <div style="width: 100%; height: 56mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
+                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 56mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             </div>
                             `;
                         }).join('')}
@@ -7489,8 +7522,8 @@
                             const did = getGoogleDriveFileId(src);
                             const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
                             return `
-                            <div style="flex: 0 1 48%; max-width: 48%; height: 58mm; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #111; padding: 2px;">
-                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 57mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            <div style="flex: 0 1 48%; max-width: 48%; height: 58mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
+                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 58mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             </div>
                             `;
                         }).join('')}
@@ -7504,8 +7537,8 @@
                             const did = getGoogleDriveFileId(src);
                             const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w1000` : src;
                             return `
-                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid #111; padding: 2px;">
-                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 49mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            <div style="width: 100%; height: 50mm; display: flex; align-items: center; justify-content: center; background: transparent; ${borderStyle}">
+                                <img src="${src}" alt="Dokumentasi Kegiatan" style="max-width: 100%; max-height: 50mm; object-fit: contain; display: block;" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             </div>
                             `;
                         }).join('')}
@@ -10844,6 +10877,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (typeof sbaDokumentasiList !== 'undefined') {
                 data.sbaDokumentasiList = JSON.parse(JSON.stringify(sbaDokumentasiList));
             }
+            if (typeof sbaDokumentasiBorder !== 'undefined') {
+                data.sbaDokumentasiBorder = sbaDokumentasiBorder;
+            }
             if (typeof isSbaIsiIntiManuallyEdited !== 'undefined') {
                 data.isSbaIsiIntiManuallyEdited = isSbaIsiIntiManuallyEdited;
             }
@@ -11005,6 +11041,11 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
                 if (d.sbaDokumentasiList && Array.isArray(d.sbaDokumentasiList)) {
                     sbaDokumentasiList = JSON.parse(JSON.stringify(d.sbaDokumentasiList));
+                }
+                if (d.sbaDokumentasiBorder !== undefined) {
+                    sbaDokumentasiBorder = Boolean(d.sbaDokumentasiBorder);
+                    const toggleEl = document.getElementById('sba_dok_border_toggle');
+                    if (toggleEl) toggleEl.checked = sbaDokumentasiBorder;
                 }
                 if (typeof initSbaEditors === 'function') {
                     initSbaEditors();
