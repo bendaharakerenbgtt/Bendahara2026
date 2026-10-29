@@ -1087,20 +1087,23 @@
         <div id="page_stepper_card" class="glass-card relative z-20 p-3 sm:p-4 mb-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div class="flex flex-col">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
-                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200">Mode Tampilan Lembar</span>
+                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200">Pratinjau Lembar Surat</span>
                         <span id="current_page_indicator_badge" class="px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-[10px] font-bold text-orange-400 font-mono">
                             Semua Halaman (Lengkap)
                         </span>
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 font-mono flex items-center gap-1">
+                            <i class="fa-solid fa-bolt text-[9px]"></i> Floating Editor Aktif
+                        </span>
                     </div>
                     <p id="mode_stepper_desc" class="text-[11px] text-neutral-400 mt-0.5">
-                        Menampilkan seluruh halaman lembar A4 dan formulir isian secara lengkap.
+                        Klik langsung bagian mana saja pada lembar surat untuk mengedit teks, rincian, tanda tangan, lampiran, dan foto via Floating Popover.
                     </p>
                 </div>
                 
-                <!-- LAYOUT MODE TOGGLE -->
-                <div class="flex items-center gap-1.5 bg-neutral-900/90 p-1 rounded-xl border border-neutral-800 shrink-0">
+                <!-- LAYOUT MODE TOGGLE (HIDDEN IN PURE FLOATING MODE) -->
+                <div class="hidden items-center gap-1.5 bg-neutral-900/90 p-1 rounded-xl border border-neutral-800 shrink-0">
                     <!-- Tumpuk Mode Button + Tooltip -->
                     <div class="relative group">
                         <button type="button" id="btn_mode_stacked" onclick="setLayoutMode('stacked')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 bg-orange-500 text-white shadow-sm" title="Mode Tumpuk: Tata letak asli (real layout) lembar A4 di atas formulir">
@@ -1238,10 +1241,10 @@
 
                         <!-- Footer Popover -->
                         <div class="flex items-center justify-between pt-2 border-t border-neutral-800 text-xs">
-                            <button type="button" onclick="focusLeftFormCard()" class="text-[11px] text-neutral-400 hover:text-orange-300 flex items-center gap-1 font-medium transition-colors">
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                                <span>Buka di Formulir</span>
-                            </button>
+                            <div class="text-[10.5px] text-neutral-400 flex items-center gap-1 font-mono">
+                                <i class="fa-solid fa-bolt text-orange-400 text-[10px]"></i>
+                                <span>Edit Langsung (Floating)</span>
+                            </div>
                             <button type="button" onclick="closePreviewQuickEdit()" class="px-3.5 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95">
                                 <i class="fa-solid fa-check text-[10px]"></i>
                                 <span>Selesai</span>
@@ -1251,8 +1254,8 @@
                 </div>
             </div>
 
-            <!-- FORM EDITOR SECTION (BOTTOM IN STACKED MODE) -->
-            <div id="workspace_form_section" class="flex flex-col gap-4">
+            <!-- FORM EDITOR SECTION (HIDDEN: KEUNGGULAN PURE FLOATING WORKSPACE) -->
+            <div id="workspace_form_section" class="hidden" style="display: none !important;">
                 
                 <!-- CARD: KOP & PENOMORAN -->
                 <div class="glass-card p-4 sm:p-5" id="card_kop_nomor">
@@ -4049,7 +4052,7 @@
             if (!useKop) return '';
 
             return `
-                <div class="spz-kop-container" style="position: relative; margin-bottom: 18pt; width: 100%;">
+                <div class="spz-kop-container preview-editable" data-edit-target="field_use_kop" data-edit-label="Kop Surat Resmi" data-edit-type="kop" title="Klik untuk pengaturan Kop Surat" style="position: relative; margin-bottom: 18pt; width: 100%;">
                     <img src="surat/assets/kop_spz_official.png" alt="Kop Surat Resmi UKM LDK IMIP" style="width: 100%; height: auto; display: block; object-fit: contain;">
                 </div>
             `;
@@ -4065,7 +4068,7 @@
             if (!useKop) return '';
 
             return `
-                <div class="spz-kop-container" style="position: relative; margin-bottom: ${marginBottom}; width: 100%;">
+                <div class="spz-kop-container preview-editable" data-edit-target="field_use_kop" data-edit-label="Kop Surat Resmi" data-edit-type="kop" title="Klik untuk pengaturan Kop Surat" style="position: relative; margin-bottom: ${marginBottom}; width: 100%;">
                     <img src="surat/assets/kop_spz_official.png" alt="Kop Surat Resmi UKM LDK IMIP" style="width: 100%; height: auto; display: block; object-fit: contain;">
                 </div>
             `;
@@ -10537,13 +10540,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const btnStacked = document.getElementById('btn_mode_stacked');
             const btnSide = document.getElementById('btn_mode_side');
 
-            if (mode === 'stacked') {
-                if (container) {
-                    container.className = 'workspace-stacked flex flex-col gap-6 w-full max-w-5xl mx-auto';
-                }
-                if (previewSec) previewSec.className = 'flex flex-col gap-3 order-1';
-                if (formSec) formSec.className = 'flex flex-col gap-4 order-2';
+            if (container) {
+                container.className = 'workspace-stacked flex flex-col gap-6 w-full max-w-5xl mx-auto';
+            }
+            if (previewSec) previewSec.className = 'flex flex-col gap-3 w-full';
+            if (formSec) {
+                formSec.className = 'hidden';
+                formSec.style.display = 'none';
+            }
 
+            if (mode === 'stacked') {
                 if (btnStacked) {
                     btnStacked.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 bg-orange-500 text-white shadow-sm';
                 }
@@ -10551,12 +10557,6 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     btnSide.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white transition-all flex items-center gap-1.5 active:scale-95';
                 }
             } else {
-                if (container) {
-                    container.className = 'workspace-side grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full';
-                }
-                if (formSec) formSec.className = 'lg:col-span-5 order-2 lg:order-1 flex flex-col gap-4';
-                if (previewSec) previewSec.className = 'lg:col-span-7 order-1 lg:order-2 lg:sticky lg:top-20 flex flex-col gap-3';
-
                 if (btnSide) {
                     btnSide.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 bg-orange-500 text-white shadow-sm';
                 }
@@ -11941,7 +11941,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const type = editable.getAttribute('data-edit-type') || 'text';
             const idx = editable.getAttribute('data-edit-idx');
 
-            if (isSbaKeuanganDbLinked() && (type === 'sba_pemasukan' || type === 'sba_keuangan' || type === 'sba_rekap' || targetId === 'card_sba_keuangan' || targetId === 'card_sba_rekapitulasi' || targetId === 'sba_pemasukan_row')) {
+            if (isSbaKeuanganDbLinked() && (type === 'sba_pemasukan' || targetId === 'sba_pemasukan_row')) {
                 const pName = getSbaLinkedProkerName() || 'Kegiatan Terkait';
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -11981,7 +11981,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (!popover || !container) return;
 
             if (titleEl) {
-                if (type === 'nomor_surat' || targetId === 'field_nomor_urut' || targetId === 'field_nomor_prefix' || targetId === 'field_nomor_surat') {
+                if (type === 'kop' || targetId === 'field_use_kop' || targetId === 'card_kop_nomor') {
+                    titleEl.innerText = 'Kop Surat Resmi';
+                } else if (type === 'nomor_surat' || targetId === 'field_nomor_urut' || targetId === 'field_nomor_prefix' || targetId === 'field_nomor_surat') {
                     titleEl.innerText = 'Ubah Nomor Surat';
                 } else if (targetId === 'field_tanggal_surat') {
                     titleEl.innerText = 'Ubah Kota & Tanggal Surat';
@@ -12056,7 +12058,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             }
             if (subtitleEl) {
-                if (type === 'spz_barang_all') subtitleEl.innerText = 'Kelola semua barang pinjaman dan jumlahnya';
+                if (type === 'sba_dok') subtitleEl.innerText = 'Unggah foto dokumentasi, kelola atau hapus langsung di sini';
+                else if (type === 'sba_nota') subtitleEl.innerText = 'Unggah foto bukti nota/kwitansi atau hapus langsung di sini';
+                else if (type === 'sba_keuangan') subtitleEl.innerText = 'Pilih kegiatan database, export RAB, atau kelola pos belanja';
+                else if (type === 'sba_rekap') subtitleEl.innerText = 'Rincian total pemasukan, pengeluaran & status saldo kas';
+                else if (type === 'kop' || targetId === 'field_use_kop') subtitleEl.innerText = 'Pengaturan tampilan kop surat resmi UKM LDK IMIP';
+                else if (type === 'spz_barang_all') subtitleEl.innerText = 'Kelola semua barang pinjaman dan jumlahnya';
                 else if (type === 'spz_panitia_all') subtitleEl.innerText = 'Kelola data panitia, NIM, prodi & delegasi';
                 else if (type === 'spz_rundown_all' || type === 'sba_rundown_all') subtitleEl.innerText = 'Kelola susunan rundown, waktu & penanggung jawab';
                 else if (type === 'sba_prestasi_all') subtitleEl.innerText = 'Kelola semua capaian prestasi, kejuaraan, nama peserta & prodi';
@@ -12239,6 +12246,32 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         }
 
         function generatePopoverInputHtml(type, targetId, idx) {
+            // 0. KOP SURAT RESMI
+            if (type === 'kop' || targetId === 'field_use_kop' || targetId === 'card_kop_nomor') {
+                const useKop = document.getElementById('field_use_kop') ? document.getElementById('field_use_kop').checked : true;
+                return `
+                    <div class="space-y-3 py-1">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-neutral-900 border border-neutral-800">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                                    <i class="fa-solid fa-heading text-sm"></i>
+                                </span>
+                                <div>
+                                    <span class="text-xs font-bold text-white block">Kop Surat Resmi UKM LDK IMIP</span>
+                                    <span class="text-[10.5px] text-neutral-400">Tampilkan kop resmi di bagian atas lembar</span>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input type="checkbox" id="quick_use_kop" ${useKop ? 'checked' : ''} onchange="syncQuickKopToggle(this.checked)" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4">
+                            </label>
+                        </div>
+                        <p class="text-[10.5px] text-neutral-400 leading-relaxed px-1">
+                            💡 Kop resmi berstandar organisasi dengan resolusi tinggi, memuat logo PoliMedia, logo UKM LDK IMIP, dan garis pembatas kop resmi.
+                        </p>
+                    </div>
+                `;
+            }
+
             // 1. NOMOR SURAT (Urut, format suffix resmi, tombol otomatis)
             if (type === 'nomor_surat' || targetId === 'field_nomor_urut' || targetId === 'field_nomor_prefix' || targetId === 'field_nomor_surat') {
                 const urutInput = document.getElementById('field_nomor_urut');
@@ -13360,37 +13393,42 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 `;
             }
 
-            // 18. SEKSI KEUANGAN / REKAPITULASI / PRESTASI / NOTA / DOKUMENTASI
-            if (type === 'sba_keuangan' || type === 'sba_rekap' || type === 'sba_prestasi' || type === 'sba_nota' || type === 'sba_dok') {
-                let icon = 'fa-coins';
-                let desc = 'Kelola rincian pos belanja bahan, honor, perlengkapan dan divisi di formulir.';
-                let btnText = 'Buka Rincian Pengeluaran';
-                if (type === 'sba_rekap') {
-                    icon = 'fa-scale-balanced';
-                    desc = 'Tabel rekapitulasi dihitung otomatis dari total Pemasukan dan Pengeluaran. Anda dapat mengatur opsi saldo.';
-                    btnText = 'Buka Pengaturan Rekapitulasi';
-                } else if (type === 'sba_prestasi') {
-                    icon = 'fa-trophy';
-                    desc = 'Kelola tabel capaian prestasi, kejuaraan, atau penghargaan yang diraih dalam kegiatan.';
-                    btnText = 'Buka Pengelola Prestasi';
-                } else if (type === 'sba_nota') {
-                    icon = 'fa-receipt';
-                    desc = 'Unggah foto nota, kwitansi, atau bukti transaksi pembelanjaan kegiatan.';
-                    btnText = 'Unggah / Kelola Nota';
-                } else if (type === 'sba_dok') {
-                    icon = 'fa-camera';
-                    desc = 'Unggah foto dokumentasi kegiatan, banner acara, peserta, dan serah terima.';
-                    btnText = 'Unggah / Kelola Dokumentasi';
-                }
+            // 18A. LAMPIRAN FOTO DOKUMENTASI (UPLOAD & HAPUS LANGSUNG DI FLOATING)
+            if (type === 'sba_dok' || targetId === 'card_sba_lampiran_dokumentasi') {
+                return generateQuickSbaDokPopoverHtml();
+            }
+
+            // 18B. LAMPIRAN NOTA PEMBELANJAAN (UPLOAD & HAPUS LANGSUNG DI FLOATING)
+            if (type === 'sba_nota' || targetId === 'card_sba_lampiran_nota') {
+                return generateQuickSbaNotaPopoverHtml();
+            }
+
+            // 18C. RINCIAN PENGELUARAN KEUANGAN
+            if (type === 'sba_keuangan' || targetId === 'card_sba_keuangan') {
+                return generateQuickSbaKeuanganPopoverHtml();
+            }
+
+            // 18D. REKAPITULASI KEUANGAN
+            if (type === 'sba_rekap' || targetId === 'card_sba_rekapitulasi') {
+                return generateQuickSbaRekapPopoverHtml();
+            }
+
+            // 18E. PRESTASI KEGIATAN
+            if (type === 'sba_prestasi' || targetId === 'card_sba_output_evaluasi') {
+                const list = (typeof sbaPrestasiList !== 'undefined' && sbaPrestasiList && sbaPrestasiList.length > 0) ? sbaPrestasiList : DEFAULT_SBA_PRESTASI;
                 return `
                     <div class="space-y-3 py-1">
-                        <div class="flex items-start gap-2.5 p-2.5 rounded-lg bg-orange-500/10 border border-orange-500/20 text-xs text-orange-200">
-                            <i class="fa-solid ${icon} text-orange-400 text-base mt-0.5 shrink-0"></i>
-                            <p class="leading-relaxed text-[11px]">${desc}</p>
+                        <div class="flex items-center justify-between pb-2 border-b border-neutral-800">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-trophy text-orange-400"></i> Tabel Prestasi Kegiatan (${list.length} Baris)
+                            </span>
+                            <button type="button" onclick="addQuickSbaPrestasiRow()" class="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30 text-[10px] font-bold flex items-center gap-1 transition-all">
+                                <i class="fa-solid fa-plus text-[8px]"></i> Tambah Baris
+                            </button>
                         </div>
-                        <button type="button" onclick="focusLeftFormCard()" class="w-full py-2.5 px-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-[0.98] transition-all">
-                            <i class="fa-solid fa-arrow-down"></i> ${btnText}
-                        </button>
+                        <p class="text-[10.5px] text-neutral-400 leading-relaxed">
+                            💡 Klik langsung pada baris tabel prestasi di lembar untuk mengedit data per peserta/kejuaraan.
+                        </p>
                     </div>
                 `;
             }
@@ -13930,6 +13968,384 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (typeof autoResizePopoverTextarea === 'function') autoResizePopoverTextarea(el);
             el.focus();
             el.setSelectionRange(start + wrapper.length, start + wrapper.length + selected.length);
+        }
+
+        // -------------------------------------------------------------------------
+        // QUICK KOP SURAT SYNC
+        // -------------------------------------------------------------------------
+        function syncQuickKopToggle(checked) {
+            const formUseKop = document.getElementById('field_use_kop');
+            if (formUseKop) {
+                formUseKop.checked = checked;
+            }
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(checked ? 'Kop surat resmi ditampilkan' : 'Kop surat disembunyikan', 'info');
+        }
+        window.syncQuickKopToggle = syncQuickKopToggle;
+
+        // -------------------------------------------------------------------------
+        // QUICK FLOATING SBA DOKUMENTASI & NOTA HANDLERS
+        // -------------------------------------------------------------------------
+        function renderQuickSbaDokGridHtml() {
+            if (!sbaDokumentasiList || sbaDokumentasiList.length === 0) {
+                return `
+                    <div class="p-6 rounded-xl border border-dashed border-neutral-800 text-center text-xs text-neutral-400 bg-neutral-950/60">
+                        <i class="fa-regular fa-images text-2xl mb-1.5 text-neutral-600 block"></i>
+                        Belum ada foto dokumentasi kegiatan.<br>
+                        <span class="text-[10px] text-neutral-500">Klik tombol <b>+ Unggah Foto Dokumentasi</b> di atas untuk menambahkan foto.</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    ${sbaDokumentasiList.map((src, idx) => `
+                        <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-video flex items-center justify-center shadow-xs">
+                            <img src="${src}" alt="Dokumentasi #${idx + 1}" class="w-full h-full object-cover">
+                            <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white font-bold">#${idx + 1}</span>
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                                <button type="button" onclick="deleteQuickSbaDokItem(${idx})" class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-90" title="Hapus Foto #${idx + 1}">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function generateQuickSbaDokPopoverHtml() {
+            const count = (sbaDokumentasiList && Array.isArray(sbaDokumentasiList)) ? sbaDokumentasiList.length : 0;
+            return `
+                <div class="space-y-3 py-1">
+                    <div class="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-neutral-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-camera text-orange-400"></i> Galeri Dokumentasi
+                            </span>
+                            <span id="quick_dok_count" class="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-bold">
+                                ${count} Foto
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="resetQuickSbaDokDefault()" class="px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[10px] font-medium transition-colors" title="Kembalikan ke foto contoh bawaan">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Reset Contoh
+                            </button>
+                            <button type="button" onclick="clearQuickSbaDokAll()" class="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[10px] font-medium transition-colors" title="Hapus semua foto dokumentasi">
+                                <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="file" id="quick_sba_dok_file_input" multiple accept="image/*" class="hidden" onchange="handleQuickSbaDokUpload(event)">
+                        <button type="button" onclick="document.getElementById('quick_sba_dok_file_input').click()" class="w-full py-2.5 px-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-[0.98] transition-all">
+                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                            <span>+ Unggah Foto Dokumentasi</span>
+                        </button>
+                        <p class="text-[10.5px] text-neutral-400 text-center mt-1">
+                            Bisa pilih sekaligus banyak foto (JPG/PNG). Foto langsung tersusun rapi di halaman lampiran surat.
+                        </p>
+                    </div>
+
+                    <div id="quick_sba_dok_grid" class="max-h-[300px] overflow-y-auto pr-1">
+                        ${renderQuickSbaDokGridHtml()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function refreshQuickSbaDokPopover() {
+            const countEl = document.getElementById('quick_dok_count');
+            if (countEl) countEl.innerText = `${sbaDokumentasiList.length} Foto`;
+            const gridEl = document.getElementById('quick_sba_dok_grid');
+            if (gridEl) gridEl.innerHTML = renderQuickSbaDokGridHtml();
+        }
+
+        function handleQuickSbaDokUpload(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            let loaded = 0;
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sbaDokumentasiList.push(e.target.result);
+                    loaded++;
+                    if (loaded === files.length) {
+                        refreshQuickSbaDokPopover();
+                        if (typeof renderSbaDokumentasiGallery === 'function') renderSbaDokumentasiGallery();
+                        updatePreview();
+                        if (typeof autoSaveDraft === 'function') autoSaveDraft();
+                        if (typeof showToast === 'function') showToast(`${loaded} Foto dokumentasi berhasil ditambahkan`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function deleteQuickSbaDokItem(idx) {
+            if (idx < 0 || idx >= sbaDokumentasiList.length) return;
+            sbaDokumentasiList.splice(idx, 1);
+            refreshQuickSbaDokPopover();
+            if (typeof renderSbaDokumentasiGallery === 'function') renderSbaDokumentasiGallery();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Foto #${idx + 1} berhasil dihapus`, 'info');
+        }
+
+        function resetQuickSbaDokDefault() {
+            sbaDokumentasiList = [...DEFAULT_SBA_DOKUMENTASI];
+            refreshQuickSbaDokPopover();
+            if (typeof renderSbaDokumentasiGallery === 'function') renderSbaDokumentasiGallery();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast('Foto dokumentasi dikembalikan ke contoh bawaan', 'info');
+        }
+
+        function clearQuickSbaDokAll() {
+            sbaDokumentasiList = [];
+            refreshQuickSbaDokPopover();
+            if (typeof renderSbaDokumentasiGallery === 'function') renderSbaDokumentasiGallery();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast('Semua foto dokumentasi telah dihapus', 'info');
+        }
+
+        window.handleQuickSbaDokUpload = handleQuickSbaDokUpload;
+        window.deleteQuickSbaDokItem = deleteQuickSbaDokItem;
+        window.resetQuickSbaDokDefault = resetQuickSbaDokDefault;
+        window.clearQuickSbaDokAll = clearQuickSbaDokAll;
+
+        function renderQuickSbaNotaGridHtml() {
+            if (!sbaNotaList || sbaNotaList.length === 0) {
+                return `
+                    <div class="p-6 rounded-xl border border-dashed border-neutral-800 text-center text-xs text-neutral-400 bg-neutral-950/60">
+                        <i class="fa-solid fa-receipt text-2xl mb-1.5 text-neutral-600 block"></i>
+                        Belum ada foto nota / bukti transaksi.<br>
+                        <span class="text-[10px] text-neutral-500">Klik tombol <b>+ Unggah Nota / Kwitansi</b> di atas untuk menambahkan bukti belanja.</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    ${sbaNotaList.map((src, idx) => {
+                        const did = (typeof getGoogleDriveFileId === 'function') ? getGoogleDriveFileId(src) : null;
+                        const fb = did ? `https://drive.google.com/thumbnail?id=${did}&sz=w600` : src;
+                        return `
+                        <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[3/4] flex items-center justify-center shadow-xs">
+                            <img src="${src}" alt="Nota #${idx + 1}" class="w-full h-full object-contain p-1" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
+                            <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white font-bold">#${idx + 1}</span>
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                                <button type="button" onclick="deleteQuickSbaNotaItem(${idx})" class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-90" title="Hapus Nota #${idx + 1}">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function generateQuickSbaNotaPopoverHtml() {
+            const count = (sbaNotaList && Array.isArray(sbaNotaList)) ? sbaNotaList.length : 0;
+            return `
+                <div class="space-y-3 py-1">
+                    <div class="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-neutral-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt text-orange-400"></i> Galeri Nota &amp; Bukti
+                            </span>
+                            <span id="quick_nota_count" class="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-mono text-[10px] font-bold">
+                                ${count} Nota
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="resetQuickSbaNotaDefault()" class="px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white text-[10px] font-medium transition-colors" title="Kembalikan ke nota contoh bawaan">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Reset Contoh
+                            </button>
+                            <button type="button" onclick="clearQuickSbaNotaAll()" class="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[10px] font-medium transition-colors" title="Hapus semua nota">
+                                <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="file" id="quick_sba_nota_file_input" multiple accept="image/*" class="hidden" onchange="handleQuickSbaNotaUpload(event)">
+                        <button type="button" onclick="document.getElementById('quick_sba_nota_file_input').click()" class="w-full py-2.5 px-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 active:scale-[0.98] transition-all">
+                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                            <span>+ Unggah Foto Nota / Kwitansi</span>
+                        </button>
+                        <p class="text-[10.5px] text-neutral-400 text-center mt-1">
+                            Bisa pilih sekaligus banyak foto nota (JPG/PNG). Nota otomatis tersusun rapi di halaman lampiran.
+                        </p>
+                    </div>
+
+                    <div id="quick_sba_nota_grid" class="max-h-[300px] overflow-y-auto pr-1">
+                        ${renderQuickSbaNotaGridHtml()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function refreshQuickSbaNotaPopover() {
+            const countEl = document.getElementById('quick_nota_count');
+            if (countEl) countEl.innerText = `${sbaNotaList.length} Nota`;
+            const gridEl = document.getElementById('quick_sba_nota_grid');
+            if (gridEl) gridEl.innerHTML = renderQuickSbaNotaGridHtml();
+        }
+
+        function handleQuickSbaNotaUpload(event) {
+            const files = Array.from(event.target.files || []);
+            if (!files.length) return;
+            let loaded = 0;
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sbaNotaList.push(e.target.result);
+                    loaded++;
+                    if (loaded === files.length) {
+                        refreshQuickSbaNotaPopover();
+                        if (typeof renderSbaNotaGallery === 'function') renderSbaNotaGallery();
+                        updatePreview();
+                        if (typeof autoSaveDraft === 'function') autoSaveDraft();
+                        if (typeof showToast === 'function') showToast(`${loaded} Foto nota berhasil ditambahkan`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = '';
+        }
+
+        function deleteQuickSbaNotaItem(idx) {
+            if (idx < 0 || idx >= sbaNotaList.length) return;
+            sbaNotaList.splice(idx, 1);
+            if (typeof sbaNotaDetails !== 'undefined' && sbaNotaDetails && sbaNotaDetails.length > idx) {
+                sbaNotaDetails.splice(idx, 1);
+            }
+            refreshQuickSbaNotaPopover();
+            if (typeof renderSbaNotaGallery === 'function') renderSbaNotaGallery();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast(`Nota #${idx + 1} berhasil dihapus`, 'info');
+        }
+
+        function resetQuickSbaNotaDefault() {
+            sbaNotaList = [...DEFAULT_SBA_NOTAS];
+            if (typeof sbaNotaDetails !== 'undefined') sbaNotaDetails = [];
+            refreshQuickSbaNotaPopover();
+            if (typeof renderSbaNotaGallery === 'function') renderSbaNotaGallery();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast('Foto nota dikembalikan ke contoh bawaan', 'info');
+        }
+
+        function clearQuickSbaNotaAll() {
+            sbaNotaList = [];
+            if (typeof sbaNotaDetails !== 'undefined') sbaNotaDetails = [];
+            refreshQuickSbaNotaPopover();
+            if (typeof renderSbaNotaGallery === 'function') renderSbaNotaGallery();
+            updatePreview();
+            if (typeof autoSaveDraft === 'function') autoSaveDraft();
+            if (typeof showToast === 'function') showToast('Semua nota telah dihapus', 'info');
+        }
+
+        window.handleQuickSbaNotaUpload = handleQuickSbaNotaUpload;
+        window.deleteQuickSbaNotaItem = deleteQuickSbaNotaItem;
+        window.resetQuickSbaNotaDefault = resetQuickSbaNotaDefault;
+        window.clearQuickSbaNotaAll = clearQuickSbaNotaAll;
+
+        function generateQuickSbaKeuanganPopoverHtml() {
+            const isLinked = (typeof isSbaKeuanganDbLinked === 'function') ? isSbaKeuanganDbLinked() : false;
+            const pName = (typeof getSbaLinkedProkerName === 'function') ? (getSbaLinkedProkerName() || 'Kegiatan Terkait') : 'Kegiatan Terkait';
+            const totalMasuk = (typeof formatSbaRupiah === 'function' && typeof getSbaTotalPemasukan === 'function') ? formatSbaRupiah(getSbaTotalPemasukan()) : 'Rp0';
+            const totalKeluar = (typeof formatSbaRupiah === 'function' && typeof getSbaTotalPengeluaran === 'function') ? formatSbaRupiah(getSbaTotalPengeluaran()) : 'Rp0';
+
+            return `
+                <div class="space-y-3 py-1">
+                    <div class="p-3 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-coins text-orange-400"></i> Ringkasan Keuangan
+                            </span>
+                            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded ${isLinked ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}">
+                                ${isLinked ? 'Tersinkron Database' : 'Manual / Custom'}
+                            </span>
+                        </div>
+                        ${isLinked ? `<p class="text-[11px] text-neutral-300">Tersinkron dengan: <b class="text-white">${escapeHtml(pName)}</b></p>` : ''}
+                        <div class="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
+                            <div class="p-2 rounded-lg bg-neutral-950 border border-neutral-800">
+                                <span class="text-neutral-400 text-[10px] block">Total Masuk:</span>
+                                <span class="text-emerald-400 font-bold">${totalMasuk}</span>
+                            </div>
+                            <div class="p-2 rounded-lg bg-neutral-950 border border-neutral-800">
+                                <span class="text-neutral-400 text-[10px] block">Total Keluar:</span>
+                                <span class="text-orange-400 font-bold">${totalKeluar}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalTambahkanKeuanganSba==='function') bukaModalTambahkanKeuanganSba();" class="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Pilih Kegiatan / Tarik Kas Database</span>
+                        </button>
+                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalPilihExportRab==='function') bukaModalPilihExportRab();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
+                            <i class="fa-solid fa-file-import text-blue-400"></i>
+                            <span>Export RAB Per Proker</span>
+                        </button>
+                        ${isLinked ? `
+                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof switchToCustomKeuanganSba==='function') switchToCustomKeuanganSba();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-xl font-medium text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
+                            <i class="fa-solid fa-pen-to-square text-amber-400"></i>
+                            <span>Beralih ke Input Manual (Edit Bebas)</span>
+                        </button>
+                        ` : `
+                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalTambahKategoriBelanja==='function') bukaModalTambahKategoriBelanja();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
+                            <i class="fa-solid fa-plus text-orange-400"></i>
+                            <span>Tambah Tabel Belanja Baru</span>
+                        </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateQuickSbaRekapPopoverHtml() {
+            const totalMasuk = (typeof getSbaTotalPemasukan === 'function') ? getSbaTotalPemasukan() : 0;
+            const totalKeluar = (typeof getSbaTotalPengeluaran === 'function') ? getSbaTotalPengeluaran() : 0;
+            const sisa = totalMasuk - totalKeluar;
+            const isDefisit = sisa < 0;
+            const formatFn = (typeof formatSbaRupiah === 'function') ? formatSbaRupiah : (val => `Rp${val.toLocaleString('id-ID')}`);
+
+            return `
+                <div class="space-y-3 py-1">
+                    <div class="p-3 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2">
+                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-scale-balanced text-orange-400"></i> Rekapitulasi Kas Kegiatan
+                        </span>
+                        <div class="space-y-1.5 text-xs font-mono pt-1">
+                            <div class="flex justify-between text-neutral-300">
+                                <span>Total Pemasukan:</span>
+                                <span class="text-emerald-400 font-bold">${formatFn(totalMasuk)}</span>
+                            </div>
+                            <div class="flex justify-between text-neutral-300">
+                                <span>Total Pengeluaran:</span>
+                                <span class="text-orange-400 font-bold">${formatFn(totalKeluar)}</span>
+                            </div>
+                            <div class="flex justify-between pt-1 border-t border-neutral-800 font-bold ${isDefisit ? 'text-red-400' : 'text-emerald-400'}">
+                                <span>${isDefisit ? 'Sisa Saldo (Defisit):' : 'Sisa Saldo (Surplus):'}</span>
+                                <span>${formatFn(sisa)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10.5px] text-neutral-400 leading-relaxed">
+                        💡 Tabel rekapitulasi dihitung otomatis dari total Pemasukan dan seluruh pos Belanja. Format resmi disesuaikan secara dinamis pada Halaman 5.
+                    </p>
+                </div>
+            `;
         }
 
         function focusLeftFormCard() {
