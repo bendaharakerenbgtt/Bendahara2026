@@ -316,6 +316,8 @@
         }
         html.light-mode .form-input,
         html.light-mode input[type="text"]:not([class*="bg-orange"]):not([class*="text-orange"]),
+        html.light-mode input[type="number"],
+        html.light-mode input[type="tel"],
         html.light-mode input[type="date"],
         html.light-mode select,
         html.light-mode textarea {
@@ -454,6 +456,60 @@
             color: #0F172A !important;
         }
 
+        /* Floating Quick-Edit Popover in Light Mode */
+        html.light-mode #preview_quick_edit_popover {
+            background-color: rgba(255, 255, 255, 0.98) !important;
+            border-color: #FB923C !important;
+            color: #0F172A !important;
+            box-shadow: 0 20px 50px rgba(255, 115, 0, 0.22), 0 8px 20px rgba(15, 23, 42, 0.1) !important;
+        }
+        html.light-mode #preview_quick_edit_popover #popover_drag_header,
+        html.light-mode #preview_quick_edit_popover .border-neutral-800,
+        html.light-mode #preview_quick_edit_popover .border-neutral-800\/80,
+        html.light-mode #preview_quick_edit_popover .border-neutral-800\/60,
+        html.light-mode #preview_quick_edit_popover .border-neutral-700 {
+            border-color: #FED7AA !important;
+        }
+        html.light-mode #preview_quick_edit_popover #popover_edit_title,
+        html.light-mode #preview_quick_edit_popover .text-white {
+            color: #0F172A !important;
+        }
+        html.light-mode #preview_quick_edit_popover button[class*="bg-orange"] .text-white,
+        html.light-mode #preview_quick_edit_popover button[class*="from-orange"] .text-white,
+        html.light-mode #preview_quick_edit_popover button[class*="from-emerald"] .text-white,
+        html.light-mode #preview_quick_edit_popover button[class*="bg-red-600"],
+        html.light-mode #preview_quick_edit_popover button[class*="bg-orange-500"],
+        html.light-mode #preview_quick_edit_popover button[class*="from-orange-500"],
+        html.light-mode #preview_quick_edit_popover button[class*="from-emerald-500"],
+        html.light-mode #preview_quick_edit_popover span.bg-black\/80 {
+            color: #FFFFFF !important;
+        }
+        html.light-mode #preview_quick_edit_popover .text-neutral-200,
+        html.light-mode #preview_quick_edit_popover .text-neutral-300 {
+            color: #334155 !important;
+        }
+        html.light-mode #preview_quick_edit_popover .text-neutral-400,
+        html.light-mode #preview_quick_edit_popover .text-neutral-500 {
+            color: #64748B !important;
+        }
+        html.light-mode #preview_quick_edit_popover .bg-neutral-950,
+        html.light-mode #preview_quick_edit_popover .bg-neutral-950\/60,
+        html.light-mode #preview_quick_edit_popover .bg-neutral-900,
+        html.light-mode #preview_quick_edit_popover .bg-neutral-900\/90,
+        html.light-mode #preview_quick_edit_popover .bg-black\/40:not(.inset-0) {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+        }
+        html.light-mode #preview_quick_edit_popover button.bg-neutral-800 {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+            color: #475569 !important;
+        }
+        html.light-mode #preview_quick_edit_popover button.bg-neutral-800:hover {
+            background-color: #FFEDD5 !important;
+            color: #EA580C !important;
+        }
+
         /* Footer */
         html.light-mode footer {
             background-color: rgba(255, 247, 237, 0.85) !important;
@@ -515,15 +571,6 @@
             position: relative;
             line-height: 1.4;
             font-size: 11pt;
-        }
-
-        @media (max-width: 768px) {
-            .a4-preview-sheet {
-                min-width: 680px;
-                padding: 1.2cm 1cm;
-                font-size: 10pt;
-                min-height: auto;
-            }
         }
 
         /* Universal rich text font styles (Bold & Italic guaranteed inside surat) */
@@ -599,7 +646,7 @@
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2) !important;
         }
 
-        /* SPZ Authentic A4 Multi-Page System */
+        /* SPZ Authentic A4 Multi-Page System (Always 794px x 1123px 12pt, Scaled Proportionally on Mobile) */
         .spz-page-sheet {
             background-color: #FFFFFF !important;
             color: #000000 !important;
@@ -607,7 +654,8 @@
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 4px;
-            width: 100%;
+            width: 794px;
+            min-width: 794px;
             max-width: 794px;
             min-height: 1123px;
             padding: 0.5cm 1.5cm 1.5cm 1.6cm;
@@ -642,20 +690,6 @@
             opacity: 0.95;
         }
 
-        @media (max-width: 768px) {
-            .spz-page-sheet {
-                min-width: 680px;
-                padding: 0.5cm 1.2cm 1.5cm 1.2cm;
-                font-size: 11pt;
-                min-height: auto;
-                overflow: visible !important;
-            }
-            .spz-watermark-layer {
-                width: 320px;
-                height: 320px;
-            }
-        }
-
         .spz-sheet-badge {
             display: flex;
             align-items: center;
@@ -663,6 +697,24 @@
             max-width: 794px;
             margin: 0 auto 8px auto;
             padding: 0 6px;
+        }
+
+        /* Mobile UX & Anti-Auto-Zoom Rules */
+        @media (max-width: 640px) {
+            body {
+                padding-bottom: 48px;
+            }
+            #preview_quick_edit_popover input:not([type="checkbox"]):not([type="radio"]),
+            #preview_quick_edit_popover textarea,
+            #preview_quick_edit_popover select,
+            #modal_create_new_doc input:not([type="checkbox"]):not([type="radio"]),
+            #active_doc_title {
+                font-size: 16px !important;
+            }
+            .spz-sheet-badge {
+                padding: 0 2px;
+                margin-bottom: 6px;
+            }
         }
 
         /* Prevent font boosting on mobile devices */
@@ -859,9 +911,12 @@
                 font-size: 12pt !important;
                 box-shadow: none !important;
                 border: none !important;
+                transform: none !important;
                 margin: 0 !important;
                 padding: 5mm 15mm 15mm 16mm !important;
                 width: 210mm !important;
+                min-width: 210mm !important;
+                max-width: 210mm !important;
                 height: 297mm !important;
                 max-height: 297mm !important;
                 page-break-after: always !important;
@@ -1021,17 +1076,17 @@
                 </div>
 
                 <!-- Right: Aksi Dokumen (Cetak / Simpan PDF & Unduh Word) -->
-                <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                <div class="grid grid-cols-2 sm:flex items-center gap-2 shrink-0 w-full md:w-auto">
                     <!-- Tombol Cetak / Simpan PDF + Tooltip -->
-                    <div class="relative group">
-                        <button type="button" onclick="quickPrintSurat()" class="px-3.5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md flex items-center gap-2 transition-all active:scale-95" title="Cetak Surat / Simpan ke PDF (Direkomendasikan untuk Semua Perangkat)">
+                    <div class="relative group w-full sm:w-auto">
+                        <button type="button" onclick="quickPrintSurat()" class="w-full sm:w-auto justify-center px-3 sm:px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-md flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95" title="Cetak Surat / Simpan ke PDF (Direkomendasikan untuk Semua Perangkat)">
                             <i class="fa-solid fa-print text-xs shrink-0"></i>
-                            <span class="whitespace-nowrap">Cetak / Simpan PDF</span>
-                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
+                            <span class="whitespace-nowrap">Cetak / PDF</span>
+                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0 hidden sm:inline"></i>
                         </button>
 
                         <!-- Tooltip Penjelasan PDF -->
-                        <div class="absolute right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div class="hidden sm:block absolute right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <!-- Arrow pointer -->
                             <div class="absolute -top-1.5 right-6 w-3 h-3 bg-neutral-900 border-t border-l border-neutral-700 rotate-45"></div>
                             <div class="relative z-10 flex items-start gap-2.5">
@@ -1052,15 +1107,15 @@
                     </div>
 
                     <!-- Tombol Unduh Word (.doc) + Tooltip -->
-                    <div class="relative group">
-                        <button type="button" onclick="exportSuratWord()" class="px-3.5 py-2 rounded-xl text-xs font-black text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center gap-2 transition-all active:scale-95" title="Unduh Dokumen Word (.doc) untuk Laptop/PC">
+                    <div class="relative group w-full sm:w-auto">
+                        <button type="button" onclick="exportSuratWord()" class="w-full sm:w-auto justify-center px-3 sm:px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-black text-blue-400 bg-blue-500/10 border border-blue-500/25 hover:bg-blue-500/20 shadow-xs flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95" title="Unduh Dokumen Word (.doc) untuk Laptop/PC">
                             <i class="fa-solid fa-file-word text-xs shrink-0"></i>
                             <span class="whitespace-nowrap">Unduh Word (.doc)</span>
-                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0"></i>
+                            <i class="fa-solid fa-circle-question text-[10px] opacity-70 group-hover:opacity-100 transition-opacity shrink-0 hidden sm:inline"></i>
                         </button>
 
                         <!-- Tooltip Penjelasan Word -->
-                        <div class="absolute right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div class="hidden sm:block absolute right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-xl bg-neutral-900 border border-neutral-700 shadow-2xl text-[11px] text-neutral-300 pointer-events-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <!-- Arrow pointer -->
                             <div class="absolute -top-1.5 right-6 w-3 h-3 bg-neutral-900 border-t border-l border-neutral-700 rotate-45"></div>
                             <div class="relative z-10 flex items-start gap-2.5">
@@ -1180,14 +1235,21 @@
                 <div id="preview_toolbar_top" class="flex items-center justify-between px-1 print:hidden flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="preview_header_title" class="text-xs font-bold font-mono tracking-wider text-neutral-300 uppercase">
+                        <span id="preview_header_title" class="text-[11px] sm:text-xs font-bold font-mono tracking-wider text-neutral-300 uppercase">
                             Pratinjau Kertas A4 &bull; Halaman 1
                         </span>
                     </div>
-                    <!-- Quick Click-to-Edit Indicator Pill -->
-                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/25 text-orange-400 text-[11px] font-medium shadow-xs">
-                        <i class="fa-solid fa-hand-pointer text-[10px] animate-pulse"></i>
-                        <span>Klik teks di lembar untuk langsung mengubah</span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <!-- Mobile Zoom Mode Toggle (Pas Layar vs 100%) -->
+                        <button type="button" id="btn_mobile_zoom_toggle" onclick="toggleMobilePaperZoomMode()" class="inline-flex lg:hidden items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-200 hover:border-orange-500/50 text-[10.5px] font-mono font-bold shadow-xs active:scale-95 transition-all" title="Ubah skala tampilan kertas di layar HP">
+                            <i id="icon_mobile_zoom_toggle" class="fa-solid fa-compress text-orange-400 text-[10px]"></i>
+                            <span id="label_mobile_zoom_toggle">Pas Layar</span>
+                        </button>
+                        <!-- Quick Click-to-Edit Indicator Pill -->
+                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/25 text-orange-400 text-[10.5px] sm:text-[11px] font-medium shadow-xs">
+                            <i class="fa-solid fa-hand-pointer text-[10px] animate-pulse"></i>
+                            <span>Klik teks di lembar untuk langsung mengubah</span>
+                        </div>
                     </div>
                 </div>
 
@@ -2574,8 +2636,8 @@
 
 
     <!-- MODAL BUAT SURAT BARU -->
-    <div id="modal_create_new_doc" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+    <div id="modal_create_new_doc" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+        <div class="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 max-h-[92vh] overflow-y-auto shadow-2xl relative text-left">
             <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF7300] to-[#FF9500] flex items-center justify-center text-white text-lg shadow-md">
@@ -3887,13 +3949,13 @@
 
             ['time_start_h', 'time_end_h'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el && el.options.length === 0) {
+                if (el && el.options && el.options.length === 0) {
                     el.innerHTML = hours.map(h => `<option value="${h === '--' ? '' : h}" class="bg-neutral-900 text-orange-400 font-mono font-bold">${h}</option>`).join('');
                 }
             });
             ['time_start_m', 'time_end_m'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el && el.options.length === 0) {
+                if (el && el.options && el.options.length === 0) {
                     el.innerHTML = minutes.map(m => `<option value="${m === '--' ? '' : m}" class="bg-neutral-900 text-white font-mono font-bold">${m}</option>`).join('');
                 }
             });
@@ -4830,16 +4892,20 @@
             sbaSelectedProkerId = '__custom__';
             sbaSelectedProkerNama = '';
             toggleSbaKeuanganSections();
-            renderLetterPreview();
+            updatePreview();
+            if (typeof refreshQuickSbaKeuanganPopover === 'function') {
+                refreshQuickSbaKeuanganPopover();
+            }
             if (typeof Swal !== 'undefined') {
+                const isLight = document.documentElement.classList.contains('light-mode');
                 const Toast = Swal.mixin({
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
                     timer: 2500,
                     timerProgressBar: true,
-                    background: '#111827',
-                    color: '#fff'
+                    background: isLight ? '#ffffff' : '#111827',
+                    color: isLight ? '#0f172a' : '#fff'
                 });
                 Toast.fire({
                     icon: 'success',
@@ -6900,6 +6966,8 @@
             const container = document.getElementById('sba_pengeluaran_editor_container');
             if (!container) return;
 
+            const isLockedExp = (typeof isSbaKeuanganDbLinked === 'function') ? isSbaKeuanganDbLinked() : false;
+
             if (!sbaPengeluaranCategories || sbaPengeluaranCategories.length === 0) {
                 sbaPengeluaranCategories = [{
                     id: 'bahan',
@@ -7251,7 +7319,7 @@
                 <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[3/4] flex items-center justify-center">
                     <img src="${src}" alt="Nota #${idx + 1}" class="w-full h-full object-contain p-1" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                     <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/75 text-[9px] font-mono text-white font-bold">#${idx + 1}</span>
-                    <div class="absolute top-1 right-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="absolute top-1 right-1 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button type="button" onclick="triggerReplaceSbaNota(${idx})" class="p-1 rounded-md bg-amber-500 hover:bg-amber-600 text-white shadow-xs" title="Ganti / Upload Ulang Foto #${idx + 1}">
                             <i class="fa-solid fa-arrow-up-from-bracket text-[9px]"></i>
                         </button>
@@ -7428,8 +7496,8 @@
             container.innerHTML = sbaDokumentasiList.map((src, idx) => `
                 <div class="relative group rounded-lg overflow-hidden border border-neutral-800 bg-neutral-950 aspect-video flex items-center justify-center">
                     <img src="${src}" alt="Dokumentasi #${idx + 1}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                        <button type="button" onclick="removeSingleSbaDok(${idx})" class="p-1.5 rounded bg-red-600/80 hover:bg-red-600 text-white text-[10px]" title="Hapus Foto">
+                    <div class="absolute top-1 right-1 sm:inset-0 sm:bg-black/60 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                        <button type="button" onclick="removeSingleSbaDok(${idx})" class="p-1.5 rounded bg-red-600/90 hover:bg-red-600 text-white text-[10px] shadow-xs" title="Hapus Foto">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -8267,6 +8335,8 @@
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
+            const isTtd1Active = document.getElementById('field_ttd1_active') ? document.getElementById('field_ttd1_active').checked : true;
+            const isTtd2Active = document.getElementById('field_ttd2_active') ? document.getElementById('field_ttd2_active').checked : true;
             const ttd3Active = document.getElementById('field_ttd3_active').checked;
             const ttd3Jabatan = document.getElementById('field_ttd3_jabatan').value.trim() || 'Dosen Pembimbing\nLDK IMIP';
             const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim();
@@ -8509,6 +8579,11 @@
             const isiInti = document.getElementById('field_isi_inti').value.trim();
             const penutup = document.getElementById('field_penutup').value.trim() || 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.';
 
+            const ttd1Jabatan = (document.getElementById('field_ttd1_jabatan')?.value || '').trim() || 'Ketua Pelaksana';
+            const ttd1Nama = (document.getElementById('field_ttd1_nama')?.value || '').trim() || 'Faridah Rihadatul ‘Aisy';
+            const ttd1Nim = (document.getElementById('field_ttd1_nim')?.value || '').trim() || 'NIM. 2470402026';
+
+            const ttd2Jabatan = (document.getElementById('field_ttd2_jabatan')?.value || '').trim() || 'Ketua UKM LDK IMIP\nPeriode 2026';
             const ttd2Nama = document.getElementById('field_ttd2_nama').value.trim() || 'Hafiz Alfariz';
             const ttd2Nim = document.getElementById('field_ttd2_nim').value.trim() || 'NIM. 2490444040';
 
@@ -9676,6 +9751,131 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // HELPER TOAST & AUTO-SAVE ALIASES
+        function showToast(message, type = 'info') {
+            if (!message) return;
+            if (typeof Swal !== 'undefined') {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    background: isLight ? '#ffffff' : '#111827',
+                    color: isLight ? '#0f172a' : '#f8fafc'
+                });
+                Toast.fire({
+                    icon: ['success', 'error', 'warning', 'info', 'question'].includes(type) ? type : 'info',
+                    title: message
+                });
+            }
+        }
+        window.showToast = showToast;
+
+        function autoSaveDraft() {
+            if (typeof triggerAutoSave === 'function') triggerAutoSave();
+        }
+        window.autoSaveDraft = autoSaveDraft;
+
+        function saveDocumentStateDebounced() {
+            if (typeof triggerAutoSave === 'function') triggerAutoSave();
+        }
+        window.saveDocumentStateDebounced = saveDocumentStateDebounced;
+
+        function renderLetterPreview() {
+            if (typeof updatePreview === 'function') updatePreview();
+        }
+        window.renderLetterPreview = renderLetterPreview;
+
+        // RESPONSIVE A4 AUTO-FIT SCALE FOR MOBILE SCREENS
+        let mobilePaperZoomMode = 'fit'; // 'fit' | '100'
+
+        function applyResponsivePaperScale() {
+            const outerBox = document.getElementById('preview_sheet_outer_box');
+            const paper = document.getElementById('rendered_surat_paper');
+            if (!outerBox || !paper) return;
+
+            const style = window.getComputedStyle(outerBox);
+            const padX = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+            const availWidth = Math.max(260, (outerBox.clientWidth || window.innerWidth) - padX - 4);
+            const isNarrowScreen = window.innerWidth < 860 && availWidth < 794;
+            const fitScale = Math.max(0.32, Math.min(1, availWidth / 794));
+
+            const iconEl = document.getElementById('icon_mobile_zoom_toggle');
+            const labelEl = document.getElementById('label_mobile_zoom_toggle');
+            if (iconEl && labelEl) {
+                if (mobilePaperZoomMode === 'fit') {
+                    iconEl.className = 'fa-solid fa-magnifying-glass-plus text-orange-400 text-[10px]';
+                    labelEl.innerText = `Pas Layar (${Math.round(fitScale * 100)}%)`;
+                } else {
+                    iconEl.className = 'fa-solid fa-compress text-orange-400 text-[10px]';
+                    labelEl.innerText = 'Zoom 100%';
+                }
+            }
+
+            const sheets = paper.querySelectorAll('.spz-page-sheet');
+            const badges = paper.querySelectorAll('.spz-sheet-badge');
+
+            if (isNarrowScreen && mobilePaperZoomMode === 'fit') {
+                outerBox.style.overflowX = 'hidden';
+                const scaledW = Math.round(794 * fitScale);
+                const leftOffset = Math.max(0, Math.floor((availWidth - scaledW) / 2));
+
+                badges.forEach(badge => {
+                    badge.style.width = `${scaledW}px`;
+                    badge.style.maxWidth = '100%';
+                    badge.style.margin = `0 auto 6px ${leftOffset}px`;
+                });
+
+                sheets.forEach(sheet => {
+                    if (sheet.classList.contains('hidden-by-step')) {
+                        sheet.style.transform = '';
+                        sheet.style.marginLeft = '';
+                        sheet.style.marginRight = '';
+                        sheet.style.marginBottom = '';
+                        return;
+                    }
+                    sheet.style.transformOrigin = 'top left';
+                    sheet.style.transform = `scale(${fitScale.toFixed(4)})`;
+                    const natHeight = sheet.offsetHeight || 1123;
+                    sheet.style.marginLeft = `${leftOffset}px`;
+                    sheet.style.marginRight = `${Math.round(794 * (fitScale - 1))}px`;
+                    sheet.style.marginBottom = `${Math.round(natHeight * (fitScale - 1)) + 20}px`;
+                });
+            } else {
+                outerBox.style.overflowX = 'auto';
+                badges.forEach(badge => {
+                    badge.style.width = '';
+                    badge.style.maxWidth = '794px';
+                    badge.style.margin = '0 auto 8px auto';
+                });
+                sheets.forEach(sheet => {
+                    sheet.style.transform = '';
+                    sheet.style.transformOrigin = '';
+                    sheet.style.marginLeft = 'auto';
+                    sheet.style.marginRight = 'auto';
+                    sheet.style.marginBottom = '36px';
+                });
+            }
+        }
+        window.applyResponsivePaperScale = applyResponsivePaperScale;
+
+        function toggleMobilePaperZoomMode() {
+            mobilePaperZoomMode = (mobilePaperZoomMode === 'fit') ? '100' : 'fit';
+            applyResponsivePaperScale();
+            if (typeof showToast === 'function') {
+                showToast(mobilePaperZoomMode === 'fit' ? 'Mode Pas Layar HP aktif' : 'Mode Zoom 100% (Geser kiri-kanan) aktif', 'info');
+            }
+        }
+        window.toggleMobilePaperZoomMode = toggleMobilePaperZoomMode;
+
+        window.addEventListener('resize', () => {
+            if (typeof applyResponsivePaperScale === 'function') {
+                applyResponsivePaperScale();
+            }
+        });
+
         // UPDATE LIVE PREVIEW (UNIFIED MULTI-PAGE SHEET ACROSS ALL LETTER TYPES)
         function updatePreview() {
             const container = document.getElementById('rendered_surat_paper');
@@ -9691,6 +9891,9 @@
             }
             if (typeof applyActivePageVisibility === 'function') {
                 applyActivePageVisibility();
+            }
+            if (typeof applyResponsivePaperScale === 'function') {
+                applyResponsivePaperScale();
             }
             if (typeof triggerAutoSave === 'function') {
                 triggerAutoSave();
@@ -9713,11 +9916,17 @@
             // nama berkas "${cleanTitle}.pdf", sehingga pengguna tidak perlu menulis ulang nama file!
             document.title = cleanTitle;
 
-            // 3. Tampilkan seluruh lembar (lepaskan pagination filter sementara untuk cetak)
+            // 3. Tampilkan seluruh lembar & reset transform scale sementara untuk cetak A4 100%
             const paper = document.getElementById('rendered_surat_paper');
             if (paper) {
-                const hiddenSheets = paper.querySelectorAll('.hidden-by-step');
-                hiddenSheets.forEach(el => el.classList.remove('hidden-by-step'));
+                const allSheets = paper.querySelectorAll('.spz-page-sheet');
+                allSheets.forEach(el => {
+                    el.classList.remove('hidden-by-step');
+                    el.style.transform = '';
+                    el.style.marginLeft = '';
+                    el.style.marginRight = '';
+                    el.style.marginBottom = '';
+                });
             }
 
             // 4. Handler untuk mengembalikan stepper view setelah cetak
@@ -10413,6 +10622,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             // Update Header and Stepper Buttons
             updateStepBannerAndNavButtons();
+            if (typeof applyResponsivePaperScale === 'function') {
+                applyResponsivePaperScale();
+            }
         }
 
         function updateStepBannerAndNavButtons() {
@@ -12020,6 +12232,10 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     }).then(res => {
                         if (res.isConfirmed) {
                             switchToCustomKeuanganSba();
+                            setTimeout(() => {
+                                const newEl = document.querySelector(`[data-edit-target="sba_pemasukan_row"][data-edit-idx="${idx}"]`);
+                                if (newEl) openPreviewQuickEdit(newEl);
+                            }, 80);
                         }
                     });
                 }
@@ -12147,14 +12363,18 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             // 3. Posisikan Popover dekat dengan teks yang diklik (menggunakan tinggi popover yang akurat)
             positionQuickEditPopover(editable, popover);
 
-            // 4. Fokus ke input utama dalam popover
+            // 4. Fokus ke input utama dalam popover (kecuali galeri/tabel kompleks agar keyboard HP tidak langsung menutupi layar)
+            const skipAutoFocusTypes = ['sba_dok', 'sba_nota', 'sba_keuangan', 'sba_rekap', 'kop', 'spz_barang_all', 'spz_panitia_all', 'spz_rundown_all', 'sba_rundown_all', 'sba_prestasi_all'];
+            const isTouchDevice = (window.innerWidth < 640) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
             setTimeout(() => {
                 popTextareas.forEach(ta => autoResizePopoverTextarea(ta));
-                const input = container.querySelector('input:not([type="hidden"]), textarea');
-                if (input) {
-                    input.focus();
-                    if (input.tagName === 'INPUT' && typeof input.select === 'function') {
-                        input.select();
+                if (!skipAutoFocusTypes.includes(type)) {
+                    const input = container.querySelector('input:not([type="hidden"]):not([type="file"]):not([type="checkbox"]), textarea');
+                    if (input) {
+                        input.focus();
+                        if (!isTouchDevice && input.tagName === 'INPUT' && typeof input.select === 'function') {
+                            input.select();
+                        }
                     }
                 }
             }, 60);
@@ -12271,6 +12491,28 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
         function positionQuickEditPopover(editable, popover) {
             initPopoverDraggable();
+            const inputContainer = document.getElementById('popover_input_container');
+
+            // Responsif khusus layar HP (< 640px): posisikan di bagian atas visualViewport agar aman dari keyboard virtual
+            if (window.innerWidth < 640) {
+                const vvHeight = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+                const vvOffsetTop = (window.visualViewport && window.visualViewport.offsetTop) ? window.visualViewport.offsetTop : 0;
+                if (inputContainer) {
+                    inputContainer.style.maxHeight = `${Math.max(160, Math.round(vvHeight - 155))}px`;
+                }
+                if (!popoverUserHasMoved) {
+                    const popW = popover.offsetWidth || Math.round(window.innerWidth * 0.92);
+                    const left = Math.max(8, Math.round((window.innerWidth - popW) / 2));
+                    const top = Math.max(8, Math.round(vvOffsetTop + 10));
+                    popover.style.left = `${left}px`;
+                    popover.style.top = `${top}px`;
+                }
+                return;
+            }
+
+            if (inputContainer) {
+                inputContainer.style.maxHeight = '70vh';
+            }
             if (popoverUserHasMoved) return; // Pertahankan posisi jika sudah digeser oleh pengguna
 
             const rect = editable.getBoundingClientRect();
@@ -12289,7 +12531,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 left = rect.left - popWidth - 16;
                 top = Math.max(16, Math.min(rect.top - 10, window.innerHeight - popHeight - 20));
             } else {
-                // Di layar kecil / sempit: letakkan di bawah atau di atas
+                // Di layar tablet / menengah: letakkan di bawah atau di atas
                 left = rect.left + (rect.width / 2) - (popWidth / 2);
                 if (left < 16) left = 16;
                 if (left + popWidth > window.innerWidth - 16) left = window.innerWidth - popWidth - 16;
@@ -12302,6 +12544,25 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             popover.style.left = `${Math.round(left)}px`;
             popover.style.top = `${Math.round(top)}px`;
+        }
+
+        if (window.visualViewport) {
+            const syncMobilePopoverViewport = () => {
+                if (window.innerWidth >= 640) return;
+                const popover = document.getElementById('preview_quick_edit_popover');
+                if (!popover || popover.classList.contains('hidden')) return;
+                const inputContainer = document.getElementById('popover_input_container');
+                const vvHeight = window.visualViewport.height || window.innerHeight;
+                const vvOffsetTop = window.visualViewport.offsetTop || 0;
+                if (inputContainer) {
+                    inputContainer.style.maxHeight = `${Math.max(150, Math.round(vvHeight - 150))}px`;
+                }
+                if (!popoverUserHasMoved) {
+                    popover.style.top = `${Math.max(8, Math.round(vvOffsetTop + 10))}px`;
+                }
+            };
+            window.visualViewport.addEventListener('resize', syncMobilePopoverViewport);
+            window.visualViewport.addEventListener('scroll', syncMobilePopoverViewport);
         }
 
         function generatePopoverInputHtml(type, targetId, idx) {
@@ -14063,8 +14324,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-video flex items-center justify-center shadow-xs">
                             <img src="${src}" alt="Dokumentasi #${idx + 1}" class="w-full h-full object-cover">
                             <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white font-bold">#${idx + 1}</span>
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                                <button type="button" onclick="deleteQuickSbaDokItem(${idx})" class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-90" title="Hapus Foto #${idx + 1}">
+                            <div class="absolute top-1 right-1 sm:inset-0 sm:bg-black/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-0.5 sm:p-1">
+                                <button type="button" onclick="deleteQuickSbaDokItem(${idx})" class="w-7 h-7 rounded-lg bg-red-600/95 hover:bg-red-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-90" title="Hapus Foto #${idx + 1}">
                                     <i class="fa-solid fa-trash text-xs"></i>
                                 </button>
                             </div>
@@ -14197,8 +14458,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         <div class="relative group rounded-xl overflow-hidden border border-neutral-800 bg-neutral-950 aspect-[3/4] flex items-center justify-center shadow-xs">
                             <img src="${src}" alt="Nota #${idx + 1}" class="w-full h-full object-contain p-1" onerror="if(!this.dataset.fb){this.dataset.fb='1'; this.src='${fb}';}">
                             <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white font-bold">#${idx + 1}</span>
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                                <button type="button" onclick="deleteQuickSbaNotaItem(${idx})" class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-90" title="Hapus Nota #${idx + 1}">
+                            <div class="absolute top-1 right-1 sm:inset-0 sm:bg-black/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-0.5 sm:p-1">
+                                <button type="button" onclick="deleteQuickSbaNotaItem(${idx})" class="w-7 h-7 rounded-lg bg-red-600/95 hover:bg-red-700 text-white flex items-center justify-center shadow-sm transition-transform active:scale-90" title="Hapus Nota #${idx + 1}">
                                     <i class="fa-solid fa-trash text-xs"></i>
                                 </button>
                             </div>
@@ -14323,10 +14584,107 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const totalMasuk = (typeof formatSbaRupiah === 'function' && typeof getSbaTotalPemasukan === 'function') ? formatSbaRupiah(getSbaTotalPemasukan()) : 'Rp0';
             const totalKeluar = (typeof formatSbaRupiah === 'function' && typeof getSbaTotalPengeluaran === 'function') ? formatSbaRupiah(getSbaTotalPengeluaran()) : 'Rp0';
 
+            if (!sbaPengeluaranCategories || sbaPengeluaranCategories.length === 0) {
+                sbaPengeluaranCategories = [{
+                    id: 'bahan',
+                    nama: 'Belanja Bahan',
+                    divisi: sbaPengeluaranDivisi || []
+                }];
+            }
+
+            const manualEditorHtml = !isLinked ? `
+                <div class="space-y-3 pt-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-cart-shopping text-orange-400"></i> Rincian Belanja per Kategori &amp; Divisi
+                        </span>
+                        <button type="button" onclick="addQuickSbaCategory()" class="px-2 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1 transition-all active:scale-95">
+                            <i class="fa-solid fa-plus text-[8px]"></i> Tabel Belanja
+                        </button>
+                    </div>
+                    <div class="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+                        ${sbaPengeluaranCategories.map((cat, catIdx) => {
+                            const catTotal = (cat.divisi || []).reduce((cAcc, div) => {
+                                return cAcc + (div.items || []).reduce((iAcc, it) => iAcc + (Number(it.jumlah) || 0), 0);
+                            }, 0);
+                            return `
+                                <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
+                                    <div class="flex items-center justify-between gap-1.5 pb-1.5 border-b border-neutral-800">
+                                        <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                                            <span class="px-1.5 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 font-mono font-bold text-[10px] text-orange-400 shrink-0">2.${catIdx + 1}</span>
+                                            <input type="text" value="${escapeHtml(cat.nama || '')}" oninput="handleQuickSbaCatNama(${catIdx}, this.value)" placeholder="Belanja Bahan" class="form-input text-xs py-1 px-2 font-bold flex-1 min-w-0 bg-neutral-900 border-neutral-700 text-white rounded-lg">
+                                        </div>
+                                        <div class="flex items-center gap-1 shrink-0">
+                                            <button type="button" onclick="addQuickSbaDivisi(${catIdx})" class="px-2 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[10px] font-bold text-orange-400 flex items-center gap-1" title="Tambah Divisi">
+                                                <i class="fa-solid fa-plus text-[8px]"></i> Divisi
+                                            </button>
+                                            ${sbaPengeluaranCategories.length > 1 ? `
+                                            <button type="button" onclick="deleteQuickSbaCategory(${catIdx})" class="w-6 h-6 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 flex items-center justify-center" title="Hapus Tabel Kategori">
+                                                <i class="fa-solid fa-trash text-[10px]"></i>
+                                            </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        ${(cat.divisi || []).map((div, divIdx) => `
+                                            <div class="p-2 rounded-lg bg-neutral-900/90 border border-neutral-800 space-y-1.5">
+                                                <div class="flex items-center justify-between gap-1.5">
+                                                    <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                                                        <span class="font-mono font-bold text-orange-400 text-[11px] shrink-0">${div.divisiKode || String.fromCharCode(65 + divIdx) + '.'}</span>
+                                                        <input type="text" value="${escapeHtml(div.divisiNama || '')}" oninput="handleQuickSbaDivNama(${catIdx}, ${divIdx}, this.value)" placeholder="Divisi acara" class="form-input text-xs py-1 px-2 font-bold flex-1 min-w-0 bg-neutral-950 border-neutral-700 text-white rounded-lg">
+                                                    </div>
+                                                    <div class="flex items-center gap-1 shrink-0">
+                                                        <button type="button" onclick="addQuickSbaExpItem(${catIdx}, ${divIdx})" class="px-2 py-0.5 rounded bg-orange-500/15 hover:bg-orange-500/25 text-orange-400 text-[10px] font-bold border border-orange-500/30 flex items-center gap-1">
+                                                            <i class="fa-solid fa-plus text-[8px]"></i> Item
+                                                        </button>
+                                                        <button type="button" onclick="deleteQuickSbaDivisi(${catIdx}, ${divIdx})" class="w-6 h-6 rounded text-neutral-400 hover:text-red-400 flex items-center justify-center" title="Hapus Divisi">
+                                                            <i class="fa-solid fa-trash text-[10px]"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-1.5">
+                                                    ${(div.items || []).map((it, itIdx) => `
+                                                        <div class="p-1.5 rounded-lg bg-neutral-950/80 border border-neutral-800/80 space-y-1">
+                                                            <div class="flex items-center gap-1.5">
+                                                                <input type="text" value="${escapeHtml(it.uraian || '')}" oninput="handleQuickSbaExpItem(${catIdx}, ${divIdx}, ${itIdx}, 'uraian', this.value)" placeholder="Uraian belanja (misal: Cue Card)" class="form-input text-xs py-1 px-2 flex-1 min-w-0 bg-neutral-900 border-neutral-700 text-white rounded">
+                                                                <button type="button" onclick="deleteQuickSbaExpItem(${catIdx}, ${divIdx}, ${itIdx})" class="w-6 h-6 rounded text-neutral-400 hover:text-red-400 flex items-center justify-center shrink-0" title="Hapus Item">
+                                                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                                                </button>
+                                                            </div>
+                                                            <div class="grid grid-cols-3 gap-1.5">
+                                                                <div>
+                                                                    <label class="text-[9px] text-neutral-400 block">Unit</label>
+                                                                    <input type="text" value="${escapeHtml(it.unit || '')}" oninput="handleQuickSbaExpItem(${catIdx}, ${divIdx}, ${itIdx}, 'unit', this.value)" placeholder="2 pcs" class="form-input text-xs py-1 px-1.5 font-mono text-center w-full bg-neutral-900 border-neutral-700 text-white rounded">
+                                                                </div>
+                                                                <div>
+                                                                    <label class="text-[9px] text-neutral-400 block">Harga Satuan</label>
+                                                                    <input type="number" inputmode="numeric" value="${it.hargaSatuan || 0}" oninput="handleQuickSbaExpItem(${catIdx}, ${divIdx}, ${itIdx}, 'hargaSatuan', this.value)" placeholder="0" class="form-input text-xs py-1 px-1.5 font-mono text-right w-full bg-neutral-900 border-neutral-700 text-white rounded">
+                                                                </div>
+                                                                <div>
+                                                                    <label class="text-[9px] text-neutral-400 block">Jumlah (Rp)</label>
+                                                                    <input type="number" inputmode="numeric" id="quick_sba_exp_jml_${catIdx}_${divIdx}_${itIdx}" value="${it.jumlah || 0}" oninput="handleQuickSbaExpItem(${catIdx}, ${divIdx}, ${itIdx}, 'jumlah', this.value)" placeholder="0" class="form-input text-xs py-1 px-1.5 font-mono text-right font-bold text-orange-400 w-full bg-neutral-900 border-neutral-700 rounded">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div class="text-right text-[10px] font-mono text-neutral-400 pt-0.5">
+                                        Subtotal 2.${catIdx + 1}: <strong id="quick_sba_cat_sub_${catIdx}" class="text-orange-400">${formatSbaRupiah(catTotal)}</strong>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : '';
+
             return `
                 <div class="space-y-3 py-1">
                     <div class="p-3 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
                             <span class="text-xs font-bold text-white flex items-center gap-1.5">
                                 <i class="fa-solid fa-coins text-orange-400"></i> Ringkasan Keuangan
                             </span>
@@ -14338,39 +14696,135 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         <div class="grid grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
                             <div class="p-2 rounded-lg bg-neutral-950 border border-neutral-800">
                                 <span class="text-neutral-400 text-[10px] block">Total Masuk:</span>
-                                <span class="text-emerald-400 font-bold">${totalMasuk}</span>
+                                <span id="quick_sba_keu_total_masuk" class="text-emerald-400 font-bold">${totalMasuk}</span>
                             </div>
                             <div class="p-2 rounded-lg bg-neutral-950 border border-neutral-800">
                                 <span class="text-neutral-400 text-[10px] block">Total Keluar:</span>
-                                <span class="text-orange-400 font-bold">${totalKeluar}</span>
+                                <span id="quick_sba_keu_total_keluar" class="text-orange-400 font-bold">${totalKeluar}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalTambahkanKeuanganSba==='function') bukaModalTambahkanKeuanganSba();" class="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
-                            <i class="fa-solid fa-rotate"></i>
-                            <span>Pilih Kegiatan / Tarik Kas Database</span>
-                        </button>
-                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalPilihExportRab==='function') bukaModalPilihExportRab();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-semibold text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
-                            <i class="fa-solid fa-file-import text-blue-400"></i>
-                            <span>Export RAB Per Proker</span>
-                        </button>
+                    ${manualEditorHtml}
+
+                    <div class="space-y-2 pt-1">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalTambahkanKeuanganSba==='function') bukaModalTambahkanKeuanganSba();" class="w-full py-2 px-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]">
+                                <i class="fa-solid fa-rotate"></i>
+                                <span>Tarik Kas Database</span>
+                            </button>
+                            <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalPilihExportRab==='function') bukaModalPilihExportRab();" class="w-full py-2 px-2.5 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-semibold text-[11px] flex items-center justify-center gap-1.5 border border-neutral-700 transition-all active:scale-[0.98]">
+                                <i class="fa-solid fa-file-import text-blue-400"></i>
+                                <span>Export RAB Proker</span>
+                            </button>
+                        </div>
                         ${isLinked ? `
-                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof switchToCustomKeuanganSba==='function') switchToCustomKeuanganSba();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-xl font-medium text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
+                        <button type="button" onclick="if(typeof switchToCustomKeuanganSba==='function') switchToCustomKeuanganSba();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
                             <i class="fa-solid fa-pen-to-square text-amber-400"></i>
-                            <span>Beralih ke Input Manual (Edit Bebas)</span>
+                            <span>Beralih ke Input Manual (Edit Rincian Belanja)</span>
                         </button>
-                        ` : `
-                        <button type="button" onclick="closePreviewQuickEdit(); if(typeof bukaModalTambahKategoriBelanja==='function') bukaModalTambahKategoriBelanja();" class="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 border border-neutral-700 transition-all active:scale-[0.98]">
-                            <i class="fa-solid fa-plus text-orange-400"></i>
-                            <span>Tambah Tabel Belanja Baru</span>
-                        </button>
-                        `}
+                        ` : ''}
                     </div>
                 </div>
             `;
         }
+
+        function refreshQuickSbaKeuanganPopover() {
+            const popover = document.getElementById('preview_quick_edit_popover');
+            const container = document.getElementById('popover_input_container');
+            if (!popover || popover.classList.contains('hidden') || !container) return;
+            if (currentQuickEditTarget && (currentQuickEditTarget.type === 'sba_keuangan' || currentQuickEditTarget.targetId === 'card_sba_keuangan')) {
+                container.innerHTML = generateQuickSbaKeuanganPopoverHtml();
+            }
+        }
+        window.refreshQuickSbaKeuanganPopover = refreshQuickSbaKeuanganPopover;
+
+        function updateQuickSbaKeuanganTotalsLive(catIdx) {
+            const totalKeluarEl = document.getElementById('quick_sba_keu_total_keluar');
+            if (totalKeluarEl && typeof formatSbaRupiah === 'function' && typeof getSbaTotalPengeluaran === 'function') {
+                totalKeluarEl.innerText = formatSbaRupiah(getSbaTotalPengeluaran());
+            }
+            if (catIdx !== undefined && sbaPengeluaranCategories && sbaPengeluaranCategories[catIdx]) {
+                const cat = sbaPengeluaranCategories[catIdx];
+                const catTotal = (cat.divisi || []).reduce((cAcc, div) => {
+                    return cAcc + (div.items || []).reduce((iAcc, it) => iAcc + (Number(it.jumlah) || 0), 0);
+                }, 0);
+                const subEl = document.getElementById(`quick_sba_cat_sub_${catIdx}`);
+                if (subEl && typeof formatSbaRupiah === 'function') subEl.innerText = formatSbaRupiah(catTotal);
+            }
+        }
+
+        function handleQuickSbaCatNama(catIdx, val) {
+            if (sbaPengeluaranCategories && sbaPengeluaranCategories[catIdx]) {
+                sbaPengeluaranCategories[catIdx].nama = val;
+                if (typeof renderSbaPengeluaranEditor === 'function') renderSbaPengeluaranEditor();
+                clearTimeout(quickEditDebounceTimer);
+                quickEditDebounceTimer = setTimeout(() => {
+                    updatePreview();
+                }, 100);
+            }
+        }
+        window.handleQuickSbaCatNama = handleQuickSbaCatNama;
+
+        function addQuickSbaCategory() {
+            addSbaCategory('Belanja Lainnya');
+            refreshQuickSbaKeuanganPopover();
+            if (typeof showToast === 'function') showToast('Tabel kategori belanja baru ditambahkan', 'success');
+        }
+        window.addQuickSbaCategory = addQuickSbaCategory;
+
+        function deleteQuickSbaCategory(catIdx) {
+            removeSbaCategory(catIdx);
+            refreshQuickSbaKeuanganPopover();
+            if (typeof showToast === 'function') showToast('Tabel kategori belanja dihapus', 'info');
+        }
+        window.deleteQuickSbaCategory = deleteQuickSbaCategory;
+
+        function handleQuickSbaDivNama(catIdx, divIdx, val) {
+            updateSbaDivisiNama(divIdx, val, catIdx);
+            if (typeof renderSbaPengeluaranEditor === 'function') renderSbaPengeluaranEditor();
+        }
+        window.handleQuickSbaDivNama = handleQuickSbaDivNama;
+
+        function addQuickSbaDivisi(catIdx) {
+            addSbaDivisi(catIdx);
+            refreshQuickSbaKeuanganPopover();
+            if (typeof showToast === 'function') showToast('Divisi baru ditambahkan', 'success');
+        }
+        window.addQuickSbaDivisi = addQuickSbaDivisi;
+
+        function deleteQuickSbaDivisi(catIdx, divIdx) {
+            removeSbaDivisi(divIdx, catIdx);
+            refreshQuickSbaKeuanganPopover();
+            if (typeof showToast === 'function') showToast('Divisi dihapus', 'info');
+        }
+        window.deleteQuickSbaDivisi = deleteQuickSbaDivisi;
+
+        function addQuickSbaExpItem(catIdx, divIdx) {
+            addSbaDivisiItem(divIdx, catIdx);
+            refreshQuickSbaKeuanganPopover();
+        }
+        window.addQuickSbaExpItem = addQuickSbaExpItem;
+
+        function deleteQuickSbaExpItem(catIdx, divIdx, itIdx) {
+            removeSbaDivisiItem(divIdx, itIdx, catIdx);
+            refreshQuickSbaKeuanganPopover();
+        }
+        window.deleteQuickSbaExpItem = deleteQuickSbaExpItem;
+
+        function handleQuickSbaExpItem(catIdx, divIdx, itIdx, field, val) {
+            updateSbaDivisiItemField(divIdx, itIdx, field, val, catIdx);
+            const cat = sbaPengeluaranCategories[catIdx];
+            if (cat && cat.divisi && cat.divisi[divIdx] && cat.divisi[divIdx].items && cat.divisi[divIdx].items[itIdx]) {
+                const item = cat.divisi[divIdx].items[itIdx];
+                if (field !== 'jumlah') {
+                    const jmlEl = document.getElementById(`quick_sba_exp_jml_${catIdx}_${divIdx}_${itIdx}`);
+                    if (jmlEl) jmlEl.value = item.jumlah || 0;
+                }
+            }
+            updateQuickSbaKeuanganTotalsLive(catIdx);
+        }
+        window.handleQuickSbaExpItem = handleQuickSbaExpItem;
 
         function generateQuickSbaRekapPopoverHtml() {
             const totalMasuk = (typeof getSbaTotalPemasukan === 'function') ? getSbaTotalPemasukan() : 0;
@@ -15082,7 +15536,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
         document.addEventListener('mousedown', (e) => {
             const popover = document.getElementById('preview_quick_edit_popover');
             if (!popover || popover.classList.contains('hidden')) return;
-            if (popover.contains(e.target) || e.target.closest('.preview-editable')) return;
+            if (popover.contains(e.target) || e.target.closest('.preview-editable') || e.target.closest('.swal2-container')) return;
             closePreviewQuickEdit();
         });
 

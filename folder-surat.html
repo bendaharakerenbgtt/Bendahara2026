@@ -208,6 +208,18 @@
         html.light-mode #modal_create_new_doc .doc-type-choice p.font-bold {
             color: #0F172A !important;
         }
+
+        html, body {
+            -webkit-text-size-adjust: 100% !important;
+            text-size-adjust: 100% !important;
+        }
+
+        @media (max-width: 640px) {
+            #doc_search_input,
+            #new_doc_title_input {
+                font-size: 16px !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-orange-500 selection:text-white">
@@ -246,14 +258,14 @@
     <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6 w-full flex-1">
         <div class="space-y-6">
             <!-- ACTION BUTTONS -->
-            <div class="flex flex-wrap items-center gap-2.5 pb-1">
-                <button type="button" onclick="openCreateNewDocModal()" class="px-4 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md flex items-center gap-2 active:scale-95 transition-all cursor-pointer">
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pb-1">
+                <button type="button" onclick="openCreateNewDocModal()" class="col-span-2 sm:col-span-1 justify-center px-4 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF7300] to-[#EA580C] hover:from-[#ea580c] hover:to-[#c2410c] shadow-md flex items-center gap-2 active:scale-95 transition-all cursor-pointer">
                     <i class="fa-solid fa-plus"></i> Buat Surat Baru
                 </button>
-                <button type="button" onclick="document.getElementById('import_json_input').click()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs cursor-pointer">
+                <button type="button" onclick="document.getElementById('import_json_input').click()" class="justify-center px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs cursor-pointer">
                     <i class="fa-solid fa-file-import text-blue-400"></i> Impor JSON
                 </button>
-                <button type="button" onclick="exportAllDocumentsJson()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs cursor-pointer">
+                <button type="button" onclick="exportAllDocumentsJson()" class="justify-center px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 hover:text-white transition-all flex items-center gap-2 shadow-xs cursor-pointer">
                     <i class="fa-solid fa-file-export text-emerald-400"></i> Backup Semua
                 </button>
             </div>
@@ -312,8 +324,8 @@
     </footer>
 
     <!-- MODAL BUAT SURAT BARU -->
-    <div id="modal_create_new_doc" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="modal-card bg-neutral-900 border border-neutral-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+    <div id="modal_create_new_doc" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+        <div class="modal-card bg-neutral-900 border border-neutral-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 max-h-[92vh] overflow-y-auto shadow-2xl relative text-left">
             <div class="flex items-center justify-between pb-4 border-b border-neutral-800 mb-5">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#FF7300] to-[#FF9500] flex items-center justify-center text-white text-lg shadow-md">
