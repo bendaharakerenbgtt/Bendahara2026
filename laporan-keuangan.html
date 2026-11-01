@@ -462,6 +462,12 @@
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+        #range-dropdown-menu button.active-range {
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.3) !important;
+        }
         html.light-mode #range-dropdown-menu {
             background-color: #FFFFFF !important;
             border-color: #FED7AA !important;
@@ -479,7 +485,8 @@
             color: #EA580C !important;
         }
         html.light-mode #range-dropdown-menu button.active-range {
-            color: #EA580C !important;
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #FFFFFF !important;
             font-weight: 700 !important;
         }
         html.light-mode #btn-range-dropdown {
@@ -722,21 +729,18 @@
                         </button>
 
                         <!-- DROPDOWN POPUP -->
-                        <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-44 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1.5 z-50 flex flex-col gap-0.5 t-sub">
+                        <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-40 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1.5 z-50 flex flex-col gap-1 t-sub">
                             <div class="px-2.5 py-1 t-label border-b border-neutral-800/60 mb-0.5">
                                 Rentang Waktu
                             </div>
-                            <button type="button" onclick="selectRangeFromMenu('3m')" id="opt-range-3m" class="w-full text-left px-2.5 py-1.5 rounded-lg active-range text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
-                                <span>3 Bulan Terakhir</span>
-                                <i class="fa-solid fa-check text-[10px] text-[#FF7300]"></i>
+                            <button type="button" onclick="selectRangeFromMenu('3m')" id="opt-range-3m" class="w-full text-left px-3 py-1.5 rounded-lg active-range text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
+                                3 Bulan Terakhir
                             </button>
-                            <button type="button" onclick="selectRangeFromMenu('6m')" id="opt-range-6m" class="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
-                                <span>6 Bulan Terakhir</span>
-                                <i class="fa-solid fa-check text-[10px] text-[#FF7300] hidden"></i>
+                            <button type="button" onclick="selectRangeFromMenu('6m')" id="opt-range-6m" class="w-full text-left px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
+                                6 Bulan Terakhir
                             </button>
-                            <button type="button" onclick="selectRangeFromMenu('1y')" id="opt-range-1y" class="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
-                                <span>1 Tahun Penuh</span>
-                                <i class="fa-solid fa-check text-[10px] text-[#FF7300] hidden"></i>
+                            <button type="button" onclick="selectRangeFromMenu('1y')" id="opt-range-1y" class="w-full text-left px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
+                                1 Tahun Penuh
                             </button>
                         </div>
                     </div>
@@ -1085,9 +1089,12 @@
                                 position: 'top',
                                 labels: {
                                     color: textColor,
-                                    font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' },
-                                    boxWidth: 10,
+                                    font: { family: 'Plus Jakarta Sans', size: 10.5, weight: '600' },
+                                    boxWidth: 6,
+                                    boxHeight: 6,
+                                    padding: 14,
                                     usePointStyle: true,
+                                    pointStyle: 'circle'
                                 }
                             },
                             tooltip: {
@@ -1228,17 +1235,14 @@
             ['3m', '6m', '1y'].forEach(function(r) {
                 var opt = document.getElementById('opt-range-' + r);
                 if (opt) {
-                    var icon = opt.querySelector('i');
                     if (r === range) {
                         opt.classList.add('active-range');
                         opt.classList.remove('text-neutral-400');
                         opt.classList.add('text-white');
-                        if (icon) icon.classList.remove('hidden');
                     } else {
                         opt.classList.remove('active-range');
                         opt.classList.add('text-neutral-400');
                         opt.classList.remove('text-white');
-                        if (icon) icon.classList.add('hidden');
                     }
                 }
             });
