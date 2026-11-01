@@ -320,6 +320,32 @@
             transition: all 0.2s ease;
         }
 
+        /* DONUT CATEGORY LEGEND ITEM */
+        .cat-legend-item {
+            background-color: var(--card-subtle-bg);
+            border: 1px solid var(--card-subtle-border);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cat-legend-item:hover {
+            border-color: rgba(255, 115, 0, 0.4);
+            transform: translateY(-1px);
+        }
+        .cat-legend-name {
+            color: var(--text-primary);
+        }
+        .cat-legend-val {
+            color: var(--text-primary);
+        }
+        .cat-legend-pct {
+            color: #FF7300;
+        }
+        html.light-mode .cat-legend-item {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+        }
+        html.light-mode .cat-legend-pct {
+            color: #EA580C !important;
+        }
+
         /* KEBAB DROPDOWN MENU */
         #range-dropdown-menu {
             animation: fadeInDropdown 0.15s ease-out;
@@ -645,8 +671,7 @@
         <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
             <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
                 <div>
-                    <span class="text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">ALOKASI ANGGARAN</span>
-                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 mt-0.5">
+                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5">
                         <span>Komposisi Pengeluaran Belanja</span>
                     </h2>
                 </div>
@@ -665,8 +690,8 @@
                 </div>
             </div>
 
-            <!-- COMPACT CATEGORY PILLS LIST -->
-            <div id="category-pills-list" class="flex flex-wrap items-center justify-center gap-1.5 pt-1.5 border-t border-neutral-800/50">
+            <!-- STRUCTURED CATEGORY LEGEND LIST -->
+            <div id="category-pills-list" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-2.5 border-t border-neutral-800/50">
                 <!-- Populated dynamically via JS -->
             </div>
         </div>
@@ -675,9 +700,8 @@
         <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
             <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
                 <div>
-                    <span class="text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">REKAPITULASI DETAIL</span>
-                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 mt-0.5">
-                        <span>Tabel Pos Anggaran & Realisasi</span>
+                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5">
+                        <span>Rekapitulasi Detail</span>
                     </h2>
                 </div>
                 <span id="table-summary-count" class="text-[9px] font-mono text-neutral-400 bg-neutral-900/60 px-2 py-0.5 rounded-lg border border-neutral-800">
@@ -1419,13 +1443,23 @@
                 var pillsContainer = document.getElementById('category-pills-list');
                 if (pillsContainer) {
                     pillsContainer.innerHTML = '';
+                    var totalBelanja = donutData.reduce(function(a, b) { return a + b; }, 0);
                     donutLabels.forEach(function(lbl, i) {
                         var color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
                         var val = donutData[i];
-                        var pill = document.createElement('div');
-                        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800 text-[9.5px] font-mono text-neutral-300';
-                        pill.innerHTML = '<span class="w-2 h-2 rounded-full shrink-0" style="background-color: ' + color + '"></span><span class="font-bold">' + lbl + '</span> <span class="text-neutral-500">' + formatRupiah(val) + '</span>';
-                        pillsContainer.appendChild(pill);
+                        var pct = totalBelanja > 0 ? ((val / totalBelanja) * 100).toFixed(1) : '0';
+                        var item = document.createElement('div');
+                        item.className = 'cat-legend-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[10px] font-mono shadow-2xs';
+                        item.innerHTML = 
+                            '<div class="flex items-center gap-2 min-w-0 pr-1.5">' +
+                                '<span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: ' + color + '"></span>' +
+                                '<span class="font-bold cat-legend-name truncate">' + lbl + '</span>' +
+                            '</div>' +
+                            '<div class="flex items-center gap-1.5 shrink-0 text-right">' +
+                                '<span class="font-bold cat-legend-val">' + formatRupiah(val) + '</span>' +
+                                '<span class="text-[9px] cat-legend-pct font-semibold">(' + pct + '%)</span>' +
+                            '</div>';
+                        pillsContainer.appendChild(item);
                     });
                 }
             }
