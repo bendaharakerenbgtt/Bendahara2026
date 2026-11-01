@@ -320,6 +320,45 @@
             transition: all 0.2s ease;
         }
 
+        /* KEBAB DROPDOWN MENU */
+        #range-dropdown-menu {
+            animation: fadeInDropdown 0.15s ease-out;
+            transform-origin: top right;
+        }
+        @keyframes fadeInDropdown {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        html.light-mode #range-dropdown-menu {
+            background-color: #FFFFFF !important;
+            border-color: #FED7AA !important;
+            box-shadow: 0 10px 25px -5px rgba(255, 115, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+        }
+        html.light-mode #range-dropdown-menu > div {
+            border-color: #FEE2E2 !important;
+            color: #94A3B8 !important;
+        }
+        html.light-mode #range-dropdown-menu button {
+            color: #334155 !important;
+        }
+        html.light-mode #range-dropdown-menu button:hover {
+            background-color: #FFF7ED !important;
+            color: #EA580C !important;
+        }
+        html.light-mode #range-dropdown-menu button.active-range {
+            color: #EA580C !important;
+            font-weight: 700 !important;
+        }
+        html.light-mode #btn-range-dropdown {
+            background-color: #FFFFFF !important;
+            border-color: #E2E8F0 !important;
+            color: #64748B !important;
+        }
+        html.light-mode #btn-range-dropdown:hover {
+            border-color: #FF7300 !important;
+            color: #FF7300 !important;
+        }
+
         /* MOBILE BOTTOM NAVIGATION DOCK (EXACT SAME AS OTHER PAGES) */
         .mobile-bottom-nav {
             display: none;
@@ -549,31 +588,52 @@
 
         <!-- MAIN CHART 1: TREN ARUS KAS & SALDO (HARMONIOUS & RESPONSIVE) -->
         <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-neutral-800/60">
-                <div>
-                    <span class="text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">VISUALISASI PERGERAKAN</span>
-                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 mt-0.5">
+            <div class="flex items-center justify-between gap-2 pb-2 border-b border-neutral-800/60">
+                <div class="min-w-0">
+                    <span class="text-[8px] sm:text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">VISUALISASI PERGERAKAN</span>
+                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 mt-0.5 truncate">
                         <span>Tren Arus Kas & Saldo 2026</span>
                     </h2>
                 </div>
-                <!-- CHART MODE TOGGLE -->
-                <div class="flex items-center gap-1 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80 self-start sm:self-auto">
-                    <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
-                    <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Akumulasi Saldo</button>
+                <!-- CHART CONTROLS: MODE TOGGLE & 3-DOTS KEBAB MENU -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <div class="flex items-center gap-0.5 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
+                        <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active text-[9px] sm:text-[10px] py-1 px-2 sm:px-2.5">Arus Kas</button>
+                        <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn text-[9px] sm:text-[10px] py-1 px-2 sm:px-2.5">Saldo</button>
+                    </div>
+
+                    <!-- 3-DOTS MENU UNTUK PILIHAN RENTANG -->
+                    <div class="relative">
+                        <button id="btn-range-dropdown" type="button" onclick="toggleRangeDropdown(event)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-neutral-900/60 dark:bg-neutral-950 border border-neutral-800/80 hover:border-[#FF7300]/60 text-neutral-400 hover:text-[#FF7300] flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs" title="Pilih Rentang Waktu" aria-label="Menu Rentang Waktu">
+                            <i class="fa-solid fa-ellipsis-vertical text-xs sm:text-sm"></i>
+                        </button>
+
+                        <!-- DROPDOWN POPUP -->
+                        <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-40 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1 z-50 flex flex-col gap-0.5 font-mono text-[10px]">
+                            <div class="px-2.5 py-1 text-[8.5px] uppercase font-bold text-neutral-500 tracking-wider border-b border-neutral-800/60 mb-0.5">
+                                Rentang Waktu
+                            </div>
+                            <button type="button" onclick="selectRangeFromMenu('3m')" id="opt-range-3m" class="w-full text-left px-2.5 py-1.5 rounded-lg active-range text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
+                                <span>3 Bulan Terakhir</span>
+                                <i class="fa-solid fa-check text-[10px] text-[#FF7300]"></i>
+                            </button>
+                            <button type="button" onclick="selectRangeFromMenu('6m')" id="opt-range-6m" class="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
+                                <span>6 Bulan Terakhir</span>
+                                <i class="fa-solid fa-check text-[10px] text-[#FF7300] hidden"></i>
+                            </button>
+                            <button type="button" onclick="selectRangeFromMenu('1y')" id="opt-range-1y" class="w-full text-left px-2.5 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
+                                <span>1 Tahun Penuh</span>
+                                <i class="fa-solid fa-check text-[10px] text-[#FF7300] hidden"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- TIME RANGE SELECTOR (3 BULAN, 6 BULAN, 1 TAHUN) -->
-            <div class="flex flex-wrap items-center justify-between gap-2 text-[9px] sm:text-[10px] font-mono text-neutral-400 px-0.5">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-neutral-500 font-bold uppercase text-[8.5px]">Rentang:</span>
-                    <div class="flex items-center gap-1 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
-                        <button id="btn-range-3m" onclick="setChartRange('3m')" class="tab-btn active text-[9px] py-0.5 px-2">3 Bulan</button>
-                        <button id="btn-range-6m" onclick="setChartRange('6m')" class="tab-btn text-[9px] py-0.5 px-2">6 Bulan</button>
-                        <button id="btn-range-1y" onclick="setChartRange('1y')" class="tab-btn text-[9px] py-0.5 px-2">1 Tahun</button>
-                    </div>
-                </div>
+            <!-- SUB-INFO: ACTIVE RANGE STATUS & HINT -->
+            <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 px-0.5">
                 <span id="chart-desc" class="text-neutral-400 text-[9px] truncate">Arus Kas • 3 Bulan Terakhir</span>
+                <span class="text-neutral-500 text-[8.5px] hidden xs:inline">Klik poin untuk detail</span>
             </div>
 
             <!-- RESPONSIVE CHART HEIGHT -->
@@ -1046,23 +1106,66 @@
             }
         }
 
-        function setChartRange(range) {
+        // DROPDOWN MENU HANDLERS FOR CHART RANGE (KEBAB 3-DOTS)
+        function toggleRangeDropdown(e) {
+            if (e) e.stopPropagation();
+            var menu = document.getElementById('range-dropdown-menu');
+            if (!menu) return;
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+            }
+        }
+
+        function selectRangeFromMenu(range) {
             currentChartRange = range;
-            var btn3m = document.getElementById('btn-range-3m');
-            var btn6m = document.getElementById('btn-range-6m');
-            var btn1y = document.getElementById('btn-range-1y');
 
-            if (btn3m) btn3m.classList.remove('active');
-            if (btn6m) btn6m.classList.remove('active');
-            if (btn1y) btn1y.classList.remove('active');
+            ['3m', '6m', '1y'].forEach(function(r) {
+                var opt = document.getElementById('opt-range-' + r);
+                if (opt) {
+                    var icon = opt.querySelector('i');
+                    if (r === range) {
+                        opt.classList.add('active-range');
+                        opt.classList.remove('text-neutral-400');
+                        opt.classList.add('text-white');
+                        if (icon) icon.classList.remove('hidden');
+                    } else {
+                        opt.classList.remove('active-range');
+                        opt.classList.add('text-neutral-400');
+                        opt.classList.remove('text-white');
+                        if (icon) icon.classList.add('hidden');
+                    }
+                }
+            });
 
-            if (range === '3m' && btn3m) btn3m.classList.add('active');
-            if (range === '6m' && btn6m) btn6m.classList.add('active');
-            if (range === '1y' && btn1y) btn1y.classList.add('active');
+            var menu = document.getElementById('range-dropdown-menu');
+            if (menu) {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+            }
 
             updateChartDescText();
             renderReportData();
         }
+
+        function setChartRange(range) {
+            selectRangeFromMenu(range);
+        }
+
+        // Close dropdown when user clicks outside
+        document.addEventListener('click', function(e) {
+            var menu = document.getElementById('range-dropdown-menu');
+            var btn = document.getElementById('btn-range-dropdown');
+            if (menu && !menu.classList.contains('hidden')) {
+                if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }
+            }
+        });
 
         function updateChartDescText() {
             var chartDesc = document.getElementById('chart-desc');
