@@ -478,7 +478,7 @@
             box-shadow: 0 2px 12px rgba(255, 115, 0, 0.18) !important;
         }
 
-        /* MODAL ANIMATION & LIGHT MODE */
+        /* MODAL ANIMATION & THEMING */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
@@ -486,16 +486,71 @@
         .animate-fadeInUp {
             animation: fadeInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        html.light-mode #categoryDetailModal > div {
-            background-color: #FFFFFF !important;
-            border-color: #FED7AA !important;
-            box-shadow: 0 25px 50px -12px rgba(255, 115, 0, 0.2) !important;
+
+        .modal-surface {
+            background-color: #0c101a !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85) !important;
         }
-        html.light-mode #categoryDetailModal .bg-neutral-900\/60,
-        html.light-mode #categoryDetailModal .bg-neutral-900\/40,
-        html.light-mode #categoryDetailModal .bg-neutral-900 {
+        html.light-mode .modal-surface {
+            background-color: #FFFFFF !important;
+            border: 1px solid #FED7AA !important;
+            box-shadow: 0 25px 50px -12px rgba(255, 115, 0, 0.18) !important;
+        }
+
+        .modal-stat-card {
+            background-color: rgba(22, 30, 48, 0.75) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+        }
+        html.light-mode .modal-stat-card {
             background-color: #FFF7ED !important;
-            border-color: #FED7AA !important;
+            border: 1px solid #FED7AA !important;
+        }
+
+        .modal-tx-item {
+            background-color: rgba(18, 25, 40, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        .modal-tx-item:hover {
+            border-color: rgba(255, 115, 0, 0.35) !important;
+        }
+        html.light-mode .modal-tx-item {
+            background-color: #FFFFFF !important;
+            border: 1px solid #FED7AA !important;
+        }
+        html.light-mode .modal-tx-item:hover {
+            border-color: #FF7300 !important;
+            background-color: #FFF7ED !important;
+        }
+
+        /* TEXT CONTRAST IN LIGHT MODE FOR MODAL */
+        html.light-mode #categoryDetailModal .modal-text-title,
+        html.light-mode #categoryDetailModal .modal-tx-title {
+            color: #0f172a !important;
+        }
+        html.light-mode #categoryDetailModal .modal-text-sub,
+        html.light-mode #categoryDetailModal .modal-tx-sub {
+            color: #475569 !important;
+        }
+        html.light-mode #categoryDetailModal .modal-text-label {
+            color: #64748b !important;
+        }
+        html.light-mode #categoryDetailModal .modal-val-white {
+            color: #0f172a !important;
+        }
+        html.light-mode #categoryDetailModal .modal-btn-close {
+            background-color: #F8FAFC !important;
+            border-color: #CBD5E1 !important;
+            color: #334155 !important;
+        }
+        html.light-mode #categoryDetailModal .modal-btn-close:hover {
+            background-color: #E2E8F0 !important;
+            color: #0F172A !important;
+        }
+        html.light-mode #categoryDetailModal .modal-tx-badge {
+            background-color: #FFE4E6 !important;
+            border-color: #FDA4AF !important;
+            color: #E11D48 !important;
         }
 
         /* KEBAB DROPDOWN MENU */
@@ -934,66 +989,66 @@
         </button>
     </nav>
 
-    <!-- INTERACTIVE CATEGORY DRILLDOWN MODAL -->
-    <div id="categoryDetailModal" class="hidden fixed inset-0 z-[9999] bg-neutral-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300" onclick="if(event.target===this) closeCategoryModal()">
-        <div class="w-full max-w-lg bg-neutral-950 border border-neutral-800/90 rounded-t-2xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar animate-fadeInUp">
+    <!-- INTERACTIVE CATEGORY DRILLDOWN MODAL (HIGH-CONTRAST FINTECH THEME) -->
+    <div id="categoryDetailModal" class="hidden fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300" onclick="if(event.target===this) closeCategoryModal()">
+        <div class="modal-surface w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar animate-fadeInUp">
             <!-- Header with Close button -->
-            <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10 dark:border-white/10">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <span id="modal-cat-color" class="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs"></span>
+                    <span id="modal-cat-color" class="w-3.5 h-3.5 rounded-full shrink-0 shadow-md"></span>
                     <div class="min-w-0">
-                        <h3 id="modal-cat-title" class="t-section-title truncate">Nama Kategori</h3>
-                        <span id="modal-cat-subtitle" class="t-sub-mono">Rincian Realisasi Anggaran</span>
+                        <h3 id="modal-cat-title" class="modal-text-title text-base sm:text-lg font-bold text-white truncate">Nama Kategori</h3>
+                        <span id="modal-cat-subtitle" class="modal-text-sub text-xs text-slate-400 font-medium">Rincian Realisasi Anggaran</span>
                     </div>
                 </div>
-                <button type="button" onclick="closeCategoryModal()" class="w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95 text-xs">
+                <button type="button" onclick="closeCategoryModal()" class="modal-btn-close w-8 h-8 rounded-xl bg-neutral-800/90 border border-neutral-700/80 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95 text-xs font-bold" title="Tutup">
                     ✕
                 </button>
             </div>
             
             <!-- Quick Metrics Grid -->
             <div class="grid grid-cols-3 gap-2">
-                <div class="p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex flex-col gap-0.5">
-                    <span class="t-label">Total Realisasi</span>
-                    <span id="modal-cat-total" class="t-val text-rose-400">Rp0</span>
+                <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Total Realisasi</span>
+                    <span id="modal-cat-total" class="text-sm sm:text-base font-bold font-mono text-white modal-val-white">Rp0</span>
                 </div>
-                <div class="p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex flex-col gap-0.5">
-                    <span class="t-label">Porsi Belanja</span>
-                    <span id="modal-cat-porsi" class="t-val text-[#FF7300]">0%</span>
+                <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Porsi Belanja</span>
+                    <span id="modal-cat-porsi" class="text-sm sm:text-base font-bold font-mono text-[#FF7300]">0%</span>
                 </div>
-                <div class="p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex flex-col gap-0.5">
-                    <span class="t-label">Frekuensi</span>
-                    <span id="modal-cat-count" class="t-val text-neutral-200">0 tx</span>
+                <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Frekuensi</span>
+                    <span id="modal-cat-count" class="text-sm sm:text-base font-bold font-mono text-slate-200 modal-val-white">0 tx</span>
                 </div>
             </div>
 
             <!-- Metode Breakdown Bar -->
-            <div class="p-2.5 rounded-xl bg-neutral-900/40 border border-neutral-800/50 flex flex-col gap-1.5">
-                <div class="flex items-center justify-between t-sub-mono">
-                    <span class="flex items-center gap-1 text-sky-400"><i class="fa-solid fa-mobile-screen text-[9px]"></i> GoPay: <strong id="modal-cat-gopay">0 tx</strong></span>
-                    <span class="flex items-center gap-1 text-emerald-400"><i class="fa-solid fa-money-bill-wave text-[9px]"></i> Tunai: <strong id="modal-cat-tunai">0 tx</strong></span>
+            <div class="modal-stat-card p-3 rounded-xl flex flex-col gap-2">
+                <div class="flex items-center justify-between text-xs font-bold font-mono">
+                    <span class="flex items-center gap-1.5 text-sky-400"><i class="fa-solid fa-mobile-screen text-[10px]"></i> GoPay: <strong id="modal-cat-gopay" class="text-sky-300">0 tx</strong></span>
+                    <span class="flex items-center gap-1.5 text-emerald-400"><i class="fa-solid fa-money-bill-wave text-[10px]"></i> Tunai: <strong id="modal-cat-tunai" class="text-emerald-300">0 tx</strong></span>
                 </div>
-                <div class="w-full bg-neutral-800 rounded-full h-1.5 overflow-hidden flex">
+                <div class="w-full bg-neutral-800 rounded-full h-2 overflow-hidden flex">
                     <div id="modal-cat-bar-gopay" class="bg-sky-400 h-full transition-all duration-500" style="width: 50%;"></div>
                     <div id="modal-cat-bar-tunai" class="bg-emerald-400 h-full transition-all duration-500" style="width: 50%;"></div>
                 </div>
             </div>
 
             <!-- Recent Transactions in this Category -->
-            <div class="flex flex-col gap-1.5">
-                <span class="t-label">Daftar Transaksi Terakhir:</span>
-                <div id="modal-cat-tx-list" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+            <div class="flex flex-col gap-2">
+                <span class="modal-text-label text-[11px] font-bold tracking-wider text-slate-300 uppercase">Daftar Transaksi Terakhir:</span>
+                <div id="modal-cat-tx-list" class="flex flex-col gap-2 max-h-52 overflow-y-auto pr-1 no-scrollbar">
                     <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
             <!-- Bottom action link -->
-            <div class="pt-2 border-t border-neutral-800/60 flex items-center justify-between gap-2">
-                <button type="button" onclick="closeCategoryModal()" class="px-4 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white t-sub font-bold cursor-pointer">
+            <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
+                <button type="button" onclick="closeCategoryModal()" class="modal-btn-close px-4 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-slate-200 hover:text-white text-xs font-bold cursor-pointer transition-colors">
                     Tutup
                 </button>
-                <a id="modal-cat-link-kas" href="riwayat-transaksi.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white t-sub font-bold flex items-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all">
-                    <span>Lihat di Buku Kas</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                <a id="modal-cat-link-kas" href="riwayat-transaksi.html" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all">
+                    <span>Lihat di Buku Kas</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </a>
             </div>
         </div>
@@ -1747,19 +1802,19 @@
 
                     sortedTx.forEach(function(t) {
                         var item = document.createElement('div');
-                        item.className = 'p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex items-center justify-between gap-2 shadow-2xs';
+                        item.className = 'modal-tx-item p-2.5 rounded-xl flex items-center justify-between gap-2.5 transition-all shadow-2xs';
                         var ket = t.keterangan || t.kategori || 'Pengeluaran';
                         var metIcon = (t.metode || '').toLowerCase().indexOf('gopay') !== -1 ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
                         item.innerHTML = 
                             '<div class="flex flex-col min-w-0 pr-2">' +
-                                '<span class="t-body font-semibold truncate text-white">' + ket + '</span>' +
-                                '<div class="flex items-center gap-1.5 t-sub-mono">' +
+                                '<span class="modal-tx-title text-xs font-bold truncate text-white">' + ket + '</span>' +
+                                '<div class="flex items-center gap-1.5 text-[10.5px] font-mono modal-tx-sub text-slate-400 mt-0.5">' +
                                     '<span>' + formatDateIndo(t.tanggal) + '</span>' +
                                     '<span>•</span>' +
-                                    '<span class="inline-flex items-center gap-1"><i class="fa-solid ' + metIcon + ' text-[8px]"></i> ' + (t.metode || 'Tunai') + '</span>' +
+                                    '<span class="inline-flex items-center gap-1 font-semibold text-slate-300"><i class="fa-solid ' + metIcon + ' text-[9px]"></i> ' + (t.metode || 'Tunai') + '</span>' +
                                 '</div>' +
                             '</div>' +
-                            '<span class="t-val text-rose-400 shrink-0">-' + formatRupiah(t.nominal) + '</span>';
+                            '<span class="modal-tx-badge px-2 py-1 rounded-lg text-xs font-bold font-mono text-rose-400 bg-rose-500/15 border border-rose-500/30 shrink-0">-' + formatRupiah(t.nominal) + '</span>';
                         listEl.appendChild(item);
                     });
                 }
