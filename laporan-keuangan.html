@@ -361,14 +361,15 @@
             transition: all 0.2s ease;
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
-            font-size: 10.5px;
-            padding: 5px 10px;
+            font-size: 9.5px;
+            padding: 3.5px 8px;
             color: var(--text-sec-400);
             border: 1px solid transparent;
             background: transparent;
+            white-space: nowrap;
         }
         @media (min-width: 640px) {
-            .tab-btn { font-size: 11px; padding: 5px 12px; }
+            .tab-btn { font-size: 11px; padding: 4.5px 12px; }
         }
         .tab-btn:hover {
             color: var(--text-primary);
@@ -812,7 +813,7 @@
             <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
                 <div class="min-w-0">
                     <h2 class="t-section-title whitespace-nowrap">
-                        Tren Arus Kas & Saldo
+                        Tren Arus Kas
                     </h2>
                 </div>
                 <!-- CHART CONTROLS: MODE TOGGLE & 3-DOTS KEBAB MENU -->
@@ -820,7 +821,6 @@
                     <div class="flex items-center gap-0.5 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
                         <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
                         <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Saldo</button>
-                        <button id="btn-chart-mode-methods" onclick="setChartMode('methods')" class="tab-btn" title="Diagram Saldo GoPay & Tunai seperti di Dashboard">Metode</button>
                     </div>
 
                     <!-- 3-DOTS MENU UNTUK PILIHAN RENTANG -->
@@ -1504,7 +1504,7 @@
             var chartDesc = document.getElementById('chart-desc');
             if (!chartDesc) return;
             var rangeText = currentChartRange === '3m' ? '3 Bulan Terakhir' : (currentChartRange === '6m' ? '6 Bulan Terakhir' : '1 Tahun (Jan–Des)');
-            var modeText = currentChartMode === 'cashflow' ? 'Arus Kas' : (currentChartMode === 'balance' ? 'Saldo Kas' : 'Saldo GoPay & Tunai');
+            var modeText = currentChartMode === 'cashflow' ? 'Arus Kas' : 'Saldo (GoPay & Tunai)';
             chartDesc.innerText = modeText + ' • ' + rangeText;
         }
 
@@ -1512,11 +1512,9 @@
             currentChartMode = mode;
             var btnCashflow = document.getElementById('btn-chart-mode-cashflow');
             var btnBalance = document.getElementById('btn-chart-mode-balance');
-            var btnMethods = document.getElementById('btn-chart-mode-methods');
 
             if (btnCashflow) btnCashflow.classList.toggle('active', mode === 'cashflow');
             if (btnBalance) btnBalance.classList.toggle('active', mode === 'balance');
-            if (btnMethods) btnMethods.classList.toggle('active', mode === 'methods');
 
             updateChartDescText();
             renderReportData();
@@ -1988,8 +1986,8 @@
                             fill: true
                         }
                     ];
-                } else if (currentChartMode === 'methods') {
-                    // Diagram Saldo per Metode (GoPay vs Tunai) - Sama seperti di Dashboard!
+                } else {
+                    // Mode Saldo: Saldo GoPay & Saldo Tunai (Persis seperti diagram di Dashboard)
                     var cumulativeGoPay = [];
                     var cumulativeTunai = [];
                     var rollGoPay = 0;
@@ -2022,28 +2020,6 @@
                             borderWidth: 2.5,
                             tension: 0.35,
                             pointBackgroundColor: '#4ade80',
-                            pointRadius: 3.5,
-                            pointHoverRadius: 6,
-                            fill: true
-                        }
-                    ];
-                } else {
-                    var cumulativeBalance = [];
-                    var rolling = 0;
-                    for (var i = 0; i <= 11; i++) {
-                        rolling += (monthlyIn[i] - monthlyOut[i]);
-                        cumulativeBalance.push(Math.max(0, rolling));
-                    }
-
-                    trendChartInstance.data.datasets = [
-                        {
-                            label: 'Saldo Kas Net (Kumulatif)',
-                            data: cumulativeBalance.slice(startIdx, endIdx + 1),
-                            borderColor: '#FF7300',
-                            backgroundColor: 'rgba(255, 115, 0, 0.12)',
-                            borderWidth: 2.5,
-                            tension: 0.35,
-                            pointBackgroundColor: '#FF7300',
                             pointRadius: 3.5,
                             pointHoverRadius: 6,
                             fill: true
