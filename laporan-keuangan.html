@@ -556,16 +556,24 @@
                         <span>Tren Arus Kas & Saldo 2026</span>
                     </h2>
                 </div>
-                <!-- CHART TOGGLES -->
+                <!-- CHART MODE TOGGLE -->
                 <div class="flex items-center gap-1 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80 self-start sm:self-auto">
                     <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
                     <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Akumulasi Saldo</button>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] sm:text-[10px] font-mono text-neutral-400 px-0.5">
-                <span id="chart-desc">Menampilkan Pemasukan vs Pengeluaran per Bulan</span>
-                <span class="text-[8.5px] text-neutral-500 hidden sm:inline">Sentuh poin grafik untuk detail</span>
+            <!-- TIME RANGE SELECTOR (3 BULAN, 6 BULAN, 1 TAHUN) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 text-[9px] sm:text-[10px] font-mono text-neutral-400 px-0.5">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-neutral-500 font-bold uppercase text-[8.5px]">Rentang:</span>
+                    <div class="flex items-center gap-1 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
+                        <button id="btn-range-3m" onclick="setChartRange('3m')" class="tab-btn active text-[9px] py-0.5 px-2">3 Bulan</button>
+                        <button id="btn-range-6m" onclick="setChartRange('6m')" class="tab-btn text-[9px] py-0.5 px-2">6 Bulan</button>
+                        <button id="btn-range-1y" onclick="setChartRange('1y')" class="tab-btn text-[9px] py-0.5 px-2">1 Tahun</button>
+                    </div>
+                </div>
+                <span id="chart-desc" class="text-neutral-400 text-[9px] truncate">Arus Kas • 3 Bulan Terakhir</span>
             </div>
 
             <!-- RESPONSIVE CHART HEIGHT -->
@@ -697,6 +705,7 @@
         var trendChartInstance = null;
         var donutChartInstance = null;
         var currentChartMode = 'cashflow';
+        var currentChartRange = '3m';
         var selectedPeriode = 'all';
         var rawTransactions = [];
 
@@ -1037,21 +1046,45 @@
             }
         }
 
+        function setChartRange(range) {
+            currentChartRange = range;
+            var btn3m = document.getElementById('btn-range-3m');
+            var btn6m = document.getElementById('btn-range-6m');
+            var btn1y = document.getElementById('btn-range-1y');
+
+            if (btn3m) btn3m.classList.remove('active');
+            if (btn6m) btn6m.classList.remove('active');
+            if (btn1y) btn1y.classList.remove('active');
+
+            if (range === '3m' && btn3m) btn3m.classList.add('active');
+            if (range === '6m' && btn6m) btn6m.classList.add('active');
+            if (range === '1y' && btn1y) btn1y.classList.add('active');
+
+            updateChartDescText();
+            renderReportData();
+        }
+
+        function updateChartDescText() {
+            var chartDesc = document.getElementById('chart-desc');
+            if (!chartDesc) return;
+            var rangeText = currentChartRange === '3m' ? '3 Bulan Terakhir' : (currentChartRange === '6m' ? '6 Bulan Terakhir' : '1 Tahun (Jan–Des)');
+            var modeText = currentChartMode === 'cashflow' ? 'Arus Kas' : 'Saldo Kas';
+            chartDesc.innerText = modeText + ' • ' + rangeText;
+        }
+
         function setChartMode(mode) {
             currentChartMode = mode;
             var btnCashflow = document.getElementById('btn-chart-mode-cashflow');
             var btnBalance = document.getElementById('btn-chart-mode-balance');
-            var chartDesc = document.getElementById('chart-desc');
 
             if (mode === 'cashflow') {
                 if (btnCashflow) btnCashflow.classList.add('active');
                 if (btnBalance) btnBalance.classList.remove('active');
-                if (chartDesc) chartDesc.innerText = 'Menampilkan Pemasukan vs Pengeluaran per Bulan';
             } else {
                 if (btnBalance) btnBalance.classList.add('active');
                 if (btnCashflow) btnCashflow.classList.remove('active');
-                if (chartDesc) chartDesc.innerText = 'Menampilkan Akumulasi Saldo Kas Bersih per Bulan';
             }
+            updateChartDescText();
             renderReportData();
         }
 
@@ -1145,9 +1178,25 @@
             var elTunai = document.getElementById('stat-saldo-tunai');
             if (elTunai) elTunai.innerText = formatRupiah(Math.max(0, saldoTunai));
 
+            // Slicing active months and data based on currentChartRange ('3m', '6m', '1y')
             var currentMonthIdx = new Date().getMonth();
-            var maxMonthIdx = Math.max(5, currentMonthIdx);
-            var activeMonths = MONTH_NAMES.slice(0, maxMonthIdx + 1);
+            var maxActiveMonth = Math.max(2, currentMonthIdx);
+
+            var startIdx = 0;
+            var endIdx = maxActiveMonth;
+
+            if (currentChartRange === '3m') {
+                startIdx = Math.max(0, maxActiveMonth - 2);
+                endIdx = maxActiveMonth;
+            } else if (currentChartRange === '6m') {
+                startIdx = Math.max(0, maxActiveMonth - 5);
+                endIdx = maxActiveMonth;
+            } else { // '1y'
+                startIdx = 0;
+                endIdx = 11;
+            }
+
+            var activeMonths = MONTH_NAMES.slice(startIdx, endIdx + 1);
 
             // Compute Trend Chart Data (Harmonized subtle colors, clean line width)
             if (trendChartInstance) {
@@ -1157,33 +1206,33 @@
                     trendChartInstance.data.datasets = [
                         {
                             label: 'Pemasukan (+)',
-                            data: monthlyIn.slice(0, maxMonthIdx + 1),
+                            data: monthlyIn.slice(startIdx, endIdx + 1),
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.08)',
                             borderWidth: 2,
                             tension: 0.35,
                             pointBackgroundColor: '#10b981',
-                            pointRadius: 2.5,
-                            pointHoverRadius: 5,
+                            pointRadius: 3,
+                            pointHoverRadius: 5.5,
                             fill: true
                         },
                         {
                             label: 'Pengeluaran (-)',
-                            data: monthlyOut.slice(0, maxMonthIdx + 1),
+                            data: monthlyOut.slice(startIdx, endIdx + 1),
                             borderColor: '#f43f5e',
                             backgroundColor: 'rgba(244, 63, 94, 0.08)',
                             borderWidth: 2,
                             tension: 0.35,
                             pointBackgroundColor: '#f43f5e',
-                            pointRadius: 2.5,
-                            pointHoverRadius: 5,
+                            pointRadius: 3,
+                            pointHoverRadius: 5.5,
                             fill: true
                         }
                     ];
                 } else {
                     var cumulativeBalance = [];
                     var rolling = 0;
-                    for (var i = 0; i <= maxMonthIdx; i++) {
+                    for (var i = 0; i <= 11; i++) {
                         rolling += (monthlyIn[i] - monthlyOut[i]);
                         cumulativeBalance.push(Math.max(0, rolling));
                     }
@@ -1191,14 +1240,14 @@
                     trendChartInstance.data.datasets = [
                         {
                             label: 'Saldo Kas Net (Kumulatif)',
-                            data: cumulativeBalance,
+                            data: cumulativeBalance.slice(startIdx, endIdx + 1),
                             borderColor: '#FF7300',
                             backgroundColor: 'rgba(255, 115, 0, 0.12)',
                             borderWidth: 2.5,
                             tension: 0.35,
                             pointBackgroundColor: '#FF7300',
-                            pointRadius: 3,
-                            pointHoverRadius: 5.5,
+                            pointRadius: 3.5,
+                            pointHoverRadius: 6,
                             fill: true
                         }
                     ];
