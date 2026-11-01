@@ -719,22 +719,25 @@
     </div>
 
     <!-- TOP HEADER BAR (NO THEME TOGGLE IN HEADER) -->
-    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] px-3 sm:px-6 h-14 flex items-center justify-between">
-        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 t-sub hover:text-[#FF7300] transition-all duration-300 active:scale-95 shadow-inner z-10">
-            <span>←</span> <span>Dashboard</span>
-        </a>
+    <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] h-14 flex items-center">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full flex items-center justify-between">
+            <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 t-sub hover:text-[#FF7300] transition-all duration-300 active:scale-95 shadow-inner z-10">
+                <i class="fa-solid fa-arrow-left text-xs"></i> <span>Dashboard</span>
+            </a>
 
-        <div class="flex items-center gap-3 z-10">
-            <span class="t-label hidden sm:inline">
-                Laporan Keuangan
-            </span>
+            <div class="flex items-center gap-3 z-10">
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900/80 border border-neutral-800/80">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-[10px] font-mono uppercase tracking-wider text-neutral-300 font-bold">Laporan Real-time</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER (MAX-W-4XL HARMONIZED WITH RIWAYAT TRANSAKSI) -->
-    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3 sm:gap-4 z-10 relative min-w-0">
+    <!-- MAIN CONTAINER (RESPONSIVE FULL DESKTOP ANALYTICS LAYOUT) -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3.5 sm:gap-5 lg:gap-6 z-10 relative min-w-0">
 
-        <!-- TIER 1: SCREEN TITLE (FULL WIDTH, NO MONTH FILTER, NO TRUNCATION) -->
+        <!-- TIER 1: SCREEN TITLE -->
         <div class="screen-header-wrap flex items-center justify-between gap-2.5 pt-0.5 pb-2.5 border-b border-neutral-200/60 dark:border-neutral-900">
             <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF7300]/20 via-[#EA580C]/15 to-transparent border border-[#FF7300]/35 flex items-center justify-center text-sm shadow-xs shrink-0">
@@ -746,48 +749,46 @@
             </div>
         </div>
 
-        <!-- 3 FINANCIAL STAT CARDS STRIP (FULL LABELS WITHOUT '...' TRUNCATION) -->
-        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+        <!-- 5 FINANCIAL STAT CARDS (ROW 1: 3 CARDS, ROW 2: 2 CARDS ON MOBILE; 5 EQUAL COLUMNS ON DESKTOP) -->
+        <div class="grid grid-cols-6 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-3.5">
             <!-- 1. PEMASUKAN -->
-            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <div class="col-span-2 lg:col-span-1 stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-4 flex flex-col justify-between gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
                     <span class="t-label whitespace-nowrap">Pemasukan</span>
-                    <div class="hidden sm:flex w-5 h-5 rounded-lg bg-emerald-950/50 border border-emerald-500/10 items-center justify-center text-emerald-400 text-xs shrink-0">
-                        ↙
+                    <div class="w-6 h-6 rounded-lg bg-emerald-950/50 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs shrink-0">
+                        <i class="fa-solid fa-arrow-down-left"></i>
                     </div>
                 </div>
                 <span id="stat-total-masuk" class="t-stat-primary text-emerald-400">Rp0</span>
             </div>
 
             <!-- 2. PENGELUARAN -->
-            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <div class="col-span-2 lg:col-span-1 stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-4 flex flex-col justify-between gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
                     <span class="t-label whitespace-nowrap">Pengeluaran</span>
-                    <div class="hidden sm:flex w-5 h-5 rounded-lg bg-rose-950/50 border border-rose-500/10 items-center justify-center text-rose-400 text-xs shrink-0">
-                        ↗
+                    <div class="w-6 h-6 rounded-lg bg-rose-950/50 border border-rose-500/20 flex items-center justify-center text-rose-400 text-xs shrink-0">
+                        <i class="fa-solid fa-arrow-up-right"></i>
                     </div>
                 </div>
                 <span id="stat-total-keluar" class="t-stat-primary text-rose-400">Rp0</span>
             </div>
 
             <!-- 3. SALDO KAS -->
-            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 flex flex-col gap-1 border border-orange-500/25 relative overflow-hidden group min-w-0">
+            <div class="col-span-2 lg:col-span-1 stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-4 flex flex-col justify-between gap-1 border border-orange-500/25 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-[#FF7300]/10 rounded-full blur-xl group-hover:bg-[#FF7300]/15 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
                     <span class="t-label text-orange-400/90 whitespace-nowrap">Saldo Kas</span>
-                    <div class="hidden sm:flex w-5 h-5 rounded-lg bg-orange-500/10 border border-orange-500/20 items-center justify-center text-orange-400 text-xs shrink-0">
-                        ⚖
+                    <div class="w-6 h-6 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 text-xs shrink-0">
+                        <i class="fa-solid fa-scale-balanced"></i>
                     </div>
                 </div>
                 <span id="stat-saldo-net" class="t-stat-primary text-white">Rp0</span>
             </div>
-        </div>
 
-        <!-- BREAKDOWN E-WALLET & TUNAI -->
-        <div class="grid grid-cols-2 gap-2 sm:gap-3">
-            <div class="glass-panel p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-neutral-900 border-t-2 border-t-sky-400 flex items-center justify-between shadow-xs">
+            <!-- 4. E-WALLET -->
+            <div class="col-span-3 lg:col-span-1 glass-panel p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-neutral-900 border-t-2 border-t-sky-400 flex items-center justify-between shadow-xs">
                 <div class="flex flex-col gap-0.5 min-w-0">
                     <span class="t-label whitespace-nowrap">E-Wallet</span>
                     <span id="stat-saldo-gopay" class="t-stat-secondary text-sky-400">Rp0</span>
@@ -797,7 +798,8 @@
                 </div>
             </div>
 
-            <div class="glass-panel p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-neutral-900 border-t-2 border-t-emerald-400 flex items-center justify-between shadow-xs">
+            <!-- 5. TUNAI -->
+            <div class="col-span-3 lg:col-span-1 glass-panel p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border border-neutral-900 border-t-2 border-t-emerald-400 flex items-center justify-between shadow-xs">
                 <div class="flex flex-col gap-0.5 min-w-0">
                     <span class="t-label whitespace-nowrap">Tunai</span>
                     <span id="stat-saldo-tunai" class="t-stat-secondary text-emerald-400">Rp0</span>
@@ -808,100 +810,109 @@
             </div>
         </div>
 
-        <!-- SECTION 1: TREN ARUS KAS & SALDO -->
-        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
-            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
-                <div class="min-w-0">
-                    <h2 class="t-section-title whitespace-nowrap">
-                        Tren Arus Kas
-                    </h2>
-                </div>
-                <!-- CHART CONTROLS: MODE TOGGLE & 3-DOTS KEBAB MENU -->
-                <div class="flex items-center gap-1.5 shrink-0">
-                    <div class="flex items-center gap-0.5 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
-                        <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
-                        <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Saldo</button>
-                    </div>
+        <!-- TWO-COLUMN ANALYTICS GRID ON DESKTOP: TREN ARUS KAS (LEFT 7 COLS) & KOMPOSISI BELANJA (RIGHT 5 COLS) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 lg:gap-6 items-stretch">
 
-                    <!-- 3-DOTS MENU UNTUK PILIHAN RENTANG -->
-                    <div class="relative">
-                        <button id="btn-range-dropdown" type="button" onclick="toggleRangeDropdown(event)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-neutral-900/60 dark:bg-neutral-950 border border-neutral-800/80 hover:border-[#FF7300]/60 text-neutral-400 hover:text-[#FF7300] flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs" title="Pilih Rentang Waktu" aria-label="Menu Rentang Waktu">
-                            <i class="fa-solid fa-ellipsis-vertical text-xs sm:text-sm"></i>
-                        </button>
-
-                        <!-- DROPDOWN POPUP -->
-                        <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-40 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1.5 z-50 flex flex-col gap-1 t-sub">
-                            <div class="px-2.5 py-1 t-label border-b border-neutral-800/60 mb-0.5">
-                                Rentang Waktu
+            <!-- SECTION 1: TREN ARUS KAS (7 COLS ON DESKTOP) -->
+            <div class="lg:col-span-7 flex flex-col justify-between glass-panel rounded-2xl p-3.5 sm:p-5 shadow-md min-w-0">
+                <div>
+                    <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
+                        <div class="min-w-0">
+                            <h2 class="t-section-title whitespace-nowrap">
+                                Tren Arus Kas
+                            </h2>
+                        </div>
+                        <!-- CHART CONTROLS: MODE TOGGLE & 3-DOTS KEBAB MENU -->
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center gap-0.5 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
+                                <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
+                                <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Saldo</button>
                             </div>
-                            <button type="button" onclick="selectRangeFromMenu('3m')" id="opt-range-3m" class="w-full text-left px-3 py-1.5 rounded-lg active-range text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
-                                3 Bulan Terakhir
-                            </button>
-                            <button type="button" onclick="selectRangeFromMenu('6m')" id="opt-range-6m" class="w-full text-left px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
-                                6 Bulan Terakhir
-                            </button>
-                            <button type="button" onclick="selectRangeFromMenu('1y')" id="opt-range-1y" class="w-full text-left px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
-                                1 Tahun Penuh
-                            </button>
+
+                            <!-- 3-DOTS MENU UNTUK PILIHAN RENTANG -->
+                            <div class="relative">
+                                <button id="btn-range-dropdown" type="button" onclick="toggleRangeDropdown(event)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-neutral-900/60 dark:bg-neutral-950 border border-neutral-800/80 hover:border-[#FF7300]/60 text-neutral-400 hover:text-[#FF7300] flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs" title="Pilih Rentang Waktu" aria-label="Menu Rentang Waktu">
+                                    <i class="fa-solid fa-ellipsis-vertical text-xs sm:text-sm"></i>
+                                </button>
+
+                                <!-- DROPDOWN POPUP -->
+                                <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-40 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1.5 z-50 flex flex-col gap-1 t-sub">
+                                    <div class="px-2.5 py-1 t-label border-b border-neutral-800/60 mb-0.5">
+                                        Rentang Waktu
+                                    </div>
+                                    <button type="button" onclick="selectRangeFromMenu('3m')" id="opt-range-3m" class="w-full text-left px-3 py-1.5 rounded-lg active-range text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
+                                        3 Bulan Terakhir
+                                    </button>
+                                    <button type="button" onclick="selectRangeFromMenu('6m')" id="opt-range-6m" class="w-full text-left px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
+                                        6 Bulan Terakhir
+                                    </button>
+                                    <button type="button" onclick="selectRangeFromMenu('1y')" id="opt-range-1y" class="w-full text-left px-3 py-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all cursor-pointer">
+                                        1 Tahun Penuh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RESPONSIVE CHART HEIGHT (EXPANDED ON DESKTOP) -->
+                    <div class="w-full h-44 sm:h-56 lg:h-72 relative mt-3">
+                        <canvas id="mainTrendChart" class="cursor-pointer"></canvas>
+                    </div>
+                </div>
+
+                <!-- INTERACTIVE MONTH SPOTLIGHT BANNER -->
+                <div id="month-spotlight-card" class="hidden mt-3 p-2.5 sm:p-3 rounded-xl bg-neutral-900/80 border border-[#FF7300]/40 flex items-center justify-between gap-2 transition-all">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-lg bg-orange-500/15 text-[#FF7300] flex items-center justify-center text-xs font-bold shrink-0">
+                            <i class="fa-solid fa-calendar-day"></i>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <span id="spotlight-month-title" class="t-body font-bold text-white truncate">Bulan</span>
+                            <div class="flex items-center gap-2 t-sub-mono flex-wrap">
+                                <span class="text-emerald-400">Masuk: <strong id="spotlight-in">Rp0</strong></span>
+                                <span class="text-neutral-500">•</span>
+                                <span class="text-rose-400">Keluar: <strong id="spotlight-out">Rp0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span id="spotlight-net" class="t-sub-mono px-2 py-1 rounded-md font-bold bg-neutral-800 text-white">Net: Rp0</span>
+                        <button type="button" onclick="closeMonthSpotlight()" class="text-neutral-400 hover:text-white text-xs px-2 py-1 rounded-md bg-neutral-800/60 hover:bg-neutral-800 cursor-pointer" title="Tutup">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: KOMPOSISI BELANJA (5 COLS ON DESKTOP) -->
+            <div class="lg:col-span-5 flex flex-col justify-between glass-panel rounded-2xl p-3.5 sm:p-5 shadow-md min-w-0">
+                <div>
+                    <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
+                        <div class="min-w-0">
+                            <h2 class="t-section-title truncate">
+                                Komposisi Belanja
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- CENTERED PERFECT-CIRCLE DONUT WRAPPER WITH INNER TOTAL BADGE -->
+                    <div class="relative w-full max-w-[210px] sm:max-w-[240px] lg:max-w-[250px] h-44 sm:h-52 lg:h-56 mx-auto flex items-center justify-center my-1">
+                        <canvas id="categoryDonutChart" class="cursor-pointer"></canvas>
+                        <!-- INNER CENTER LABEL -->
+                        <div id="donut-center-badge" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+                            <div onclick="resetDonutFocus()" class="pointer-events-auto flex flex-col items-center justify-center cursor-pointer p-2 rounded-full hover:bg-neutral-800/40 transition-all select-none group" title="Reset Total Belanja">
+                                <span id="donut-center-label" class="t-label truncate max-w-[130px] text-center transition-colors group-hover:text-[#FF7300]">Total Belanja</span>
+                                <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5 transition-transform group-hover:scale-105">Rp0</span>
+                                <span id="donut-center-sub" class="text-[9px] font-mono text-[#FF7300] mt-0.5 hidden font-semibold"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- RESPONSIVE CHART HEIGHT -->
-            <div class="w-full h-44 sm:h-56 relative">
-                <canvas id="mainTrendChart" class="cursor-pointer"></canvas>
-            </div>
-
-            <!-- INTERACTIVE MONTH SPOTLIGHT BANNER -->
-            <div id="month-spotlight-card" class="hidden p-2.5 sm:p-3 rounded-xl bg-neutral-900/80 border border-[#FF7300]/40 flex items-center justify-between gap-2 transition-all">
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-lg bg-orange-500/15 text-[#FF7300] flex items-center justify-center text-xs font-bold shrink-0">
-                        <i class="fa-solid fa-calendar-day"></i>
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <span id="spotlight-month-title" class="t-body font-bold text-white truncate">Bulan</span>
-                        <div class="flex items-center gap-2 t-sub-mono flex-wrap">
-                            <span class="text-emerald-400">Masuk: <strong id="spotlight-in">Rp0</strong></span>
-                            <span class="text-neutral-500">•</span>
-                            <span class="text-rose-400">Keluar: <strong id="spotlight-out">Rp0</strong></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <span id="spotlight-net" class="t-sub-mono px-2 py-1 rounded-md font-bold bg-neutral-800 text-white">Net: Rp0</span>
-                    <button type="button" onclick="closeMonthSpotlight()" class="text-neutral-400 hover:text-white text-xs px-2 py-1 rounded-md bg-neutral-800/60 hover:bg-neutral-800 cursor-pointer" title="Tutup">✕</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 2: KOMPOSISI BELANJA -->
-        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
-            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
-                <div class="min-w-0">
-                    <h2 class="t-section-title truncate">
-                        Komposisi Belanja
-                    </h2>
+                <!-- STRUCTURED CATEGORY LEGEND LIST -->
+                <div id="category-pills-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2 pt-2.5 border-t border-neutral-800/50 mt-2">
+                    <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
-            <!-- CENTERED PERFECT-CIRCLE DONUT WRAPPER WITH INNER TOTAL BADGE -->
-            <div class="relative w-full max-w-[230px] sm:max-w-[260px] h-44 sm:h-52 mx-auto flex items-center justify-center my-0.5">
-                <canvas id="categoryDonutChart" class="cursor-pointer"></canvas>
-                <!-- INNER CENTER LABEL (POINTER-EVENTS-NONE ON CONTAINER, POINTER-EVENTS-AUTO ON CLICKABLE INNER CENTER) -->
-                <div id="donut-center-badge" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
-                    <div onclick="resetDonutFocus()" class="pointer-events-auto flex flex-col items-center justify-center cursor-pointer p-2 rounded-full hover:bg-neutral-800/40 transition-all select-none group" title="Reset Total Belanja">
-                        <span id="donut-center-label" class="t-label truncate max-w-[130px] text-center transition-colors group-hover:text-[#FF7300]">Total Belanja</span>
-                        <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5 transition-transform group-hover:scale-105">Rp0</span>
-                        <span id="donut-center-sub" class="text-[9px] font-mono text-[#FF7300] mt-0.5 hidden font-semibold"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STRUCTURED CATEGORY LEGEND LIST (SAME TYPOGRAPHY AS REKAPITULASI DETAIL) -->
-            <div id="category-pills-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2.5 border-t border-neutral-800/50">
-                <!-- Populated dynamically via JS -->
-            </div>
         </div>
 
         <!-- SECTION 3: REKAPITULASI DETAIL -->
