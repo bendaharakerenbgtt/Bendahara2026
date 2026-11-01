@@ -466,6 +466,18 @@
             box-shadow: 0 4px 16px rgba(255, 115, 0, 0.22) !important;
         }
 
+        .active-detail-card {
+            border-color: #FF7300 !important;
+            background-color: rgba(255, 115, 0, 0.10) !important;
+            box-shadow: 0 0 16px rgba(255, 115, 0, 0.24) !important;
+            transform: translateY(-1px);
+        }
+        html.light-mode .active-detail-card {
+            background-color: #FFF7ED !important;
+            border-color: #FF7300 !important;
+            box-shadow: 0 2px 12px rgba(255, 115, 0, 0.18) !important;
+        }
+
         /* MODAL ANIMATION & LIGHT MODE */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
@@ -1477,27 +1489,57 @@
             return day + ' ' + m + ' ' + y;
         }
 
-        function focusDonutCategory(idx, scrollIntoView) {
+        var currentFocusedCategoryName = '';
+
+        function focusCategoryByName(categoryName) {
+            if (!donutChartInstance || !donutChartInstance.data.labels) return;
+            var labels = donutChartInstance.data.labels;
+            var matchIdx = labels.findIndex(function(l) { return l.toLowerCase() === categoryName.toLowerCase(); });
+            
+            if (matchIdx !== -1) {
+                focusDonutCategory(matchIdx, false, categoryName);
+            } else {
+                var lainnyaIdx = labels.findIndex(function(l) { return l.toLowerCase() === 'lainnya'; });
+                if (lainnyaIdx !== -1) {
+                    focusDonutCategory(lainnyaIdx, false, categoryName);
+                } else {
+                    focusDonutCategory(0, false, categoryName);
+                }
+            }
+        }
+
+        function focusDonutCategory(idx, scrollIntoView, specificName) {
             if (!donutChartInstance || !donutChartInstance.data.labels || donutChartInstance.data.labels.length === 0) return;
             
-            // Toggle off if already focused on this index
-            if (currentFocusedCategoryIndex === idx) {
+            var labels = donutChartInstance.data.labels;
+            var data = donutChartInstance.data.datasets[0].data;
+            var chosenLabel = specificName || labels[idx];
+
+            // Toggle off if already focused on this exact category or index
+            if ((currentFocusedCategoryName && currentFocusedCategoryName.toLowerCase() === chosenLabel.toLowerCase()) ||
+                (!currentFocusedCategoryName && currentFocusedCategoryIndex === idx)) {
                 resetDonutFocus();
                 return;
             }
 
             currentFocusedCategoryIndex = idx;
-            var labels = donutChartInstance.data.labels;
-            var data = donutChartInstance.data.datasets[0].data;
-            var targetLabel = labels[idx];
-            var targetVal = data[idx] || 0;
-            var totalBelanja = data.reduce(function(a, b) { return a + b; }, 0);
-            var percent = totalBelanja > 0 ? ((targetVal / totalBelanja) * 100).toFixed(1) : '0';
+            currentFocusedCategoryName = chosenLabel;
+
+            // Find category data from latestSortedCategories or fallback to donut data
+            var foundCat = (latestSortedCategories || []).find(function(c) {
+                return c.nama.toLowerCase() === chosenLabel.toLowerCase();
+            });
+
+            var targetLabel = foundCat ? foundCat.nama : labels[idx];
+            var targetVal = foundCat ? foundCat.total : (data[idx] || 0);
+            var percent = latestGrandTotalKeluar > 0 ? ((targetVal / latestGrandTotalKeluar) * 100).toFixed(1) : '0';
 
             // Highlight slice in Chart.js
-            donutChartInstance.setActiveElements([{ datasetIndex: 0, index: idx }]);
-            donutChartInstance.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: 0, y: 0 });
-            donutChartInstance.update();
+            try {
+                donutChartInstance.setActiveElements([{ datasetIndex: 0, index: idx }]);
+                donutChartInstance.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: 0, y: 0 });
+                donutChartInstance.update();
+            } catch (err) {}
 
             // Update center badge
             var lblEl = document.getElementById('donut-center-label');
@@ -1510,10 +1552,11 @@
                 subEl.classList.remove('hidden');
             }
 
-            // Highlight category pill item
+            // Highlight category pill item in top list
             var pills = document.querySelectorAll('#category-pills-list .cat-legend-item');
             pills.forEach(function(pill, pIdx) {
-                if (pIdx === idx) {
+                var pName = (labels[pIdx] || '').toLowerCase();
+                if (pIdx === idx || pName === targetLabel.toLowerCase()) {
                     pill.classList.add('active-cat-pill');
                     if (scrollIntoView) {
                         try {
@@ -1525,20 +1568,31 @@
                 }
             });
 
-            // Synchronize highlight in Rekapitulasi Detail
+            // Synchronize highlight indicator in Rekapitulasi Detail (mobile cards & desktop rows)
             var allCards = document.querySelectorAll('.mobile-cat-card');
             allCards.forEach(function(card) {
                 var cName = card.getAttribute('data-cat') || '';
                 if (cName.toLowerCase() === targetLabel.toLowerCase()) {
-                    card.classList.add('ring-1', 'ring-[#FF7300]', 'bg-orange-500/10');
+                    card.classList.add('active-detail-card');
                 } else {
-                    card.classList.remove('ring-1', 'ring-[#FF7300]', 'bg-orange-500/10');
+                    card.classList.remove('active-detail-card');
+                }
+            });
+
+            var allRows = document.querySelectorAll('#report-table-body tr');
+            allRows.forEach(function(row) {
+                var rName = row.getAttribute('data-cat') || '';
+                if (rName.toLowerCase() === targetLabel.toLowerCase()) {
+                    row.classList.add('active-detail-card');
+                } else {
+                    row.classList.remove('active-detail-card');
                 }
             });
         }
 
         function resetDonutFocus() {
             currentFocusedCategoryIndex = -1;
+            currentFocusedCategoryName = '';
             if (donutChartInstance) {
                 donutChartInstance.setActiveElements([]);
                 donutChartInstance.update();
@@ -1557,7 +1611,12 @@
 
             var allCards = document.querySelectorAll('.mobile-cat-card');
             allCards.forEach(function(card) {
-                card.classList.remove('ring-1', 'ring-[#FF7300]', 'bg-orange-500/10');
+                card.classList.remove('active-detail-card');
+            });
+
+            var allRows = document.querySelectorAll('#report-table-body tr');
+            allRows.forEach(function(row) {
+                row.classList.remove('active-detail-card');
             });
         }
 
@@ -1967,7 +2026,7 @@
                         item.id = 'cat-pill-' + i;
                         item.className = 'cat-legend-item flex items-center justify-between px-3 py-2 rounded-xl shadow-2xs cursor-pointer hover:bg-neutral-800/40 transition-all';
                         item.onclick = function() {
-                            focusDonutCategory(i, false);
+                            focusDonutCategory(i, false, lbl);
                         };
                         item.innerHTML = 
                             '<div class="flex items-center gap-2 min-w-0 pr-2">' +
@@ -2014,17 +2073,19 @@
                 var dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
                 var metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
 
-                // 1. Mobile Fintech Card Item (Interactive click opens drilldown modal)
+                // 1. Mobile Fintech Card Item (Clicking card changes indicator, clicking number badge opens rincian)
                 mobileCardsHtml += 
-                    '<div data-cat="' + cat.nama.replace(/"/g, '&quot;') + '" onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs cursor-pointer hover:border-[#FF7300]/40 transition-all active:scale-[0.99] group">' +
+                    '<div data-cat="' + cat.nama.replace(/"/g, '&quot;') + '" onclick="focusCategoryByName(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs cursor-pointer hover:border-[#FF7300]/40 transition-all active:scale-[0.99] group">' +
                         '<div class="flex items-center justify-between gap-2">' +
                             '<div class="flex items-center gap-2 min-w-0 pr-2">' +
-                                '<span class="t-sub-mono font-bold text-[#FF7300] w-5 shrink-0">#' + (index + 1) + '</span>' +
+                                '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="t-sub-mono font-bold text-[#FF7300] bg-orange-500/15 hover:bg-[#FF7300] hover:text-white px-2 py-0.5 rounded-lg border border-[#FF7300]/30 transition-colors cursor-pointer text-xs shrink-0" title="Buka Rincian">#' + (index + 1) + '</button>' +
                                 '<span class="t-body truncate group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span>' +
                             '</div>' +
                             '<div class="flex items-center gap-1.5 shrink-0">' +
                                 '<span class="t-val">' + formatRupiah(cat.total) + '</span>' +
-                                '<i class="fa-solid fa-chevron-right text-[10px] text-neutral-500 group-hover:text-[#FF7300] transition-colors"></i>' +
+                                '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="w-6 h-6 rounded-md flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer" title="Buka Rincian">' +
+                                    '<i class="fa-solid fa-chevron-right text-[10px]"></i>' +
+                                '</button>' +
                             '</div>' +
                         '</div>' +
                         '<div class="flex items-center justify-between gap-2.5 pt-1.5 border-t border-neutral-800/50">' +
@@ -2044,9 +2105,17 @@
                         '</div>' +
                     '</div>';
 
-                // 2. Desktop Full Table Row (Interactive click opens drilldown modal)
-                desktopRowsHtml += '<tr data-cat="' + cat.nama.replace(/"/g, '&quot;') + '" onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="cursor-pointer hover:bg-neutral-800/40 transition-colors group">' +
-                    '<td class="text-center t-sub-mono">' + (index + 1) + '</td>' +
+                // 2. Desktop Full Table Row (Clicking row changes indicator, clicking number badge opens rincian)
+                desktopRowsHtml += '<tr data-cat="' + cat.nama.replace(/"/g, '&quot;') + '" onclick="focusCategoryByName(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="cursor-pointer hover:bg-neutral-800/40 transition-colors group">' +
+                    '<td class="text-center">' +
+                        '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="t-sub-mono font-bold text-[#FF7300] bg-orange-500/15 hover:bg-[#FF7300] hover:text-white px-2 py-0.5 rounded-lg border border-[#FF7300]/30 transition-colors cursor-pointer text-xs" title="Buka Rincian">' + (index + 1) + '</button>' +
+                    '</td>' +
+                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
+                    '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
+                    '<td class="text-right t-val">' + formatRupiah(cat.total) + '</td>' +
+                    '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
+                    '<td class="text-center"><span class="t-sub-mono meta-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md"><i class="fa-solid ' + metodeIcon + ' text-[9px]"></i><span>' + dominantMetode + '</span></span></td>' +
+                    '</tr>';
                     '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
                     '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
                     '<td class="text-right t-val">' + formatRupiah(cat.total) + '</td>' +
