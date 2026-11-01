@@ -1849,9 +1849,9 @@
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-neutral-500 font-mono hidden sm:inline-block">Real-time</span>
+                                    <span class="text-[10px] text-neutral-400 font-mono hidden sm:inline-block">3 Bulan Terakhir</span>
                                     <span class="text-[9px] text-neutral-400 font-mono sm:hidden flex items-center gap-1 group-hover:text-orange-400 transition-colors">
-                                        <span>Buka</span> <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                                        <span>3 Bulan</span> <i class="fa-solid fa-chevron-right text-[8px]"></i>
                                     </span>
                                 </div>
                             </div>
@@ -2388,8 +2388,11 @@
             tunaiBalances[i] = Math.max(0, cumulativeTunai);
         }
 
-        const maxMonthIndex = Math.max(5, new Date().getMonth());
-        const activeMonths = months.slice(0, maxMonthIndex + 1);
+        // Default 3 bulan terakhir
+        const currentMonthIdx = new Date().getMonth();
+        const maxMonthIndex = Math.max(2, currentMonthIdx);
+        const startMonthIndex = Math.max(0, maxMonthIndex - 2);
+        const activeMonths = months.slice(startMonthIndex, maxMonthIndex + 1);
         
         // Dynamic gradient shadow under chart lines
         const cCanvas = document.getElementById('ldkLineChart');
@@ -2411,8 +2414,8 @@
         }
 
         window.ldkChart.data.labels = activeMonths;
-        window.ldkChart.data.datasets[0].data = goPayBalances.slice(0, maxMonthIndex + 1);
-        window.ldkChart.data.datasets[1].data = tunaiBalances.slice(0, maxMonthIndex + 1);
+        window.ldkChart.data.datasets[0].data = goPayBalances.slice(startMonthIndex, maxMonthIndex + 1);
+        window.ldkChart.data.datasets[1].data = tunaiBalances.slice(startMonthIndex, maxMonthIndex + 1);
         window.ldkChart.data.datasets[0].label = 'Saldo GoPay';
         window.ldkChart.data.datasets[1].label = 'Saldo Tunai';
         window.ldkChart.data.datasets[0].tension = 0.38;

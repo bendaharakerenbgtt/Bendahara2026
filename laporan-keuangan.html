@@ -820,6 +820,7 @@
                     <div class="flex items-center gap-0.5 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
                         <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
                         <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Saldo</button>
+                        <button id="btn-chart-mode-methods" onclick="setChartMode('methods')" class="tab-btn" title="Diagram Saldo GoPay & Tunai seperti di Dashboard">Metode</button>
                     </div>
 
                     <!-- 3-DOTS MENU UNTUK PILIHAN RENTANG -->
@@ -1503,7 +1504,7 @@
             var chartDesc = document.getElementById('chart-desc');
             if (!chartDesc) return;
             var rangeText = currentChartRange === '3m' ? '3 Bulan Terakhir' : (currentChartRange === '6m' ? '6 Bulan Terakhir' : '1 Tahun (Jan–Des)');
-            var modeText = currentChartMode === 'cashflow' ? 'Arus Kas' : 'Saldo Kas';
+            var modeText = currentChartMode === 'cashflow' ? 'Arus Kas' : (currentChartMode === 'balance' ? 'Saldo Kas' : 'Saldo GoPay & Tunai');
             chartDesc.innerText = modeText + ' • ' + rangeText;
         }
 
@@ -1511,14 +1512,12 @@
             currentChartMode = mode;
             var btnCashflow = document.getElementById('btn-chart-mode-cashflow');
             var btnBalance = document.getElementById('btn-chart-mode-balance');
+            var btnMethods = document.getElementById('btn-chart-mode-methods');
 
-            if (mode === 'cashflow') {
-                if (btnCashflow) btnCashflow.classList.add('active');
-                if (btnBalance) btnBalance.classList.remove('active');
-            } else {
-                if (btnBalance) btnBalance.classList.add('active');
-                if (btnCashflow) btnCashflow.classList.remove('active');
-            }
+            if (btnCashflow) btnCashflow.classList.toggle('active', mode === 'cashflow');
+            if (btnBalance) btnBalance.classList.toggle('active', mode === 'balance');
+            if (btnMethods) btnMethods.classList.toggle('active', mode === 'methods');
+
             updateChartDescText();
             renderReportData();
         }
@@ -1868,6 +1867,8 @@
 
             var monthlyIn = new Array(12).fill(0);
             var monthlyOut = new Array(12).fill(0);
+            var monthlyGoPayDiff = new Array(12).fill(0);
+            var monthlyTunaiDiff = new Array(12).fill(0);
 
             validTx.forEach(function(t) {
                 var nom = Math.abs(parseFloat(t.nominal) || 0);
@@ -1875,6 +1876,7 @@
                 var metode = (t.metode || '').toLowerCase();
                 var d = t.tanggal ? new Date(t.tanggal) : null;
                 var mIdx = (d && !isNaN(d)) ? d.getMonth() : 0;
+                var change = isMasuk ? nom : -nom;
 
                 if (isMasuk) {
                     monthlyIn[mIdx] += nom;
@@ -1890,6 +1892,12 @@
                     } else {
                         saldoTunai -= nom;
                     }
+                }
+
+                if (metode.indexOf('gopay') !== -1) {
+                    monthlyGoPayDiff[mIdx] += change;
+                } else {
+                    monthlyTunaiDiff[mIdx] += change;
                 }
             });
 
@@ -1977,6 +1985,45 @@
                             pointBackgroundColor: '#f43f5e',
                             pointRadius: 3,
                             pointHoverRadius: 5.5,
+                            fill: true
+                        }
+                    ];
+                } else if (currentChartMode === 'methods') {
+                    // Diagram Saldo per Metode (GoPay vs Tunai) - Sama seperti di Dashboard!
+                    var cumulativeGoPay = [];
+                    var cumulativeTunai = [];
+                    var rollGoPay = 0;
+                    var rollTunai = 0;
+                    for (var m = 0; m <= 11; m++) {
+                        rollGoPay += monthlyGoPayDiff[m];
+                        rollTunai += monthlyTunaiDiff[m];
+                        cumulativeGoPay.push(Math.max(0, rollGoPay));
+                        cumulativeTunai.push(Math.max(0, rollTunai));
+                    }
+
+                    trendChartInstance.data.datasets = [
+                        {
+                            label: 'Saldo GoPay',
+                            data: cumulativeGoPay.slice(startIdx, endIdx + 1),
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.12)',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            pointBackgroundColor: '#38bdf8',
+                            pointRadius: 3.5,
+                            pointHoverRadius: 6,
+                            fill: true
+                        },
+                        {
+                            label: 'Saldo Tunai',
+                            data: cumulativeTunai.slice(startIdx, endIdx + 1),
+                            borderColor: '#4ade80',
+                            backgroundColor: 'rgba(74, 222, 128, 0.12)',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            pointBackgroundColor: '#4ade80',
+                            pointRadius: 3.5,
+                            pointHoverRadius: 6,
                             fill: true
                         }
                     ];
