@@ -19,7 +19,7 @@
 
     <style>
         :root {
-            /* DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian (wonderful-bose) */
+            /* DARK MODE SYSTEM - Modern Deep Slate & Obsidian (wonderful-bose) */
             --bg-main: #080C14;
             --bg-card: rgba(17, 24, 39, 0.88);
             --border-card: rgba(255, 255, 255, 0.1);
@@ -61,6 +61,8 @@
             --table-row-hover: rgba(255, 255, 255, 0.03);
             --control-bg: rgba(17, 24, 39, 0.8);
             --control-border: rgba(255, 255, 255, 0.12);
+            --card-subtle-bg: rgba(21, 26, 41, 0.5);
+            --card-subtle-border: rgba(255, 255, 255, 0.06);
         }
 
         html.light-mode {
@@ -100,12 +102,14 @@
             --footer-border: #fed7aa;
             --header-bg: rgba(255, 247, 237, 0.94);
 
-            --glass-panel-bg: rgba(255, 255, 255, 0.94);
+            --glass-panel-bg: rgba(255, 255, 255, 0.95);
             --glass-panel-border: rgba(254, 215, 170, 0.9);
             --table-th-bg: #FFF7ED;
             --table-row-hover: rgba(255, 115, 0, 0.04);
             --control-bg: #FFFFFF;
             --control-border: #FED7AA;
+            --card-subtle-bg: #FFFFFF;
+            --card-subtle-border: rgba(254, 215, 170, 0.85);
         }
 
         body {
@@ -274,12 +278,12 @@
             box-shadow: 0 2px 10px rgba(255, 115, 0, 0.35) !important;
         }
 
-        /* TABLE STYLING */
+        /* TABLE STYLING WITH STRICT NON-WRAPPING HEADERS */
         .report-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            min-width: 580px;
+            min-width: 540px;
         }
         .report-table th {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -291,6 +295,7 @@
             border-bottom: 1px solid var(--border-muted);
             text-align: left;
             background-color: var(--table-th-bg);
+            white-space: nowrap;
         }
         html.light-mode .report-table th {
             color: #475569 !important;
@@ -302,9 +307,17 @@
             font-size: 11.5px;
             transition: background 0.15s ease;
             color: var(--text-primary);
+            white-space: nowrap;
         }
         .report-table tbody tr:hover td {
             background-color: var(--table-row-hover);
+        }
+
+        /* MOBILE CATEGORY CARD ITEM */
+        .mobile-cat-card {
+            background-color: var(--card-subtle-bg);
+            border: 1px solid var(--card-subtle-border);
+            transition: all 0.2s ease;
         }
 
         /* MOBILE BOTTOM NAVIGATION DOCK (EXACT SAME AS OTHER PAGES) */
@@ -442,7 +455,7 @@
     </header>
 
     <!-- MAIN CONTAINER (MAX-W-4XL HARMONIZED WITH RIWAYAT TRANSAKSI) -->
-    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3 sm:gap-4 z-10 relative">
+    <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3 sm:gap-4 z-10 relative min-w-0">
 
         <!-- SCREEN TITLE & COMPACT HEADER -->
         <div class="screen-header-wrap flex items-center justify-between gap-2.5 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
@@ -538,7 +551,7 @@
         </div>
 
         <!-- MAIN CHART 1: TREN ARUS KAS & SALDO (HARMONIOUS & RESPONSIVE) -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md">
+        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-neutral-800/60">
                 <div>
                     <span class="text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">VISUALISASI PERGERAKAN</span>
@@ -559,13 +572,13 @@
             </div>
 
             <!-- RESPONSIVE CHART HEIGHT -->
-            <div class="w-full h-48 sm:h-56 relative flex items-center justify-center">
+            <div class="w-full h-44 sm:h-56 relative">
                 <canvas id="mainTrendChart"></canvas>
             </div>
         </div>
 
-        <!-- MAIN CHART 2: KOMPOSISI POS PENGELUARAN -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md">
+        <!-- MAIN CHART 2: KOMPOSISI POS PENGELUARAN (WITH PROPORTIONATE DONUT & CENTER BADGE) -->
+        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
             <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
                 <div>
                     <span class="text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">ALOKASI ANGGARAN</span>
@@ -578,18 +591,24 @@
                 </span>
             </div>
 
-            <div class="w-full h-44 sm:h-52 relative flex items-center justify-center">
+            <!-- CENTERED PERFECT-CIRCLE DONUT WRAPPER WITH INNER TOTAL BADGE -->
+            <div class="relative w-full max-w-[240px] sm:max-w-[280px] h-44 sm:h-52 mx-auto flex items-center justify-center my-1">
                 <canvas id="categoryDonutChart"></canvas>
+                <!-- INNER CENTER LABEL -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span class="text-[8.5px] font-mono uppercase text-neutral-400 font-bold tracking-wider">Total Belanja</span>
+                    <span id="donut-center-total" class="text-xs sm:text-sm font-black font-mono text-rose-400 mt-0.5">Rp0</span>
+                </div>
             </div>
 
             <!-- COMPACT CATEGORY PILLS LIST -->
-            <div id="category-pills-list" class="flex flex-wrap gap-1.5 pt-1 overflow-y-auto max-h-20">
+            <div id="category-pills-list" class="flex flex-wrap items-center justify-center gap-1.5 pt-1.5 border-t border-neutral-800/50">
                 <!-- Populated dynamically via JS -->
             </div>
         </div>
 
-        <!-- RESPONSIVE SUMMARY TABLE -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md">
+        <!-- REKAPITULASI POS ANGGARAN: DUAL-VIEW (MOBILE FINTECH CARDS + DESKTOP DATA TABLE) -->
+        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
             <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
                 <div>
                     <span class="text-[8.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">REKAPITULASI DETAIL</span>
@@ -602,8 +621,16 @@
                 </span>
             </div>
 
-            <!-- HORIZONTAL SCROLL FOR MOBILE -->
-            <div class="overflow-x-auto rounded-xl border border-neutral-800/60">
+            <!-- 1. MOBILE FINTECH CARDS LIST (SHOWN ONLY ON MOBILE: NO CUT-OFFS, NO WORD BREAKS) -->
+            <div id="mobile-category-list" class="flex flex-col gap-2 sm:hidden">
+                <!-- Populated dynamically via JS -->
+                <div class="p-3 text-center text-neutral-500 font-mono text-xs">
+                    <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memuat rekapitulasi pos...
+                </div>
+            </div>
+
+            <!-- 2. DESKTOP FULL DATA TABLE (SHOWN ON SM AND UP WITH STRICT NON-WRAPPING HEADERS) -->
+            <div class="hidden sm:block overflow-x-auto rounded-xl border border-neutral-800/60 min-w-0">
                 <table class="report-table">
                     <thead>
                         <tr>
@@ -867,7 +894,7 @@
             var gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
             var textColor = isLight ? '#475569' : '#94a3b8';
 
-            // Trend Chart
+            // Trend Line Chart
             var trendCanvas = document.getElementById('mainTrendChart');
             if (trendCanvas) {
                 var trendCtx = trendCanvas.getContext('2d');
@@ -936,7 +963,7 @@
                 });
             }
 
-            // Donut Chart
+            // Donut Chart (Proportionate, No Distortion)
             var donutCanvas = document.getElementById('categoryDonutChart');
             if (donutCanvas) {
                 var donutCtx = donutCanvas.getContext('2d');
@@ -949,7 +976,7 @@
                             backgroundColor: CATEGORY_COLORS,
                             borderColor: isLight ? '#ffffff' : '#080C14',
                             borderWidth: 2,
-                            hoverOffset: 6
+                            hoverOffset: 4
                         }]
                     },
                     options: {
@@ -976,7 +1003,7 @@
                                 }
                             }
                         },
-                        cutout: '70%'
+                        cutout: '68%'
                     }
                 });
             }
@@ -1212,13 +1239,13 @@
                 return b.total - a.total;
             });
 
-            // Update Donut Chart
+            // Update Donut Chart & Center Badge
             if (donutChartInstance) {
-                var donutLabels = sortedCategories.slice(0, 6).map(function(c) { return c.nama; });
-                var donutData = sortedCategories.slice(0, 6).map(function(c) { return c.total; });
+                var donutLabels = sortedCategories.slice(0, 5).map(function(c) { return c.nama; });
+                var donutData = sortedCategories.slice(0, 5).map(function(c) { return c.total; });
 
-                if (sortedCategories.length > 6) {
-                    var otherTotal = sortedCategories.slice(6).reduce(function(acc, c) { return acc + c.total; }, 0);
+                if (sortedCategories.length > 5) {
+                    var otherTotal = sortedCategories.slice(5).reduce(function(acc, c) { return acc + c.total; }, 0);
                     donutLabels.push('Lainnya');
                     donutData.push(otherTotal);
                 }
@@ -1226,6 +1253,11 @@
                 donutChartInstance.data.labels = donutLabels;
                 donutChartInstance.data.datasets[0].data = donutData;
                 donutChartInstance.update();
+
+                var elDonutCenter = document.getElementById('donut-center-total');
+                if (elDonutCenter) {
+                    elDonutCenter.innerText = formatRupiah(totalKeluar);
+                }
 
                 var topBadge = document.getElementById('top-category-badge');
                 if (topBadge) {
@@ -1244,24 +1276,26 @@
                         var val = donutData[i];
                         var pill = document.createElement('div');
                         pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800 text-[9.5px] font-mono text-neutral-300';
-                        pill.innerHTML = '<span class="w-2 h-2 rounded-full" style="background-color: ' + color + '"></span><span class="font-bold">' + lbl + '</span> <span class="text-neutral-500">' + formatRupiah(val) + '</span>';
+                        pill.innerHTML = '<span class="w-2 h-2 rounded-full shrink-0" style="background-color: ' + color + '"></span><span class="font-bold">' + lbl + '</span> <span class="text-neutral-500">' + formatRupiah(val) + '</span>';
                         pillsContainer.appendChild(pill);
                     });
                 }
             }
 
-            renderTable(sortedCategories, totalKeluar);
+            renderResponsiveDataDisplay(sortedCategories, totalKeluar);
         }
 
-        function renderTable(categories, grandTotalKeluar) {
+        // RENDER BOTH MOBILE FINTECH CARDS AND DESKTOP WIDE TABLE
+        function renderResponsiveDataDisplay(categories, grandTotalKeluar) {
+            var mobileList = document.getElementById('mobile-category-list');
             var tbody = document.getElementById('report-table-body');
             var tfoot = document.getElementById('report-table-foot');
             var summaryCount = document.getElementById('table-summary-count');
 
-            if (!tbody) return;
-
             if (!categories || categories.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-neutral-500 font-mono text-xs"><i class="fa-solid fa-folder-open text-sm mb-1 block"></i>Tidak ada pos pengeluaran yang tercatat pada periode ini.</td></tr>';
+                var emptyHtml = '<div class="p-6 text-center text-neutral-500 font-mono text-xs"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pos pengeluaran yang tercatat pada periode ini.</div>';
+                if (mobileList) mobileList.innerHTML = emptyHtml;
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-neutral-500 font-mono text-xs">' + emptyHtml + '</td></tr>';
                 if (tfoot) tfoot.innerHTML = '';
                 if (summaryCount) summaryCount.innerText = '0 Pos Terdata';
                 return;
@@ -1269,8 +1303,9 @@
 
             if (summaryCount) summaryCount.innerText = categories.length + ' Pos Terdata';
 
-            var tbodyHtml = '';
             var totalTransactions = 0;
+            var mobileCardsHtml = '';
+            var desktopRowsHtml = '';
 
             categories.forEach(function(cat, index) {
                 totalTransactions += cat.count;
@@ -1278,7 +1313,33 @@
                 var dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
                 var metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
 
-                tbodyHtml += '<tr class="transition-colors">' +
+                // 1. Mobile Fintech Card Item (High readability, no word breaks)
+                mobileCardsHtml += 
+                    '<div class="mobile-cat-card p-2.5 sm:p-3 rounded-xl flex flex-col gap-2 shadow-xs">' +
+                        '<div class="flex items-center justify-between gap-2">' +
+                            '<div class="flex items-center gap-2 min-w-0">' +
+                                '<span class="text-[10px] font-mono font-bold text-[#FF7300]">#' + (index + 1) + '</span>' +
+                                '<span class="font-bold text-xs text-neutral-100 truncate">' + cat.nama + '</span>' +
+                                '<span class="text-[9px] font-mono text-neutral-400 bg-neutral-800/80 px-1.5 py-0.5 rounded shrink-0">' + cat.count + ' tx</span>' +
+                            '</div>' +
+                            '<span class="font-mono font-bold text-xs text-neutral-100 shrink-0">' + formatRupiah(cat.total) + '</span>' +
+                        '</div>' +
+                        '<div class="flex items-center justify-between gap-2 pt-1 border-t border-neutral-800/50 text-[9.5px] font-mono">' +
+                            '<div class="flex items-center gap-2 flex-grow min-w-0">' +
+                                '<div class="w-full bg-neutral-800 rounded-full h-1.5 overflow-hidden">' +
+                                    '<div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div>' +
+                                '</div>' +
+                                '<span class="text-neutral-400 font-bold shrink-0">' + percent + '%</span>' +
+                            '</div>' +
+                            '<span class="inline-flex items-center gap-1 text-neutral-300 bg-neutral-800/70 px-2 py-0.5 rounded shrink-0">' +
+                                '<i class="fa-solid ' + metodeIcon + ' text-[8px]"></i>' +
+                                '<span>' + dominantMetode + '</span>' +
+                            '</span>' +
+                        '</div>' +
+                    '</div>';
+
+                // 2. Desktop Full Table Row (With whitespace-nowrap)
+                desktopRowsHtml += '<tr class="transition-colors">' +
                     '<td class="text-center font-mono text-neutral-500 font-bold text-[10px]">' + (index + 1) + '</td>' +
                     '<td><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#FF7300]"></span><span class="font-bold text-[11.5px]">' + cat.nama + '</span></div></td>' +
                     '<td class="text-center font-mono text-[11px]">' + cat.count + ' <span class="text-neutral-500 text-[9.5px]">tx</span></td>' +
@@ -1288,7 +1349,13 @@
                     '</tr>';
             });
 
-            tbody.innerHTML = tbodyHtml;
+            if (mobileList) {
+                mobileList.innerHTML = mobileCardsHtml;
+            }
+
+            if (tbody) {
+                tbody.innerHTML = desktopRowsHtml;
+            }
 
             if (tfoot) {
                 tfoot.innerHTML = '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
