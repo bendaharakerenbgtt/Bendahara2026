@@ -793,80 +793,112 @@
 
     <!-- CLIENT SCRIPT & CHART LOGIC -->
     <script>
+        // GLOBAL STATE DECLARATIONS AT THE VERY TOP (AVOIDING TDZ ISSUES)
+        var trendChartInstance = null;
+        var donutChartInstance = null;
+        var currentChartMode = 'cashflow';
+        var selectedPeriode = 'all';
+        var rawTransactions = [];
+
+        // SAFETY ERROR HANDLER - ENSURES LOADING OVERLAY IS HIDDEN ON ERROR
+        window.onerror = function(msg, src, line, col, err) {
+            console.error('[UNCAUGHT]', msg, src, line, col, err);
+            hideLoadingOverlay();
+        };
+
+        function hideLoadingOverlay() {
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(function() {
+                    if (overlay && overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                }, 400);
+            }
+        }
+
+        // FAILSAFE TIMEOUT - NEVER FREEZE SCREEN
+        setTimeout(hideLoadingOverlay, 3000);
+
         // ----------------------------------------------------
         // 1. PARTICLES CANVAS
         // ----------------------------------------------------
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+        try {
+            var canvas = document.getElementById('particle-canvas');
+            if (canvas) {
+                var ctx = canvas.getContext('2d');
+                var width = canvas.width = window.innerWidth;
+                var height = canvas.height = window.innerHeight;
 
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        });
+                window.addEventListener('resize', function() {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                });
 
-        const particles = [];
-        const particleCount = Math.min(Math.floor(window.innerWidth / 25), 45);
+                var particles = [];
+                var particleCount = Math.min(Math.floor(window.innerWidth / 25), 45);
 
-        class AmbientParticle {
-            constructor() {
-                this.reset();
+                function AmbientParticle() {
+                    this.reset();
+                }
+                AmbientParticle.prototype.reset = function() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.4;
+                    this.speedY = (Math.random() - 0.5) * 0.4;
+                    this.alpha = Math.random() * 0.4 + 0.1;
+                };
+                AmbientParticle.prototype.update = function() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > height) this.speedY *= -1;
+                };
+                AmbientParticle.prototype.draw = function() {
+                    var isLight = document.documentElement.classList.contains('light-mode');
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = isLight ? 'rgba(234, 88, 12, ' + (this.alpha * 0.5) + ')' : 'rgba(255, 115, 0, ' + (this.alpha * 0.6) + ')';
+                    ctx.fill();
+                };
+
+                for (var i = 0; i < particleCount; i++) {
+                    particles.push(new AmbientParticle());
+                }
+
+                function animateParticles() {
+                    ctx.clearRect(0, 0, width, height);
+                    for (var j = 0; j < particles.length; j++) {
+                        particles[j].update();
+                        particles[j].draw();
+                    }
+                    requestAnimationFrame(animateParticles);
+                }
+                animateParticles();
             }
-            reset() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.4;
-                this.speedY = (Math.random() - 0.5) * 0.4;
-                this.alpha = Math.random() * 0.4 + 0.1;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > width) this.speedX *= -1;
-                if (this.y < 0 || this.y > height) this.speedY *= -1;
-            }
-            draw() {
-                const isLight = document.documentElement.classList.contains('light-mode');
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = isLight ? `rgba(234, 88, 12, ${this.alpha * 0.5})` : `rgba(255, 115, 0, ${this.alpha * 0.6})`;
-                ctx.fill();
-            }
+        } catch (e) {
+            console.warn('Particle canvas error:', e);
         }
-
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new AmbientParticle());
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
 
         // ----------------------------------------------------
         // 2. THEME MANAGEMENT & SYNC
         // ----------------------------------------------------
         function applyTheme(theme) {
-            const btn = document.getElementById('themeToggleBtn');
-            const mobileIcon = document.getElementById('mobileThemeIcon');
-            const mobileLabel = document.getElementById('mobileThemeLabel');
+            var btn = document.getElementById('themeToggleBtn');
+            var mobileIcon = document.getElementById('mobileThemeIcon');
+            var mobileLabel = document.getElementById('mobileThemeLabel');
 
             if (theme === 'light') {
                 document.documentElement.classList.add('light-mode');
-                document.body.classList.add('light-mode');
+                if (document.body) document.body.classList.add('light-mode');
                 if (btn) btn.innerHTML = '☀️';
                 if (mobileIcon) mobileIcon.className = 'fa-solid fa-moon text-neutral-400';
                 if (mobileLabel) mobileLabel.innerText = 'Gelap';
             } else {
                 document.documentElement.classList.remove('light-mode');
-                document.body.classList.remove('light-mode');
+                if (document.body) document.body.classList.remove('light-mode');
                 if (btn) btn.innerHTML = '🌙';
                 if (mobileIcon) mobileIcon.className = 'fa-solid fa-sun text-orange-500';
                 if (mobileLabel) mobileLabel.innerText = 'Terang';
@@ -875,74 +907,70 @@
         }
 
         function triggerThemeAnimation(newTheme, event) {
-            const ripple = document.createElement('div');
-            ripple.style.position = 'fixed';
-            ripple.style.zIndex = '9998';
-            ripple.style.borderRadius = '50%';
-            ripple.style.pointerEvents = 'none';
-            ripple.style.transition = 'transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease-out';
-            ripple.style.backgroundColor = newTheme === 'light' ? '#fff7ed' : '#07090e';
-            
-            let posX = window.innerWidth / 2;
-            let posY = window.innerHeight / 2;
-            
-            if (event && event.clientX) {
-                posX = event.clientX;
-                posY = event.clientY;
-            } else {
-                const btn = document.getElementById('themeToggleBtn');
-                if (btn) {
-                    const rect = btn.getBoundingClientRect();
-                    posX = rect.left + rect.width / 2;
-                    posY = rect.top + rect.height / 2;
+            try {
+                var ripple = document.createElement('div');
+                ripple.style.position = 'fixed';
+                ripple.style.zIndex = '9998';
+                ripple.style.borderRadius = '50%';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.transition = 'transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease-out';
+                ripple.style.backgroundColor = newTheme === 'light' ? '#fff7ed' : '#07090e';
+                
+                var posX = window.innerWidth / 2;
+                var posY = window.innerHeight / 2;
+                
+                if (event && event.clientX) {
+                    posX = event.clientX;
+                    posY = event.clientY;
+                } else {
+                    var btn = document.getElementById('themeToggleBtn');
+                    if (btn) {
+                        var rect = btn.getBoundingClientRect();
+                        posX = rect.left + rect.width / 2;
+                        posY = rect.top + rect.height / 2;
+                    }
                 }
-            }
-            
-            ripple.style.width = '12px';
-            ripple.style.height = '12px';
-            ripple.style.left = `${posX - 6}px`;
-            ripple.style.top = `${posY - 6}px`;
-            ripple.style.transform = 'scale(1)';
-            ripple.style.opacity = '1';
-            
-            document.body.appendChild(ripple);
-            
-            const maxDim = Math.max(window.innerWidth, window.innerHeight);
-            const scaleTarget = (maxDim / 6) * 1.5;
-            
-            requestAnimationFrame(() => {
-                ripple.style.transform = `scale(${scaleTarget})`;
-                setTimeout(() => {
-                    ripple.style.opacity = '0';
-                    setTimeout(() => ripple.remove(), 400);
-                }, 350);
-            });
+                
+                ripple.style.width = '12px';
+                ripple.style.height = '12px';
+                ripple.style.left = (posX - 6) + 'px';
+                ripple.style.top = (posY - 6) + 'px';
+                ripple.style.transform = 'scale(1)';
+                ripple.style.opacity = '1';
+                
+                document.body.appendChild(ripple);
+                
+                var maxDim = Math.max(window.innerWidth, window.innerHeight);
+                var scaleTarget = (maxDim / 6) * 1.5;
+                
+                requestAnimationFrame(function() {
+                    ripple.style.transform = 'scale(' + scaleTarget + ')';
+                    setTimeout(function() {
+                        ripple.style.opacity = '0';
+                        setTimeout(function() { ripple.remove(); }, 400);
+                    }, 350);
+                });
+            } catch (err) {}
         }
 
         function toggleTheme(event) {
-            const isLight = document.documentElement.classList.contains('light-mode');
-            const newTheme = isLight ? 'dark' : 'light';
+            var isLight = document.documentElement.classList.contains('light-mode');
+            var newTheme = isLight ? 'dark' : 'light';
             localStorage.setItem('theme', newTheme);
             triggerThemeAnimation(newTheme, event);
             applyTheme(newTheme);
         }
 
-        // Init theme on start
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        // Apply saved theme immediately
+        var savedTheme = localStorage.getItem('theme') || 'light';
         applyTheme(savedTheme);
 
         // ----------------------------------------------------
         // 3. FINANCIAL DATA ENGINE
         // ----------------------------------------------------
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
-        let rawTransactions = [];
-        let trendChartInstance = null;
-        let donutChartInstance = null;
-        let currentChartMode = 'cashflow'; // 'cashflow' or 'balance'
-        let selectedPeriode = 'all';
-
-        const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        const CATEGORY_COLORS = [
+        var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
+        var MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        var CATEGORY_COLORS = [
             '#FF7300', '#38bdf8', '#34d399', '#fbbf24', '#f43f5e', 
             '#a855f7', '#ec4899', '#06b6d4', '#84cc16', '#6366f1'
         ];
@@ -951,171 +979,189 @@
             return 'Rp' + Math.round(num || 0).toLocaleString('id-ID');
         }
 
-        function hideLoadingOverlay() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.classList.add('fade-out');
-                setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 400);
-            }
-        }
-
         // ----------------------------------------------------
         // 4. CHART CREATION & UPDATES
         // ----------------------------------------------------
         function initCharts() {
-            const isLight = document.documentElement.classList.contains('light-mode');
-            const gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
-            const textColor = isLight ? '#475569' : '#94a3b8';
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js not loaded yet');
+                return;
+            }
+
+            var isLight = document.documentElement.classList.contains('light-mode');
+            var gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
+            var textColor = isLight ? '#475569' : '#94a3b8';
 
             // Trend Chart
-            const trendCtx = document.getElementById('mainTrendChart').getContext('2d');
-            trendChartInstance = new Chart(trendCtx, {
-                type: 'line',
-                data: {
-                    labels: MONTH_NAMES.slice(0, 6),
-                    datasets: []
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
+            var trendCanvas = document.getElementById('mainTrendChart');
+            if (trendCanvas) {
+                var trendCtx = trendCanvas.getContext('2d');
+                trendChartInstance = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: MONTH_NAMES.slice(0, 6),
+                        datasets: []
                     },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                color: textColor,
-                                font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' },
-                                boxWidth: 12,
-                                usePointStyle: true,
-                            }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(8, 12, 20, 0.94)',
-                            titleColor: '#FF7300',
-                            bodyColor: '#FFFFFF',
-                            borderColor: 'rgba(255, 115, 0, 0.3)',
-                            borderWidth: 1,
-                            padding: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) {
-                                        label += formatRupiah(context.parsed.y);
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' },
+                                    boxWidth: 12,
+                                    usePointStyle: true,
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(8, 12, 20, 0.94)',
+                                titleColor: '#FF7300',
+                                bodyColor: '#FFFFFF',
+                                borderColor: 'rgba(255, 115, 0, 0.3)',
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        var label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (context.parsed.y !== null) {
+                                            label += formatRupiah(context.parsed.y);
+                                        }
+                                        return label;
                                     }
-                                    return label;
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: gridColor },
-                            ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', size: 10, weight: 'bold' } }
                         },
-                        y: {
-                            grid: { color: gridColor },
-                            ticks: {
-                                color: textColor,
-                                font: { family: 'Plus Jakarta Sans', size: 9 },
-                                callback: function(val) {
-                                    if (val >= 1000000) return (val / 1000000).toFixed(1) + ' jt';
-                                    if (val >= 1000) return (val / 1000).toFixed(0) + ' rb';
-                                    return val;
+                        scales: {
+                            x: {
+                                grid: { color: gridColor },
+                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', size: 10, weight: 'bold' } }
+                            },
+                            y: {
+                                grid: { color: gridColor },
+                                ticks: {
+                                    color: textColor,
+                                    font: { family: 'Plus Jakarta Sans', size: 9 },
+                                    callback: function(val) {
+                                        if (val >= 1000000) return (val / 1000000).toFixed(1) + ' jt';
+                                        if (val >= 1000) return (val / 1000).toFixed(0) + ' rb';
+                                        return val;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
 
             // Donut Chart
-            const donutCtx = document.getElementById('categoryDonutChart').getContext('2d');
-            donutChartInstance = new Chart(donutCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: CATEGORY_COLORS,
-                        borderColor: isLight ? '#ffffff' : '#080C14',
-                        borderWidth: 2,
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(8, 12, 20, 0.94)',
-                            titleColor: '#FF7300',
-                            bodyColor: '#FFFFFF',
-                            borderColor: 'rgba(255, 115, 0, 0.3)',
-                            borderWidth: 1,
-                            padding: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return ` ${context.label}: ${formatRupiah(value)} (${percent}%)`;
+            var donutCanvas = document.getElementById('categoryDonutChart');
+            if (donutCanvas) {
+                var donutCtx = donutCanvas.getContext('2d');
+                donutChartInstance = new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: CATEGORY_COLORS,
+                            borderColor: isLight ? '#ffffff' : '#080C14',
+                            borderWidth: 2,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(8, 12, 20, 0.94)',
+                                titleColor: '#FF7300',
+                                bodyColor: '#FFFFFF',
+                                borderColor: 'rgba(255, 115, 0, 0.3)',
+                                borderWidth: 1,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        var value = context.parsed;
+                                        var total = context.dataset.data.reduce(function(a, b) { return a + b; }, 0);
+                                        var percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return ' ' + context.label + ': ' + formatRupiah(value) + ' (' + percent + '%)';
+                                    }
                                 }
                             }
-                        }
-                    },
-                    cutout: '68%'
-                }
-            });
+                        },
+                        cutout: '68%'
+                    }
+                });
+            }
         }
 
         function updateChartsTheme() {
             if (!trendChartInstance || !donutChartInstance) return;
-            const isLight = document.documentElement.classList.contains('light-mode');
-            const gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
-            const textColor = isLight ? '#475569' : '#94a3b8';
+            try {
+                var isLight = document.documentElement.classList.contains('light-mode');
+                var gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
+                var textColor = isLight ? '#475569' : '#94a3b8';
 
-            trendChartInstance.options.scales.x.grid.color = gridColor;
-            trendChartInstance.options.scales.x.ticks.color = textColor;
-            trendChartInstance.options.scales.y.grid.color = gridColor;
-            trendChartInstance.options.scales.y.ticks.color = textColor;
-            if (trendChartInstance.options.plugins.legend) {
-                trendChartInstance.options.plugins.legend.labels.color = textColor;
+                if (trendChartInstance.options && trendChartInstance.options.scales) {
+                    if (trendChartInstance.options.scales.x) {
+                        trendChartInstance.options.scales.x.grid.color = gridColor;
+                        trendChartInstance.options.scales.x.ticks.color = textColor;
+                    }
+                    if (trendChartInstance.options.scales.y) {
+                        trendChartInstance.options.scales.y.grid.color = gridColor;
+                        trendChartInstance.options.scales.y.ticks.color = textColor;
+                    }
+                }
+                if (trendChartInstance.options && trendChartInstance.options.plugins && trendChartInstance.options.plugins.legend) {
+                    trendChartInstance.options.plugins.legend.labels.color = textColor;
+                }
+                trendChartInstance.update();
+
+                if (donutChartInstance.data && donutChartInstance.data.datasets && donutChartInstance.data.datasets[0]) {
+                    donutChartInstance.data.datasets[0].borderColor = isLight ? '#ffffff' : '#080C14';
+                    donutChartInstance.update();
+                }
+            } catch (e) {
+                console.warn('updateChartsTheme error:', e);
             }
-            trendChartInstance.update();
-
-            donutChartInstance.data.datasets[0].borderColor = isLight ? '#ffffff' : '#080C14';
-            donutChartInstance.update();
         }
 
         function setChartMode(mode) {
             currentChartMode = mode;
-            const btnCashflow = document.getElementById('btn-chart-mode-cashflow');
-            const btnBalance = document.getElementById('btn-chart-mode-balance');
-            const chartDesc = document.getElementById('chart-desc');
+            var btnCashflow = document.getElementById('btn-chart-mode-cashflow');
+            var btnBalance = document.getElementById('btn-chart-mode-balance');
+            var chartDesc = document.getElementById('chart-desc');
 
             if (mode === 'cashflow') {
-                btnCashflow.classList.add('active');
-                btnBalance.classList.remove('active');
-                chartDesc.innerText = 'Menampilkan Pemasukan vs Pengeluaran per Bulan';
+                if (btnCashflow) btnCashflow.classList.add('active');
+                if (btnBalance) btnBalance.classList.remove('active');
+                if (chartDesc) chartDesc.innerText = 'Menampilkan Pemasukan vs Pengeluaran per Bulan';
             } else {
-                btnBalance.classList.add('active');
-                btnCashflow.classList.remove('active');
-                chartDesc.innerText = 'Menampilkan Akumulasi Saldo Kas Bersih per Bulan';
+                if (btnBalance) btnBalance.classList.add('active');
+                if (btnCashflow) btnCashflow.classList.remove('active');
+                if (chartDesc) chartDesc.innerText = 'Menampilkan Akumulasi Saldo Kas Bersih per Bulan';
             }
             renderReportData();
         }
 
         function handlePeriodeChange() {
-            selectedPeriode = document.getElementById('select-periode').value;
-            renderReportData();
+            var select = document.getElementById('select-periode');
+            if (select) {
+                selectedPeriode = select.value;
+                renderReportData();
+            }
         }
 
         // ----------------------------------------------------
@@ -1124,48 +1170,45 @@
         function renderReportData() {
             if (!rawTransactions || rawTransactions.length === 0) return;
 
-            // Hanya proses transaksi yang disetujui
-            const validTx = rawTransactions.filter(t => t.status_reimburse !== "Belum");
+            var validTx = rawTransactions.filter(function(t) {
+                return t.status_reimburse !== "Belum";
+            });
 
-            // Filter berdasarkan periode bulan (jika dipilih)
-            let periodFilteredTx = validTx;
+            var periodFilteredTx = validTx;
             if (selectedPeriode !== 'all') {
-                const targetM = parseInt(selectedPeriode, 10);
-                periodFilteredTx = validTx.filter(t => {
+                var targetM = parseInt(selectedPeriode, 10);
+                periodFilteredTx = validTx.filter(function(t) {
                     if (!t.tanggal) return false;
-                    const d = new Date(t.tanggal);
+                    var d = new Date(t.tanggal);
                     return !isNaN(d) && d.getMonth() === targetM;
                 });
             }
 
-            // Hitung KPI
-            let totalMasuk = 0, countMasuk = 0;
-            let totalKeluar = 0, countKeluar = 0;
-            let saldoGoPay = 0;
-            let saldoTunai = 0;
+            var totalMasuk = 0, countMasuk = 0;
+            var totalKeluar = 0, countKeluar = 0;
+            var saldoGoPay = 0;
+            var saldoTunai = 0;
 
-            // Monthly aggregations (0 - 11)
-            const monthlyIn = new Array(12).fill(0);
-            const monthlyOut = new Array(12).fill(0);
+            var monthlyIn = new Array(12).fill(0);
+            var monthlyOut = new Array(12).fill(0);
 
-            // Compute overall balance & monthly differences
-            validTx.forEach(t => {
-                const nom = Math.abs(parseFloat(t.nominal) || 0);
-                const isMasuk = (t.jenis || '').toLowerCase() === 'masuk';
-                const metode = (t.metode || '').toLowerCase();
-                const d = t.tanggal ? new Date(t.tanggal) : null;
-                const mIdx = (d && !isNaN(d)) ? d.getMonth() : 0;
+            validTx.forEach(function(t) {
+                var nom = Math.abs(parseFloat(t.nominal) || 0);
+                var isMasuk = (t.jenis || '').toLowerCase() === 'masuk';
+                var metode = (t.metode || '').toLowerCase();
+                var d = t.tanggal ? new Date(t.tanggal) : null;
+                var mIdx = (d && !isNaN(d)) ? d.getMonth() : 0;
 
                 if (isMasuk) {
                     monthlyIn[mIdx] += nom;
-                    if (metode.includes('gopay')) {
+                    if (metode.indexOf('gopay') !== -1) {
                         saldoGoPay += nom;
                     } else {
                         saldoTunai += nom;
                     }
                 } else {
                     monthlyOut[mIdx] += nom;
-                    if (metode.includes('gopay')) {
+                    if (metode.indexOf('gopay') !== -1) {
                         saldoGoPay -= nom;
                     } else {
                         saldoTunai -= nom;
@@ -1173,10 +1216,9 @@
                 }
             });
 
-            // Period specific KPIs
-            periodFilteredTx.forEach(t => {
-                const nom = Math.abs(parseFloat(t.nominal) || 0);
-                const isMasuk = (t.jenis || '').toLowerCase() === 'masuk';
+            periodFilteredTx.forEach(function(t) {
+                var nom = Math.abs(parseFloat(t.nominal) || 0);
+                var isMasuk = (t.jenis || '').toLowerCase() === 'masuk';
                 if (isMasuk) {
                     totalMasuk += nom;
                     countMasuk++;
@@ -1186,26 +1228,37 @@
                 }
             });
 
-            const saldoNet = (selectedPeriode === 'all') 
+            var saldoNet = (selectedPeriode === 'all') 
                 ? (saldoGoPay + saldoTunai) 
                 : (totalMasuk - totalKeluar);
 
             // Update KPI DOM
-            document.getElementById('stat-total-masuk').innerText = formatRupiah(totalMasuk);
-            document.getElementById('stat-masuk-count').innerText = `${countMasuk} Transaksi`;
-            document.getElementById('stat-total-keluar').innerText = formatRupiah(totalKeluar);
-            document.getElementById('stat-keluar-count').innerText = `${countKeluar} Transaksi`;
-            document.getElementById('stat-saldo-net').innerText = formatRupiah(saldoNet);
-            document.getElementById('stat-saldo-gopay').innerText = formatRupiah(Math.max(0, saldoGoPay));
-            document.getElementById('stat-saldo-tunai').innerText = formatRupiah(Math.max(0, saldoTunai));
+            var elMasuk = document.getElementById('stat-total-masuk');
+            if (elMasuk) elMasuk.innerText = formatRupiah(totalMasuk);
+            var elMasukCount = document.getElementById('stat-masuk-count');
+            if (elMasukCount) elMasukCount.innerText = countMasuk + ' Transaksi';
 
-            const burnRate = totalMasuk > 0 ? ((totalKeluar / totalMasuk) * 100).toFixed(1) : 0;
-            document.getElementById('stat-burn-rate').innerText = `${burnRate}% Rasio Belanja`;
+            var elKeluar = document.getElementById('stat-total-keluar');
+            if (elKeluar) elKeluar.innerText = formatRupiah(totalKeluar);
+            var elKeluarCount = document.getElementById('stat-keluar-count');
+            if (elKeluarCount) elKeluarCount.innerText = countKeluar + ' Transaksi';
 
-            // Max active month
-            const currentMonthIdx = new Date().getMonth();
-            const maxMonthIdx = Math.max(5, currentMonthIdx);
-            const activeMonths = MONTH_NAMES.slice(0, maxMonthIdx + 1);
+            var elSaldo = document.getElementById('stat-saldo-net');
+            if (elSaldo) elSaldo.innerText = formatRupiah(saldoNet);
+
+            var elGoPay = document.getElementById('stat-saldo-gopay');
+            if (elGoPay) elGoPay.innerText = formatRupiah(Math.max(0, saldoGoPay));
+
+            var elTunai = document.getElementById('stat-saldo-tunai');
+            if (elTunai) elTunai.innerText = formatRupiah(Math.max(0, saldoTunai));
+
+            var burnRate = totalMasuk > 0 ? ((totalKeluar / totalMasuk) * 100).toFixed(1) : 0;
+            var elBurn = document.getElementById('stat-burn-rate');
+            if (elBurn) elBurn.innerText = burnRate + '% Rasio Belanja';
+
+            var currentMonthIdx = new Date().getMonth();
+            var maxMonthIdx = Math.max(5, currentMonthIdx);
+            var activeMonths = MONTH_NAMES.slice(0, maxMonthIdx + 1);
 
             // Compute Trend Chart Data
             if (trendChartInstance) {
@@ -1237,10 +1290,9 @@
                         }
                     ];
                 } else {
-                    // Cumulative net balance over months
-                    const cumulativeBalance = [];
-                    let rolling = 0;
-                    for (let i = 0; i <= maxMonthIdx; i++) {
+                    var cumulativeBalance = [];
+                    var rolling = 0;
+                    for (var i = 0; i <= maxMonthIdx; i++) {
                         rolling += (monthlyIn[i] - monthlyOut[i]);
                         cumulativeBalance.push(Math.max(0, rolling));
                     }
@@ -1263,40 +1315,42 @@
             }
 
             // Compute Category Breakdown (From Expenses only)
-            const expenseTx = periodFilteredTx.filter(t => (t.jenis || '').toLowerCase() === 'keluar');
-            const categoryMap = {};
+            var expenseTx = periodFilteredTx.filter(function(t) {
+                return (t.jenis || '').toLowerCase() === 'keluar';
+            });
+            var categoryMap = {};
 
-            expenseTx.forEach(t => {
-                let kat = (t.kategori || 'Lain-lain').trim();
+            expenseTx.forEach(function(t) {
+                var kat = (t.kategori || 'Lain-lain').trim();
                 if (!kat) kat = 'Lain-lain';
-                const nom = Math.abs(parseFloat(t.nominal) || 0);
-                const metode = (t.metode || 'Tunai').trim();
+                var nom = Math.abs(parseFloat(t.nominal) || 0);
+                var metode = (t.metode || 'Tunai').trim();
 
                 if (!categoryMap[kat]) {
                     categoryMap[kat] = { total: 0, count: 0, gopay: 0, tunai: 0 };
                 }
                 categoryMap[kat].total += nom;
                 categoryMap[kat].count += 1;
-                if (metode.toLowerCase().includes('gopay')) {
+                if (metode.toLowerCase().indexOf('gopay') !== -1) {
                     categoryMap[kat].gopay += 1;
                 } else {
                     categoryMap[kat].tunai += 1;
                 }
             });
 
-            // Convert categoryMap to array & sort by total descending
-            const sortedCategories = Object.keys(categoryMap).map(k => ({
-                nama: k,
-                ...categoryMap[k]
-            })).sort((a, b) => b.total - a.total);
+            var sortedCategories = Object.keys(categoryMap).map(function(k) {
+                return Object.assign({ nama: k }, categoryMap[k]);
+            }).sort(function(a, b) {
+                return b.total - a.total;
+            });
 
             // Update Donut Chart
             if (donutChartInstance) {
-                const donutLabels = sortedCategories.slice(0, 6).map(c => c.nama);
-                const donutData = sortedCategories.slice(0, 6).map(c => c.total);
+                var donutLabels = sortedCategories.slice(0, 6).map(function(c) { return c.nama; });
+                var donutData = sortedCategories.slice(0, 6).map(function(c) { return c.total; });
 
                 if (sortedCategories.length > 6) {
-                    const otherTotal = sortedCategories.slice(6).reduce((acc, c) => acc + c.total, 0);
+                    var otherTotal = sortedCategories.slice(6).reduce(function(acc, c) { return acc + c.total; }, 0);
                     donutLabels.push('Lainnya');
                     donutData.push(otherTotal);
                 }
@@ -1305,110 +1359,87 @@
                 donutChartInstance.data.datasets[0].data = donutData;
                 donutChartInstance.update();
 
-                // Top Category Badge
-                if (sortedCategories.length > 0) {
-                    document.getElementById('top-category-badge').innerText = `Top: ${sortedCategories[0].nama} (${formatRupiah(sortedCategories[0].total)})`;
-                } else {
-                    document.getElementById('top-category-badge').innerText = 'Top: Belum Ada Belanja';
+                var topBadge = document.getElementById('top-category-badge');
+                if (topBadge) {
+                    if (sortedCategories.length > 0) {
+                        topBadge.innerText = 'Top: ' + sortedCategories[0].nama + ' (' + formatRupiah(sortedCategories[0].total) + ')';
+                    } else {
+                        topBadge.innerText = 'Top: Belum Ada Belanja';
+                    }
                 }
 
-                // Render category mini pills
-                const pillsContainer = document.getElementById('category-pills-list');
-                pillsContainer.innerHTML = '';
-                donutLabels.forEach((lbl, i) => {
-                    const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
-                    const val = donutData[i];
-                    const pill = document.createElement('div');
-                    pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800 text-[10px] font-mono text-neutral-300';
-                    pill.innerHTML = `<span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span><span class="font-bold">${lbl}</span> <span class="text-neutral-500">${formatRupiah(val)}</span>`;
-                    pillsContainer.appendChild(pill);
-                });
+                var pillsContainer = document.getElementById('category-pills-list');
+                if (pillsContainer) {
+                    pillsContainer.innerHTML = '';
+                    donutLabels.forEach(function(lbl, i) {
+                        var color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
+                        var val = donutData[i];
+                        var pill = document.createElement('div');
+                        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800 text-[10px] font-mono text-neutral-300';
+                        pill.innerHTML = '<span class="w-2 h-2 rounded-full" style="background-color: ' + color + '"></span><span class="font-bold">' + lbl + '</span> <span class="text-neutral-500">' + formatRupiah(val) + '</span>';
+                        pillsContainer.appendChild(pill);
+                    });
+                }
             }
 
-            // Render Responsive Table
             renderTable(sortedCategories, totalKeluar);
         }
 
         function renderTable(categories, grandTotalKeluar) {
-            const tbody = document.getElementById('report-table-body');
-            const tfoot = document.getElementById('report-table-foot');
-            const summaryCount = document.getElementById('table-summary-count');
+            var tbody = document.getElementById('report-table-body');
+            var tfoot = document.getElementById('report-table-foot');
+            var summaryCount = document.getElementById('table-summary-count');
+
+            if (!tbody) return;
 
             if (!categories || categories.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-8 text-neutral-500 font-mono text-xs">
-                            <i class="fa-solid fa-folder-open text-base mb-1 block"></i>
-                            Tidak ada pos pengeluaran yang tercatat pada periode ini.
-                        </td>
-                    </tr>
-                `;
-                tfoot.innerHTML = '';
-                summaryCount.innerText = '0 Kategori Terdata';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-neutral-500 font-mono text-xs"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pos pengeluaran yang tercatat pada periode ini.</td></tr>';
+                if (tfoot) tfoot.innerHTML = '';
+                if (summaryCount) summaryCount.innerText = '0 Kategori Terdata';
                 return;
             }
 
-            summaryCount.innerText = `${categories.length} Pos Kategori Terdata`;
+            if (summaryCount) summaryCount.innerText = categories.length + ' Pos Kategori Terdata';
 
-            let tbodyHtml = '';
-            let totalTransactions = 0;
+            var tbodyHtml = '';
+            var totalTransactions = 0;
 
-            categories.forEach((cat, index) => {
+            categories.forEach(function(cat, index) {
                 totalTransactions += cat.count;
-                const percent = grandTotalKeluar > 0 ? ((cat.total / grandTotalKeluar) * 100).toFixed(1) : 0;
-                const dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
-                const metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
+                var percent = grandTotalKeluar > 0 ? ((cat.total / grandTotalKeluar) * 100).toFixed(1) : 0;
+                var dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
+                var metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
 
-                tbodyHtml += `
-                    <tr class="transition-colors">
-                        <td class="text-center font-mono text-neutral-500 font-bold text-xs">${index + 1}</td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-                                <span class="font-bold">${cat.nama}</span>
-                            </div>
-                        </td>
-                        <td class="text-center font-mono">${cat.count} <span class="text-neutral-500 text-[10px]">tx</span></td>
-                        <td class="text-right font-mono font-bold">${formatRupiah(cat.total)}</td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-full bg-neutral-800/80 rounded-full h-1.5 overflow-hidden">
-                                    <div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ${Math.min(100, Math.max(2, percent))}%;"></div>
-                                </div>
-                                <span class="text-[10px] font-mono text-neutral-400 w-11 text-right shrink-0 font-bold">${percent}%</span>
-                            </div>
-                        </td>
-                        <td class="text-center font-mono text-[11px]">
-                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800/80">
-                                <i class="fa-solid ${metodeIcon} text-[9px]"></i>
-                                <span>${dominantMetode}</span>
-                            </span>
-                        </td>
-                    </tr>
-                `;
+                tbodyHtml += '<tr class="transition-colors">' +
+                    '<td class="text-center font-mono text-neutral-500 font-bold text-xs">' + (index + 1) + '</td>' +
+                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-500"></span><span class="font-bold">' + cat.nama + '</span></div></td>' +
+                    '<td class="text-center font-mono">' + cat.count + ' <span class="text-neutral-500 text-[10px]">tx</span></td>' +
+                    '<td class="text-right font-mono font-bold">' + formatRupiah(cat.total) + '</td>' +
+                    '<td><div class="flex items-center gap-2"><div class="w-full bg-neutral-800/80 rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="text-[10px] font-mono text-neutral-400 w-11 text-right shrink-0 font-bold">' + percent + '%</span></div></td>' +
+                    '<td class="text-center font-mono text-[11px]"><span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800/80"><i class="fa-solid ' + metodeIcon + ' text-[9px]"></i><span>' + dominantMetode + '</span></span></td>' +
+                    '</tr>';
             });
 
             tbody.innerHTML = tbodyHtml;
 
-            tfoot.innerHTML = `
-                <tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">
-                    <td colspan="2" class="text-left uppercase text-neutral-400 pl-4 py-3 font-bold">TOTAL KESELURUHAN</td>
-                    <td class="text-center font-bold">${totalTransactions} tx</td>
-                    <td class="text-right text-rose-500 dark:text-rose-400 text-sm font-extrabold">${formatRupiah(grandTotalKeluar)}</td>
-                    <td class="text-neutral-400 font-bold">100.0% Alokasi</td>
-                    <td class="text-center text-neutral-400">-</td>
-                </tr>
-            `;
+            if (tfoot) {
+                tfoot.innerHTML = '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
+                    '<td colspan="2" class="text-left uppercase text-neutral-400 pl-4 py-3 font-bold">TOTAL KESELURUHAN</td>' +
+                    '<td class="text-center font-bold">' + totalTransactions + ' tx</td>' +
+                    '<td class="text-right text-rose-500 dark:text-rose-400 text-sm font-extrabold">' + formatRupiah(grandTotalKeluar) + '</td>' +
+                    '<td class="text-neutral-400 font-bold">100.0% Alokasi</td>' +
+                    '<td class="text-center text-neutral-400">-</td>' +
+                    '</tr>';
+            }
         }
 
         // ----------------------------------------------------
         // 6. INITIALIZATION & DATA FETCHING
         // ----------------------------------------------------
         function fetchLaporanData() {
-            // 1. Coba ambil dari Cache
-            let cache = null;
+            var cache = null;
             try {
-                const raw = localStorage.getItem("ldk_db_cache") || sessionStorage.getItem("ldk_db_cache");
+                var raw = localStorage.getItem("ldk_db_cache") || sessionStorage.getItem("ldk_db_cache");
                 if (raw) cache = JSON.parse(raw);
             } catch (e) {
                 console.warn('Cache error:', e);
@@ -1420,35 +1451,32 @@
                 hideLoadingOverlay();
             }
 
-            // 2. Fetch fresh data dari Google Apps Script
             fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
-                .then(res => res.json())
-                .then(data => {
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
                     if (data && data.transaksi) {
                         rawTransactions = data.transaksi;
                         try {
                             localStorage.setItem("ldk_db_cache", JSON.stringify(data));
                         } catch (err) {}
                         renderReportData();
-                        const updateBadge = document.getElementById('last-update-badge');
+                        var updateBadge = document.getElementById('last-update-badge');
                         if (updateBadge) {
-                            const now = new Date();
-                            const hh = String(now.getHours()).padStart(2, '0');
-                            const mm = String(now.getMinutes()).padStart(2, '0');
-                            updateBadge.innerText = `Update: ${hh}:${mm}`;
+                            var now = new Date();
+                            var hh = String(now.getHours()).padStart(2, '0');
+                            var mm = String(now.getMinutes()).padStart(2, '0');
+                            updateBadge.innerText = 'Update: ' + hh + ':' + mm;
                         }
                     }
                     hideLoadingOverlay();
                 })
-                .catch(err => {
+                .catch(function(err) {
                     console.error('Fetch error:', err);
                     if (!rawTransactions || rawTransactions.length === 0) {
                         loadFallbackData();
                     }
                     hideLoadingOverlay();
                 });
-
-            setTimeout(hideLoadingOverlay, 3500);
         }
 
         function loadFallbackData() {
@@ -1466,10 +1494,21 @@
             renderReportData();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initCharts();
+        function initLaporanApp() {
+            try {
+                initCharts();
+            } catch (err) {
+                console.warn('initCharts error:', err);
+            }
             fetchLaporanData();
-        });
+        }
+
+        // SAFE BOOTSTRAP: RUNS WHETHER DOM IS READY OR STILL LOADING
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initLaporanApp);
+        } else {
+            initLaporanApp();
+        }
     </script>
 </body>
 </html>
