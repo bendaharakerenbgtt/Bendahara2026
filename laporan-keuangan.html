@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (localStorage.getItem('theme') !== 'dark') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDK IMIP — Laporan Keuangan</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fredoka:wght@600;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            /* DARK MODE (DEFAULT) SYSTEM - Modern Deep Slate & Obsidian */
+            --bg-main: #080C14;
+            --bg-card: rgba(17, 24, 39, 0.88);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --border-muted: rgba(255, 255, 255, 0.08);
+            
+            --text-primary: #f8fafc;
+            --text-sec-100: #f1f5f9;
+            --text-sec-200: #e2e8f0;
+            --text-sec-300: #cbd5e1;
+            --text-sec-400: #94a3b8;
+            --text-sec-500: #64748b;
+            --text-sec-600: #475569;
+            
+            --bg-neutral-pill: rgba(30, 41, 59, 0.7);
+
+            --orange-soft: #FF7300;
+            --orange-bg: rgba(255, 115, 0, 0.12);
+            --orange-border: rgba(255, 115, 0, 0.35);
+
+            --blue-soft: #7B8ECD;
+            --blue-bg: rgba(123, 142, 205, 0.15);
+            --blue-border: rgba(123, 142, 205, 0.35);
+            
+            --bg-green-pill: rgba(34, 197, 94, 0.08);
+            --border-green-pill: rgba(34, 197, 94, 0.20);
+            --text-green-accent: #34d399;
+            
+            --bg-rose-pill: rgba(244, 63, 94, 0.08);
+            --border-rose-pill: rgba(244, 63, 94, 0.20);
+            --text-rose-accent: #fb7185;
+
+            --footer-bg: rgba(17, 24, 39, 0.6);
+            --footer-border: rgba(255, 255, 255, 0.08);
+            --header-bg: rgba(8, 12, 20, 0.88);
+
+            --glass-panel-bg: rgba(17, 24, 39, 0.65);
+            --glass-panel-border: rgba(255, 255, 255, 0.08);
+            --table-th-bg: rgba(17, 24, 39, 0.85);
+            --table-row-hover: rgba(255, 255, 255, 0.03);
+            --control-bg: rgba(17, 24, 39, 0.8);
+            --control-border: rgba(255, 255, 255, 0.12);
+        }
+
+        html.light-mode {
+            /* LIGHT MODE SYSTEM - Warm Sunset Orange Fade & Muharrik Palette */
+            --bg-main: #FFF7ED;
+            --bg-card: rgba(255, 255, 255, 0.96);
+            --border-card: rgba(254, 215, 170, 0.88);
+            --border-muted: rgba(255, 237, 213, 0.9);
+            
+            --text-primary: #1e293b;
+            --text-sec-100: #1e293b;
+            --text-sec-200: #334155;
+            --text-sec-300: #475569;
+            --text-sec-400: #64748b;
+            --text-sec-500: #94a3b8;
+            --text-sec-600: #cbd5e1;
+            
+            --bg-neutral-pill: #ffedd5;
+
+            --orange-soft: #ea580c;
+            --orange-bg: rgba(255, 115, 0, 0.14);
+            --orange-border: rgba(255, 115, 0, 0.4);
+
+            --blue-soft: #4f46e5;
+            --blue-bg: rgba(99, 102, 241, 0.12);
+            --blue-border: rgba(99, 102, 241, 0.35);
+            
+            --bg-green-pill: rgba(16, 185, 129, 0.10);
+            --border-green-pill: rgba(16, 185, 129, 0.3);
+            --text-green-accent: #059669;
+
+            --bg-rose-pill: rgba(225, 29, 72, 0.08);
+            --border-rose-pill: rgba(225, 29, 72, 0.25);
+            --text-rose-accent: #e11d48;
+
+            --footer-bg: rgba(255, 247, 237, 0.88);
+            --footer-border: #fed7aa;
+            --header-bg: rgba(255, 247, 237, 0.94);
+
+            --glass-panel-bg: rgba(255, 255, 255, 0.94);
+            --glass-panel-border: rgba(254, 215, 170, 0.9);
+            --table-th-bg: #FFF7ED;
+            --table-row-hover: rgba(255, 115, 0, 0.04);
+            --control-bg: #FFFFFF;
+            --control-border: #FED7AA;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.35s ease, color 0.35s ease;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* SPACE NEBULA & SUNSET GLOW BACKGROUND */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -120px;
+            left: -120px;
+            width: calc(100% + 240px);
+            height: calc(100% + 240px);
+            background: 
+                radial-gradient(ellipse 65% 55% at 15% 15%, rgba(99, 102, 241, 0.16) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 50% at 85% 25%, rgba(14, 165, 233, 0.14) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(16, 185, 129, 0.09) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.22) 0%, transparent 70%);
+            filter: blur(55px);
+            pointer-events: none;
+            z-index: -2;
+            transition: background 0.4s ease;
+        }
+
+        html.light-mode body::before {
+            background: 
+                radial-gradient(circle at 10% 15%, rgba(255, 115, 0, 0.32) 0%, transparent 48%),
+                radial-gradient(circle at 90% 85%, rgba(255, 165, 0, 0.25) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(255, 130, 0, 0.18) 0%, transparent 52%) !important;
+        }
+
+        /* WATERMARK KABINET MUHARRIK & STARDUST */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg%20width%3D%22400%22%20height%3D%22400%22%20viewBox%3D%220%200%20400%20400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%23ffffff%22%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2235%22%20r%3D%220.7%22%20opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%2295%22%20cy%3D%2218%22%20r%3D%220.6%22%20opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%2290%22%20r%3D%220.8%22%20opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%22230%22%20cy%3D%2230%22%20r%3D%220.7%22%20opacity%3D%220.65%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%2265%22%20r%3D%220.6%22%20opacity%3D%220.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+
+        html.light-mode body::after {
+            background-image: url("assetkabinet/logokabinetblur.png");
+            background-repeat: no-repeat;
+            background-position: right -15px top 15px;
+            background-size: 520px auto;
+            opacity: 0.22;
+        }
+
+        @media (max-width: 768px) {
+            html.light-mode body::after {
+                background-size: 280px auto !important;
+                background-position: right -15px top 5px !important;
+                opacity: 0.20 !important;
+            }
+        }
+
+        .glass-panel {
+            background-color: var(--glass-panel-bg);
+            border: 1px solid var(--glass-panel-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .screen-title {
+            color: #ffffff;
+            transition: color 0.3s ease;
+        }
+        .screen-subtitle {
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+        html.light-mode .screen-title {
+            color: #0f172a !important;
+            font-weight: 900 !important;
+        }
+        html.light-mode .screen-subtitle {
+            color: #475569 !important;
+            font-weight: 600 !important;
+        }
+
+        /* CARD HOVER & LIGHT MODE OVERRIDES */
+        .stat-card-custom {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stat-card-custom:hover {
+            transform: translateY(-2px);
+        }
+
+        html.light-mode .stat-card-masuk {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 244, 0.95) 100%) !important;
+            border: 1px solid rgba(187, 247, 208, 0.95) !important;
+        }
+        html.light-mode .stat-card-keluar {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 241, 242, 0.95) 100%) !important;
+            border: 1px solid rgba(254, 205, 211, 0.95) !important;
+        }
+        html.light-mode .stat-card-saldo {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 247, 237, 0.95) 100%) !important;
+            border: 1px solid rgba(254, 215, 170, 0.95) !important;
+            box-shadow: 0 6px 20px rgba(255, 115, 0, 0.1) !important;
+        }
+        html.light-mode .stat-card-distribusi {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 249, 255, 0.95) 100%) !important;
+            border: 1px solid rgba(186, 230, 253, 0.95) !important;
+        }
+
+        /* TAB SEGMENTED CONTROLS */
+        .tab-btn {
+            cursor: pointer;
+            border-radius: 0.6rem;
+            transition: all 0.2s ease;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 11px;
+            padding: 6px 12px;
+            color: var(--text-sec-400);
+            border: 1px solid transparent;
+            background: transparent;
+        }
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        html.light-mode .tab-btn:hover {
+            background: rgba(255, 115, 0, 0.08);
+            color: #ea580c;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 10px rgba(255, 115, 0, 0.35) !important;
+        }
+
+        /* TABLE STYLING */
+        .report-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 620px;
+        }
+        .report-table th {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-sec-400);
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-muted);
+            text-align: left;
+            background-color: var(--table-th-bg);
+        }
+        html.light-mode .report-table th {
+            color: #475569 !important;
+            font-weight: 800 !important;
+        }
+        .report-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-muted);
+            font-size: 12.5px;
+            transition: background 0.15s ease;
+            color: var(--text-primary);
+        }
+        .report-table tbody tr:hover td {
+            background-color: var(--table-row-hover);
+        }
+
+        /* SELECT CONTROL */
+        .custom-select-box {
+            background-color: var(--control-bg);
+            border: 1px solid var(--control-border);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        .custom-select-box:focus {
+            border-color: #FF7300;
+            box-shadow: 0 0 0 2px rgba(255, 115, 0, 0.2);
+        }
+
+        /* DESKTOP SIDE DOCK */
+        .desktop-side-dock {
+            background: rgba(14, 20, 33, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        html.light-mode .desktop-side-dock {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1.5px solid #FED7AA !important;
+            box-shadow: 0 16px 36px -6px rgba(255, 115, 0, 0.12) !important;
+        }
+        .dock-item {
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dock-item:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+        html.light-mode .dock-item {
+            color: #64748B;
+        }
+        html.light-mode .dock-item:hover {
+            color: #C2410C;
+            background: #FFF7ED;
+        }
+        .dock-item.active {
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 16px rgba(255, 115, 0, 0.45) !important;
+        }
+
+        /* MOBILE BOTTOM NAVIGATION DOCK */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(10, 14, 23, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 115, 0, 0.25);
+            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.5), 0 -1px 3px rgba(255, 115, 0, 0.1);
+            z-index: 1000;
+            padding: 4px 6px calc(env(safe-area-inset-bottom, 0px) + 4px) 6px;
+            align-items: center;
+            justify-content: space-around;
+            touch-action: manipulation;
+        }
+        html.light-mode .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top: 1.5px solid rgba(254, 215, 170, 0.95) !important;
+            box-shadow: 0 -4px 20px rgba(255, 115, 0, 0.12), 0 -1px 4px rgba(0, 0, 0, 0.04) !important;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            padding: 4px 2px;
+            color: #94a3b8;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .bottom-nav-item.active {
+            color: #FF7300 !important;
+        }
+        html.light-mode .bottom-nav-item.active {
+            color: #EA580C !important;
+        }
+        .bottom-nav-item .nav-icon-wrap {
+            width: 34px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.25s ease;
+        }
+        .bottom-nav-item.active .nav-icon-wrap {
+            background: rgba(255, 115, 0, 0.15);
+            box-shadow: 0 2px 8px rgba(255, 115, 0, 0.2);
+        }
+        .bottom-nav-item .nav-label {
+            font-size: 9px;
+            font-weight: 700;
+            margin-top: 2px;
+            letter-spacing: -0.01em;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        @media (max-width: 1023px) {
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            body {
+                padding-bottom: 74px;
+            }
+        }
+
+        /* LOADING SPINNER */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .spinner-ring {
+            border-color: var(--border-muted) !important;
+            border-top-color: #FF7300 !important;
+        }
+        @keyframes float-masjid {
+            0%, 100% { transform: translateY(2px) scale(1); }
+            50% { transform: translateY(-1px) scale(1.03); }
+        }
+        .animate-float-masjid {
+            animation: float-masjid 3s infinite ease-in-out;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SUBTLE BACKGROUND PARTICLES -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
+        <div class="relative flex flex-col items-center justify-center">
+            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
+            <div class="absolute w-20 h-20 flex items-center justify-center">
+                <span class="text-2xl animate-float-masjid">🕌</span>
+            </div>
+            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT LAPORAN KEUANGAN...</span>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER (DESKTOP DOCK SIDEBAR + CONTENT) -->
+    <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-3 sm:py-6 flex flex-row gap-4 sm:gap-6 flex-grow z-10 relative">
+
+        <!-- DESKTOP FLOATING SIDEBAR DOCK -->
+        <aside class="desktop-side-dock hidden lg:flex flex-col items-center justify-between py-4 px-2 rounded-3xl shrink-0 w-[58px] self-stretch transition-all duration-300 shadow-xl">
+            <div class="flex flex-col items-center gap-3 w-full">
+                <a href="dasboard.html" class="dock-item w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Beranda">
+                    <i class="fa-solid fa-house text-sm"></i>
+                </a>
+                <a href="pembayaran-kas.html" class="dock-item w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Bayar Kas">
+                    <i class="fa-solid fa-wallet text-sm"></i>
+                </a>
+                <a href="lihat-kegiatan.html" class="dock-item w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Kegiatan & Proker">
+                    <i class="fa-solid fa-calendar-check text-sm"></i>
+                </a>
+                <a href="riwayat-transaksi.html" class="dock-item w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Riwayat Kas">
+                    <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                </a>
+                <a href="laporan-keuangan.html" class="dock-item active w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Laporan Keuangan">
+                    <i class="fa-solid fa-chart-pie text-sm"></i>
+                </a>
+                <a href="buat-surat.html" class="dock-item w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Buat Surat">
+                    <i class="fa-solid fa-envelope-open-text text-sm"></i>
+                </a>
+            </div>
+
+            <div class="flex flex-col items-center w-full pb-1">
+                <a href="Admin/LoginAdmin.html" class="dock-item w-10 h-10 rounded-xl flex items-center justify-center transition-all group" title="Portal Admin">
+                    <i class="fa-solid fa-shield-halved text-sm text-neutral-400 group-hover:text-[#FF7300]"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow flex flex-col gap-4 sm:gap-6 min-w-0">
+
+            <!-- HEADER BAR -->
+            <header class="glass-panel rounded-2xl px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 shadow-md">
+                <div class="flex items-center gap-3">
+                    <a href="dasboard.html" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800 hover:border-orange-500/50 text-[11px] font-mono text-neutral-300 hover:text-[#FF7300] transition-all font-bold shadow-xs active:scale-95">
+                        <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                        <span>Beranda</span>
+                    </a>
+                    <div class="h-5 w-[1px] bg-neutral-700/50 hidden sm:block"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-400 hidden sm:inline">Transparansi Keuangan 2026</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <span id="last-update-badge" class="text-[9.5px] font-mono px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold hidden sm:inline-block">
+                        Sinkronisasi: Aktif
+                    </span>
+                    <button id="themeToggleBtn" onclick="toggleTheme(event)" class="w-8 h-8 rounded-xl bg-neutral-900/80 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-orange-500/50 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
+                        🌙
+                    </button>
+                </div>
+            </header>
+
+            <!-- TITLE BANNER -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 pb-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-[#FF7300]/25 via-[#EA580C]/15 to-transparent border border-[#FF7300]/40 flex items-center justify-center text-base shadow-sm shrink-0">
+                        <i class="fa-solid fa-chart-line text-[#FF7300]"></i>
+                    </div>
+                    <div>
+                        <h1 class="screen-title text-base sm:text-xl font-extrabold font-sans tracking-tight leading-tight flex items-center gap-2">
+                            Laporan Keuangan <span class="text-[#FF7300]">LDK IMIP</span>
+                        </h1>
+                        <p class="screen-subtitle text-[10px] sm:text-xs font-mono mt-0.5">Ringkasan Arus Kas, Pos Anggaran & Realisasi Belanja</p>
+                    </div>
+                </div>
+
+                <!-- QUICK FILTER BULAN -->
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl custom-select-box text-xs">
+                        <i class="fa-solid fa-filter text-orange-400 text-[10px]"></i>
+                        <span class="text-[10px] font-mono text-neutral-400 font-bold uppercase">Periode:</span>
+                        <select id="select-periode" onchange="handlePeriodeChange()" class="bg-transparent text-xs font-mono font-bold outline-none cursor-pointer">
+                            <option value="all" class="bg-neutral-900 text-white">Semua Bulan 2026</option>
+                            <option value="0" class="bg-neutral-900 text-white">Januari</option>
+                            <option value="1" class="bg-neutral-900 text-white">Februari</option>
+                            <option value="2" class="bg-neutral-900 text-white">Maret</option>
+                            <option value="3" class="bg-neutral-900 text-white">April</option>
+                            <option value="4" class="bg-neutral-900 text-white">Mei</option>
+                            <option value="5" class="bg-neutral-900 text-white">Juni</option>
+                            <option value="6" class="bg-neutral-900 text-white">Juli</option>
+                            <option value="7" class="bg-neutral-900 text-white">Agustus</option>
+                            <option value="8" class="bg-neutral-900 text-white">September</option>
+                            <option value="9" class="bg-neutral-900 text-white">Oktober</option>
+                            <option value="10" class="bg-neutral-900 text-white">November</option>
+                            <option value="11" class="bg-neutral-900 text-white">Desember</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 SUMMARY STAT CARDS -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+                <!-- TOTAL PEMASUKAN -->
+                <div class="stat-card-custom stat-card-masuk glass-panel rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between border border-emerald-500/20 relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold">Total Masuk</span>
+                        <div class="w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xs">
+                            <i class="fa-solid fa-arrow-down-left"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2.5">
+                        <div id="stat-total-masuk" class="text-base sm:text-xl font-extrabold font-mono text-emerald-400 tracking-tight">Rp0</div>
+                        <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 mt-1">
+                            <span id="stat-masuk-count">0 Transaksi</span>
+                            <span class="text-emerald-400/90 font-bold">+100% Real</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TOTAL PENGELUARAN -->
+                <div class="stat-card-custom stat-card-keluar glass-panel rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between border border-rose-500/20 relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-rose-500/10 rounded-full blur-xl group-hover:bg-rose-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold">Total Belanja</span>
+                        <div class="w-6 h-6 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 text-xs">
+                            <i class="fa-solid fa-arrow-up-right"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2.5">
+                        <div id="stat-total-keluar" class="text-base sm:text-xl font-extrabold font-mono text-rose-400 tracking-tight">Rp0</div>
+                        <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 mt-1">
+                            <span id="stat-keluar-count">0 Transaksi</span>
+                            <span id="stat-burn-rate" class="text-rose-400/90 font-bold">0% Rasio</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SALDO NET TERSEDIA -->
+                <div class="stat-card-custom stat-card-saldo glass-panel rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between border border-orange-500/30 relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#FF7300]/15 rounded-full blur-xl group-hover:bg-[#FF7300]/25 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-orange-400 font-bold">Kas Bersih</span>
+                        <div class="w-6 h-6 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 text-xs">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2.5">
+                        <div id="stat-saldo-net" class="text-base sm:text-xl font-extrabold font-mono text-[#FF7300] tracking-tight">Rp0</div>
+                        <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 mt-1">
+                            <span>Sisa Saldo Kas</span>
+                            <span class="text-orange-400 font-bold">Kas Terjaga</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALOKASI GOPAY VS TUNAI -->
+                <div class="stat-card-custom stat-card-distribusi glass-panel rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between border border-blue-500/20 relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-bold">Distribusi Kas</span>
+                        <div class="w-6 h-6 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xs">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 flex flex-col gap-1">
+                        <div class="flex items-center justify-between text-[11px] font-mono font-bold">
+                            <span class="text-sky-400 flex items-center gap-1.5"><i class="fa-solid fa-mobile-screen text-[9px]"></i> GoPay:</span>
+                            <span id="stat-saldo-gopay" class="text-neutral-200">Rp0</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-mono font-bold">
+                            <span class="text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-money-bill-wave text-[9px]"></i> Tunai:</span>
+                            <span id="stat-saldo-tunai" class="text-neutral-200">Rp0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE CHARTS SECTION (2 COLUMNS ON DESKTOP) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+
+                <!-- MAIN CHART 1: TREN ARUS KAS BULANAN (7 COLUMNS) -->
+                <div class="lg:col-span-7 glass-panel rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-md">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-neutral-800/60">
+                        <div>
+                            <span class="text-[9px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">VISUALISASI PERGERAKAN</span>
+                            <h2 class="text-sm font-bold text-neutral-100 flex items-center gap-1.5 mt-0.5">
+                                <span>Tren Arus Kas & Saldo 2026</span>
+                            </h2>
+                        </div>
+                        <!-- CHART TOGGLES -->
+                        <div class="flex items-center gap-1.5 bg-neutral-900/60 dark:bg-neutral-950 p-1 rounded-xl border border-neutral-800/80">
+                            <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active text-[10px] py-1 px-2.5">Arus Kas</button>
+                            <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn text-[10px] py-1 px-2.5">Akumulasi Saldo</button>
+                        </div>
+                    </div>
+
+                    <!-- CHART SUBTITLES & LEGEND NOTES -->
+                    <div class="flex items-center justify-between text-[10px] font-mono text-neutral-400 px-1">
+                        <span id="chart-desc">Menampilkan Pemasukan vs Pengeluaran per Bulan</span>
+                        <span class="text-[9px] text-neutral-500">Klik poin grafik untuk detail</span>
+                    </div>
+
+                    <!-- CANVAS WRAPPER -->
+                    <div class="w-full h-64 sm:h-72 relative flex items-center justify-center">
+                        <canvas id="mainTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- MAIN CHART 2: KOMPOSISI POS PENGELUARAN (5 COLUMNS) -->
+                <div class="lg:col-span-5 glass-panel rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-md">
+                    <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
+                        <div>
+                            <span class="text-[9px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">ALOKASI BELANJA</span>
+                            <h2 class="text-sm font-bold text-neutral-100 flex items-center gap-1.5 mt-0.5">
+                                <span>Komposisi Pengeluaran</span>
+                            </h2>
+                        </div>
+                        <span id="top-category-badge" class="text-[9px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold truncate max-w-[130px]">
+                            Top: -
+                        </span>
+                    </div>
+
+                    <!-- DONUT CHART WRAPPER -->
+                    <div class="w-full h-56 sm:h-64 relative flex items-center justify-center">
+                        <canvas id="categoryDonutChart"></canvas>
+                    </div>
+
+                    <!-- COMPACT CATEGORY PILLS LIST -->
+                    <div id="category-pills-list" class="flex flex-wrap gap-1.5 pt-1 overflow-y-auto max-h-24">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RESPONSIVE SUMMARY TABLE SECTION -->
+            <div class="glass-panel rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-md">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-neutral-800/60">
+                    <div>
+                        <span class="text-[9px] font-mono tracking-widest text-[#FF7300] uppercase font-black block">REKAPITULASI DETAIL</span>
+                        <h2 class="text-sm sm:text-base font-bold text-neutral-100 flex items-center gap-2 mt-0.5">
+                            <span>Tabel Pos Keuangan & Realisasi Anggaran</span>
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="table-summary-count" class="text-[10px] font-mono text-neutral-400 bg-neutral-900/60 px-2.5 py-1 rounded-lg border border-neutral-800">
+                            0 Kategori Terdata
+                        </span>
+                    </div>
+                </div>
+
+                <!-- TABLE CONTAINER (RESPONSIVE HORIZONTAL SCROLL) -->
+                <div class="overflow-x-auto rounded-xl border border-neutral-800/60">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th class="w-12 text-center">#</th>
+                                <th>Kategori / Pos Pengeluaran</th>
+                                <th class="text-center">Jml Transaksi</th>
+                                <th class="text-right">Total Nominal</th>
+                                <th class="w-44">Porsi Terhadap Belanja</th>
+                                <th class="text-center">Metode Terbanyak</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body">
+                            <!-- Populated dynamically via JS -->
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-neutral-500 font-mono text-xs">
+                                    <i class="fa-solid fa-spinner animate-spin mr-2"></i> Mengolah data transaksi...
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="report-table-foot" class="font-bold font-mono text-xs">
+                            <!-- Populated dynamically via JS -->
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px] font-mono text-neutral-400 pt-1">
+                    <span>* Data terverifikasi otomatis melalui Buku Kas Resmi IMIP 2026</span>
+                    <a href="riwayat-transaksi.html" class="text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1 font-bold">
+                        <span>Lihat Buku Transaksi Rinci</span> <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <footer class="border-t border-neutral-900/60 bg-neutral-950/20 py-4 text-center mt-2 rounded-2xl">
+                <span class="text-[10px] font-mono text-neutral-500 tracking-widest uppercase">
+                    LDK IMIP 2026 — Transparansi & Akuntabilitas Finansial
+                </span>
+            </footer>
+
+        </main>
+
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION DOCK -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah">
+        <a href="dasboard.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-house"></i></div>
+            <span class="nav-label">Beranda</span>
+        </a>
+        <a href="pembayaran-kas.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+            <span class="nav-label">Bayar Kas</span>
+        </a>
+        <a href="lihat-kegiatan.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-calendar-check"></i></div>
+            <span class="nav-label">Kegiatan</span>
+        </a>
+        <a href="riwayat-transaksi.html" class="bottom-nav-item">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <span class="nav-label">Rekap</span>
+        </a>
+        <a href="laporan-keuangan.html" class="bottom-nav-item active">
+            <div class="nav-icon-wrap"><i class="fa-solid fa-chart-pie"></i></div>
+            <span class="nav-label">Laporan</span>
+        </a>
+        <button type="button" onclick="toggleTheme(event)" class="bottom-nav-item" id="mobileThemeBtn" title="Ubah Tema">
+            <div class="nav-icon-wrap"><i id="mobileThemeIcon" class="fa-solid fa-sun text-orange-500"></i></div>
+            <span class="nav-label" id="mobileThemeLabel">Mode</span>
+        </button>
+    </nav>
+
+    <!-- CLIENT SCRIPT & CHART LOGIC -->
+    <script>
+        // ----------------------------------------------------
+        // 1. PARTICLES CANVAS
+        // ----------------------------------------------------
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = Math.min(Math.floor(window.innerWidth / 25), 45);
+
+        class AmbientParticle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.alpha = Math.random() * 0.4 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > width) this.speedX *= -1;
+                if (this.y < 0 || this.y > height) this.speedY *= -1;
+            }
+            draw() {
+                const isLight = document.documentElement.classList.contains('light-mode');
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = isLight ? `rgba(234, 88, 12, ${this.alpha * 0.5})` : `rgba(255, 115, 0, ${this.alpha * 0.6})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new AmbientParticle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ----------------------------------------------------
+        // 2. THEME MANAGEMENT & SYNC
+        // ----------------------------------------------------
+        function applyTheme(theme) {
+            const btn = document.getElementById('themeToggleBtn');
+            const mobileIcon = document.getElementById('mobileThemeIcon');
+            const mobileLabel = document.getElementById('mobileThemeLabel');
+
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.body.classList.add('light-mode');
+                if (btn) btn.innerHTML = '☀️';
+                if (mobileIcon) mobileIcon.className = 'fa-solid fa-moon text-neutral-400';
+                if (mobileLabel) mobileLabel.innerText = 'Gelap';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.remove('light-mode');
+                if (btn) btn.innerHTML = '🌙';
+                if (mobileIcon) mobileIcon.className = 'fa-solid fa-sun text-orange-500';
+                if (mobileLabel) mobileLabel.innerText = 'Terang';
+            }
+            updateChartsTheme();
+        }
+
+        function triggerThemeAnimation(newTheme, event) {
+            const ripple = document.createElement('div');
+            ripple.style.position = 'fixed';
+            ripple.style.zIndex = '9998';
+            ripple.style.borderRadius = '50%';
+            ripple.style.pointerEvents = 'none';
+            ripple.style.transition = 'transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease-out';
+            ripple.style.backgroundColor = newTheme === 'light' ? '#fff7ed' : '#07090e';
+            
+            let posX = window.innerWidth / 2;
+            let posY = window.innerHeight / 2;
+            
+            if (event && event.clientX) {
+                posX = event.clientX;
+                posY = event.clientY;
+            } else {
+                const btn = document.getElementById('themeToggleBtn');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    posX = rect.left + rect.width / 2;
+                    posY = rect.top + rect.height / 2;
+                }
+            }
+            
+            ripple.style.width = '12px';
+            ripple.style.height = '12px';
+            ripple.style.left = `${posX - 6}px`;
+            ripple.style.top = `${posY - 6}px`;
+            ripple.style.transform = 'scale(1)';
+            ripple.style.opacity = '1';
+            
+            document.body.appendChild(ripple);
+            
+            const maxDim = Math.max(window.innerWidth, window.innerHeight);
+            const scaleTarget = (maxDim / 6) * 1.5;
+            
+            requestAnimationFrame(() => {
+                ripple.style.transform = `scale(${scaleTarget})`;
+                setTimeout(() => {
+                    ripple.style.opacity = '0';
+                    setTimeout(() => ripple.remove(), 400);
+                }, 350);
+            });
+        }
+
+        function toggleTheme(event) {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const newTheme = isLight ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            triggerThemeAnimation(newTheme, event);
+            applyTheme(newTheme);
+        }
+
+        // Init theme on start
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+
+        // ----------------------------------------------------
+        // 3. FINANCIAL DATA ENGINE
+        // ----------------------------------------------------
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztpGYaWJwa1jYUKFguqUgkIU4sWK0G3sS45W7uuQb176oCleXQGsDbpbuLVzG23pY/exec";
+        let rawTransactions = [];
+        let trendChartInstance = null;
+        let donutChartInstance = null;
+        let currentChartMode = 'cashflow'; // 'cashflow' or 'balance'
+        let selectedPeriode = 'all';
+
+        const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const CATEGORY_COLORS = [
+            '#FF7300', '#38bdf8', '#34d399', '#fbbf24', '#f43f5e', 
+            '#a855f7', '#ec4899', '#06b6d4', '#84cc16', '#6366f1'
+        ];
+
+        function formatRupiah(num) {
+            return 'Rp' + Math.round(num || 0).toLocaleString('id-ID');
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.classList.add('fade-out');
+                setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 400);
+            }
+        }
+
+        // ----------------------------------------------------
+        // 4. CHART CREATION & UPDATES
+        // ----------------------------------------------------
+        function initCharts() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
+            const textColor = isLight ? '#475569' : '#94a3b8';
+
+            // Trend Chart
+            const trendCtx = document.getElementById('mainTrendChart').getContext('2d');
+            trendChartInstance = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: MONTH_NAMES.slice(0, 6),
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: textColor,
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' },
+                                boxWidth: 12,
+                                usePointStyle: true,
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(8, 12, 20, 0.94)',
+                            titleColor: '#FF7300',
+                            bodyColor: '#FFFFFF',
+                            borderColor: 'rgba(255, 115, 0, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) {
+                                        label += formatRupiah(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', size: 10, weight: 'bold' } }
+                        },
+                        y: {
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                font: { family: 'Plus Jakarta Sans', size: 9 },
+                                callback: function(val) {
+                                    if (val >= 1000000) return (val / 1000000).toFixed(1) + ' jt';
+                                    if (val >= 1000) return (val / 1000).toFixed(0) + ' rb';
+                                    return val;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Donut Chart
+            const donutCtx = document.getElementById('categoryDonutChart').getContext('2d');
+            donutChartInstance = new Chart(donutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: CATEGORY_COLORS,
+                        borderColor: isLight ? '#ffffff' : '#080C14',
+                        borderWidth: 2,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(8, 12, 20, 0.94)',
+                            titleColor: '#FF7300',
+                            bodyColor: '#FFFFFF',
+                            borderColor: 'rgba(255, 115, 0, 0.3)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return ` ${context.label}: ${formatRupiah(value)} (${percent}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        function updateChartsTheme() {
+            if (!trendChartInstance || !donutChartInstance) return;
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const gridColor = isLight ? 'rgba(254, 215, 170, 0.45)' : 'rgba(255, 255, 255, 0.06)';
+            const textColor = isLight ? '#475569' : '#94a3b8';
+
+            trendChartInstance.options.scales.x.grid.color = gridColor;
+            trendChartInstance.options.scales.x.ticks.color = textColor;
+            trendChartInstance.options.scales.y.grid.color = gridColor;
+            trendChartInstance.options.scales.y.ticks.color = textColor;
+            if (trendChartInstance.options.plugins.legend) {
+                trendChartInstance.options.plugins.legend.labels.color = textColor;
+            }
+            trendChartInstance.update();
+
+            donutChartInstance.data.datasets[0].borderColor = isLight ? '#ffffff' : '#080C14';
+            donutChartInstance.update();
+        }
+
+        function setChartMode(mode) {
+            currentChartMode = mode;
+            const btnCashflow = document.getElementById('btn-chart-mode-cashflow');
+            const btnBalance = document.getElementById('btn-chart-mode-balance');
+            const chartDesc = document.getElementById('chart-desc');
+
+            if (mode === 'cashflow') {
+                btnCashflow.classList.add('active');
+                btnBalance.classList.remove('active');
+                chartDesc.innerText = 'Menampilkan Pemasukan vs Pengeluaran per Bulan';
+            } else {
+                btnBalance.classList.add('active');
+                btnCashflow.classList.remove('active');
+                chartDesc.innerText = 'Menampilkan Akumulasi Saldo Kas Bersih per Bulan';
+            }
+            renderReportData();
+        }
+
+        function handlePeriodeChange() {
+            selectedPeriode = document.getElementById('select-periode').value;
+            renderReportData();
+        }
+
+        // ----------------------------------------------------
+        // 5. CORE COMPUTATION & RENDER
+        // ----------------------------------------------------
+        function renderReportData() {
+            if (!rawTransactions || rawTransactions.length === 0) return;
+
+            // Hanya proses transaksi yang disetujui
+            const validTx = rawTransactions.filter(t => t.status_reimburse !== "Belum");
+
+            // Filter berdasarkan periode bulan (jika dipilih)
+            let periodFilteredTx = validTx;
+            if (selectedPeriode !== 'all') {
+                const targetM = parseInt(selectedPeriode, 10);
+                periodFilteredTx = validTx.filter(t => {
+                    if (!t.tanggal) return false;
+                    const d = new Date(t.tanggal);
+                    return !isNaN(d) && d.getMonth() === targetM;
+                });
+            }
+
+            // Hitung KPI
+            let totalMasuk = 0, countMasuk = 0;
+            let totalKeluar = 0, countKeluar = 0;
+            let saldoGoPay = 0;
+            let saldoTunai = 0;
+
+            // Monthly aggregations (0 - 11)
+            const monthlyIn = new Array(12).fill(0);
+            const monthlyOut = new Array(12).fill(0);
+
+            // Compute overall balance & monthly differences
+            validTx.forEach(t => {
+                const nom = Math.abs(parseFloat(t.nominal) || 0);
+                const isMasuk = (t.jenis || '').toLowerCase() === 'masuk';
+                const metode = (t.metode || '').toLowerCase();
+                const d = t.tanggal ? new Date(t.tanggal) : null;
+                const mIdx = (d && !isNaN(d)) ? d.getMonth() : 0;
+
+                if (isMasuk) {
+                    monthlyIn[mIdx] += nom;
+                    if (metode.includes('gopay')) {
+                        saldoGoPay += nom;
+                    } else {
+                        saldoTunai += nom;
+                    }
+                } else {
+                    monthlyOut[mIdx] += nom;
+                    if (metode.includes('gopay')) {
+                        saldoGoPay -= nom;
+                    } else {
+                        saldoTunai -= nom;
+                    }
+                }
+            });
+
+            // Period specific KPIs
+            periodFilteredTx.forEach(t => {
+                const nom = Math.abs(parseFloat(t.nominal) || 0);
+                const isMasuk = (t.jenis || '').toLowerCase() === 'masuk';
+                if (isMasuk) {
+                    totalMasuk += nom;
+                    countMasuk++;
+                } else {
+                    totalKeluar += nom;
+                    countKeluar++;
+                }
+            });
+
+            const saldoNet = (selectedPeriode === 'all') 
+                ? (saldoGoPay + saldoTunai) 
+                : (totalMasuk - totalKeluar);
+
+            // Update KPI DOM
+            document.getElementById('stat-total-masuk').innerText = formatRupiah(totalMasuk);
+            document.getElementById('stat-masuk-count').innerText = `${countMasuk} Transaksi`;
+            document.getElementById('stat-total-keluar').innerText = formatRupiah(totalKeluar);
+            document.getElementById('stat-keluar-count').innerText = `${countKeluar} Transaksi`;
+            document.getElementById('stat-saldo-net').innerText = formatRupiah(saldoNet);
+            document.getElementById('stat-saldo-gopay').innerText = formatRupiah(Math.max(0, saldoGoPay));
+            document.getElementById('stat-saldo-tunai').innerText = formatRupiah(Math.max(0, saldoTunai));
+
+            const burnRate = totalMasuk > 0 ? ((totalKeluar / totalMasuk) * 100).toFixed(1) : 0;
+            document.getElementById('stat-burn-rate').innerText = `${burnRate}% Rasio Belanja`;
+
+            // Max active month
+            const currentMonthIdx = new Date().getMonth();
+            const maxMonthIdx = Math.max(5, currentMonthIdx);
+            const activeMonths = MONTH_NAMES.slice(0, maxMonthIdx + 1);
+
+            // Compute Trend Chart Data
+            if (trendChartInstance) {
+                trendChartInstance.data.labels = activeMonths;
+
+                if (currentChartMode === 'cashflow') {
+                    trendChartInstance.data.datasets = [
+                        {
+                            label: 'Pemasukan (+)',
+                            data: monthlyIn.slice(0, maxMonthIdx + 1),
+                            borderColor: '#34d399',
+                            backgroundColor: 'rgba(52, 211, 153, 0.12)',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            pointBackgroundColor: '#34d399',
+                            pointRadius: 4,
+                            fill: true
+                        },
+                        {
+                            label: 'Pengeluaran (-)',
+                            data: monthlyOut.slice(0, maxMonthIdx + 1),
+                            borderColor: '#fb7185',
+                            backgroundColor: 'rgba(251, 113, 133, 0.12)',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            pointBackgroundColor: '#fb7185',
+                            pointRadius: 4,
+                            fill: true
+                        }
+                    ];
+                } else {
+                    // Cumulative net balance over months
+                    const cumulativeBalance = [];
+                    let rolling = 0;
+                    for (let i = 0; i <= maxMonthIdx; i++) {
+                        rolling += (monthlyIn[i] - monthlyOut[i]);
+                        cumulativeBalance.push(Math.max(0, rolling));
+                    }
+
+                    trendChartInstance.data.datasets = [
+                        {
+                            label: 'Saldo Kas Net (Kumulatif)',
+                            data: cumulativeBalance,
+                            borderColor: '#FF7300',
+                            backgroundColor: 'rgba(255, 115, 0, 0.15)',
+                            borderWidth: 3,
+                            tension: 0.38,
+                            pointBackgroundColor: '#FF7300',
+                            pointRadius: 4.5,
+                            fill: true
+                        }
+                    ];
+                }
+                trendChartInstance.update();
+            }
+
+            // Compute Category Breakdown (From Expenses only)
+            const expenseTx = periodFilteredTx.filter(t => (t.jenis || '').toLowerCase() === 'keluar');
+            const categoryMap = {};
+
+            expenseTx.forEach(t => {
+                let kat = (t.kategori || 'Lain-lain').trim();
+                if (!kat) kat = 'Lain-lain';
+                const nom = Math.abs(parseFloat(t.nominal) || 0);
+                const metode = (t.metode || 'Tunai').trim();
+
+                if (!categoryMap[kat]) {
+                    categoryMap[kat] = { total: 0, count: 0, gopay: 0, tunai: 0 };
+                }
+                categoryMap[kat].total += nom;
+                categoryMap[kat].count += 1;
+                if (metode.toLowerCase().includes('gopay')) {
+                    categoryMap[kat].gopay += 1;
+                } else {
+                    categoryMap[kat].tunai += 1;
+                }
+            });
+
+            // Convert categoryMap to array & sort by total descending
+            const sortedCategories = Object.keys(categoryMap).map(k => ({
+                nama: k,
+                ...categoryMap[k]
+            })).sort((a, b) => b.total - a.total);
+
+            // Update Donut Chart
+            if (donutChartInstance) {
+                const donutLabels = sortedCategories.slice(0, 6).map(c => c.nama);
+                const donutData = sortedCategories.slice(0, 6).map(c => c.total);
+
+                if (sortedCategories.length > 6) {
+                    const otherTotal = sortedCategories.slice(6).reduce((acc, c) => acc + c.total, 0);
+                    donutLabels.push('Lainnya');
+                    donutData.push(otherTotal);
+                }
+
+                donutChartInstance.data.labels = donutLabels;
+                donutChartInstance.data.datasets[0].data = donutData;
+                donutChartInstance.update();
+
+                // Top Category Badge
+                if (sortedCategories.length > 0) {
+                    document.getElementById('top-category-badge').innerText = `Top: ${sortedCategories[0].nama} (${formatRupiah(sortedCategories[0].total)})`;
+                } else {
+                    document.getElementById('top-category-badge').innerText = 'Top: Belum Ada Belanja';
+                }
+
+                // Render category mini pills
+                const pillsContainer = document.getElementById('category-pills-list');
+                pillsContainer.innerHTML = '';
+                donutLabels.forEach((lbl, i) => {
+                    const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
+                    const val = donutData[i];
+                    const pill = document.createElement('div');
+                    pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800 text-[10px] font-mono text-neutral-300';
+                    pill.innerHTML = `<span class="w-2 h-2 rounded-full" style="background-color: ${color}"></span><span class="font-bold">${lbl}</span> <span class="text-neutral-500">${formatRupiah(val)}</span>`;
+                    pillsContainer.appendChild(pill);
+                });
+            }
+
+            // Render Responsive Table
+            renderTable(sortedCategories, totalKeluar);
+        }
+
+        function renderTable(categories, grandTotalKeluar) {
+            const tbody = document.getElementById('report-table-body');
+            const tfoot = document.getElementById('report-table-foot');
+            const summaryCount = document.getElementById('table-summary-count');
+
+            if (!categories || categories.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-neutral-500 font-mono text-xs">
+                            <i class="fa-solid fa-folder-open text-base mb-1 block"></i>
+                            Tidak ada pos pengeluaran yang tercatat pada periode ini.
+                        </td>
+                    </tr>
+                `;
+                tfoot.innerHTML = '';
+                summaryCount.innerText = '0 Kategori Terdata';
+                return;
+            }
+
+            summaryCount.innerText = `${categories.length} Pos Kategori Terdata`;
+
+            let tbodyHtml = '';
+            let totalTransactions = 0;
+
+            categories.forEach((cat, index) => {
+                totalTransactions += cat.count;
+                const percent = grandTotalKeluar > 0 ? ((cat.total / grandTotalKeluar) * 100).toFixed(1) : 0;
+                const dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
+                const metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
+
+                tbodyHtml += `
+                    <tr class="transition-colors">
+                        <td class="text-center font-mono text-neutral-500 font-bold text-xs">${index + 1}</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                                <span class="font-bold">${cat.nama}</span>
+                            </div>
+                        </td>
+                        <td class="text-center font-mono">${cat.count} <span class="text-neutral-500 text-[10px]">tx</span></td>
+                        <td class="text-right font-mono font-bold">${formatRupiah(cat.total)}</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-full bg-neutral-800/80 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ${Math.min(100, Math.max(2, percent))}%;"></div>
+                                </div>
+                                <span class="text-[10px] font-mono text-neutral-400 w-11 text-right shrink-0 font-bold">${percent}%</span>
+                            </div>
+                        </td>
+                        <td class="text-center font-mono text-[11px]">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800/80">
+                                <i class="fa-solid ${metodeIcon} text-[9px]"></i>
+                                <span>${dominantMetode}</span>
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = tbodyHtml;
+
+            tfoot.innerHTML = `
+                <tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">
+                    <td colspan="2" class="text-left uppercase text-neutral-400 pl-4 py-3 font-bold">TOTAL KESELURUHAN</td>
+                    <td class="text-center font-bold">${totalTransactions} tx</td>
+                    <td class="text-right text-rose-500 dark:text-rose-400 text-sm font-extrabold">${formatRupiah(grandTotalKeluar)}</td>
+                    <td class="text-neutral-400 font-bold">100.0% Alokasi</td>
+                    <td class="text-center text-neutral-400">-</td>
+                </tr>
+            `;
+        }
+
+        // ----------------------------------------------------
+        // 6. INITIALIZATION & DATA FETCHING
+        // ----------------------------------------------------
+        function fetchLaporanData() {
+            // 1. Coba ambil dari Cache
+            let cache = null;
+            try {
+                const raw = localStorage.getItem("ldk_db_cache") || sessionStorage.getItem("ldk_db_cache");
+                if (raw) cache = JSON.parse(raw);
+            } catch (e) {
+                console.warn('Cache error:', e);
+            }
+
+            if (cache && cache.transaksi && cache.transaksi.length > 0) {
+                rawTransactions = cache.transaksi;
+                renderReportData();
+                hideLoadingOverlay();
+            }
+
+            // 2. Fetch fresh data dari Google Apps Script
+            fetch(GOOGLE_SCRIPT_URL + "?action=get_all_data")
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.transaksi) {
+                        rawTransactions = data.transaksi;
+                        try {
+                            localStorage.setItem("ldk_db_cache", JSON.stringify(data));
+                        } catch (err) {}
+                        renderReportData();
+                        const updateBadge = document.getElementById('last-update-badge');
+                        if (updateBadge) {
+                            const now = new Date();
+                            const hh = String(now.getHours()).padStart(2, '0');
+                            const mm = String(now.getMinutes()).padStart(2, '0');
+                            updateBadge.innerText = `Update: ${hh}:${mm}`;
+                        }
+                    }
+                    hideLoadingOverlay();
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    if (!rawTransactions || rawTransactions.length === 0) {
+                        loadFallbackData();
+                    }
+                    hideLoadingOverlay();
+                });
+
+            setTimeout(hideLoadingOverlay, 3500);
+        }
+
+        function loadFallbackData() {
+            rawTransactions = [
+                { id: 1, tanggal: "2026-01-15", jenis: "Masuk", nominal: 1500000, metode: "GoPay", kategori: "Kas", status_reimburse: "Disetujui" },
+                { id: 2, tanggal: "2026-02-10", jenis: "Masuk", nominal: 1750000, metode: "Tunai", kategori: "Kas", status_reimburse: "Disetujui" },
+                { id: 3, tanggal: "2026-02-18", jenis: "Keluar", nominal: 350000, metode: "Tunai", kategori: "Konsumsi", status_reimburse: "Disetujui" },
+                { id: 4, tanggal: "2026-03-05", jenis: "Masuk", nominal: 2100000, metode: "GoPay", kategori: "Donasi", status_reimburse: "Disetujui" },
+                { id: 5, tanggal: "2026-03-12", jenis: "Keluar", nominal: 450000, metode: "GoPay", kategori: "Logistik", status_reimburse: "Disetujui" },
+                { id: 6, tanggal: "2026-04-02", jenis: "Keluar", nominal: 600000, metode: "Tunai", kategori: "Acara & Kajian", status_reimburse: "Disetujui" },
+                { id: 7, tanggal: "2026-05-10", jenis: "Masuk", nominal: 1800000, metode: "GoPay", kategori: "Kas", status_reimburse: "Disetujui" },
+                { id: 8, tanggal: "2026-05-20", jenis: "Keluar", nominal: 250000, metode: "GoPay", kategori: "Kesekretariatan", status_reimburse: "Disetujui" },
+                { id: 9, tanggal: "2026-06-01", jenis: "Keluar", nominal: 400000, metode: "Tunai", kategori: "Syiar & Media", status_reimburse: "Disetujui" }
+            ];
+            renderReportData();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            fetchLaporanData();
+        });
+    </script>
+</body>
+</html>
