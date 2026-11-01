@@ -189,42 +189,147 @@
             transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
         }
 
-        /* TYPOGRAPHY MATCHING RIWAYAT TRANSAKSI */
+        /* ==========================================================================
+           UNIFIED 4-TIER TYPOGRAPHY SYSTEM (KONSISTENSI HIERARKI FONT)
+           1. Judul Halaman (.t-page-title)    : 16px (HP) / 18px (Desktop)
+           2. Judul Bagian  (.t-section-title) : 14px (HP) / 16px (Desktop)
+           3. Isi & Nominal (.t-body / .t-val) : 12px (HP) / 13px (Desktop)
+           4. Sub & Label   (.t-sub / .t-label): 10px (HP) / 11px (Desktop)
+           ========================================================================== */
+        .t-page-title,
         .screen-title {
-            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
             transition: color 0.3s ease;
         }
-        .screen-subtitle {
-            color: #94a3b8;
-            transition: color 0.3s ease;
-        }
+        html.light-mode .t-page-title,
         html.light-mode .screen-title {
             color: #0f172a !important;
             font-weight: 900 !important;
         }
-        html.light-mode .screen-subtitle {
-            color: #475569 !important;
-            font-weight: 600 !important;
+
+        .t-section-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.3;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+        html.light-mode .t-section-title {
+            color: #0f172a !important;
+            font-weight: 800 !important;
         }
 
-        /* RESPONSIVE NON-TRUNCATING NUMERICAL STAT FONT */
+        /* Hero Stat Numbers (Primary 3 Cards & Secondary 2 Cards) */
+        .t-stat-primary,
         .rekap-stat-val {
-            font-size: clamp(10px, 2.7vw, 16px);
+            font-size: clamp(12px, 3.5vw, 15px);
             font-weight: 800;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: clip;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -0.025em;
+            letter-spacing: -0.03em;
             line-height: 1.25;
             display: block;
         }
+        .t-stat-secondary {
+            font-size: 12.5px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            display: block;
+        }
+
+        /* Content Body (Category Names & Nominal Values) */
+        .t-body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .t-val {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+        }
+
+        /* Subtitles, Descriptions, Badges & Labels */
+        .t-sub,
+        .screen-subtitle {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10.5px;
+            line-height: 1.35;
+            font-weight: 600;
+            color: var(--text-sec-400);
+            transition: color 0.3s ease;
+        }
+        html.light-mode .t-sub,
+        html.light-mode .screen-subtitle {
+            color: #475569 !important;
+        }
+
+        .t-sub-mono {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 10px;
+            line-height: 1.35;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-sec-400);
+        }
+
+        .t-label {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10px;
+            line-height: 1.25;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sec-400);
+        }
+
         @media (min-width: 640px) {
-            .rekap-stat-val {
-                font-size: 1.25rem;
-                line-height: 1.75rem;
-            }
+            .t-page-title, .screen-title { font-size: 18px; }
+            .t-section-title { font-size: 16px; }
+            .t-stat-primary, .rekap-stat-val { font-size: 18px; line-height: 1.4; }
+            .t-stat-secondary { font-size: 15px; line-height: 1.4; }
+            .t-body { font-size: 13px; }
+            .t-val { font-size: 13px; }
+            .t-sub, .screen-subtitle { font-size: 11.5px; }
+            .t-sub-mono { font-size: 11px; }
+            .t-label { font-size: 10.5px; }
+        }
+
+        /* Shared Badge & Progress Track for Dark & Light Mode */
+        .meta-badge {
+            background-color: rgba(30, 41, 59, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            color: var(--text-secondary);
+        }
+        html.light-mode .meta-badge {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+            color: #475569 !important;
+        }
+        .progress-track {
+            background-color: rgba(30, 41, 59, 0.85);
+        }
+        html.light-mode .progress-track {
+            background-color: #FFEDD5 !important;
         }
 
         /* STAT CARDS MATCHING RIWAYAT TRANSAKSI */
@@ -254,15 +359,16 @@
             cursor: pointer;
             border-radius: 0.5rem;
             transition: all 0.2s ease;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 10px;
+            font-size: 10.5px;
             padding: 5px 10px;
             color: var(--text-sec-400);
             border: 1px solid transparent;
             background: transparent;
+        }
+        @media (min-width: 640px) {
+            .tab-btn { font-size: 11px; padding: 5px 12px; }
         }
         .tab-btn:hover {
             color: var(--text-primary);
@@ -286,12 +392,13 @@
             min-width: 540px;
         }
         .report-table th {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 9.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10.5px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.05em;
             color: var(--text-sec-400);
-            padding: 9px 12px;
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border-muted);
             text-align: left;
             background-color: var(--table-th-bg);
@@ -302,9 +409,9 @@
             font-weight: 800 !important;
         }
         .report-table td {
-            padding: 10px 12px;
+            padding: 11px 14px;
             border-bottom: 1px solid var(--border-muted);
-            font-size: 11.5px;
+            font-size: 13px;
             transition: background 0.15s ease;
             color: var(--text-primary);
             white-space: nowrap;
@@ -505,7 +612,7 @@
 
     <!-- TOP HEADER BAR (EXACT IDENTICAL STYLE TO RIWAYAT-TRANSAKSI & DASBOARD) -->
     <header class="border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md sticky top-0 z-[1000] px-3 sm:px-6 h-14 flex items-center justify-between">
-        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-[10px] font-mono text-neutral-400 hover:text-[#FF7300] transition-all duration-300 active:scale-95 font-bold shadow-inner z-10">
+        <a href="dasboard.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 t-sub hover:text-[#FF7300] transition-all duration-300 active:scale-95 shadow-inner z-10">
             <span>←</span> <span>Dashboard</span>
         </a>
 
@@ -513,7 +620,7 @@
             <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer" title="Ubah Tema">
                 🌙
             </button>
-            <span class="text-xs font-mono tracking-wider text-neutral-400 uppercase font-bold hidden sm:inline">
+            <span class="t-label hidden sm:inline">
                 Laporan Keuangan
             </span>
         </div>
@@ -522,21 +629,21 @@
     <!-- MAIN CONTAINER (MAX-W-4XL HARMONIZED WITH RIWAYAT TRANSAKSI) -->
     <main class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-6 w-full flex-grow flex flex-col gap-3 sm:gap-4 z-10 relative min-w-0">
 
-        <!-- SCREEN TITLE & COMPACT HEADER -->
-        <div class="screen-header-wrap flex items-center justify-between gap-2.5 pt-0.5 pb-2 border-b border-neutral-200/60 dark:border-neutral-900">
+        <!-- TIER 1: SCREEN TITLE & COMPACT HEADER -->
+        <div class="screen-header-wrap flex items-center justify-between gap-2.5 pt-0.5 pb-2.5 border-b border-neutral-200/60 dark:border-neutral-900">
             <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF7300]/20 via-[#EA580C]/15 to-transparent border border-[#FF7300]/35 flex items-center justify-center text-sm shadow-xs shrink-0">
                     <i class="fa-solid fa-chart-line text-[#FF7300]"></i>
                 </div>
-                <h1 class="screen-title text-sm sm:text-base font-extrabold font-sans tracking-tight leading-none flex items-center gap-1.5 truncate">
+                <h1 class="t-page-title flex items-center gap-1.5 truncate">
                     Laporan Keuangan <span class="text-[#FF7300]">IMIP</span>
                 </h1>
             </div>
 
             <!-- COMPACT FILTER PERIODE SELECTOR -->
-            <div class="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-neutral-900/60 dark:bg-neutral-950 border border-neutral-800 shrink-0">
-                <i class="fa-solid fa-filter text-[#FF7300] text-[9px]"></i>
-                <select id="select-periode" onchange="handlePeriodeChange()" class="bg-transparent text-[10px] sm:text-[10.5px] font-mono font-bold text-neutral-200 outline-none cursor-pointer">
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-neutral-900/60 dark:bg-neutral-950 border border-neutral-800 shrink-0">
+                <i class="fa-solid fa-filter text-[#FF7300] text-[10px]"></i>
+                <select id="select-periode" onchange="handlePeriodeChange()" class="bg-transparent t-sub text-neutral-200 outline-none cursor-pointer">
                     <option value="all" class="bg-neutral-900 text-white">Semua 2026</option>
                     <option value="0" class="bg-neutral-900 text-white">Januari</option>
                     <option value="1" class="bg-neutral-900 text-white">Februari</option>
@@ -554,77 +661,81 @@
             </div>
         </div>
 
-        <!-- 3 FINANCIAL STAT CARDS STRIP (EXACT SAME AS RIWAYAT TRANSAKSI, NON-OVERFLOWING) -->
+        <!-- 3 FINANCIAL STAT CARDS STRIP (UNIFIED LABEL & VALUE SCALE) -->
         <div class="grid grid-cols-3 gap-2 sm:gap-3">
             <!-- 1. PEMASUKAN -->
-            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <div class="stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pemasukan</span>
-                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-emerald-950/50 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-[9px] sm:text-xs shrink-0">
+                    <span class="t-label truncate">Pemasukan</span>
+                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-emerald-950/50 border border-emerald-500/10 flex items-center justify-center text-emerald-400 text-[10px] sm:text-xs shrink-0">
                         ↙
                     </div>
                 </div>
-                <span id="stat-total-masuk" class="rekap-stat-val text-emerald-400 mt-0.5 sm:mt-1">Rp0</span>
+                <span id="stat-total-masuk" class="t-stat-primary text-emerald-400">Rp0</span>
             </div>
 
             <!-- 2. PENGELUARAN -->
-            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <div class="stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 flex flex-col gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold truncate">Pengeluaran</span>
-                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-rose-950/50 border border-rose-500/10 flex items-center justify-center text-rose-400 text-[9px] sm:text-xs shrink-0">
+                    <span class="t-label truncate">Pengeluaran</span>
+                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-rose-950/50 border border-rose-500/10 flex items-center justify-center text-rose-400 text-[10px] sm:text-xs shrink-0">
                         ↗
                     </div>
                 </div>
-                <span id="stat-total-keluar" class="rekap-stat-val text-rose-400 mt-0.5 sm:mt-1">Rp0</span>
+                <span id="stat-total-keluar" class="t-stat-primary text-rose-400">Rp0</span>
             </div>
 
             <!-- 3. SALDO NET -->
-            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col gap-0.5 sm:gap-1 border border-orange-500/25 relative overflow-hidden group min-w-0">
+            <div class="stat-card-saldo glass-panel rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 flex flex-col gap-1 border border-orange-500/25 relative overflow-hidden group min-w-0">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-[#FF7300]/10 rounded-full blur-xl group-hover:bg-[#FF7300]/15 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="text-[8px] sm:text-[10px] font-mono uppercase tracking-wider text-orange-400/90 font-semibold truncate">Saldo Kas</span>
-                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-[9px] sm:text-xs shrink-0">
+                    <span class="t-label text-orange-400/90 truncate">Saldo Kas</span>
+                    <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-[10px] sm:text-xs shrink-0">
                         ⚖
                     </div>
                 </div>
-                <span id="stat-saldo-net" class="rekap-stat-val mt-0.5 sm:mt-1 text-white">Rp0</span>
+                <span id="stat-saldo-net" class="t-stat-primary text-white">Rp0</span>
             </div>
         </div>
 
-        <!-- BREAKDOWN GOPAY & TUNAI (MATCHING DASBOARD STRIP) -->
+        <!-- BREAKDOWN GOPAY & TUNAI (UNIFIED SECONDARY STAT SCALE) -->
         <div class="grid grid-cols-2 gap-2 sm:gap-3">
-            <div class="glass-panel p-2.5 sm:p-3 rounded-xl border border-neutral-900 border-t-2 border-t-sky-400 flex items-center justify-between shadow-xs">
-                <div class="flex flex-col">
-                    <span class="text-[8px] sm:text-[9.5px] font-mono uppercase tracking-wider text-neutral-400 font-semibold">Kas E-Wallet GoPay</span>
-                    <span id="stat-saldo-gopay" class="text-xs sm:text-sm font-bold text-sky-400 font-mono mt-0.5">Rp0</span>
+            <div class="glass-panel p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-neutral-900 border-t-2 border-t-sky-400 flex items-center justify-between shadow-xs">
+                <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="t-label truncate">Kas E-Wallet GoPay</span>
+                    <span id="stat-saldo-gopay" class="t-stat-secondary text-sky-400">Rp0</span>
                 </div>
-                <i class="fa-solid fa-mobile-screen text-sky-400 text-xs sm:text-sm"></i>
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-mobile-screen text-sky-400 text-xs sm:text-sm"></i>
+                </div>
             </div>
 
-            <div class="glass-panel p-2.5 sm:p-3 rounded-xl border border-neutral-900 border-t-2 border-t-emerald-400 flex items-center justify-between shadow-xs">
-                <div class="flex flex-col">
-                    <span class="text-[8px] sm:text-[9.5px] font-mono uppercase tracking-wider text-neutral-400 font-semibold">Kas Fisik Tunai</span>
-                    <span id="stat-saldo-tunai" class="text-xs sm:text-sm font-bold text-emerald-400 font-mono mt-0.5">Rp0</span>
+            <div class="glass-panel p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-neutral-900 border-t-2 border-t-emerald-400 flex items-center justify-between shadow-xs">
+                <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="t-label truncate">Kas Fisik Tunai</span>
+                    <span id="stat-saldo-tunai" class="t-stat-secondary text-emerald-400">Rp0</span>
                 </div>
-                <i class="fa-solid fa-money-bill-wave text-emerald-400 text-xs sm:text-sm"></i>
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-money-bill-wave text-emerald-400 text-xs sm:text-sm"></i>
+                </div>
             </div>
         </div>
 
-        <!-- MAIN CHART 1: TREN ARUS KAS & SALDO (HARMONIOUS & RESPONSIVE) -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
-            <div class="flex items-center justify-between gap-2 pb-2 border-b border-neutral-800/60">
+        <!-- SECTION 1: TREN ARUS KAS & SALDO -->
+        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
+            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
                 <div class="min-w-0">
-                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5 truncate">
-                        <span>Tren Arus Kas & Saldo 2026</span>
+                    <h2 class="t-section-title truncate">
+                        Tren Arus Kas & Saldo 2026
                     </h2>
                 </div>
                 <!-- CHART CONTROLS: MODE TOGGLE & 3-DOTS KEBAB MENU -->
                 <div class="flex items-center gap-1.5 shrink-0">
                     <div class="flex items-center gap-0.5 bg-neutral-900/60 dark:bg-neutral-950 p-0.5 rounded-lg border border-neutral-800/80">
-                        <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active text-[9px] sm:text-[10px] py-1 px-2 sm:px-2.5">Arus Kas</button>
-                        <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn text-[9px] sm:text-[10px] py-1 px-2 sm:px-2.5">Saldo</button>
+                        <button id="btn-chart-mode-cashflow" onclick="setChartMode('cashflow')" class="tab-btn active">Arus Kas</button>
+                        <button id="btn-chart-mode-balance" onclick="setChartMode('balance')" class="tab-btn">Saldo</button>
                     </div>
 
                     <!-- 3-DOTS MENU UNTUK PILIHAN RENTANG -->
@@ -634,8 +745,8 @@
                         </button>
 
                         <!-- DROPDOWN POPUP -->
-                        <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-40 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1 z-50 flex flex-col gap-0.5 font-mono text-[10px]">
-                            <div class="px-2.5 py-1 text-[8.5px] uppercase font-bold text-neutral-500 tracking-wider border-b border-neutral-800/60 mb-0.5">
+                        <div id="range-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 w-44 rounded-xl bg-neutral-950/95 backdrop-blur-md border border-neutral-800/90 shadow-2xl p-1.5 z-50 flex flex-col gap-0.5 t-sub">
+                            <div class="px-2.5 py-1 t-label border-b border-neutral-800/60 mb-0.5">
                                 Rentang Waktu
                             </div>
                             <button type="button" onclick="selectRangeFromMenu('3m')" id="opt-range-3m" class="w-full text-left px-2.5 py-1.5 rounded-lg active-range text-white hover:bg-neutral-900/80 flex items-center justify-between transition-colors">
@@ -656,9 +767,9 @@
             </div>
 
             <!-- SUB-INFO: ACTIVE RANGE STATUS & HINT -->
-            <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 px-0.5">
-                <span id="chart-desc" class="text-neutral-400 text-[9px] truncate">Arus Kas • 3 Bulan Terakhir</span>
-                <span class="text-neutral-500 text-[8.5px] hidden xs:inline">Klik poin untuk detail</span>
+            <div class="flex items-center justify-between px-0.5">
+                <span id="chart-desc" class="t-sub truncate">Arus Kas • 3 Bulan Terakhir</span>
+                <span class="t-sub hidden xs:inline opacity-75">Klik titik grafik untuk detail</span>
             </div>
 
             <!-- RESPONSIVE CHART HEIGHT -->
@@ -667,44 +778,44 @@
             </div>
         </div>
 
-        <!-- MAIN CHART 2: KOMPOSISI POS PENGELUARAN (WITH PROPORTIONATE DONUT & CENTER BADGE) -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
-            <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
-                <div>
-                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5">
-                        <span>Komposisi Pengeluaran Belanja</span>
+        <!-- SECTION 2: KOMPOSISI PENGELUARAN BELANJA -->
+        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
+            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
+                <div class="min-w-0">
+                    <h2 class="t-section-title truncate">
+                        Komposisi Pengeluaran Belanja
                     </h2>
                 </div>
-                <span id="top-category-badge" class="text-[8.5px] sm:text-[9px] font-mono px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold truncate max-w-[150px]">
+                <span id="top-category-badge" class="t-sub-mono px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 truncate max-w-[160px] shrink-0">
                     Top: -
                 </span>
             </div>
 
             <!-- CENTERED PERFECT-CIRCLE DONUT WRAPPER WITH INNER TOTAL BADGE -->
-            <div class="relative w-full max-w-[240px] sm:max-w-[280px] h-44 sm:h-52 mx-auto flex items-center justify-center my-1">
+            <div class="relative w-full max-w-[230px] sm:max-w-[260px] h-44 sm:h-52 mx-auto flex items-center justify-center my-0.5">
                 <canvas id="categoryDonutChart"></canvas>
                 <!-- INNER CENTER LABEL -->
                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span class="text-[8.5px] font-mono uppercase text-neutral-400 font-bold tracking-wider">Total Belanja</span>
-                    <span id="donut-center-total" class="text-xs sm:text-sm font-black font-mono text-rose-400 mt-0.5">Rp0</span>
+                    <span class="t-label">Total Belanja</span>
+                    <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5">Rp0</span>
                 </div>
             </div>
 
-            <!-- STRUCTURED CATEGORY LEGEND LIST -->
-            <div id="category-pills-list" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-2.5 border-t border-neutral-800/50">
+            <!-- STRUCTURED CATEGORY LEGEND LIST (SAME TYPOGRAPHY AS REKAPITULASI DETAIL) -->
+            <div id="category-pills-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2.5 border-t border-neutral-800/50">
                 <!-- Populated dynamically via JS -->
             </div>
         </div>
 
-        <!-- REKAPITULASI POS ANGGARAN: DUAL-VIEW (MOBILE FINTECH CARDS + DESKTOP DATA TABLE) -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5 shadow-md min-w-0">
-            <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
-                <div>
-                    <h2 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-1.5">
-                        <span>Rekapitulasi Detail</span>
+        <!-- SECTION 3: REKAPITULASI DETAIL -->
+        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
+            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
+                <div class="min-w-0">
+                    <h2 class="t-section-title truncate">
+                        Rekapitulasi Detail
                     </h2>
                 </div>
-                <span id="table-summary-count" class="text-[9px] font-mono text-neutral-400 bg-neutral-900/60 px-2 py-0.5 rounded-lg border border-neutral-800">
+                <span id="table-summary-count" class="t-sub-mono meta-badge px-2.5 py-1 rounded-lg shrink-0">
                     0 Pos Terdata
                 </span>
             </div>
@@ -712,7 +823,7 @@
             <!-- 1. MOBILE FINTECH CARDS LIST (SHOWN ONLY ON MOBILE: NO CUT-OFFS, NO WORD BREAKS) -->
             <div id="mobile-category-list" class="flex flex-col gap-2 sm:hidden">
                 <!-- Populated dynamically via JS -->
-                <div class="p-3 text-center text-neutral-500 font-mono text-xs">
+                <div class="p-4 text-center t-sub">
                     <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memuat rekapitulasi pos...
                 </div>
             </div>
@@ -722,36 +833,36 @@
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th class="w-10 text-center">#</th>
+                            <th class="w-12 text-center">#</th>
                             <th>Kategori / Pos Pengeluaran</th>
-                            <th class="text-center">Jml Transaksi</th>
+                            <th class="text-center">Frekuensi</th>
                             <th class="text-right">Total Nominal</th>
-                            <th class="w-36">Porsi Realisasi</th>
+                            <th class="w-40">Porsi Realisasi</th>
                             <th class="text-center">Metode Dominan</th>
                         </tr>
                     </thead>
                     <tbody id="report-table-body">
                         <tr>
-                            <td colspan="6" class="text-center py-6 text-neutral-500 font-mono text-[11px]">
+                            <td colspan="6" class="text-center py-6 t-sub">
                                 <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memproses data pos keuangan...
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot id="report-table-foot" class="font-bold font-mono text-[11px]"></tfoot>
+                    <tfoot id="report-table-foot"></tfoot>
                 </table>
             </div>
 
-            <div class="flex items-center justify-between text-[9px] font-mono text-neutral-400 pt-1">
-                <span>* Data terverifikasi otomatis melalui Buku Kas Resmi 2026</span>
-                <a href="riwayat-transaksi.html" class="text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1 font-bold">
-                    <span>Lihat Buku Kas Rinci</span> <i class="fa-solid fa-arrow-right text-[7px]"></i>
+            <div class="flex items-center justify-between gap-2 pt-1">
+                <span class="t-sub truncate">* Data terverifikasi melalui Buku Kas Resmi 2026</span>
+                <a href="riwayat-transaksi.html" class="t-sub text-[#FF7300] hover:text-orange-400 transition-colors flex items-center gap-1 shrink-0 font-bold">
+                    <span>Buku Kas Rinci</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
                 </a>
             </div>
         </div>
 
         <!-- FOOTER -->
-        <footer class="border-t border-neutral-900/60 bg-neutral-950/20 py-4 text-center mt-2 rounded-xl">
-            <span class="text-[9.5px] font-mono text-neutral-500 tracking-widest uppercase">
+        <footer class="border-t border-neutral-900/60 bg-neutral-950/20 py-4 text-center mt-1 rounded-xl">
+            <span class="t-label tracking-widest">
                 LDK IMIP 2026 — Transparansi Finansial Terbuka
             </span>
         </footer>
@@ -1006,7 +1117,7 @@
                                 position: 'top',
                                 labels: {
                                     color: textColor,
-                                    font: { family: 'Plus Jakarta Sans', size: 10, weight: 'bold' },
+                                    font: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' },
                                     boxWidth: 10,
                                     usePointStyle: true,
                                 }
@@ -1033,13 +1144,13 @@
                         scales: {
                             x: {
                                 grid: { color: gridColor },
-                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', size: 9, weight: 'bold' } }
+                                ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', size: 10, weight: 'bold' } }
                             },
                             y: {
                                 grid: { color: gridColor },
                                 ticks: {
                                     color: textColor,
-                                    font: { family: 'Plus Jakarta Sans', size: 8.5 },
+                                    font: { family: 'JetBrains Mono', size: 10 },
                                     callback: function(val) {
                                         if (val >= 1000000) return (val / 1000000).toFixed(1) + ' jt';
                                         if (val >= 1000) return (val / 1000).toFixed(0) + ' rb';
@@ -1449,15 +1560,15 @@
                         var val = donutData[i];
                         var pct = totalBelanja > 0 ? ((val / totalBelanja) * 100).toFixed(1) : '0';
                         var item = document.createElement('div');
-                        item.className = 'cat-legend-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[10px] font-mono shadow-2xs';
+                        item.className = 'cat-legend-item flex items-center justify-between px-3 py-2 rounded-xl shadow-2xs';
                         item.innerHTML = 
-                            '<div class="flex items-center gap-2 min-w-0 pr-1.5">' +
+                            '<div class="flex items-center gap-2 min-w-0 pr-2">' +
                                 '<span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: ' + color + '"></span>' +
-                                '<span class="font-bold cat-legend-name truncate">' + lbl + '</span>' +
+                                '<span class="t-body truncate">' + lbl + '</span>' +
                             '</div>' +
-                            '<div class="flex items-center gap-1.5 shrink-0 text-right">' +
-                                '<span class="font-bold cat-legend-val">' + formatRupiah(val) + '</span>' +
-                                '<span class="text-[9px] cat-legend-pct font-semibold">(' + pct + '%)</span>' +
+                            '<div class="flex items-center gap-2 shrink-0 text-right">' +
+                                '<span class="t-val">' + formatRupiah(val) + '</span>' +
+                                '<span class="t-sub-mono meta-badge px-1.5 py-0.5 rounded cat-legend-pct min-w-[46px] text-center">' + pct + '%</span>' +
                             '</div>';
                         pillsContainer.appendChild(item);
                     });
@@ -1475,9 +1586,9 @@
             var summaryCount = document.getElementById('table-summary-count');
 
             if (!categories || categories.length === 0) {
-                var emptyHtml = '<div class="p-6 text-center text-neutral-500 font-mono text-xs"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pos pengeluaran yang tercatat pada periode ini.</div>';
+                var emptyHtml = '<div class="p-6 text-center t-sub"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pos pengeluaran yang tercatat pada periode ini.</div>';
                 if (mobileList) mobileList.innerHTML = emptyHtml;
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-neutral-500 font-mono text-xs">' + emptyHtml + '</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 t-sub">' + emptyHtml + '</td></tr>';
                 if (tfoot) tfoot.innerHTML = '';
                 if (summaryCount) summaryCount.innerText = '0 Pos Terdata';
                 return;
@@ -1495,39 +1606,41 @@
                 var dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
                 var metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
 
-                // 1. Mobile Fintech Card Item (High readability, no word breaks)
+                // 1. Mobile Fintech Card Item (Consistent .t-body, .t-val, .t-sub-mono)
                 mobileCardsHtml += 
-                    '<div class="mobile-cat-card p-2.5 sm:p-3 rounded-xl flex flex-col gap-2 shadow-xs">' +
+                    '<div class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs">' +
                         '<div class="flex items-center justify-between gap-2">' +
-                            '<div class="flex items-center gap-2 min-w-0">' +
-                                '<span class="text-[10px] font-mono font-bold text-[#FF7300]">#' + (index + 1) + '</span>' +
-                                '<span class="font-bold text-xs text-neutral-100 truncate">' + cat.nama + '</span>' +
-                                '<span class="text-[9px] font-mono text-neutral-400 bg-neutral-800/80 px-1.5 py-0.5 rounded shrink-0">' + cat.count + ' transaksi</span>' +
+                            '<div class="flex items-center gap-2 min-w-0 pr-2">' +
+                                '<span class="t-sub-mono font-bold text-[#FF7300] w-5 shrink-0">#' + (index + 1) + '</span>' +
+                                '<span class="t-body truncate">' + cat.nama + '</span>' +
                             '</div>' +
-                            '<span class="font-mono font-bold text-xs text-neutral-100 shrink-0">' + formatRupiah(cat.total) + '</span>' +
+                            '<span class="t-val shrink-0">' + formatRupiah(cat.total) + '</span>' +
                         '</div>' +
-                        '<div class="flex items-center justify-between gap-2 pt-1 border-t border-neutral-800/50 text-[9.5px] font-mono">' +
+                        '<div class="flex items-center justify-between gap-2.5 pt-1.5 border-t border-neutral-800/50">' +
                             '<div class="flex items-center gap-2 flex-grow min-w-0">' +
-                                '<div class="w-full bg-neutral-800 rounded-full h-1.5 overflow-hidden">' +
+                                '<div class="w-full progress-track rounded-full h-1.5 overflow-hidden">' +
                                     '<div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div>' +
                                 '</div>' +
-                                '<span class="text-neutral-400 font-bold shrink-0">' + percent + '%</span>' +
+                                '<span class="t-sub-mono shrink-0">' + percent + '%</span>' +
                             '</div>' +
-                            '<span class="inline-flex items-center gap-1 text-neutral-300 bg-neutral-800/70 px-2 py-0.5 rounded shrink-0">' +
-                                '<i class="fa-solid ' + metodeIcon + ' text-[8px]"></i>' +
-                                '<span>' + dominantMetode + '</span>' +
-                            '</span>' +
+                            '<div class="flex items-center gap-1.5 shrink-0">' +
+                                '<span class="t-sub-mono meta-badge px-2 py-0.5 rounded">' + cat.count + ' transaksi</span>' +
+                                '<span class="t-sub-mono meta-badge inline-flex items-center gap-1 px-2 py-0.5 rounded">' +
+                                    '<i class="fa-solid ' + metodeIcon + ' text-[9px]"></i>' +
+                                    '<span>' + dominantMetode + '</span>' +
+                                '</span>' +
+                            '</div>' +
                         '</div>' +
                     '</div>';
 
-                // 2. Desktop Full Table Row (With whitespace-nowrap)
+                // 2. Desktop Full Table Row (Consistent .t-body, .t-val, .t-sub-mono)
                 desktopRowsHtml += '<tr class="transition-colors">' +
-                    '<td class="text-center font-mono text-neutral-500 font-bold text-[10px]">' + (index + 1) + '</td>' +
-                    '<td><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-[#FF7300]"></span><span class="font-bold text-[11.5px]">' + cat.nama + '</span></div></td>' +
-                    '<td class="text-center font-mono text-[11px]">' + cat.count + ' <span class="text-neutral-500 text-[9.5px]">tx</span></td>' +
-                    '<td class="text-right font-mono font-bold text-[11.5px]">' + formatRupiah(cat.total) + '</td>' +
-                    '<td><div class="flex items-center gap-1.5"><div class="w-full bg-neutral-800/80 rounded-full h-1 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="text-[9.5px] font-mono text-neutral-400 w-9 text-right shrink-0 font-bold">' + percent + '%</span></div></td>' +
-                    '<td class="text-center font-mono text-[10.5px]"><span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-neutral-900/60 dark:bg-neutral-900 border border-neutral-800/80"><i class="fa-solid ' + metodeIcon + ' text-[8px]"></i><span>' + dominantMetode + '</span></span></td>' +
+                    '<td class="text-center t-sub-mono">' + (index + 1) + '</td>' +
+                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body">' + cat.nama + '</span></div></td>' +
+                    '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
+                    '<td class="text-right t-val">' + formatRupiah(cat.total) + '</td>' +
+                    '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
+                    '<td class="text-center"><span class="t-sub-mono meta-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md"><i class="fa-solid ' + metodeIcon + ' text-[9px]"></i><span>' + dominantMetode + '</span></span></td>' +
                     '</tr>';
             });
 
@@ -1541,11 +1654,11 @@
 
             if (tfoot) {
                 tfoot.innerHTML = '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
-                    '<td colspan="2" class="text-left uppercase text-neutral-400 pl-3 py-2.5 font-bold text-[10px]">TOTAL KESELURUHAN</td>' +
-                    '<td class="text-center font-bold text-[11px]">' + totalTransactions + ' transaksi</td>' +
-                    '<td class="text-right text-rose-500 dark:text-rose-400 text-xs font-extrabold">' + formatRupiah(grandTotalKeluar) + '</td>' +
-                    '<td class="text-neutral-400 font-bold text-[10px]">100% Alokasi</td>' +
-                    '<td class="text-center text-neutral-400">-</td>' +
+                    '<td colspan="2" class="text-left pl-3.5 py-3 t-label">Total Keseluruhan</td>' +
+                    '<td class="text-center t-sub-mono font-bold">' + totalTransactions + ' transaksi</td>' +
+                    '<td class="text-right t-val text-rose-500 dark:text-rose-400">' + formatRupiah(grandTotalKeluar) + '</td>' +
+                    '<td class="t-sub-mono font-bold">100% Alokasi</td>' +
+                    '<td class="text-center t-sub-mono">-</td>' +
                     '</tr>';
             }
         }
