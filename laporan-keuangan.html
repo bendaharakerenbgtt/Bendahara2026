@@ -807,27 +807,26 @@
             </div>
         </div>
 
-        <!-- SECTION 2: KOMPOSISI PENGELUARAN BELANJA -->
+        <!-- SECTION 2: KOMPOSISI BELANJA -->
         <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
             <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
                 <div class="min-w-0">
                     <h2 class="t-section-title truncate">
-                        Komposisi Pengeluaran Belanja
+                        Komposisi Belanja
                     </h2>
                 </div>
-                <span class="t-sub text-[9.5px] text-[#FF7300] font-mono shrink-0 cursor-pointer hover:underline" onclick="resetDonutFocus()">
-                    Ketuk pos untuk fokus ↺
-                </span>
             </div>
 
             <!-- CENTERED PERFECT-CIRCLE DONUT WRAPPER WITH INNER TOTAL BADGE -->
             <div class="relative w-full max-w-[230px] sm:max-w-[260px] h-44 sm:h-52 mx-auto flex items-center justify-center my-0.5">
                 <canvas id="categoryDonutChart" class="cursor-pointer"></canvas>
-                <!-- INNER CENTER LABEL (CLICKABLE TO RESET) -->
-                <div id="donut-center-badge" onclick="resetDonutFocus()" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 pointer-events-auto group" title="Ketuk untuk reset ke Total Belanja">
-                    <span id="donut-center-label" class="t-label truncate max-w-[140px] text-center transition-colors group-hover:text-[#FF7300]">Total Belanja</span>
-                    <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5 transition-transform group-hover:scale-105">Rp0</span>
-                    <span id="donut-center-sub" class="text-[8.5px] font-mono text-neutral-400 mt-0.5 hidden">Ketuk untuk reset ↺</span>
+                <!-- INNER CENTER LABEL (POINTER-EVENTS-NONE ON CONTAINER, POINTER-EVENTS-AUTO ON CLICKABLE INNER CENTER) -->
+                <div id="donut-center-badge" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+                    <div onclick="resetDonutFocus()" class="pointer-events-auto flex flex-col items-center justify-center cursor-pointer p-2 rounded-full hover:bg-neutral-800/40 transition-all select-none group" title="Reset Total Belanja">
+                        <span id="donut-center-label" class="t-label truncate max-w-[130px] text-center transition-colors group-hover:text-[#FF7300]">Total Belanja</span>
+                        <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5 transition-transform group-hover:scale-105">Rp0</span>
+                        <span id="donut-center-sub" class="text-[9px] font-mono text-[#FF7300] mt-0.5 hidden font-semibold"></span>
+                    </div>
                 </div>
             </div>
 
@@ -846,7 +845,7 @@
                     </h2>
                 </div>
                 <span id="table-summary-count" class="t-sub-mono meta-badge px-2.5 py-1 rounded-lg shrink-0">
-                    0 Pos Terdata
+                    0 Kategori
                 </span>
             </div>
 
@@ -854,7 +853,7 @@
             <div id="mobile-category-list" class="flex flex-col gap-2 sm:hidden">
                 <!-- Populated dynamically via JS -->
                 <div class="p-4 text-center t-sub">
-                    <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memuat rekapitulasi pos...
+                    <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memuat rekapitulasi...
                 </div>
             </div>
 
@@ -864,7 +863,7 @@
                     <thead>
                         <tr>
                             <th class="w-12 text-center">#</th>
-                            <th>Kategori / Pos Pengeluaran</th>
+                            <th>Kategori Pengeluaran</th>
                             <th class="text-center">Frekuensi</th>
                             <th class="text-right">Total Nominal</th>
                             <th class="w-40">Porsi Realisasi</th>
@@ -874,7 +873,7 @@
                     <tbody id="report-table-body">
                         <tr>
                             <td colspan="6" class="text-center py-6 t-sub">
-                                <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memproses data pos keuangan...
+                                <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memproses data kategori...
                             </td>
                         </tr>
                     </tbody>
@@ -931,8 +930,8 @@
                 <div class="flex items-center gap-2.5 min-w-0">
                     <span id="modal-cat-color" class="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs"></span>
                     <div class="min-w-0">
-                        <h3 id="modal-cat-title" class="t-section-title truncate">Nama Pos</h3>
-                        <span id="modal-cat-subtitle" class="t-sub-mono">Rincian Pos Anggaran</span>
+                        <h3 id="modal-cat-title" class="t-section-title truncate">Nama Kategori</h3>
+                        <span id="modal-cat-subtitle" class="t-sub-mono">Rincian Realisasi Anggaran</span>
                     </div>
                 </div>
                 <button type="button" onclick="closeCategoryModal()" class="w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95 text-xs">
@@ -970,7 +969,7 @@
 
             <!-- Recent Transactions in this Category -->
             <div class="flex flex-col gap-1.5">
-                <span class="t-label">Daftar Transaksi Terakhir di Pos Ini:</span>
+                <span class="t-label">Daftar Transaksi Terakhir:</span>
                 <div id="modal-cat-tx-list" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
                     <!-- Populated dynamically via JS -->
                 </div>
@@ -1298,12 +1297,18 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        onClick: function(e, elements) {
-                            if (elements && elements.length > 0) {
-                                var idx = elements[0].index;
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        onClick: function(e, elements, chart) {
+                            var targetElements = elements;
+                            if ((!targetElements || targetElements.length === 0) && chart && chart.getElementsAtEventForMode) {
+                                targetElements = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false);
+                            }
+                            if (targetElements && targetElements.length > 0) {
+                                var idx = targetElements[0].index;
                                 focusDonutCategory(idx, false);
-                            } else {
-                                resetDonutFocus();
                             }
                         },
                         onHover: function(e, elements) {
@@ -1501,7 +1506,7 @@
             if (lblEl) lblEl.innerText = targetLabel;
             if (totEl) totEl.innerText = formatRupiah(targetVal);
             if (subEl) {
-                subEl.innerText = percent + '% • Ketuk reset ↺';
+                subEl.innerText = percent + '% alokasi';
                 subEl.classList.remove('hidden');
             }
 
@@ -1517,6 +1522,17 @@
                     }
                 } else {
                     pill.classList.remove('active-cat-pill');
+                }
+            });
+
+            // Synchronize highlight in Rekapitulasi Detail
+            var allCards = document.querySelectorAll('.mobile-cat-card');
+            allCards.forEach(function(card) {
+                var cName = card.getAttribute('data-cat') || '';
+                if (cName.toLowerCase() === targetLabel.toLowerCase()) {
+                    card.classList.add('ring-1', 'ring-[#FF7300]', 'bg-orange-500/10');
+                } else {
+                    card.classList.remove('ring-1', 'ring-[#FF7300]', 'bg-orange-500/10');
                 }
             });
         }
@@ -1537,6 +1553,11 @@
             var pills = document.querySelectorAll('#category-pills-list .cat-legend-item');
             pills.forEach(function(pill) {
                 pill.classList.remove('active-cat-pill');
+            });
+
+            var allCards = document.querySelectorAll('.mobile-cat-card');
+            allCards.forEach(function(card) {
+                card.classList.remove('ring-1', 'ring-[#FF7300]', 'bg-orange-500/10');
             });
         }
 
@@ -1643,7 +1664,7 @@
             var linkKas = document.getElementById('modal-cat-link-kas');
 
             if (titleEl) titleEl.innerText = categoryName;
-            if (subtitleEl) subtitleEl.innerText = isLainnya ? 'Gabungan Pos Pengeluaran Lainnya' : 'Rincian Pos Anggaran & Realisasi';
+            if (subtitleEl) subtitleEl.innerText = isLainnya ? 'Pengeluaran Lainnya' : 'Rincian Realisasi Anggaran';
             if (colorDot) colorDot.style.backgroundColor = color;
             if (totalEl) totalEl.innerText = formatRupiah(catTotal);
             if (porsiEl) porsiEl.innerText = porsi + '%';
@@ -1659,7 +1680,7 @@
             if (listEl) {
                 listEl.innerHTML = '';
                 if (catTx.length === 0) {
-                    listEl.innerHTML = '<div class="py-4 text-center t-sub text-xs">Belum ada transaksi pada pos ini.</div>';
+                    listEl.innerHTML = '<div class="py-4 text-center t-sub text-xs">Belum ada transaksi pada kategori ini.</div>';
                 } else {
                     var sortedTx = catTx.slice().sort(function(a, b) {
                         return new Date(b.tanggal || 0) - new Date(a.tanggal || 0);
@@ -1956,9 +1977,6 @@
                             '<div class="flex items-center gap-2 shrink-0 text-right">' +
                                 '<span class="t-val">' + formatRupiah(val) + '</span>' +
                                 '<span class="t-sub-mono meta-badge px-1.5 py-0.5 rounded cat-legend-pct min-w-[46px] text-center">' + pct + '%</span>' +
-                                '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + lbl.replace(/'/g, "\\'") + '\')" class="w-6 h-6 rounded-md bg-neutral-800/60 hover:bg-[#FF7300] hover:text-white text-neutral-400 flex items-center justify-center text-[10px] transition-colors ml-0.5 cursor-pointer" title="Lihat Rincian Pos">' +
-                                    '<i class="fa-solid fa-arrow-up-right-from-square"></i>' +
-                                '</button>' +
                             '</div>';
                         pillsContainer.appendChild(item);
                     });
@@ -1976,15 +1994,15 @@
             var summaryCount = document.getElementById('table-summary-count');
 
             if (!categories || categories.length === 0) {
-                var emptyHtml = '<div class="p-6 text-center t-sub"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pos pengeluaran yang tercatat pada periode ini.</div>';
+                var emptyHtml = '<div class="p-6 text-center t-sub"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pengeluaran yang tercatat pada periode ini.</div>';
                 if (mobileList) mobileList.innerHTML = emptyHtml;
                 if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 t-sub">' + emptyHtml + '</td></tr>';
                 if (tfoot) tfoot.innerHTML = '';
-                if (summaryCount) summaryCount.innerText = '0 Pos Terdata';
+                if (summaryCount) summaryCount.innerText = '0 Kategori';
                 return;
             }
 
-            if (summaryCount) summaryCount.innerText = categories.length + ' Pos Terdata';
+            if (summaryCount) summaryCount.innerText = categories.length + ' Kategori';
 
             var totalTransactions = 0;
             var mobileCardsHtml = '';
@@ -1998,7 +2016,7 @@
 
                 // 1. Mobile Fintech Card Item (Interactive click opens drilldown modal)
                 mobileCardsHtml += 
-                    '<div onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs cursor-pointer hover:border-[#FF7300]/40 transition-all active:scale-[0.99] group">' +
+                    '<div data-cat="' + cat.nama.replace(/"/g, '&quot;') + '" onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs cursor-pointer hover:border-[#FF7300]/40 transition-all active:scale-[0.99] group">' +
                         '<div class="flex items-center justify-between gap-2">' +
                             '<div class="flex items-center gap-2 min-w-0 pr-2">' +
                                 '<span class="t-sub-mono font-bold text-[#FF7300] w-5 shrink-0">#' + (index + 1) + '</span>' +
@@ -2027,7 +2045,7 @@
                     '</div>';
 
                 // 2. Desktop Full Table Row (Interactive click opens drilldown modal)
-                desktopRowsHtml += '<tr onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="cursor-pointer hover:bg-neutral-800/40 transition-colors group">' +
+                desktopRowsHtml += '<tr data-cat="' + cat.nama.replace(/"/g, '&quot;') + '" onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="cursor-pointer hover:bg-neutral-800/40 transition-colors group">' +
                     '<td class="text-center t-sub-mono">' + (index + 1) + '</td>' +
                     '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
                     '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
