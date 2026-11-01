@@ -453,6 +453,39 @@
             color: #EA580C !important;
         }
 
+        /* ACTIVE INTERACTIVE HIGHLIGHT FOR CATEGORY */
+        .active-cat-pill {
+            border-color: #FF7300 !important;
+            background-color: rgba(255, 115, 0, 0.12) !important;
+            box-shadow: 0 0 16px rgba(255, 115, 0, 0.28) !important;
+            transform: translateY(-2px) scale(1.02);
+        }
+        html.light-mode .active-cat-pill {
+            background-color: #FFF7ED !important;
+            border-color: #FF7300 !important;
+            box-shadow: 0 4px 16px rgba(255, 115, 0, 0.22) !important;
+        }
+
+        /* MODAL ANIMATION & LIGHT MODE */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        html.light-mode #categoryDetailModal > div {
+            background-color: #FFFFFF !important;
+            border-color: #FED7AA !important;
+            box-shadow: 0 25px 50px -12px rgba(255, 115, 0, 0.2) !important;
+        }
+        html.light-mode #categoryDetailModal .bg-neutral-900\/60,
+        html.light-mode #categoryDetailModal .bg-neutral-900\/40,
+        html.light-mode #categoryDetailModal .bg-neutral-900 {
+            background-color: #FFF7ED !important;
+            border-color: #FED7AA !important;
+        }
+
         /* KEBAB DROPDOWN MENU */
         #range-dropdown-menu {
             animation: fadeInDropdown 0.15s ease-out;
@@ -749,7 +782,28 @@
 
             <!-- RESPONSIVE CHART HEIGHT -->
             <div class="w-full h-44 sm:h-56 relative">
-                <canvas id="mainTrendChart"></canvas>
+                <canvas id="mainTrendChart" class="cursor-pointer"></canvas>
+            </div>
+
+            <!-- INTERACTIVE MONTH SPOTLIGHT BANNER -->
+            <div id="month-spotlight-card" class="hidden p-2.5 sm:p-3 rounded-xl bg-neutral-900/80 border border-[#FF7300]/40 flex items-center justify-between gap-2 transition-all">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-orange-500/15 text-[#FF7300] flex items-center justify-center text-xs font-bold shrink-0">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span id="spotlight-month-title" class="t-body font-bold text-white truncate">Bulan</span>
+                        <div class="flex items-center gap-2 t-sub-mono flex-wrap">
+                            <span class="text-emerald-400">Masuk: <strong id="spotlight-in">Rp0</strong></span>
+                            <span class="text-neutral-500">•</span>
+                            <span class="text-rose-400">Keluar: <strong id="spotlight-out">Rp0</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span id="spotlight-net" class="t-sub-mono px-2 py-1 rounded-md font-bold bg-neutral-800 text-white">Net: Rp0</span>
+                    <button type="button" onclick="closeMonthSpotlight()" class="text-neutral-400 hover:text-white text-xs px-2 py-1 rounded-md bg-neutral-800/60 hover:bg-neutral-800 cursor-pointer" title="Tutup">✕</button>
+                </div>
             </div>
         </div>
 
@@ -757,19 +811,23 @@
         <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
             <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
                 <div class="min-w-0">
-                    <h2 class="t-section-title">
+                    <h2 class="t-section-title truncate">
                         Komposisi Pengeluaran Belanja
                     </h2>
                 </div>
+                <span class="t-sub text-[9.5px] text-[#FF7300] font-mono shrink-0 cursor-pointer hover:underline" onclick="resetDonutFocus()">
+                    Ketuk pos untuk fokus ↺
+                </span>
             </div>
 
             <!-- CENTERED PERFECT-CIRCLE DONUT WRAPPER WITH INNER TOTAL BADGE -->
             <div class="relative w-full max-w-[230px] sm:max-w-[260px] h-44 sm:h-52 mx-auto flex items-center justify-center my-0.5">
-                <canvas id="categoryDonutChart"></canvas>
-                <!-- INNER CENTER LABEL -->
-                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span class="t-label">Total Belanja</span>
-                    <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5">Rp0</span>
+                <canvas id="categoryDonutChart" class="cursor-pointer"></canvas>
+                <!-- INNER CENTER LABEL (CLICKABLE TO RESET) -->
+                <div id="donut-center-badge" onclick="resetDonutFocus()" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 pointer-events-auto group" title="Ketuk untuk reset ke Total Belanja">
+                    <span id="donut-center-label" class="t-label truncate max-w-[140px] text-center transition-colors group-hover:text-[#FF7300]">Total Belanja</span>
+                    <span id="donut-center-total" class="t-stat-secondary text-rose-400 mt-0.5 transition-transform group-hover:scale-105">Rp0</span>
+                    <span id="donut-center-sub" class="text-[8.5px] font-mono text-neutral-400 mt-0.5 hidden">Ketuk untuk reset ↺</span>
                 </div>
             </div>
 
@@ -865,6 +923,71 @@
         </button>
     </nav>
 
+    <!-- INTERACTIVE CATEGORY DRILLDOWN MODAL -->
+    <div id="categoryDetailModal" class="hidden fixed inset-0 z-[9999] bg-neutral-950/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300" onclick="if(event.target===this) closeCategoryModal()">
+        <div class="w-full max-w-lg bg-neutral-950 border border-neutral-800/90 rounded-t-2xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar animate-fadeInUp">
+            <!-- Header with Close button -->
+            <div class="flex items-center justify-between pb-2 border-b border-neutral-800/60">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span id="modal-cat-color" class="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs"></span>
+                    <div class="min-w-0">
+                        <h3 id="modal-cat-title" class="t-section-title truncate">Nama Pos</h3>
+                        <span id="modal-cat-subtitle" class="t-sub-mono">Rincian Pos Anggaran</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCategoryModal()" class="w-7 h-7 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95 text-xs">
+                    ✕
+                </button>
+            </div>
+            
+            <!-- Quick Metrics Grid -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex flex-col gap-0.5">
+                    <span class="t-label">Total Realisasi</span>
+                    <span id="modal-cat-total" class="t-val text-rose-400">Rp0</span>
+                </div>
+                <div class="p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex flex-col gap-0.5">
+                    <span class="t-label">Porsi Belanja</span>
+                    <span id="modal-cat-porsi" class="t-val text-[#FF7300]">0%</span>
+                </div>
+                <div class="p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex flex-col gap-0.5">
+                    <span class="t-label">Frekuensi</span>
+                    <span id="modal-cat-count" class="t-val text-neutral-200">0 tx</span>
+                </div>
+            </div>
+
+            <!-- Metode Breakdown Bar -->
+            <div class="p-2.5 rounded-xl bg-neutral-900/40 border border-neutral-800/50 flex flex-col gap-1.5">
+                <div class="flex items-center justify-between t-sub-mono">
+                    <span class="flex items-center gap-1 text-sky-400"><i class="fa-solid fa-mobile-screen text-[9px]"></i> GoPay: <strong id="modal-cat-gopay">0 tx</strong></span>
+                    <span class="flex items-center gap-1 text-emerald-400"><i class="fa-solid fa-money-bill-wave text-[9px]"></i> Tunai: <strong id="modal-cat-tunai">0 tx</strong></span>
+                </div>
+                <div class="w-full bg-neutral-800 rounded-full h-1.5 overflow-hidden flex">
+                    <div id="modal-cat-bar-gopay" class="bg-sky-400 h-full transition-all duration-500" style="width: 50%;"></div>
+                    <div id="modal-cat-bar-tunai" class="bg-emerald-400 h-full transition-all duration-500" style="width: 50%;"></div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions in this Category -->
+            <div class="flex flex-col gap-1.5">
+                <span class="t-label">Daftar Transaksi Terakhir di Pos Ini:</span>
+                <div id="modal-cat-tx-list" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Bottom action link -->
+            <div class="pt-2 border-t border-neutral-800/60 flex items-center justify-between gap-2">
+                <button type="button" onclick="closeCategoryModal()" class="px-4 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white t-sub font-bold cursor-pointer">
+                    Tutup
+                </button>
+                <a id="modal-cat-link-kas" href="riwayat-transaksi.html" class="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white t-sub font-bold flex items-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all">
+                    <span>Lihat di Buku Kas</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- CLIENT SCRIPT & CHART LOGIC -->
     <script>
         // GLOBAL STATE DECLARATIONS AT THE VERY TOP (AVOIDING TDZ ISSUES)
@@ -874,6 +997,13 @@
         var currentChartRange = '3m';
         var selectedPeriode = 'all';
         var rawTransactions = [];
+        var currentFocusedCategoryIndex = -1;
+        var latestSortedCategories = [];
+        var latestGrandTotalKeluar = 0;
+        var latestMonthlyIn = [];
+        var latestMonthlyOut = [];
+        var latestActiveMonths = [];
+        var latestStartIdx = 0;
 
         // SAFETY ERROR HANDLER - ENSURES LOADING OVERLAY IS HIDDEN ON ERROR
         window.onerror = function(msg, src, line, col, err) {
@@ -1079,6 +1209,17 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        onClick: function(e, elements) {
+                            if (elements && elements.length > 0) {
+                                var idx = elements[0].index;
+                                showMonthSpotlight(idx);
+                            }
+                        },
+                        onHover: function(e, elements) {
+                            if (e && e.native && e.native.target) {
+                                e.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                            }
+                        },
                         interaction: {
                             mode: 'index',
                             intersect: false,
@@ -1151,12 +1292,25 @@
                             backgroundColor: CATEGORY_COLORS,
                             borderColor: isLight ? '#ffffff' : '#080C14',
                             borderWidth: 2,
-                            hoverOffset: 4
+                            hoverOffset: 12
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        onClick: function(e, elements) {
+                            if (elements && elements.length > 0) {
+                                var idx = elements[0].index;
+                                focusDonutCategory(idx, false);
+                            } else {
+                                resetDonutFocus();
+                            }
+                        },
+                        onHover: function(e, elements) {
+                            if (e && e.native && e.native.target) {
+                                e.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                            }
+                        },
                         plugins: {
                             legend: {
                                 display: false
@@ -1306,6 +1460,253 @@
         }
 
         // ----------------------------------------------------
+        // INTERACTIVE CHART & MODAL DRILL-DOWN HANDLERS
+        // ----------------------------------------------------
+        function formatDateIndo(dateStr) {
+            if (!dateStr) return '-';
+            var d = new Date(dateStr);
+            if (isNaN(d)) return dateStr;
+            var day = d.getDate();
+            var m = MONTH_NAMES[d.getMonth()] || '';
+            var y = d.getFullYear();
+            return day + ' ' + m + ' ' + y;
+        }
+
+        function focusDonutCategory(idx, scrollIntoView) {
+            if (!donutChartInstance || !donutChartInstance.data.labels || donutChartInstance.data.labels.length === 0) return;
+            
+            // Toggle off if already focused on this index
+            if (currentFocusedCategoryIndex === idx) {
+                resetDonutFocus();
+                return;
+            }
+
+            currentFocusedCategoryIndex = idx;
+            var labels = donutChartInstance.data.labels;
+            var data = donutChartInstance.data.datasets[0].data;
+            var targetLabel = labels[idx];
+            var targetVal = data[idx] || 0;
+            var totalBelanja = data.reduce(function(a, b) { return a + b; }, 0);
+            var percent = totalBelanja > 0 ? ((targetVal / totalBelanja) * 100).toFixed(1) : '0';
+
+            // Highlight slice in Chart.js
+            donutChartInstance.setActiveElements([{ datasetIndex: 0, index: idx }]);
+            donutChartInstance.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], { x: 0, y: 0 });
+            donutChartInstance.update();
+
+            // Update center badge
+            var lblEl = document.getElementById('donut-center-label');
+            var totEl = document.getElementById('donut-center-total');
+            var subEl = document.getElementById('donut-center-sub');
+            if (lblEl) lblEl.innerText = targetLabel;
+            if (totEl) totEl.innerText = formatRupiah(targetVal);
+            if (subEl) {
+                subEl.innerText = percent + '% • Ketuk reset ↺';
+                subEl.classList.remove('hidden');
+            }
+
+            // Highlight category pill item
+            var pills = document.querySelectorAll('#category-pills-list .cat-legend-item');
+            pills.forEach(function(pill, pIdx) {
+                if (pIdx === idx) {
+                    pill.classList.add('active-cat-pill');
+                    if (scrollIntoView) {
+                        try {
+                            pill.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } catch(e) {}
+                    }
+                } else {
+                    pill.classList.remove('active-cat-pill');
+                }
+            });
+        }
+
+        function resetDonutFocus() {
+            currentFocusedCategoryIndex = -1;
+            if (donutChartInstance) {
+                donutChartInstance.setActiveElements([]);
+                donutChartInstance.update();
+            }
+            var lblEl = document.getElementById('donut-center-label');
+            var totEl = document.getElementById('donut-center-total');
+            var subEl = document.getElementById('donut-center-sub');
+            if (lblEl) lblEl.innerText = 'Total Belanja';
+            if (totEl) totEl.innerText = formatRupiah(latestGrandTotalKeluar);
+            if (subEl) subEl.classList.add('hidden');
+
+            var pills = document.querySelectorAll('#category-pills-list .cat-legend-item');
+            pills.forEach(function(pill) {
+                pill.classList.remove('active-cat-pill');
+            });
+        }
+
+        function showMonthSpotlight(idx) {
+            if (!latestActiveMonths || idx < 0 || idx >= latestActiveMonths.length) return;
+            var monthName = latestActiveMonths[idx];
+            var actualMonthIdx = latestStartIdx + idx;
+            var mIn = (latestMonthlyIn && latestMonthlyIn[actualMonthIdx]) || 0;
+            var mOut = (latestMonthlyOut && latestMonthlyOut[actualMonthIdx]) || 0;
+            var mNet = mIn - mOut;
+
+            var card = document.getElementById('month-spotlight-card');
+            var titleEl = document.getElementById('spotlight-month-title');
+            var inEl = document.getElementById('spotlight-in');
+            var outEl = document.getElementById('spotlight-out');
+            var netEl = document.getElementById('spotlight-net');
+
+            if (titleEl) titleEl.innerText = 'Bulan ' + monthName + ' 2026';
+            if (inEl) inEl.innerText = formatRupiah(mIn);
+            if (outEl) outEl.innerText = formatRupiah(mOut);
+            if (netEl) {
+                netEl.innerText = (mNet >= 0 ? '+ ' : '- ') + formatRupiah(Math.abs(mNet));
+                netEl.className = 't-sub-mono px-2 py-1 rounded-md font-bold ' + 
+                    (mNet >= 0 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-400 border border-rose-500/30');
+            }
+            if (card) {
+                card.classList.remove('hidden');
+            }
+        }
+
+        function closeMonthSpotlight() {
+            var card = document.getElementById('month-spotlight-card');
+            if (card) card.classList.add('hidden');
+        }
+
+        function openCategoryModal(categoryName) {
+            if (!categoryName) return;
+            var modal = document.getElementById('categoryDetailModal');
+            if (!modal) return;
+
+            var validTx = (rawTransactions || []).filter(function(t) {
+                return t.status_reimburse !== "Belum";
+            });
+
+            var isLainnya = categoryName === 'Lainnya';
+            var catTx = [];
+
+            if (isLainnya) {
+                var top5Names = (latestSortedCategories || []).slice(0, 5).map(function(c) { return c.nama; });
+                catTx = validTx.filter(function(t) {
+                    var isOut = (t.jenis || '').toLowerCase() === 'keluar';
+                    var kat = (t.kategori || 'Lain-lain').trim();
+                    return isOut && top5Names.indexOf(kat) === -1;
+                });
+            } else {
+                catTx = validTx.filter(function(t) {
+                    var isOut = (t.jenis || '').toLowerCase() === 'keluar';
+                    var kat = (t.kategori || 'Lain-lain').trim();
+                    return isOut && kat.toLowerCase() === categoryName.toLowerCase();
+                });
+            }
+
+            var catTotal = 0;
+            var gopayCount = 0;
+            var tunaiCount = 0;
+
+            catTx.forEach(function(t) {
+                var nom = Math.abs(parseFloat(t.nominal) || 0);
+                catTotal += nom;
+                var met = (t.metode || '').toLowerCase();
+                if (met.indexOf('gopay') !== -1) {
+                    gopayCount++;
+                } else {
+                    tunaiCount++;
+                }
+            });
+
+            var catCount = catTx.length;
+            var porsi = latestGrandTotalKeluar > 0 ? ((catTotal / latestGrandTotalKeluar) * 100).toFixed(1) : '0';
+
+            // Find category color
+            var color = '#FF7300';
+            if (latestSortedCategories && latestSortedCategories.length > 0) {
+                var matchIdx = latestSortedCategories.findIndex(function(c) { return c.nama.toLowerCase() === categoryName.toLowerCase(); });
+                if (matchIdx !== -1) {
+                    color = CATEGORY_COLORS[matchIdx % CATEGORY_COLORS.length];
+                } else if (isLainnya) {
+                    color = CATEGORY_COLORS[5 % CATEGORY_COLORS.length];
+                }
+            }
+
+            // Populate modal
+            var titleEl = document.getElementById('modal-cat-title');
+            var subtitleEl = document.getElementById('modal-cat-subtitle');
+            var colorDot = document.getElementById('modal-cat-color');
+            var totalEl = document.getElementById('modal-cat-total');
+            var porsiEl = document.getElementById('modal-cat-porsi');
+            var countEl = document.getElementById('modal-cat-count');
+            var gopayEl = document.getElementById('modal-cat-gopay');
+            var tunaiEl = document.getElementById('modal-cat-tunai');
+            var barGopay = document.getElementById('modal-cat-bar-gopay');
+            var barTunai = document.getElementById('modal-cat-bar-tunai');
+            var listEl = document.getElementById('modal-cat-tx-list');
+            var linkKas = document.getElementById('modal-cat-link-kas');
+
+            if (titleEl) titleEl.innerText = categoryName;
+            if (subtitleEl) subtitleEl.innerText = isLainnya ? 'Gabungan Pos Pengeluaran Lainnya' : 'Rincian Pos Anggaran & Realisasi';
+            if (colorDot) colorDot.style.backgroundColor = color;
+            if (totalEl) totalEl.innerText = formatRupiah(catTotal);
+            if (porsiEl) porsiEl.innerText = porsi + '%';
+            if (countEl) countEl.innerText = catCount + ' tx';
+            if (gopayEl) gopayEl.innerText = gopayCount + ' tx';
+            if (tunaiEl) tunaiEl.innerText = tunaiCount + ' tx';
+
+            var gopayPct = catCount > 0 ? Math.round((gopayCount / catCount) * 100) : 50;
+            var tunaiPct = 100 - gopayPct;
+            if (barGopay) barGopay.style.width = gopayPct + '%';
+            if (barTunai) barTunai.style.width = tunaiPct + '%';
+
+            if (listEl) {
+                listEl.innerHTML = '';
+                if (catTx.length === 0) {
+                    listEl.innerHTML = '<div class="py-4 text-center t-sub text-xs">Belum ada transaksi pada pos ini.</div>';
+                } else {
+                    var sortedTx = catTx.slice().sort(function(a, b) {
+                        return new Date(b.tanggal || 0) - new Date(a.tanggal || 0);
+                    }).slice(0, 8);
+
+                    sortedTx.forEach(function(t) {
+                        var item = document.createElement('div');
+                        item.className = 'p-2 rounded-xl bg-neutral-900/60 border border-neutral-800/60 flex items-center justify-between gap-2 shadow-2xs';
+                        var ket = t.keterangan || t.kategori || 'Pengeluaran';
+                        var metIcon = (t.metode || '').toLowerCase().indexOf('gopay') !== -1 ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
+                        item.innerHTML = 
+                            '<div class="flex flex-col min-w-0 pr-2">' +
+                                '<span class="t-body font-semibold truncate text-white">' + ket + '</span>' +
+                                '<div class="flex items-center gap-1.5 t-sub-mono">' +
+                                    '<span>' + formatDateIndo(t.tanggal) + '</span>' +
+                                    '<span>•</span>' +
+                                    '<span class="inline-flex items-center gap-1"><i class="fa-solid ' + metIcon + ' text-[8px]"></i> ' + (t.metode || 'Tunai') + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                            '<span class="t-val text-rose-400 shrink-0">-' + formatRupiah(t.nominal) + '</span>';
+                        listEl.appendChild(item);
+                    });
+                }
+            }
+
+            if (linkKas) {
+                linkKas.href = isLainnya ? 'riwayat-transaksi.html' : ('riwayat-transaksi.html?q=' + encodeURIComponent(categoryName));
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCategoryModal() {
+            var modal = document.getElementById('categoryDetailModal');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCategoryModal();
+                closeMonthSpotlight();
+            }
+        });
+
+        // ----------------------------------------------------
         // 5. CORE COMPUTATION & RENDER
         // ----------------------------------------------------
         function renderReportData() {
@@ -1407,6 +1808,12 @@
 
             var activeMonths = MONTH_NAMES.slice(startIdx, endIdx + 1);
 
+            // Save state for interactive month spotlight & modal drilldown
+            latestMonthlyIn = monthlyIn;
+            latestMonthlyOut = monthlyOut;
+            latestActiveMonths = activeMonths;
+            latestStartIdx = startIdx;
+
             // Compute Trend Chart Data (Harmonized subtle colors, clean line width)
             if (trendChartInstance) {
                 trendChartInstance.data.labels = activeMonths;
@@ -1494,6 +1901,10 @@
                 return b.total - a.total;
             });
 
+            // Save for interactive donut focus & category drill-down
+            latestSortedCategories = sortedCategories;
+            latestGrandTotalKeluar = totalKeluar;
+
             // Update Donut Chart & Center Badge
             if (donutChartInstance) {
                 var donutLabels = sortedCategories.slice(0, 5).map(function(c) { return c.nama; });
@@ -1532,7 +1943,11 @@
                         var val = donutData[i];
                         var pct = totalBelanja > 0 ? ((val / totalBelanja) * 100).toFixed(1) : '0';
                         var item = document.createElement('div');
-                        item.className = 'cat-legend-item flex items-center justify-between px-3 py-2 rounded-xl shadow-2xs';
+                        item.id = 'cat-pill-' + i;
+                        item.className = 'cat-legend-item flex items-center justify-between px-3 py-2 rounded-xl shadow-2xs cursor-pointer hover:bg-neutral-800/40 transition-all';
+                        item.onclick = function() {
+                            focusDonutCategory(i, false);
+                        };
                         item.innerHTML = 
                             '<div class="flex items-center gap-2 min-w-0 pr-2">' +
                                 '<span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: ' + color + '"></span>' +
@@ -1541,6 +1956,9 @@
                             '<div class="flex items-center gap-2 shrink-0 text-right">' +
                                 '<span class="t-val">' + formatRupiah(val) + '</span>' +
                                 '<span class="t-sub-mono meta-badge px-1.5 py-0.5 rounded cat-legend-pct min-w-[46px] text-center">' + pct + '%</span>' +
+                                '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + lbl.replace(/'/g, "\\'") + '\')" class="w-6 h-6 rounded-md bg-neutral-800/60 hover:bg-[#FF7300] hover:text-white text-neutral-400 flex items-center justify-center text-[10px] transition-colors ml-0.5 cursor-pointer" title="Lihat Rincian Pos">' +
+                                    '<i class="fa-solid fa-arrow-up-right-from-square"></i>' +
+                                '</button>' +
                             '</div>';
                         pillsContainer.appendChild(item);
                     });
@@ -1578,15 +1996,18 @@
                 var dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
                 var metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
 
-                // 1. Mobile Fintech Card Item (Consistent .t-body, .t-val, .t-sub-mono)
+                // 1. Mobile Fintech Card Item (Interactive click opens drilldown modal)
                 mobileCardsHtml += 
-                    '<div class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs">' +
+                    '<div onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2 shadow-xs cursor-pointer hover:border-[#FF7300]/40 transition-all active:scale-[0.99] group">' +
                         '<div class="flex items-center justify-between gap-2">' +
                             '<div class="flex items-center gap-2 min-w-0 pr-2">' +
                                 '<span class="t-sub-mono font-bold text-[#FF7300] w-5 shrink-0">#' + (index + 1) + '</span>' +
-                                '<span class="t-body truncate">' + cat.nama + '</span>' +
+                                '<span class="t-body truncate group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span>' +
                             '</div>' +
-                            '<span class="t-val shrink-0">' + formatRupiah(cat.total) + '</span>' +
+                            '<div class="flex items-center gap-1.5 shrink-0">' +
+                                '<span class="t-val">' + formatRupiah(cat.total) + '</span>' +
+                                '<i class="fa-solid fa-chevron-right text-[10px] text-neutral-500 group-hover:text-[#FF7300] transition-colors"></i>' +
+                            '</div>' +
                         '</div>' +
                         '<div class="flex items-center justify-between gap-2.5 pt-1.5 border-t border-neutral-800/50">' +
                             '<div class="flex items-center gap-2 flex-grow min-w-0">' +
@@ -1605,10 +2026,10 @@
                         '</div>' +
                     '</div>';
 
-                // 2. Desktop Full Table Row (Consistent .t-body, .t-val, .t-sub-mono)
-                desktopRowsHtml += '<tr class="transition-colors">' +
+                // 2. Desktop Full Table Row (Interactive click opens drilldown modal)
+                desktopRowsHtml += '<tr onclick="openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="cursor-pointer hover:bg-neutral-800/40 transition-colors group">' +
                     '<td class="text-center t-sub-mono">' + (index + 1) + '</td>' +
-                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body">' + cat.nama + '</span></div></td>' +
+                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
                     '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
                     '<td class="text-right t-val">' + formatRupiah(cat.total) + '</td>' +
                     '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
