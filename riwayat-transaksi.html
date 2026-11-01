@@ -2052,29 +2052,39 @@
         function populateFilterDropdowns(res) {
             const selectKategori = document.getElementById('select-kategori');
             if (selectKategori) {
-                const categories = new Set();
-                rawTransactions.forEach(t => {
-                    const kat = (t.kategori !== undefined && t.kategori !== null) ? String(t.kategori).trim() : '';
-                    if (kat !== '') {
-                        categories.add(kat);
-                    }
-                });
                 const currentVal = currentKategori || '';
                 selectKategori.innerHTML = '<option value="">Semua Kategori</option>';
+
+                // Count frequency of each category in rawTransactions
+                const catCounts = {};
+                (rawTransactions || []).forEach(t => {
+                    const kat = (t.kategori !== undefined && t.kategori !== null) ? String(t.kategori).trim() : '';
+                    if (kat !== '') {
+                        catCounts[kat] = (catCounts[kat] || 0) + 1;
+                    }
+                });
+
+                // Also include default common categories if needed
                 const defaultCats = ["Kas", "Kas Umum", "Donasi", "Biaya Admin", "Transportasi", "Bingkisan", "Usaha", "Acara", "HTM Acara", "Logistik", "Konsumsi"];
-                defaultCats.forEach(cat => {
+                defaultCats.forEach(c => {
+                    if (!Object.prototype.hasOwnProperty.call(catCounts, c)) {
+                        catCounts[c] = 0;
+                    }
+                });
+
+                // Sort: from highest count to lowest count (paling banyak ke paling sedikit)
+                const sortedCategories = Object.keys(catCounts).sort((a, b) => {
+                    if (catCounts[b] !== catCounts[a]) {
+                        return catCounts[b] - catCounts[a];
+                    }
+                    return a.localeCompare(b, 'id');
+                });
+
+                sortedCategories.forEach(cat => {
                     const opt = document.createElement('option');
                     opt.value = cat;
                     opt.textContent = `🏷️ ${cat}`;
                     selectKategori.appendChild(opt);
-                });
-                categories.forEach(cat => {
-                    if (!defaultCats.some(dc => dc.toLowerCase() === cat.toLowerCase())) {
-                        const opt = document.createElement('option');
-                        opt.value = cat;
-                        opt.textContent = `🏷️ ${cat}`;
-                        selectKategori.appendChild(opt);
-                    }
                 });
                 selectKategori.value = currentVal;
             }
@@ -2086,14 +2096,14 @@
                 
                 const optGeneral = document.createElement('option');
                 optGeneral.value = "general";
-                optGeneral.textContent = "💼 NULL / Tanpa Proker";
+                optGeneral.textContent = "NULL / Tanpa Proker";
                 selectProker.appendChild(optGeneral);
 
                 if (res && res.proker) {
                     res.proker.forEach(p => {
                         const opt = document.createElement('option');
                         opt.value = p.id;
-                        opt.textContent = `💼 ${p.nama_proker}`;
+                        opt.textContent = p.nama_proker;
                         selectProker.appendChild(opt);
                     });
                 }
