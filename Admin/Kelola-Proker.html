@@ -2546,42 +2546,40 @@
         }
 
         function printNotaDirectly(htmlContent, docTitle) {
-            const scriptToInject = `
-            <script>
-                (function() {
-                    function triggerPrint() {
-                        setTimeout(function() {
-                            window.focus();
-                            window.print();
-                        }, 350);
-                    }
-                    window.addEventListener('load', function() {
-                        var imgs = Array.from(document.querySelectorAll('img'));
-                        if (imgs.length === 0) {
-                            triggerPrint();
-                            return;
-                        }
-                        var loadedCount = 0;
-                        var total = imgs.length;
-                        function checkAll() {
-                            loadedCount++;
-                            if (loadedCount >= total) {
-                                triggerPrint();
-                            }
-                        }
-                        imgs.forEach(function(img) {
-                            if (img.complete && img.naturalHeight !== 0) {
-                                checkAll();
-                            } else {
-                                img.addEventListener('load', checkAll);
-                                img.addEventListener('error', checkAll);
-                            }
-                        });
-                        setTimeout(triggerPrint, 4500);
-                    });
-                })();
-            <\/script>
-            `;
+            const scriptToInject = '<scr' + 'ipt>\n' +
+                '(function() {\n' +
+                '    function triggerPrint() {\n' +
+                '        setTimeout(function() {\n' +
+                '            window.focus();\n' +
+                '            window.print();\n' +
+                '        }, 350);\n' +
+                '    }\n' +
+                '    window.addEventListener("load", function() {\n' +
+                '        var imgs = Array.from(document.querySelectorAll("img"));\n' +
+                '        if (imgs.length === 0) {\n' +
+                '            triggerPrint();\n' +
+                '            return;\n' +
+                '        }\n' +
+                '        var loadedCount = 0;\n' +
+                '        var total = imgs.length;\n' +
+                '        function checkAll() {\n' +
+                '            loadedCount++;\n' +
+                '            if (loadedCount >= total) {\n' +
+                '                triggerPrint();\n' +
+                '            }\n' +
+                '        }\n' +
+                '        imgs.forEach(function(img) {\n' +
+                '            if (img.complete && img.naturalHeight !== 0) {\n' +
+                '                checkAll();\n' +
+                '            } else {\n' +
+                '                img.addEventListener("load", checkAll);\n' +
+                '                img.addEventListener("error", checkAll);\n' +
+                '            }\n' +
+                '        });\n' +
+                '        setTimeout(triggerPrint, 4500);\n' +
+                '    });\n' +
+                '})();\n' +
+                '</scr' + 'ipt>';
 
             const fullHtml = htmlContent.replace('</body>', scriptToInject + '</body>');
 
