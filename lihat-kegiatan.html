@@ -1664,15 +1664,19 @@
             </div>
         </div>
 
-        <!-- 1. TAB UTAMA: PROGRAM KERJA VS AGENDA KERJA -->
-        <div class="w-full grid grid-cols-2 gap-1.5 p-1 bg-neutral-950/80 border border-neutral-900 rounded-xl proker-tab-container shadow-xs">
-            <button onclick="switchProkerTab('Program Kerja')" id="tab-btn-proker" class="tab-btn tab-active">
-                <span>📌 Program Kerja</span>
-                <span id="tab-badge-proker" class="tab-badge text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold">0</span>
+        <!-- 1. FILTER KATEGORI / JENIS KEGIATAN: SEMUA, PROKER, AGENDA -->
+        <div class="w-full grid grid-cols-3 gap-1.5 p-1 bg-neutral-950/80 border border-neutral-900 rounded-xl proker-tab-container shadow-xs">
+            <button type="button" onclick="switchProkerTab('all')" id="tab-btn-all" class="tab-btn tab-active">
+                <span>✨ Semua</span>
+                <span id="tab-badge-all" class="tab-badge text-[9px] sm:text-[9.5px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full font-bold">0</span>
             </button>
-            <button onclick="switchProkerTab('Agenda Kerja')" id="tab-btn-agenda" class="tab-btn tab-inactive">
-                <span>📅 Agenda Kerja</span>
-                <span id="tab-badge-agenda" class="tab-badge text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold">0</span>
+            <button type="button" onclick="switchProkerTab('Program Kerja')" id="tab-btn-proker" class="tab-btn tab-inactive">
+                <span>📌 Proker</span>
+                <span id="tab-badge-proker" class="tab-badge text-[9px] sm:text-[9.5px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button type="button" onclick="switchProkerTab('Agenda Kerja')" id="tab-btn-agenda" class="tab-btn tab-inactive">
+                <span>📅 Agenda</span>
+                <span id="tab-badge-agenda" class="tab-badge text-[9px] sm:text-[9.5px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full font-bold">0</span>
             </button>
         </div>
 
@@ -1924,28 +1928,26 @@
             }
         };
 
-        let activePublicProkerTab = safeStorage.getItem('activePublicProkerTab') || 'Program Kerja';
-        if (activePublicProkerTab === 'running' || activePublicProkerTab === 'selesai') activePublicProkerTab = 'Program Kerja';
+        let activePublicProkerTab = safeStorage.getItem('activePublicProkerTab') || 'all';
+        if (activePublicProkerTab !== 'all' && activePublicProkerTab !== 'Program Kerja' && activePublicProkerTab !== 'Agenda Kerja') {
+            activePublicProkerTab = 'all';
+        }
         let activePublicStatusFilter = safeStorage.getItem('activePublicStatusFilter') || 'all';
 
         function switchProkerTab(target) {
-            if (target !== 'Program Kerja' && target !== 'Agenda Kerja') {
-                target = 'Program Kerja';
+            if (target !== 'all' && target !== 'Program Kerja' && target !== 'Agenda Kerja') {
+                target = 'all';
             }
             activePublicProkerTab = target;
             safeStorage.setItem('activePublicProkerTab', target);
 
+            const btnAll = document.getElementById('tab-btn-all');
             const btnProker = document.getElementById('tab-btn-proker');
             const btnAgenda = document.getElementById('tab-btn-agenda');
-            if (btnProker && btnAgenda) {
-                if (target === 'Program Kerja') {
-                    btnProker.className = "tab-btn tab-active";
-                    btnAgenda.className = "tab-btn tab-inactive";
-                } else {
-                    btnProker.className = "tab-btn tab-inactive";
-                    btnAgenda.className = "tab-btn tab-active";
-                }
-            }
+
+            if (btnAll) btnAll.className = target === 'all' ? "tab-btn tab-active" : "tab-btn tab-inactive";
+            if (btnProker) btnProker.className = target === 'Program Kerja' ? "tab-btn tab-active" : "tab-btn tab-inactive";
+            if (btnAgenda) btnAgenda.className = target === 'Agenda Kerja' ? "tab-btn tab-active" : "tab-btn tab-inactive";
 
             renderProkers();
         }
@@ -5222,17 +5224,21 @@
             if (!container) return;
 
             // Update badge counts for top tabs
+            const totalAll = allProkers.length;
             const totalProker = allProkers.filter(p => (p.jenis || 'Program Kerja').trim() !== 'Agenda Kerja').length;
             const totalAgenda = allProkers.filter(p => (p.jenis || '').trim() === 'Agenda Kerja').length;
 
+            const badgeAll = document.getElementById('tab-badge-all');
             const badgeProker = document.getElementById('tab-badge-proker');
             const badgeAgenda = document.getElementById('tab-badge-agenda');
+            if (badgeAll) badgeAll.textContent = totalAll;
             if (badgeProker) badgeProker.textContent = totalProker;
             if (badgeAgenda) badgeAgenda.textContent = totalAgenda;
 
             // Current active tab & filter
-            const targetJenis = activePublicProkerTab; // 'Program Kerja' or 'Agenda Kerja'
+            const targetJenis = activePublicProkerTab; // 'all', 'Program Kerja', or 'Agenda Kerja'
             const prokersOfTab = allProkers.filter(p => {
+                if (targetJenis === 'all') return true;
                 const pj = (p.jenis || 'Program Kerja').trim();
                 return targetJenis === 'Agenda Kerja' ? pj === 'Agenda Kerja' : pj !== 'Agenda Kerja';
             });
@@ -5258,10 +5264,14 @@
 
             let html = '';
 
+            const jenisLabel = targetJenis === 'all' 
+                ? 'Kegiatan' 
+                : (targetJenis === 'Agenda Kerja' ? 'Agenda Kerja' : 'Program Kerja');
+
             if (prokersOfTab.length === 0) {
                 container.innerHTML = `
                     <div class="py-8 text-center text-xs text-neutral-500 font-mono italic">
-                        Belum ada data ${targetJenis.toLowerCase()}.
+                        Belum ada data ${jenisLabel.toLowerCase()}.
                     </div>
                 `;
                 return;
@@ -5272,14 +5282,14 @@
                     <div class="flex items-center justify-between pl-1 pb-1">
                         <span class="text-[9.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-[#FF7300] animate-pulse"></span>
-                            DAFTAR ${targetJenis.toUpperCase()} BERJALAN (${runningItems.length})
+                            DAFTAR ${jenisLabel.toUpperCase()} BERJALAN (${runningItems.length})
                         </span>
                     </div>
                 `;
                 if (runningItems.length === 0) {
                     html += `
                         <div class="py-6 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans mb-3">
-                            Tidak ada ${targetJenis.toLowerCase()} yang sedang berjalan.
+                            Tidak ada ${jenisLabel.toLowerCase()} yang sedang berjalan.
                         </div>
                     `;
                 } else {
@@ -5292,14 +5302,14 @@
                     <div class="flex items-center justify-between pl-1 pb-1">
                         <span class="text-[9.5px] font-mono tracking-widest text-emerald-400 uppercase font-black flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            DAFTAR ${targetJenis.toUpperCase()} SELESAI (${selesaiItems.length})
+                            DAFTAR ${jenisLabel.toUpperCase()} SELESAI (${selesaiItems.length})
                         </span>
                     </div>
                 `;
                 if (selesaiItems.length === 0) {
                     html += `
                         <div class="py-6 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans mb-3">
-                            Belum ada ${targetJenis.toLowerCase()} yang selesai.
+                            Belum ada ${jenisLabel.toLowerCase()} yang selesai.
                         </div>
                     `;
                 } else {
@@ -5315,14 +5325,14 @@
                         <div class="flex items-center justify-between pl-1">
                             <span class="text-[9.5px] font-mono tracking-widest text-[#FF7300] uppercase font-black flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-[#FF7300] animate-pulse"></span>
-                                ${targetJenis.toUpperCase()} SEDANG BERJALAN (${runningItems.length})
+                                ${jenisLabel.toUpperCase()} SEDANG BERJALAN (${runningItems.length})
                             </span>
                         </div>
                 `;
                 if (runningItems.length === 0) {
                     html += `
                         <div class="py-5 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans">
-                            Tidak ada ${targetJenis.toLowerCase()} yang sedang berjalan.
+                            Tidak ada ${jenisLabel.toLowerCase()} yang sedang berjalan.
                         </div>
                     `;
                 } else {
@@ -5338,14 +5348,14 @@
                         <div class="flex items-center justify-between pl-1">
                             <span class="text-[9.5px] font-mono tracking-widest text-emerald-400 uppercase font-black flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                                ${targetJenis.toUpperCase()} SELESAI (${selesaiItems.length})
+                                ${jenisLabel.toUpperCase()} SELESAI (${selesaiItems.length})
                             </span>
                         </div>
                 `;
                 if (selesaiItems.length === 0) {
                     html += `
                         <div class="py-5 bg-neutral-950/60 dark:bg-neutral-950 border border-neutral-900 border-dashed rounded-xl text-center text-neutral-500 text-xs italic font-sans">
-                            Belum ada ${targetJenis.toLowerCase()} yang selesai.
+                            Belum ada ${jenisLabel.toLowerCase()} yang selesai.
                         </div>
                     `;
                 } else {
@@ -5705,8 +5715,8 @@
         }
 
         function setupKegiatanPage() {
-            let savedTab = safeStorage.getItem('activePublicProkerTab') || 'Program Kerja';
-            if (savedTab === 'running' || savedTab === 'selesai') savedTab = 'Program Kerja';
+            let savedTab = safeStorage.getItem('activePublicProkerTab') || 'all';
+            if (savedTab !== 'all' && savedTab !== 'Program Kerja' && savedTab !== 'Agenda Kerja') savedTab = 'all';
             switchProkerTab(savedTab);
             fetchInitialData();
 
