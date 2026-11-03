@@ -877,8 +877,8 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-3">
-                    <!-- MODERN SEARCHABLE KETUA PELAKSANA PICKER -->
-                    <div>
+                    <!-- MODERN LIGHTWEIGHT INLINE SEARCHABLE KETUA PELAKSANA -->
+                    <div class="relative" id="combobox_ketua_wrapper">
                         <div class="flex items-center justify-between mb-1">
                             <label class="text-[9.5px] font-mono uppercase text-neutral-400 font-bold flex items-center gap-1.5">
                                 <i class="fa-solid fa-user-tie text-[#FF7300] text-[10px]"></i> Ketua Pelaksana
@@ -889,22 +889,60 @@
                         </div>
                         <input type="hidden" id="inp_ketua_proker" required value="">
                         
-                        <!-- Trigger Box -->
-                        <button type="button" id="btn_trigger_ketua_picker" onclick="openKetuaPickerModal('create')" class="w-full bg-neutral-900/90 hover:bg-neutral-850 border border-neutral-800 hover:border-[#FF7300]/60 rounded-xl px-3 py-2 sm:py-2.5 text-left flex items-center justify-between transition-all group shadow-xs cursor-pointer">
-                            <div class="flex items-center gap-2.5 min-w-0" id="ketua_picker_preview">
-                                <span class="w-8 h-8 rounded-xl bg-neutral-800/80 text-neutral-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:text-[#FF7300] group-hover:bg-[#FF7300]/15 border border-neutral-700/60 transition-colors" id="ketua_picker_avatar">
-                                    <i class="fa-solid fa-user-plus text-[12px]"></i>
+                        <!-- 1. Search & Input Box (Normal state) -->
+                        <div class="relative" id="combobox_input_box">
+                            <i class="fa-solid fa-magnifying-glass text-neutral-500 text-xs absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            <input type="text" 
+                                   id="inp_search_ketua_inline" 
+                                   placeholder="Ketik nama atau pilih ketua..." 
+                                   autocomplete="off" 
+                                   autocorrect="off" 
+                                   autocapitalize="off" 
+                                   spellcheck="false"
+                                   onfocus="openKetuaInlineDropdown()"
+                                   onclick="openKetuaInlineDropdown()"
+                                   oninput="handleKetuaInlineTyping(this.value)"
+                                   class="w-full bg-neutral-900/90 border border-neutral-800 rounded-xl pl-8 pr-8 py-2 sm:py-2.5 text-[13px] sm:text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-[#FF7300] focus:ring-1 focus:ring-[#FF7300]/30 font-sans shadow-xs transition-colors">
+                            <button type="button" onclick="toggleKetuaInlineDropdown(); event.stopPropagation();" class="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-[#FF7300] p-1 text-xs cursor-pointer">
+                                <i id="combobox_chevron_icon" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+                            </button>
+                        </div>
+
+                        <!-- 2. Selected Member Preview Card (Active state after selection) -->
+                        <div id="combobox_selected_card" class="hidden w-full bg-orange-500/10 border border-orange-500/30 rounded-xl p-1.5 sm:p-2 flex items-center justify-between gap-2 shadow-xs transition-all">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span id="combobox_avatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-500/20 text-[#FF7300] border border-orange-500/40 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
+                                    AA
                                 </span>
                                 <div class="min-w-0 flex-1">
-                                    <span class="text-xs font-semibold text-neutral-300 group-hover:text-white block truncate" id="ketua_picker_name">Pilih Ketua Pelaksana...</span>
-                                    <span class="text-[9.5px] text-neutral-500 block truncate" id="ketua_picker_sub">Klik untuk cari anggota / panitia</span>
+                                    <span id="combobox_name" class="text-xs font-bold text-neutral-100 block truncate">Nama Anggota</span>
+                                    <span id="combobox_sub" class="text-[9.5px] text-neutral-400 block truncate font-mono">Divisi • NIM</span>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1.5 shrink-0 ml-1">
-                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 group-hover:text-white group-hover:bg-neutral-700 transition-colors hidden sm:inline">Pilih</span>
-                                <i class="fa-solid fa-chevron-down text-neutral-500 text-[10px] group-hover:text-[#FF7300] transition-colors"></i>
+                            <button type="button" onclick="resetKetuaSelectionInline()" class="shrink-0 px-2 py-1 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 hover:text-white text-[9px] font-mono flex items-center gap-1 cursor-pointer transition-colors" title="Ganti Ketua">
+                                <i class="fa-solid fa-rotate-left text-[8px]"></i>
+                                <span>Ganti</span>
+                            </button>
+                        </div>
+
+                        <!-- 3. Lightweight Inline Dropdown Results -->
+                        <div id="combobox_dropdown_menu" class="hidden absolute top-full left-0 right-0 mt-1.5 bg-neutral-950 border border-neutral-800 rounded-xl shadow-2xl z-50 max-h-56 overflow-hidden flex flex-col">
+                            <!-- Division Chips -->
+                            <div class="p-1.5 border-b border-neutral-800/80 bg-neutral-900/60 flex items-center gap-1 overflow-x-auto no-scrollbar" id="combobox_div_chips">
+                                <button type="button" onclick="filterKetuaInlineDiv('')" class="chip-inline-div active px-2 py-0.5 rounded text-[8.5px] font-mono bg-orange-500 text-white font-bold whitespace-nowrap cursor-pointer">Semua</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('Kaderisasi')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">Kaderisasi</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('Sosial')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">Sosmas</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('Syi\'ar')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">Syi'ar</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('HuMed')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">HuMed</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('UUS')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">UUS</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('Kesekretariatan')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">Sekre</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('Bendahara')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">Bendahara</button>
+                                <button type="button" onclick="filterKetuaInlineDiv('Pimpinan')" class="chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer">Pimpinan</button>
                             </div>
-                        </button>
+                            <!-- Results -->
+                            <div id="combobox_results_list" class="overflow-y-auto max-h-40 p-1 flex flex-col gap-1 modal-scroll">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-3 col-span-2 gap-2 sm:gap-3">
@@ -1427,11 +1465,11 @@
         }
 
         // ============================================================
-        // MODERN SEARCHABLE KETUA PELAKSANA PICKER SYSTEM
+        // MODERN LIGHTWEIGHT INLINE SEARCHABLE KETUA PELAKSANA
         // ============================================================
-        let currentPickerMode = 'create'; // 'create' or 'edit'
-        let currentKetuaPickerSearch = '';
-        let currentKetuaPickerDivision = '';
+        let currentInlineKetuaSearch = '';
+        let currentInlineKetuaDiv = '';
+        let inlineDebounceTimer = null;
 
         function getMemberInitials(name) {
             if (!name) return '??';
@@ -1453,106 +1491,64 @@
             return gradients[Math.abs(hash) % gradients.length];
         }
 
-        function populateKetuaDropdown() {
-            const hiddenInp = document.getElementById('inp_ketua_proker');
-            if (!hiddenInp) return;
+        function openKetuaInlineDropdown() {
+            const menu = document.getElementById('combobox_dropdown_menu');
+            const chevron = document.getElementById('combobox_chevron_icon');
+            if (!menu) return;
+            menu.classList.remove('hidden');
+            if (chevron) chevron.style.transform = 'rotate(180deg)';
+            renderKetuaInlineResults();
+        }
 
-            const curVal = hiddenInp.value;
-            if (curVal && localAnggota.length > 0) {
-                const member = localAnggota.find(m => m.id && m.id.toString() === curVal.toString());
-                if (member) {
-                    const nameEl = document.getElementById('ketua_picker_name');
-                    if (nameEl) nameEl.innerText = member.name;
-                    const subEl = document.getElementById('ketua_picker_sub');
-                    if (subEl) subEl.innerText = `${member.divisi || 'Anggota'}${member.nim ? ' • NIM: ' + member.nim : ''}`;
-                    const avatarEl = document.getElementById('ketua_picker_avatar');
-                    if (avatarEl) {
-                        avatarEl.className = 'w-8 h-8 rounded-xl bg-orange-500/20 text-[#FF7300] border border-orange-500/30 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs';
-                        avatarEl.innerText = getMemberInitials(member.name);
-                    }
-                    const badge = document.getElementById('badge_ketua_selected');
-                    if (badge) badge.classList.remove('hidden');
-                }
+        function closeKetuaInlineDropdown() {
+            const menu = document.getElementById('combobox_dropdown_menu');
+            const chevron = document.getElementById('combobox_chevron_icon');
+            if (menu) menu.classList.add('hidden');
+            if (chevron) chevron.style.transform = '';
+        }
+
+        function toggleKetuaInlineDropdown() {
+            const menu = document.getElementById('combobox_dropdown_menu');
+            if (!menu) return;
+            if (menu.classList.contains('hidden')) {
+                openKetuaInlineDropdown();
+                const inp = document.getElementById('inp_search_ketua_inline');
+                if (inp) inp.focus();
+            } else {
+                closeKetuaInlineDropdown();
             }
         }
 
-        function openKetuaPickerModal(mode = 'create') {
-            currentPickerMode = mode;
-            const modal = document.getElementById('modal_ketua_picker');
-            if (!modal) return;
-
-            currentKetuaPickerSearch = '';
-            currentKetuaPickerDivision = '';
-
-            const searchInp = document.getElementById('ketua_picker_search_input');
-            if (searchInp) searchInp.value = '';
-            const clearBtn = document.getElementById('btn_clear_ketua_search');
-            if (clearBtn) clearBtn.classList.add('hidden');
-
-            // Reset division chips active state
-            const chips = document.querySelectorAll('#ketua_picker_filter_chips .ketua-filter-chip');
-            chips.forEach((c, idx) => {
-                if (idx === 0) {
-                    c.className = 'ketua-filter-chip active text-[9px] font-mono px-2.5 py-1 rounded-lg bg-orange-500 text-white font-bold whitespace-nowrap transition-all cursor-pointer';
-                } else {
-                    c.className = 'ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer';
-                }
-            });
-
-            renderKetuaPickerList();
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-
-            setTimeout(() => {
-                if (searchInp) searchInp.focus();
-            }, 100);
+        function handleKetuaInlineTyping(val) {
+            clearTimeout(inlineDebounceTimer);
+            inlineDebounceTimer = setTimeout(() => {
+                currentInlineKetuaSearch = val || '';
+                openKetuaInlineDropdown();
+                renderKetuaInlineResults();
+            }, 80);
         }
 
-        function closeKetuaPickerModal() {
-            const modal = document.getElementById('modal_ketua_picker');
-            if (!modal) return;
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        function handleKetuaSearch(val) {
-            currentKetuaPickerSearch = val;
-            const clearBtn = document.getElementById('btn_clear_ketua_search');
-            if (clearBtn) {
-                if (val && val.trim() !== '') clearBtn.classList.remove('hidden');
-                else clearBtn.classList.add('hidden');
-            }
-            renderKetuaPickerList();
-        }
-
-        function clearKetuaSearch() {
-            const searchInp = document.getElementById('ketua_picker_search_input');
-            if (searchInp) searchInp.value = '';
-            handleKetuaSearch('');
-        }
-
-        function filterKetuaByDivision(divisi) {
-            currentKetuaPickerDivision = divisi;
-            const chips = document.querySelectorAll('#ketua_picker_filter_chips .ketua-filter-chip');
+        function filterKetuaInlineDiv(divisi) {
+            currentInlineKetuaDiv = divisi;
+            const chips = document.querySelectorAll('#combobox_div_chips .chip-inline-div');
             chips.forEach(c => {
                 const isSelected = (divisi === '' && c.innerText.trim() === 'Semua') || 
                                    (divisi !== '' && c.innerText.trim().toLowerCase().includes(divisi.toLowerCase()));
                 if (isSelected) {
-                    c.className = 'ketua-filter-chip active text-[9px] font-mono px-2.5 py-1 rounded-lg bg-orange-500 text-white font-bold whitespace-nowrap transition-all cursor-pointer';
+                    c.className = 'chip-inline-div active px-2 py-0.5 rounded text-[8.5px] font-mono bg-orange-500 text-white font-bold whitespace-nowrap cursor-pointer';
                 } else {
-                    c.className = 'ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer';
+                    c.className = 'chip-inline-div px-2 py-0.5 rounded text-[8.5px] font-mono bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap cursor-pointer';
                 }
             });
-            renderKetuaPickerList();
+            renderKetuaInlineResults();
         }
 
-        function renderKetuaPickerList() {
-            const container = document.getElementById('ketua_picker_list');
-            const counter = document.getElementById('ketua_picker_count');
-            if (!container) return;
+        function renderKetuaInlineResults() {
+            const listEl = document.getElementById('combobox_results_list');
+            if (!listEl) return;
 
-            const q = (currentKetuaPickerSearch || '').toLowerCase().trim();
-            const d = (currentKetuaPickerDivision || '').toLowerCase().trim();
+            const q = (currentInlineKetuaSearch || '').toLowerCase().trim();
+            const d = (currentInlineKetuaDiv || '').toLowerCase().trim();
 
             const filtered = (localAnggota || []).filter(m => {
                 const name = (m.name || '').toLowerCase();
@@ -1562,32 +1558,23 @@
 
                 const matchQ = !q || name.includes(q) || nim.includes(q) || div.includes(q) || jab.includes(q);
                 const matchD = !d || div.includes(d) || jab.includes(d);
-
                 return matchQ && matchD;
             });
 
-            if (counter) {
-                counter.innerText = `Menampilkan ${filtered.length} dari ${localAnggota.length} anggota`;
-            }
-
             if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="py-10 text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-2">
-                        <span class="w-10 h-10 rounded-full bg-neutral-800/80 text-neutral-500 flex items-center justify-center text-base">
-                            <i class="fa-solid fa-user-slash"></i>
-                        </span>
-                        <span class="font-semibold text-neutral-400">Tidak ada anggota yang cocok.</span>
-                        <span class="text-[10px] text-neutral-600">Coba kata kunci pencarian atau divisi lain.</span>
+                listEl.innerHTML = `
+                    <div class="py-4 text-center text-neutral-500 text-xs italic font-sans flex flex-col items-center justify-center gap-1">
+                        <span class="text-sm">🔍</span>
+                        <span>Tidak ada anggota yang cocok.</span>
                     </div>
                 `;
                 return;
             }
 
-            const currentSelectedId = currentPickerMode === 'create'
-                ? (document.getElementById('inp_ketua_proker')?.value || '')
-                : (document.getElementById('swal-input-ketua')?.value || '');
+            const currentSelectedId = document.getElementById('inp_ketua_proker')?.value || '';
+            const displayItems = filtered.slice(0, 15);
 
-            container.innerHTML = filtered.map(m => {
+            listEl.innerHTML = displayItems.map(m => {
                 const isSelected = (currentSelectedId && currentSelectedId.toString() === m.id.toString());
                 const initials = getMemberInitials(m.name);
                 const grad = getMemberAvatarBg(m.name);
@@ -1595,76 +1582,95 @@
                 const cleanDiv = rawDiv.replace(/^(Departemen|Divisi)\s+/i, '');
 
                 return `
-                    <div onclick="selectKetuaFromPicker('${m.id}')" class="p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 group ${
+                    <div onclick="selectKetuaInline('${m.id}')" class="p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2.5 group ${
                         isSelected 
-                            ? 'bg-orange-500/15 border-orange-500/50 shadow-xs' 
-                            : 'bg-neutral-950/70 border-neutral-800 hover:border-orange-500/35 hover:bg-neutral-850/80'
+                            ? 'bg-orange-500/15 border-orange-500/50 text-[#FF7300]' 
+                            : 'bg-neutral-900/60 border-neutral-800/80 hover:bg-neutral-800 hover:border-neutral-700 text-neutral-200'
                     }">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="w-9 h-9 rounded-xl bg-gradient-to-tr ${grad} text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-6 h-6 rounded-md bg-gradient-to-tr ${grad} text-white font-bold text-[10px] flex items-center justify-center shrink-0">
                                 ${initials}
                             </span>
                             <div class="min-w-0">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-xs font-bold text-neutral-100 group-hover:text-white truncate ${isSelected ? 'text-[#FF7300]' : ''}">${escapeHtmlLPJ(m.name)}</span>
-                                    <span class="text-[8.5px] font-mono px-1.5 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-neutral-400 shrink-0 font-semibold">${cleanDiv}</span>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-xs font-semibold truncate group-hover:text-white ${isSelected ? 'text-[#FF7300]' : ''}">${escapeHtmlLPJ(m.name)}</span>
+                                    <span class="text-[8px] font-mono px-1 py-0.2 rounded bg-neutral-950 border border-neutral-800 text-neutral-400 font-semibold shrink-0">${cleanDiv}</span>
                                 </div>
-                                <div class="flex items-center gap-2 text-[9.5px] text-neutral-400 mt-0.5 font-mono">
-                                    ${m.nim ? `<span>NIM: ${escapeHtmlLPJ(m.nim)}</span>` : ''}
-                                    ${m.jabatan ? `<span class="text-neutral-600">•</span><span class="text-neutral-300 truncate">${escapeHtmlLPJ(m.jabatan)}</span>` : ''}
-                                </div>
+                                ${m.nim ? `<span class="text-[9px] text-neutral-500 font-mono block">NIM: ${escapeHtmlLPJ(m.nim)}</span>` : ''}
                             </div>
                         </div>
-                        <div class="shrink-0">
-                            <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
-                                isSelected 
-                                    ? 'bg-orange-500 text-white font-bold shadow-xs' 
-                                    : 'border border-neutral-700 text-neutral-500 group-hover:border-orange-500 group-hover:text-orange-400'
-                            }">
-                                ${isSelected ? '✓' : '<i class="fa-solid fa-plus text-[9px]"></i>'}
-                            </span>
-                        </div>
+                        <span class="text-xs shrink-0 ${isSelected ? 'text-orange-500 font-bold' : 'text-neutral-500 group-hover:text-neutral-300'}">
+                            ${isSelected ? '✓' : '<i class="fa-solid fa-check text-[9px] opacity-0 group-hover:opacity-100"></i>'}
+                        </span>
                     </div>
                 `;
             }).join('');
+
+            if (filtered.length > 15) {
+                listEl.innerHTML += `
+                    <div class="py-1 text-center text-[9px] font-mono text-neutral-500">
+                        +${filtered.length - 15} lainnya (ketik nama untuk mempersempit)
+                    </div>
+                `;
+            }
         }
 
-        function selectKetuaFromPicker(memberId) {
+        function selectKetuaInline(memberId) {
             const member = (localAnggota || []).find(m => m.id && m.id.toString() === memberId.toString());
             if (!member) return;
 
-            if (currentPickerMode === 'create') {
-                const inp = document.getElementById('inp_ketua_proker');
-                if (inp) inp.value = member.id;
+            const inp = document.getElementById('inp_ketua_proker');
+            if (inp) inp.value = member.id;
 
-                const nameEl = document.getElementById('ketua_picker_name');
-                if (nameEl) nameEl.innerText = member.name;
+            const inputBox = document.getElementById('combobox_input_box');
+            const cardBox = document.getElementById('combobox_selected_card');
+            const nameEl = document.getElementById('combobox_name');
+            const subEl = document.getElementById('combobox_sub');
+            const avatarEl = document.getElementById('combobox_avatar');
+            const badge = document.getElementById('badge_ketua_selected');
 
-                const subEl = document.getElementById('ketua_picker_sub');
-                if (subEl) subEl.innerText = `${member.divisi || 'Anggota'}${member.nim ? ' • NIM: ' + member.nim : ''}`;
-
-                const avatarEl = document.getElementById('ketua_picker_avatar');
-                if (avatarEl) {
-                    avatarEl.className = 'w-8 h-8 rounded-xl bg-orange-500/20 text-[#FF7300] border border-orange-500/30 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs';
-                    avatarEl.innerText = getMemberInitials(member.name);
-                }
-
-                const badge = document.getElementById('badge_ketua_selected');
-                if (badge) badge.classList.remove('hidden');
-            } else if (currentPickerMode === 'edit') {
-                const swalSelect = document.getElementById('swal-input-ketua');
-                if (swalSelect) {
-                    swalSelect.value = member.id;
-                    swalSelect.classList.add('border-orange-500', 'text-orange-300');
-                }
-                const labelKetua = document.getElementById('swal_ketua_selected_text');
-                if (labelKetua) {
-                    labelKetua.innerHTML = `✓ <b>${escapeHtmlLPJ(member.name)}</b> (${member.divisi || 'Anggota'})`;
-                    labelKetua.classList.remove('hidden');
-                }
+            if (nameEl) nameEl.innerText = member.name;
+            if (subEl) subEl.innerText = `${member.divisi || 'Anggota'}${member.nim ? ' • NIM: ' + member.nim : ''}`;
+            if (avatarEl) {
+                avatarEl.className = 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-500/20 text-[#FF7300] border border-orange-500/40 flex items-center justify-center font-bold text-xs shrink-0 font-mono';
+                avatarEl.innerText = getMemberInitials(member.name);
             }
 
-            closeKetuaPickerModal();
+            if (inputBox) inputBox.classList.add('hidden');
+            if (cardBox) cardBox.classList.remove('hidden');
+            if (badge) badge.classList.remove('hidden');
+
+            closeKetuaInlineDropdown();
+        }
+
+        function resetKetuaSelectionInline() {
+            const inp = document.getElementById('inp_ketua_proker');
+            if (inp) inp.value = '';
+
+            const inputBox = document.getElementById('combobox_input_box');
+            const cardBox = document.getElementById('combobox_selected_card');
+            const searchInp = document.getElementById('inp_search_ketua_inline');
+            const badge = document.getElementById('badge_ketua_selected');
+
+            if (inputBox) inputBox.classList.remove('hidden');
+            if (cardBox) cardBox.classList.add('hidden');
+            if (badge) badge.classList.add('hidden');
+
+            currentInlineKetuaSearch = '';
+            if (searchInp) {
+                searchInp.value = '';
+                setTimeout(() => searchInp.focus(), 50);
+            }
+            closeKetuaInlineDropdown();
+        }
+
+        function populateKetuaDropdown() {
+            const hiddenInp = document.getElementById('inp_ketua_proker');
+            if (!hiddenInp) return;
+            const curVal = hiddenInp.value;
+            if (curVal && localAnggota.length > 0) {
+                selectKetuaInline(curVal);
+            }
         }
 
         function capitalizeUnit(unitStr) {
@@ -4999,19 +5005,7 @@
         }
 
         function resetKetuaPickerTrigger() {
-            const inp = document.getElementById('inp_ketua_proker');
-            if (inp) inp.value = '';
-            const nameEl = document.getElementById('ketua_picker_name');
-            if (nameEl) nameEl.innerText = 'Pilih Ketua Pelaksana...';
-            const subEl = document.getElementById('ketua_picker_sub');
-            if (subEl) subEl.innerText = 'Klik untuk cari anggota / panitia';
-            const avatarEl = document.getElementById('ketua_picker_avatar');
-            if (avatarEl) {
-                avatarEl.className = 'w-8 h-8 rounded-xl bg-neutral-800/80 text-neutral-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:text-[#FF7300] group-hover:bg-[#FF7300]/15 border border-neutral-700/60 transition-colors';
-                avatarEl.innerHTML = '<i class="fa-solid fa-user-plus text-[12px]"></i>';
-            }
-            const badge = document.getElementById('badge_ketua_selected');
-            if (badge) badge.classList.add('hidden');
+            resetKetuaSelectionInline();
         }
 
         // Tambah Proker
@@ -5029,7 +5023,11 @@
                     text: 'Silakan pilih Ketua Pelaksana kegiatan terlebih dahulu!',
                     confirmButtonColor: '#ea580c'
                 });
-                openKetuaPickerModal('create');
+                const searchInp = document.getElementById('inp_search_ketua_inline');
+                if (searchInp) {
+                    searchInp.focus();
+                    openKetuaInlineDropdown();
+                }
                 return;
             }
 
@@ -5172,21 +5170,10 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold flex items-center justify-between">
-                                    <span>Ketua Pelaksana</span>
-                                    <button type="button" onclick="openKetuaPickerModal('edit')" class="text-[9px] text-[#FF7300] font-normal cursor-pointer hover:underline flex items-center gap-1">
-                                        <i class="fa-solid fa-magnifying-glass text-[8px]"></i> <span>Cari Anggota</span>
-                                    </button>
-                                </label>
-                                <div class="flex items-center gap-1.5">
-                                    <select id="swal-input-ketua" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-2.5 py-2 text-xs text-neutral-200 focus:outline-none focus:border-[#FF7300] font-sans cursor-pointer">
-                                        ${ketuaOptions}
-                                    </select>
-                                    <button type="button" onclick="openKetuaPickerModal('edit')" class="px-2.5 py-2 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-400 text-xs shrink-0 cursor-pointer transition-colors" title="Buka Pencarian Anggota">
-                                        <i class="fa-solid fa-user-plus text-[11px]"></i>
-                                    </button>
-                                </div>
-                                <span id="swal_ketua_selected_text" class="hidden text-[9px] text-emerald-400 font-mono mt-1 block truncate"></span>
+                                <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Ketua Pelaksana</label>
+                                <select id="swal-input-ketua" class="w-full bg-neutral-900 border border-neutral-850 rounded-xl px-2.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#FF7300] font-sans cursor-pointer">
+                                    ${ketuaOptions}
+                                </select>
                             </div>
                             <div>
                                 <label class="text-[10px] font-mono uppercase text-neutral-400 block mb-1.5 font-bold">Tahun</label>
@@ -5768,6 +5755,16 @@
                 });
             }
 
+            // Close Ketua inline dropdown on outside click
+            document.addEventListener('click', (e) => {
+                const wrap = document.getElementById('combobox_ketua_wrapper');
+                if (wrap && !wrap.contains(e.target)) {
+                    if (typeof closeKetuaInlineDropdown === 'function') {
+                        closeKetuaInlineDropdown();
+                    }
+                }
+            });
+
             // Keyboard lag & viewport shift fix for mobile devices
             document.addEventListener('focusin', (e) => {
                 if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) && window.innerWidth <= 768) {
@@ -5808,62 +5805,5 @@
         </div>
     </div>
 
-    <!-- MODAL MODERN SEARCHABLE KETUA PELAKSANA PICKER -->
-    <div id="modal_ketua_picker" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md hidden transition-all duration-300">
-        <div class="relative bg-neutral-900 border border-neutral-800 max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] text-left">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between border-b border-neutral-800 p-3.5 sm:p-4 bg-neutral-950/80">
-                <div class="flex items-center gap-2.5">
-                    <span class="w-9 h-9 rounded-xl bg-orange-500/20 text-[#FF7300] border border-orange-500/30 flex items-center justify-center text-sm font-bold shrink-0 shadow-xs">
-                        <i class="fa-solid fa-user-tie"></i>
-                    </span>
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-bold text-white leading-tight">Pilih Ketua Pelaksana</h3>
-                        <p class="text-[9.5px] sm:text-[10px] text-neutral-400 leading-tight mt-0.5">Cari anggota penanggung jawab kegiatan</p>
-                    </div>
-                </div>
-                <button type="button" onclick="closeKetuaPickerModal()" class="w-7 h-7 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center text-xs transition-colors cursor-pointer">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <!-- Sticky Search Bar & Filter Chips -->
-            <div class="p-3 sm:p-3.5 border-b border-neutral-800/80 bg-neutral-950/50 flex flex-col gap-2">
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass text-neutral-500 text-xs absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-                    <input type="text" id="ketua_picker_search_input" oninput="handleKetuaSearch(this.value)" placeholder="Ketik nama, NIM, atau divisi anggota..." class="w-full bg-neutral-900 border border-neutral-800 focus:border-[#FF7300] focus:ring-1 focus:ring-[#FF7300]/30 rounded-xl pl-8 pr-8 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none transition-colors">
-                    <button type="button" onclick="clearKetuaSearch()" id="btn_clear_ketua_search" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 text-xs cursor-pointer">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </button>
-                </div>
-
-                <!-- Division Filter Chips -->
-                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="ketua_picker_filter_chips">
-                    <button type="button" onclick="filterKetuaByDivision('')" class="ketua-filter-chip active text-[9px] font-mono px-2.5 py-1 rounded-lg bg-orange-500 text-white font-bold whitespace-nowrap transition-all cursor-pointer">Semua</button>
-                    <button type="button" onclick="filterKetuaByDivision('Kaderisasi')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">Kaderisasi</button>
-                    <button type="button" onclick="filterKetuaByDivision('Sosial')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">Sosmas</button>
-                    <button type="button" onclick="filterKetuaByDivision('Syi\'ar')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">Syi'ar</button>
-                    <button type="button" onclick="filterKetuaByDivision('HuMed')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">HuMed</button>
-                    <button type="button" onclick="filterKetuaByDivision('UUS')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">UUS</button>
-                    <button type="button" onclick="filterKetuaByDivision('Kesekretariatan')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">Kesekretariatan</button>
-                    <button type="button" onclick="filterKetuaByDivision('Bendahara')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">Bendahara</button>
-                    <button type="button" onclick="filterKetuaByDivision('Pimpinan')" class="ketua-filter-chip text-[9px] font-mono px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white whitespace-nowrap transition-all cursor-pointer">Pimpinan</button>
-                </div>
-            </div>
-
-            <!-- Scrollable Member List Container -->
-            <div id="ketua_picker_list" class="p-3 sm:p-3.5 overflow-y-auto max-h-[50vh] flex flex-col gap-2 modal-scroll">
-                <!-- Dynamically populated via renderKetuaPickerList() -->
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="border-t border-neutral-800 p-3 bg-neutral-950/80 flex items-center justify-between text-xs">
-                <span id="ketua_picker_count" class="text-[9.5px] font-mono text-neutral-400">Memuat anggota...</span>
-                <button type="button" onclick="closeKetuaPickerModal()" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white font-mono text-[10px] transition-colors cursor-pointer">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
