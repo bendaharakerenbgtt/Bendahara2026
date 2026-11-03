@@ -6340,14 +6340,14 @@
         }
 
         function showSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dokumentasi', 'ttd_wadir_block'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_manager', 'card_sba_lampiran_nota', 'card_sba_lampiran_dokumentasi', 'ttd_wadir_block'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('hidden');
             });
         }
 
         function hideSbaCards() {
-            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_nota', 'card_sba_lampiran_dokumentasi', 'ttd_wadir_block'].forEach(id => {
+            ['card_sba_proker_integrator', 'card_sba_rundown', 'card_sba_output_evaluasi', 'card_sba_keuangan', 'card_sba_rekapitulasi', 'card_sba_lampiran_manager', 'card_sba_lampiran_nota', 'card_sba_lampiran_dokumentasi', 'ttd_wadir_block'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
@@ -10520,8 +10520,20 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
 
             if (currentSuratType === 'SPZ') {
+                const sbaCardsOff = {
+                    card_sba_proker_integrator: false,
+                    card_sba_rundown: false,
+                    card_sba_output_evaluasi: false,
+                    card_sba_keuangan: false,
+                    card_sba_rekapitulasi: false,
+                    card_sba_lampiran_manager: false,
+                    card_sba_lampiran_nota: false,
+                    card_sba_lampiran_dokumentasi: false
+                };
+
                 if (page === 1) {
                     return {
+                        ...sbaCardsOff,
                         card_kop_nomor: true,
                         card_tujuan: true,
                         card_pembuka: true,
@@ -10534,6 +10546,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     };
                 } else if (page === 2) {
                     return {
+                        ...sbaCardsOff,
                         card_kop_nomor: false,
                         card_tujuan: false,
                         card_pembuka: false,
@@ -10547,6 +10560,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 } else if (page === 3) {
                     if (hasL1) {
                         return {
+                            ...sbaCardsOff,
                             card_kop_nomor: false,
                             card_tujuan: false,
                             card_pembuka: false,
@@ -10559,6 +10573,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         };
                     } else if (hasL2) {
                         return {
+                            ...sbaCardsOff,
                             card_kop_nomor: false,
                             card_tujuan: false,
                             card_pembuka: false,
@@ -10572,6 +10587,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     }
                 } else if (page === 4) {
                     return {
+                        ...sbaCardsOff,
                         card_kop_nomor: false,
                         card_tujuan: false,
                         card_pembuka: false,

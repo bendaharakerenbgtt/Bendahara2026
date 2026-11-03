@@ -1453,7 +1453,9 @@
 
         function switchProkerById(id) {
             if (!id) return;
-            window.location.search = `?id=${encodeURIComponent(id)}`;
+            const fromAdmin = new URLSearchParams(window.location.search).get('from');
+            const adminQuery = fromAdmin === 'admin' ? '&from=admin' : '';
+            window.location.search = `?id=${encodeURIComponent(id)}${adminQuery}`;
         }
 
         // 1. Render Hero Banner (Judul Baru: Laporan Keuangan [Nama])
@@ -3388,6 +3390,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('from') === 'admin') {
+                const backBtn = document.getElementById('header_back_btn');
+                if (backBtn) {
+                    backBtn.href = 'Admin/Kelola-Proker.html';
+                    backBtn.innerHTML = '<i class="fa-solid fa-arrow-left text-[9px]"></i> <span>Kembali ke Admin</span>';
+                    backBtn.title = 'Kembali ke Kelola Program Kerja (Admin)';
+                }
+            }
             loadActivityData();
         });
     </script>
