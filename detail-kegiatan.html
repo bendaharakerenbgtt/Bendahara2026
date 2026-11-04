@@ -614,10 +614,16 @@
             <span>←</span> <span class="hidden sm:inline">Daftar </span><span>Kegiatan</span>
         </a>
 
-        <div class="flex items-center gap-1.5 sm:gap-2.5">
+        <div class="flex items-center gap-1.5 sm:gap-2">
             <!-- Selector Ganti Kegiatan Cepat -->
             <select id="quick_proker_select" onchange="switchProkerById(this.value)" class="text-[10px] sm:text-xs font-mono font-bold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-[#FF7300]/40 rounded-xl px-2 sm:px-2.5 py-1 sm:py-1.5 focus:outline-none focus:border-[#FF7300] cursor-pointer transition-colors max-w-[110px] xs:max-w-[140px] sm:max-w-xs truncate" title="Pindah Cepat ke Kegiatan Lain">
             </select>
+
+            <!-- Tombol Bagikan Link Kegiatan -->
+            <button type="button" onclick="shareCurrentProkerLink()" class="flex items-center gap-1 px-2.5 py-1 sm:py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/35 text-[#FF7300] hover:text-white text-[10px] sm:text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-xs shrink-0" title="Bagikan Link Kegiatan Ini">
+                <i class="fa-solid fa-share-nodes text-[10.5px]"></i>
+                <span class="hidden xs:inline">Bagikan</span>
+            </button>
 
             <!-- Tombol Refresh Data -->
             <button type="button" onclick="loadActivityData(true)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xs shadow-inner hover:border-neutral-700 active:scale-95 transition-all text-neutral-300 cursor-pointer theme-circle-btn shrink-0" title="Perbarui Data dari Spreadsheet">
@@ -1326,88 +1332,237 @@
             }
         }
 
-        // Main Data Loader
+        // Helper: Algoritma Pencarian & Pencocokan Kegiatan yang Presisi & Tahan Banting
+        function findProkerMatch(prokersList, searchStr) {
+            if (!Array.isArray(prokersList) || prokersList.length === 0 || !searchStr) return null;
+            const raw = String(searchStr).trim();
+            const low = raw.toLowerCase();
+            const cleanStr = low.replace(/[^a-z0-9]/g, '');
+
+            // 1. Exact ID match (e.g. "13", "18", "1")
+            let found = prokersList.find(p => String(p.id).trim() === raw || String(p.id_kegiatan || '').trim() === raw);
+            if (found) return found;
+
+            // 2. Exact Title match (case-insensitive)
+            found = prokersList.find(p => {
+                const name = (p.nama_proker || p.nama_kegiatan || '').trim().toLowerCase();
+                return name === low;
+            });
+            if (found) return found;
+
+            // 3. Stuban / Studi Banding alias handling (e.g. "stuban", "stuban 1", "stuban 2", "studi banding 2")
+            const isStubanSearch = low.includes('stuban') || low.includes('studi banding');
+            if (isStubanSearch) {
+                const isSecond = low.includes('2');
+                if (isSecond) {
+                    found = prokersList.find(p => {
+                        const name = (p.nama_proker || p.nama_kegiatan || '').toLowerCase();
+                        return (name.includes('studi banding') || name.includes('stuban')) && name.includes('2');
+                    });
+                    if (found) return found;
+                } else {
+                    found = prokersList.find(p => {
+                        const name = (p.nama_proker || p.nama_kegiatan || '').toLowerCase();
+                        return (name.includes('studi banding') || name.includes('stuban')) && !name.includes('2');
+                    });
+                    if (found) return found;
+                }
+            }
+
+            // 4. Clean Alphanumeric comparison (ignores spaces, punctuation, e.g. "openhouse" -> "Open House LDK IMIP")
+            found = prokersList.find(p => {
+                const name = (p.nama_proker || p.nama_kegiatan || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                return name === cleanStr || name.includes(cleanStr) || (cleanStr.length >= 4 && cleanStr.includes(name));
+            });
+            if (found) return found;
+
+            // 5. Broad Substring match
+            found = prokersList.find(p => {
+                const name = (p.nama_proker || p.nama_kegiatan || '').toLowerCase();
+                return name.includes(low);
+            });
+            return found || null;
+        }
+
+        // Global Toast Notification Helper
+        function showDetailToast(message, type = 'success') {
+            let toast = document.getElementById('global_detail_toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'global_detail_toast';
+                toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900/95 border border-orange-500/40 text-orange-400 font-mono text-xs shadow-2xl backdrop-blur-md transition-all duration-300 pointer-events-none opacity-0 translate-y-3';
+                document.body.appendChild(toast);
+            }
+            const icon = type === 'success' 
+                ? '<i class="fa-solid fa-circle-check text-emerald-400"></i>' 
+                : '<i class="fa-solid fa-circle-info text-amber-400"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            toast.classList.remove('opacity-0', 'translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(window._detailToastTimeout);
+            window._detailToastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-3');
+            }, 2600);
+        }
+
+        // Fitur Bagikan Link Kegiatan (Web Share API + Clipboard Fallback)
+        async function shareCurrentProkerLink() {
+            if (!currentProker) {
+                showDetailToast('Belum ada kegiatan yang dipilih.', 'warning');
+                return;
+            }
+            const title = currentProker.nama_proker || currentProker.nama_kegiatan || 'Detail Kegiatan';
+            const shareUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(currentProker.id)}`;
+            const shareText = `Laporan Transparansi Keuangan: ${title} - LDK IMIP`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: title,
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    return;
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.warn('Navigator share error:', err);
+                    }
+                }
+            }
+
+            // Fallback salin ke clipboard
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(shareUrl);
+                } else {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = shareUrl;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+                showDetailToast('Link kegiatan berhasil disalin!');
+            } catch (err) {
+                prompt('Salin link kegiatan ini:', shareUrl);
+            }
+        }
+
+        // Main Data Loader with Self-Healing Cache & Guaranteed Target Resolution
         async function loadActivityData(forceRefresh = false) {
             const refreshIcon = document.getElementById('refresh_icon');
             if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
             const urlParams = new URLSearchParams(window.location.search);
-            const targetId = urlParams.get('id') || urlParams.get('kegiatan') || '1';
+            const targetParam = urlParams.get('id') || urlParams.get('kegiatan') || urlParams.get('nama') || '';
 
             let data = null;
+            let needOnlineFetch = forceRefresh;
 
-            // Check safe cache first if not forced
+            // 1. Periksa safe cache jika tidak di-force
             if (!forceRefresh) {
                 const cachedRaw = safeStorage.getItem(CACHE_KEY);
+                const cacheTime = parseInt(safeStorage.getItem(CACHE_TIME_KEY) || '0', 10);
+                const isCacheFresh = (Date.now() - cacheTime) < 90000; // 90 detik
+
                 if (cachedRaw) {
-                    try { data = JSON.parse(cachedRaw); } catch(e) {}
+                    try {
+                        const parsed = JSON.parse(cachedRaw);
+                        if (parsed && Array.isArray(parsed.proker) && parsed.proker.length > 0) {
+                            // Self-Healing Cache Check:
+                            // Jika ada target yang diminta di URL, pastikan target itu ada di dalam cache!
+                            // Jika TIDAK ADA di cache (misal proker baru ditambahkan di sheet), cache dianggap USANG.
+                            const matchInCache = targetParam ? findProkerMatch(parsed.proker, targetParam) : parsed.proker[0];
+                            if (matchInCache && isCacheFresh) {
+                                data = parsed;
+                            } else {
+                                // Cache usang / data baru belum ada di cache -> wajib fetch online
+                                needOnlineFetch = true;
+                            }
+                        }
+                    } catch(e) {}
+                } else {
+                    needOnlineFetch = true;
                 }
             }
 
-            if (!data || forceRefresh) {
+            // 2. Fetch data dari Google Apps Script jika dibutuhkan
+            if (needOnlineFetch || !data) {
                 try {
-                    const res = await fetch(GOOGLE_SCRIPT_URL + '?action=get_all_data');
-                    data = await res.json();
-                    if (data && data.status === 'success') {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+                    const res = await fetch(GOOGLE_SCRIPT_URL + '?action=get_all_data', {
+                        redirect: 'follow',
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    const fetchedData = await res.json();
+                    if (fetchedData && fetchedData.status === 'success' && Array.isArray(fetchedData.proker) && fetchedData.proker.length > 0) {
+                        data = fetchedData;
                         safeStorage.setItem(CACHE_KEY, JSON.stringify(data));
                         safeStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
                     }
                 } catch(err) {
-                    console.warn('Gagal fetch online, gunakan cache atau simulasi:', err);
+                    console.warn('Gagal fetch online Google Apps Script:', err);
                 }
             }
 
-            // Fallback sample data if completely empty
-            if (!data || !data.proker) {
-                data = {
-                    proker: [
-                        { id: "1", nama_proker: "Dauroh", divisi: "Departemen Kaderisasi", estimasi_dana: 5000000, estimasi_tanggal: "24, 25, 26 April 2026", status: "Selesai", id_anggota: "2" },
-                        { id: "2", nama_proker: "Open House LDK IMIP 2026", divisi: "Departemen Syi'ar Islam", estimasi_dana: 6000000, estimasi_tanggal: "18 September 2026", status: "Running", id_anggota: "2" },
-                        { id: "3", nama_proker: "Studi Banding Ormawa 2026", divisi: "Biro Kesekretariatan", estimasi_dana: 3500000, estimasi_tanggal: "28 Juni 2026", status: "Completed", id_anggota: "1" }
-                    ],
-                    transaksi: [
-                        { id: "TX-01", proker_id: "1", tanggal: "2026-04-20", jenis: "Keluar", nominal: 850000, divisi: "Korlap", user_id: "7", uraian: "Sewa Tenda & Matras Peserta", kategori: "Belanja Sewa" },
-                        { id: "TX-02", proker_id: "1", tanggal: "2026-04-21", jenis: "Keluar", nominal: 660500, divisi: "Logistik", user_id: "7", uraian: "Bahan Masak, Galon Air & Perlengkapan Dapur", kategori: "Belanja Bahan" },
-                        { id: "TX-03", proker_id: "1", tanggal: "2026-04-22", jenis: "Keluar", nominal: 370000, divisi: "Acara", user_id: "2", uraian: "Cetak Buku Panduan Materi Dauroh", kategori: "Belanja Bahan" },
-                        { id: "TX-04", proker_id: "1", tanggal: "2026-04-23", jenis: "Keluar", nominal: 382001, divisi: "Konsumsi", user_id: "9", uraian: "Snack Kotak & Buah Pemateri", kategori: "Belanja Bahan" },
-                        { id: "TX-05", proker_id: "1", tanggal: "2026-04-18", jenis: "Masuk", nominal: 789000, divisi: "Kaderisasi", user_id: "7", uraian: "Iuran Peserta & Registrasi", kategori: "HTM Peserta" }
-                    ],
-                    anggota: [
-                        { id: "1", name: "Hafiz Alfariz", nim: "2490444040" },
-                        { id: "2", name: "Fadly Ahmad Chandi", nim: "2490345034" },
-                        { id: "7", name: "Riski Raditiya", nim: "2490343138" },
-                        { id: "9", name: "Luthfiah Mufidah", nim: "2594406035" }
-                    ]
-                };
+            // 3. Fallback ke stale cache jika online fetch gagal, TAPI JANGAN racuni cache dengan mock dummy!
+            if (!data) {
+                const fallbackCachedRaw = safeStorage.getItem(CACHE_KEY);
+                if (fallbackCachedRaw) {
+                    try { data = JSON.parse(fallbackCachedRaw); } catch(e) {}
+                }
+            }
+
+            // 4. Jika benar-benar kosong total (baru pertama kali buka & tanpa internet)
+            if (!data || !Array.isArray(data.proker) || data.proker.length === 0) {
+                document.getElementById('loading_state').classList.add('hidden');
+                document.getElementById('content_container').classList.add('hidden');
+                document.getElementById('error_state').classList.remove('hidden');
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                return;
             }
 
             allProkersList = data.proker || [];
             allMembersList = data.anggota || [];
             const allTxs = data.transaksi || [];
 
-            // Populate quick select dropdown
-            populateQuickSelect(allProkersList, targetId);
-
-            // Find matching proker
-            const targetStr = String(targetId).toLowerCase().trim();
-            currentProker = allProkersList.find(p => 
-                String(p.id).trim().toLowerCase() === targetStr ||
-                (p.nama_proker && p.nama_proker.toLowerCase().includes(targetStr)) ||
-                (p.nama_kegiatan && p.nama_kegiatan.toLowerCase().includes(targetStr))
-            );
-
-            if (!currentProker && allProkersList.length > 0) {
-                currentProker = allProkersList[0];
+            // 5. Cari kegiatan yang cocok menggunakan matcher tangguh
+            if (targetParam) {
+                currentProker = findProkerMatch(allProkersList, targetParam);
             }
 
+            // Hanya jika URL TIDAK menyebutkan id/kegiatan tertentu sama sekali, pilih kegiatan pertama
             if (!currentProker) {
-                document.getElementById('loading_state').classList.add('hidden');
-                document.getElementById('error_state').classList.remove('hidden');
-                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                return;
+                if (!targetParam && allProkersList.length > 0) {
+                    currentProker = allProkersList[0];
+                } else {
+                    // ID / nama yang dicari ada di URL namun tidak ditemukan sama sekali di database
+                    document.getElementById('loading_state').classList.add('hidden');
+                    document.getElementById('content_container').classList.add('hidden');
+                    document.getElementById('error_state').classList.remove('hidden');
+                    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                    return;
+                }
             }
 
-            // Filter transactions for this proker
+            // Sinkronkan Canonical URL di address bar browser agar saat dicopy/dishare selalu akurat ID-nya
+            try {
+                const currentUrl = new URL(window.location.href);
+                if (currentUrl.searchParams.get('id') !== String(currentProker.id)) {
+                    currentUrl.searchParams.set('id', currentProker.id);
+                    currentUrl.searchParams.delete('kegiatan');
+                    currentUrl.searchParams.delete('nama');
+                    window.history.replaceState({ prokerId: currentProker.id }, '', currentUrl.toString());
+                }
+            } catch (e) {}
+
+            // Populate dropdown pemilih cepat
+            populateQuickSelect(allProkersList, currentProker.id);
+
+            // Filter transaksi yang bersesuaian dengan kegiatan ini
             const pId = String(currentProker.id).trim();
             const pName = (currentProker.nama_proker || currentProker.nama_kegiatan || '').toLowerCase();
 
@@ -1420,7 +1575,7 @@
             });
 
             try {
-                // Render all UI components
+                // Render seluruh komponen UI
                 renderHeroBanner();
                 renderStatCards();
                 renderDivisionAnalytics();

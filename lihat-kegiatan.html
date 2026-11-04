@@ -5138,12 +5138,14 @@
             const rawDivisi = proker.divisi || "-";
             const cleanDivisi = rawDivisi.replace(/^(Departemen|Divisi)\s+/i, "");
 
+            const prokerId = (proker.id !== undefined && proker.id !== null && proker.id !== '') ? String(proker.id).trim() : (proker.id_kegiatan ? String(proker.id_kegiatan).trim() : '');
+
             const statusBadgeHtml = isCompleted 
                 ? '<span class="inline-flex items-center gap-1 text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 bg-emerald-950/90 border border-emerald-500/40 rounded text-emerald-300 font-bold uppercase shadow-[0_0_8px_rgba(16,185,129,0.2)]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>✓ Selesai</span>' 
                 : '<span class="inline-flex items-center gap-1 text-[8px] sm:text-[8.5px] font-mono px-2 py-0.5 bg-amber-950/90 border border-amber-500/40 rounded text-amber-300 font-bold uppercase shadow-[0_0_8px_rgba(245,158,11,0.2)]"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>⏳ Sedang Berjalan</span>';
 
             return `
-                <div onclick="window.location.href='detail-kegiatan.html?id=' + encodeURIComponent('${proker.id}')" class="proker-card-public bg-neutral-950 border ${isCompleted ? 'border-neutral-900 hover:border-emerald-500/40' : 'border-neutral-900 hover:border-amber-500/40'} rounded-2xl overflow-hidden shadow-xs mb-3.5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-orange-500/40 group" id="proker-card-${proker.id}">
+                <div onclick="window.location.href='detail-kegiatan.html?id=' + encodeURIComponent('${prokerId}')" class="proker-card-public bg-neutral-950 border ${isCompleted ? 'border-neutral-900 hover:border-emerald-500/40' : 'border-neutral-900 hover:border-amber-500/40'} rounded-2xl overflow-hidden shadow-xs mb-3.5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-orange-500/40 group" id="proker-card-${prokerId}">
                     <!-- PRATINJAU KARTU KEGIATAN (BERSIH & RAPI) -->
                     <div class="p-3.5 sm:p-4 proker-header-preview">
                         <!-- BARIS 1: Badges Status & Tanggal (Kiri) & Tombol Detail (Kanan) -->
@@ -5154,10 +5156,10 @@
                                 <span class="proker-header-date">📅 ${formatReadableDate(proker.estimasi_tanggal)}</span>
                             </div>
                             <div class="shrink-0">
-                                <span class="bg-orange-500/15 group-hover:bg-orange-500/25 border border-orange-500/35 text-orange-400 font-mono text-[8.5px] sm:text-[9.5px] font-bold px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 shadow-xs">
+                                <a href="detail-kegiatan.html?id=${encodeURIComponent(prokerId)}" onclick="event.stopPropagation();" class="bg-orange-500/15 group-hover:bg-orange-500/25 border border-orange-500/35 text-orange-400 font-mono text-[8.5px] sm:text-[9.5px] font-bold px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 shadow-xs cursor-pointer">
                                     <span>Detail</span>
                                     <i class="fa-solid fa-arrow-right text-[8px] group-hover:translate-x-0.5 transition-transform"></i>
-                                </span>
+                                </a>
                             </div>
                         </div>
 
