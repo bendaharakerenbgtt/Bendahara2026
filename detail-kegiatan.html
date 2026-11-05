@@ -549,6 +549,57 @@
             }
         }
 
+        /* RANK BADGES STYLING (GOLD, SILVER, BRONZE & MODERN DEFAULT) */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', 'Plus Jakarta Sans', monospace, sans-serif;
+            font-weight: 800;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+        }
+        .rank-gold {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+            border: 1px solid rgba(251, 191, 36, 0.7);
+        }
+        .rank-silver {
+            background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+        }
+        .rank-bronze {
+            background: linear-gradient(135deg, #B45309 0%, #78350F 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 8px rgba(180, 83, 9, 0.3);
+            border: 1px solid rgba(217, 119, 6, 0.6);
+        }
+        .rank-default {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #94A3B8;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        html.light-mode .rank-default {
+            background-color: #F1F5F9;
+            color: #475569;
+            border-color: #CBD5E1;
+        }
+
+        .highlight-flash {
+            animation: highlightGlow 2.5s ease-out forwards;
+        }
+        @keyframes highlightGlow {
+            0% { background-color: rgba(255, 115, 0, 0.28); box-shadow: 0 0 18px rgba(255, 115, 0, 0.5); }
+            70% { background-color: rgba(255, 115, 0, 0.12); }
+            100% { background-color: transparent; box-shadow: none; }
+        }
+
         /* Chart Canvas Container */
         .chart-wrapper {
             position: relative;
@@ -897,6 +948,32 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- 4. PENGELUARAN TERBESAR KEGIATAN INI (TOP 5 INTERACTIVE EXPENSES) -->
+            <div id="top_expenses_section" class="surface-card rounded-2xl bg-neutral-900/90 border border-neutral-800 p-3.5 sm:p-4.5 shadow-lg space-y-3">
+                <div class="flex items-center justify-between pb-2.5 border-b border-neutral-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+                            <i class="fa-solid fa-fire text-xs"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xs sm:text-sm font-black text-white tracking-tight flex items-center gap-1.5">
+                                <span>Pengeluaran Terbanyak Kegiatan</span>
+                                <span class="text-[8.5px] font-mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-bold">Top 5</span>
+                            </h3>
+                            <p class="text-[8.5px] sm:text-[9.5px] text-neutral-400 font-mono">Transaksi dengan nominal terbesar dalam kegiatan ini (klik kartu untuk sorot di tabel)</p>
+                        </div>
+                    </div>
+                    <span class="text-[9px] font-mono text-neutral-400 hidden sm:inline-flex items-center gap-1">
+                        <i class="fa-solid fa-hand-pointer text-orange-400"></i> Interaktif
+                    </span>
+                </div>
+
+                <!-- Grid Kartu Pengeluaran Terbanyak -->
+                <div id="top_expenses_container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2.5">
+                    <!-- Populated dynamically via JS -->
+                </div>
             </div>
 
             <!-- 5. TABEL DAFTAR SEMUA TRANSAKSI KEGIATAN -->
@@ -1580,6 +1657,7 @@
                 renderStatCards();
                 renderDivisionAnalytics();
                 renderPilarOrmawa();
+                renderTopExpensesWidget();
                 renderTransactionsTable();
             } catch (err) {
                 console.error('Error rendering detail components:', err);
@@ -2303,6 +2381,115 @@
             }
         }
 
+        // 4. Render Pengeluaran Terbesar Kegiatan Ini (Top 5 Pengeluaran Terbanyak)
+        function renderTopExpensesWidget() {
+            const container = document.getElementById('top_expenses_container');
+            const section = document.getElementById('top_expenses_section');
+            if (!container || !section) return;
+
+            // Filter transaksi pengeluaran (Keluar)
+            const expenseTxs = (prokerTransactions || []).filter(t => {
+                const j = (t.jenis || '').toLowerCase();
+                return j === 'keluar' || (!j && parseFloat(t.nominal) > 0);
+            });
+
+            if (expenseTxs.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            section.classList.remove('hidden');
+
+            // Sort berdasarkan nominal terbesar
+            const sorted = expenseTxs.slice().sort((a, b) => {
+                const nomA = Math.abs(parseFloat(a.nominal) || 0);
+                const nomB = Math.abs(parseFloat(b.nominal) || 0);
+                return nomB - nomA;
+            });
+
+            const top5 = sorted.slice(0, 5);
+            const totalOut = expenseTxs.reduce((sum, t) => sum + Math.abs(parseFloat(t.nominal) || 0), 0);
+
+            let html = '';
+            top5.forEach((t, i) => {
+                const nom = Math.abs(parseFloat(t.nominal) || 0);
+                const pct = totalOut > 0 ? ((nom / totalOut) * 100).toFixed(1) : '0';
+                const rank = i + 1;
+                const rankClass = rank === 1 ? 'rank-gold' : (rank === 2 ? 'rank-silver' : (rank === 3 ? 'rank-bronze' : 'rank-default'));
+                const medal = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : ''));
+                const desc = t.uraian || t.keterangan || t.kategori || 'Pengeluaran Kegiatan';
+                const dateStr = t.tanggal ? formatReadableDate(t.tanggal, true) : '-';
+                const divisi = formatDivisiName(t.divisi);
+                const cat = getTransactionCategory(t);
+                const txId = t.id || ('TX-' + i);
+                const receiptUrl = getReceiptUrl(t);
+
+                const receiptBtn = receiptUrl ? `
+                    <button type="button" onclick="event.stopPropagation(); previewReceipt('${escapeHtml(receiptUrl)}', '${escapeHtml(desc)}')" class="px-2 py-0.5 rounded-md bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-400 text-[9px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 shrink-0" title="Lihat Bukti Nota">
+                        <i class="fa-solid fa-receipt text-[8px]"></i> <span>Nota</span>
+                    </button>
+                ` : '';
+
+                html += `
+                    <div onclick="highlightTransactionInTable('${txId}')" class="surface-card rounded-xl bg-neutral-950/70 border border-neutral-800/80 hover:border-orange-500/50 p-2.5 sm:p-3 flex flex-col justify-between gap-2 shadow-xs cursor-pointer transition-all duration-200 hover:-translate-y-0.5 group select-none" title="Klik untuk sorot transaksi ini di tabel bawah">
+                        <div class="flex items-start justify-between gap-1.5">
+                            <div class="flex items-center gap-1.5 min-w-0 pr-1">
+                                <span class="rank-badge ${rankClass} text-[9.5px] shrink-0 font-mono font-black">${medal} #${rank}</span>
+                                <span class="text-[9px] font-mono text-neutral-400 truncate">${escapeHtml(cat)}</span>
+                            </div>
+                            <span class="text-[8px] sm:text-[8.5px] font-mono font-bold text-orange-400/90 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/20 shrink-0">${pct}% dari total</span>
+                        </div>
+                        <div>
+                            <h4 class="text-xs sm:text-[12.5px] font-bold text-white group-hover:text-orange-400 transition-colors line-clamp-2 leading-tight">${escapeHtml(desc)}</h4>
+                            <div class="flex items-center gap-1.5 text-[9px] font-mono text-neutral-400 mt-1 flex-wrap">
+                                <span>${dateStr}</span>
+                                <span>•</span>
+                                <span class="truncate max-w-[110px]">${escapeHtml(divisi)}</span>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-neutral-800/70 flex items-center justify-between gap-2">
+                            <span class="text-xs sm:text-sm font-extrabold font-mono text-rose-400">-Rp ${nom.toLocaleString('id-ID')}</span>
+                            ${receiptBtn}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Sorot baris transaksi di tabel bawah dengan animasi highlight
+        function highlightTransactionInTable(txId) {
+            if (!txId) return;
+
+            // Pastikan filter transaksi diset ke KELUAR agar item tampil
+            setTypeFilter('KELUAR', false);
+
+            // Bersihkan input pencarian jika ada
+            const searchInput = document.getElementById('tx_search_input');
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                filterTransactionsTable();
+            }
+
+            // Scroll ke elemen dan berikan efek glow sorotan
+            setTimeout(() => {
+                const row = document.getElementById(`tx-row-${txId}`);
+                const card = document.getElementById(`tx-card-${txId}`);
+                const isMobile = window.innerWidth < 640;
+                const target = isMobile ? (card || row) : (row || card);
+
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    target.classList.add('highlight-flash');
+                    setTimeout(() => {
+                        target.classList.remove('highlight-flash');
+                    }, 2600);
+                } else {
+                    scrollToTransactions();
+                }
+            }, 120);
+        }
+
         // 5. Render Tabel Rincian Semua Transaksi
         function renderTransactionsTable() {
             updateTypeFilterButtons();
@@ -2421,8 +2608,10 @@
                 if (cat === 'Belanja Sewa') catBadgeStyle = 'text-sky-400 bg-sky-500/10 border-sky-500/25';
                 if (cat === 'Belanja Jasa') catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
 
+                const txRowId = String(t.id || '').trim();
+
                 return `
-                <tr class="table-row border-b border-neutral-800/60 hover:bg-neutral-800/30 transition-colors">
+                <tr id="tx-row-${escapeHtml(txRowId)}" class="table-row border-b border-neutral-800/60 hover:bg-neutral-800/30 transition-colors">
                     <td class="py-2.5 sm:py-3 px-3 font-mono text-[10.5px] sm:text-[11px] text-neutral-400 whitespace-nowrap">
                         ${formatReadableDate(t.tanggal, true)}
                     </td>
@@ -2485,8 +2674,10 @@
                     if (cat === 'Belanja Sewa') catBadgeStyle = 'text-sky-400 bg-sky-500/10 border-sky-500/25';
                     if (cat === 'Belanja Jasa') catBadgeStyle = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25';
 
+                    const txCardId = String(t.id || '').trim();
+
                     return `
-                    <div class="tx-mobile-card p-3 rounded-xl bg-neutral-950/60 border border-neutral-800/80 space-y-2 hover:border-neutral-700 transition-all">
+                    <div id="tx-card-${escapeHtml(txCardId)}" class="tx-mobile-card p-3 rounded-xl bg-neutral-950/60 border border-neutral-800/80 space-y-2 hover:border-neutral-700 transition-all">
                         <!-- Baris Atas: Tanggal & Divisi -->
                         <div class="flex items-center justify-between text-[10px] font-mono">
                             <span class="text-neutral-400 flex items-center gap-1.5">

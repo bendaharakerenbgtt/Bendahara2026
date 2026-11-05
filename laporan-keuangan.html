@@ -485,6 +485,76 @@
             box-shadow: 0 2px 12px rgba(255, 115, 0, 0.18) !important;
         }
 
+        /* RANK BADGES STYLING (GOLD, SILVER, BRONZE & MODERN DEFAULT) */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 8px;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+            transition: all 0.2s ease;
+        }
+        .rank-gold {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+            border: 1px solid rgba(251, 191, 36, 0.7);
+        }
+        .rank-silver {
+            background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 10px rgba(148, 163, 184, 0.35);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+        }
+        .rank-bronze {
+            background: linear-gradient(135deg, #B45309 0%, #78350F 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 10px rgba(180, 83, 9, 0.35);
+            border: 1px solid rgba(217, 119, 6, 0.6);
+        }
+        .rank-default {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: var(--text-sec-300);
+            border: 1px solid var(--border-muted);
+        }
+        html.light-mode .rank-default {
+            background-color: #F1F5F9 !important;
+            color: #475569 !important;
+            border-color: #CBD5E1 !important;
+        }
+
+        /* PROKER FILTER CHIPS */
+        .proker-filter-chip {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-muted);
+            color: var(--text-sec-400);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .proker-filter-chip:hover {
+            border-color: rgba(255, 115, 0, 0.4);
+            color: var(--text-primary);
+        }
+        .proker-filter-chip.active-filter {
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 2px 10px rgba(255, 115, 0, 0.35) !important;
+        }
+        html.light-mode .proker-filter-chip {
+            background-color: #FFFFFF !important;
+            border-color: #FED7AA !important;
+            color: #64748B !important;
+        }
+        html.light-mode .proker-filter-chip.active-filter {
+            background: linear-gradient(135deg, #FF7300 0%, #EA580C 100%) !important;
+            color: #FFFFFF !important;
+        }
+
         /* MODAL ANIMATION & THEMING */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
@@ -921,55 +991,140 @@
 
         </div>
 
-        <!-- SECTION 3: REKAPITULASI DETAIL -->
-        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3 shadow-md min-w-0">
-            <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
-                <div class="min-w-0">
-                    <h2 class="t-section-title truncate">
-                        Rekapitulasi Detail
-                    </h2>
+        <!-- SECTION 3: REKAPITULASI DETAIL & PENGELUARAN KEGIATAN TERBANYAK -->
+        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3.5 shadow-md min-w-0">
+            <!-- Header Bar: Title, Count Badge & Segmented View Switcher -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800/60">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-[#FF7300] shrink-0 text-xs">
+                        <i id="rekap-section-icon" class="fa-solid fa-fire text-amber-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="t-section-title truncate flex items-center gap-2">
+                            <span id="rekap-section-title">Pengeluaran Kegiatan Terbanyak</span>
+                            <span id="table-summary-count" class="t-sub-mono meta-badge px-2 py-0.5 rounded-lg text-[9.5px] font-bold">
+                                0 Kegiatan
+                            </span>
+                        </h2>
+                        <p class="text-[9.5px] sm:text-[10.5px] font-mono text-neutral-400 mt-0.5" id="rekap-section-sub">
+                            Peringkat alokasi belanja terbesar program kerja & agenda LDK IMIP
+                        </p>
+                    </div>
                 </div>
-                <span id="table-summary-count" class="t-sub-mono meta-badge px-2.5 py-1 rounded-lg shrink-0">
-                    0 Kategori
-                </span>
-            </div>
 
-            <!-- 1. MOBILE FINTECH CARDS LIST (SHOWN ONLY ON MOBILE: NO CUT-OFFS, NO WORD BREAKS) -->
-            <div id="mobile-category-list" class="flex flex-col gap-2 sm:hidden">
-                <!-- Populated dynamically via JS -->
-                <div class="p-4 text-center t-sub">
-                    <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memuat rekapitulasi...
+                <!-- INTERACTIVE SEGMENTED TABS -->
+                <div class="flex items-center gap-1 bg-neutral-900/80 dark:bg-neutral-950 p-1 rounded-xl border border-neutral-800/90 self-start sm:self-auto shrink-0 shadow-inner">
+                    <button type="button" id="tab-rekap-kegiatan" onclick="setRekapView('kegiatan')" class="tab-btn active flex items-center gap-1.5 cursor-pointer text-xs" title="Lihat Peringkat Pengeluaran Berdasarkan Kegiatan">
+                        <i class="fa-solid fa-fire text-amber-400"></i>
+                        <span>Pengeluaran Kegiatan</span>
+                    </button>
+                    <button type="button" id="tab-rekap-kategori" onclick="setRekapView('kategori')" class="tab-btn flex items-center gap-1.5 cursor-pointer text-xs" title="Lihat Rekapitulasi Berdasarkan Kategori Belanja">
+                        <i class="fa-solid fa-shapes"></i>
+                        <span>Kategori Belanja</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- 2. DESKTOP FULL DATA TABLE (SHOWN ON SM AND UP WITH STRICT NON-WRAPPING HEADERS) -->
-            <div class="hidden sm:block overflow-x-auto rounded-xl border border-neutral-800/60 min-w-0">
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th class="w-12 text-center">#</th>
-                            <th>Kategori Pengeluaran</th>
-                            <th class="text-center">Frekuensi</th>
-                            <th class="text-right">Total Nominal</th>
-                            <th class="w-40">Porsi Realisasi</th>
-                            <th class="text-center">Metode Dominan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="report-table-body">
-                        <tr>
-                            <td colspan="6" class="text-center py-6 t-sub">
-                                <i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Memproses data kategori...
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot id="report-table-foot"></tfoot>
-                </table>
+            <!-- VIEW 1: PENGELUARAN KEGIATAN TERBANYAK (INTERAKTIF & LENGKAP) -->
+            <div id="view-rekap-kegiatan" class="flex flex-col gap-3.5">
+                
+                <!-- TOP 3 PODIUM / SPOTLIGHT HIGHLIGHT -->
+                <div id="top3-podium-container" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <!-- CONTROLS: FILTER CHIPS & LIVE SEARCH -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+                        <button type="button" onclick="setProkerTypeFilter('ALL')" data-type="ALL" class="proker-filter-chip active-filter px-3 py-1 rounded-lg text-[10.5px] font-mono font-bold cursor-pointer">
+                            Semua (<span id="count-chip-all">0</span>)
+                        </button>
+                        <button type="button" onclick="setProkerTypeFilter('Program Kerja')" data-type="Program Kerja" class="proker-filter-chip px-3 py-1 rounded-lg text-[10.5px] font-mono font-bold cursor-pointer text-neutral-400">
+                            Program Kerja (<span id="count-chip-pk">0</span>)
+                        </button>
+                        <button type="button" onclick="setProkerTypeFilter('Agenda Kerja')" data-type="Agenda Kerja" class="proker-filter-chip px-3 py-1 rounded-lg text-[10.5px] font-mono font-bold cursor-pointer text-neutral-400">
+                            Agenda Kerja (<span id="count-chip-ak">0</span>)
+                        </button>
+                    </div>
+
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-neutral-500"></i>
+                        <input type="text" id="proker-search-input" oninput="handleProkerSearch(this.value)" placeholder="Cari kegiatan atau divisi..." class="w-full pl-8 pr-3 py-1.5 bg-neutral-900/60 dark:bg-neutral-950 border border-neutral-800/80 rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#FF7300] transition-colors">
+                    </div>
+                </div>
+
+                <!-- Mobile Fintech Cards for Kegiatan (< 640px) -->
+                <div id="mobile-proker-list" class="flex flex-col gap-2.5 sm:hidden">
+                    <div class="p-6 text-center t-sub font-mono">
+                        <i class="fa-solid fa-spinner animate-spin mr-1.5 text-orange-400"></i> Memuat daftar kegiatan...
+                    </div>
+                </div>
+
+                <!-- Desktop Wide Table for Kegiatan (>= 640px) -->
+                <div class="hidden sm:block overflow-x-auto rounded-xl border border-neutral-800/60 min-w-0 shadow-xs">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th class="w-16 text-center">Rank</th>
+                                <th>Nama Kegiatan & Jenis</th>
+                                <th>Divisi Pelaksana</th>
+                                <th class="text-center">Jumlah Transaksi</th>
+                                <th class="text-right">Total Pengeluaran</th>
+                                <th class="w-44">Porsi Terhadap Kas</th>
+                                <th class="text-center w-32">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-proker-table-body">
+                            <tr>
+                                <td colspan="7" class="text-center py-8 t-sub">
+                                    <i class="fa-solid fa-spinner animate-spin mr-1.5 text-orange-400"></i> Memproses peringkat kegiatan...
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="report-proker-table-foot"></tfoot>
+                    </table>
+                </div>
             </div>
 
-            <div class="flex items-center justify-between gap-2 pt-1">
-                <span class="t-sub truncate">* Data terverifikasi melalui Buku Kas Resmi 2026</span>
-                <a href="riwayat-transaksi.html" class="t-sub text-[#FF7300] hover:text-orange-400 transition-colors flex items-center gap-1 shrink-0 font-bold">
-                    <span>Buku Kas Rinci</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
+            <!-- VIEW 2: KATEGORI BELANJA (REKAP KATEGORI LAMA YANG TETAP RAPI) -->
+            <div id="view-rekap-kategori" class="hidden flex flex-col gap-3">
+                <!-- Mobile Category Cards List -->
+                <div id="mobile-category-list" class="flex flex-col gap-2 sm:hidden">
+                    <div class="p-4 text-center t-sub">
+                        <i class="fa-solid fa-spinner animate-spin mr-1.5 text-orange-400"></i> Memuat rekapitulasi kategori...
+                    </div>
+                </div>
+
+                <!-- Desktop Category Data Table -->
+                <div class="hidden sm:block overflow-x-auto rounded-xl border border-neutral-800/60 min-w-0 shadow-xs">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th class="w-12 text-center">#</th>
+                                <th>Kategori Pengeluaran</th>
+                                <th class="text-center">Frekuensi</th>
+                                <th class="text-right">Total Nominal</th>
+                                <th class="w-40">Porsi Realisasi</th>
+                                <th class="text-center">Metode Dominan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body">
+                            <tr>
+                                <td colspan="6" class="text-center py-6 t-sub">
+                                    <i class="fa-solid fa-spinner animate-spin mr-1.5 text-orange-400"></i> Memproses data kategori...
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot id="report-table-foot"></tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bottom Subtitle & Link to History -->
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-neutral-800/50 mt-1">
+                <span class="t-sub truncate text-[10px]">* Data disinkronkan real-time dengan Google Spreadsheet Resmi</span>
+                <a href="riwayat-transaksi.html" class="t-sub text-[#FF7300] hover:text-orange-400 transition-colors flex items-center gap-1 shrink-0 font-bold text-xs">
+                    <span>Lihat Seluruh Mutasi Kas</span> <i class="fa-solid fa-arrow-right text-[9px]"></i>
                 </a>
             </div>
         </div>
@@ -1072,6 +1227,64 @@
         </div>
     </div>
 
+    <!-- INTERACTIVE PROKER DRILLDOWN MODAL -->
+    <div id="prokerDetailModal" class="hidden fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300" onclick="if(event.target===this) closeProkerDetailModal()">
+        <div class="modal-surface w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-2xl max-h-[85vh] overflow-y-auto no-scrollbar animate-fadeInUp">
+            <!-- Header with Close button -->
+            <div class="flex items-center justify-between pb-3 border-b border-white/10 dark:border-white/10">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0 text-sm">
+                        <i class="fa-solid fa-fire text-amber-400"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 id="modal-proker-title" class="modal-text-title text-base sm:text-lg font-bold text-white truncate">Nama Kegiatan</h3>
+                        <span id="modal-proker-subtitle" class="modal-text-sub text-xs text-slate-400 font-medium">Program Kerja • Divisi</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeProkerDetailModal()" class="modal-btn-close w-8 h-8 rounded-xl bg-neutral-800/90 border border-neutral-700/80 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95 text-xs font-bold" title="Tutup">
+                    ✕
+                </button>
+            </div>
+            
+            <!-- Quick Metrics Grid -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Total Belanja</span>
+                    <span id="modal-proker-total" class="text-sm sm:text-base font-bold font-mono text-rose-400">Rp0</span>
+                </div>
+                <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Porsi Terhadap Kas</span>
+                    <span id="modal-proker-porsi" class="text-sm sm:text-base font-bold font-mono text-[#FF7300]">0%</span>
+                </div>
+                <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Frekuensi</span>
+                    <span id="modal-proker-count" class="text-sm sm:text-base font-bold font-mono text-slate-200 modal-val-white">0 tx</span>
+                </div>
+            </div>
+
+            <!-- List of Transactions in this Proker -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span class="modal-text-label text-[11px] font-bold tracking-wider text-slate-300 uppercase">Daftar Transaksi Belanja:</span>
+                    <span class="text-[9.5px] font-mono text-neutral-400">Urut nominal terbesar</span>
+                </div>
+                <div id="modal-proker-tx-list" class="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1 no-scrollbar">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Bottom action links -->
+            <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
+                <button type="button" onclick="closeProkerDetailModal()" class="modal-btn-close px-4 py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-slate-200 hover:text-white text-xs font-bold cursor-pointer transition-colors">
+                    Tutup
+                </button>
+                <a id="modal-proker-link-full" href="detail-kegiatan.html" target="_blank" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all">
+                    <span>Buka Detail Penuh</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- CLIENT SCRIPT & CHART LOGIC -->
     <script>
         // GLOBAL STATE DECLARATIONS AT THE VERY TOP (AVOIDING TDZ ISSUES)
@@ -1081,6 +1294,11 @@
         var currentChartRange = '3m';
         var selectedPeriode = 'all';
         var rawTransactions = [];
+        var rawProkers = [];
+        var currentRekapView = 'kegiatan'; // 'kegiatan' (default) | 'kategori'
+        var selectedProkerTypeFilter = 'ALL';
+        var prokerSearchQuery = '';
+        var latestProkerSpendingList = [];
         var currentFocusedCategoryIndex = -1;
         var latestSortedCategories = [];
         var latestGrandTotalKeluar = 0;
@@ -1851,6 +2069,7 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeCategoryModal();
+                closeProkerDetailModal();
                 closeMonthSpotlight();
             }
         });
@@ -2137,26 +2356,414 @@
                 }
             }
 
+            // Compute Prokers Spending List (Peringkat Pengeluaran Kegiatan Terbanyak)
+            var prokerMap = {};
+            (rawProkers || []).forEach(function(p) {
+                var pId = String(p.id !== undefined && p.id !== null ? p.id : (p.id_kegiatan || '')).trim();
+                if (!pId) return;
+                prokerMap[pId] = {
+                    id: pId,
+                    nama: p.nama_proker || p.nama_kegiatan || ('Kegiatan #' + pId),
+                    jenis: p.jenis || 'Program Kerja',
+                    divisi: p.divisi || '-',
+                    estimasi_dana: parseFloat(p.estimasi_dana) || 0,
+                    status: p.status || 'Berjalan',
+                    totalKeluar: 0,
+                    totalMasuk: 0,
+                    count: 0,
+                    txList: []
+                };
+            });
+
+            validTx.forEach(function(t) {
+                var pId = String(t.proker_id || t.id_kegiatan || '').trim();
+                var nom = Math.abs(parseFloat(t.nominal) || 0);
+                var isOut = (t.jenis || '').toLowerCase() === 'keluar';
+                var isIn = (t.jenis || '').toLowerCase() === 'masuk';
+
+                if (pId && prokerMap[pId]) {
+                    if (isOut) {
+                        prokerMap[pId].totalKeluar += nom;
+                        prokerMap[pId].count += 1;
+                        prokerMap[pId].txList.push(t);
+                    } else if (isIn) {
+                        prokerMap[pId].totalMasuk += nom;
+                    }
+                } else if (isOut) {
+                    var ket = (t.keterangan || t.uraian || '').toLowerCase();
+                    var matchedPId = Object.keys(prokerMap).find(function(id) {
+                        var pName = (prokerMap[id].nama || '').toLowerCase().trim();
+                        return pName && pName.length >= 4 && ket.includes(pName);
+                    });
+                    if (matchedPId) {
+                        prokerMap[matchedPId].totalKeluar += nom;
+                        prokerMap[matchedPId].count += 1;
+                        prokerMap[matchedPId].txList.push(t);
+                    }
+                }
+            });
+
+            var sortedProkers = Object.values(prokerMap).sort(function(a, b) {
+                return b.totalKeluar - a.totalKeluar;
+            });
+            latestProkerSpendingList = sortedProkers;
+
+            // Render components
+            renderTop3Podium(sortedProkers, totalKeluar);
+            applyProkerFilters();
             renderResponsiveDataDisplay(sortedCategories, totalKeluar);
+            updateSummaryCountBadge();
         }
 
-        // RENDER BOTH MOBILE FINTECH CARDS AND DESKTOP WIDE TABLE
+        // Top 3 Podium Cards
+        function renderTop3Podium(prokers, grandTotalKeluar) {
+            var container = document.getElementById('top3-podium-container');
+            if (!container) return;
+
+            if (!prokers || prokers.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            var top3 = prokers.slice(0, 3);
+            var html = '';
+
+            top3.forEach(function(p, i) {
+                var rank = i + 1;
+                var percent = grandTotalKeluar > 0 ? ((p.totalKeluar / grandTotalKeluar) * 100).toFixed(1) : '0';
+                var cleanDivisi = (p.divisi || '-').replace(/^(Departemen|Divisi|Biro)\s+/i, '');
+
+                var borderClass = rank === 1 
+                    ? 'border-amber-500/50 hover:border-amber-400 bg-amber-500/[0.04]' 
+                    : (rank === 2 ? 'border-slate-500/40 hover:border-slate-300 bg-slate-500/[0.03]' : 'border-amber-700/40 hover:border-amber-600 bg-amber-900/[0.03]');
+                var rankBadgeClass = rank === 1 ? 'rank-gold' : (rank === 2 ? 'rank-silver' : 'rank-bronze');
+                var rankText = rank === 1 ? '🥇 #1 Terbanyak' : (rank === 2 ? '🥈 #2 Runner-Up' : '🥉 #3 Terbesar');
+
+                html += 
+                    '<div onclick="openProkerDetailModal(\'' + p.id + '\')" class="p-3 sm:p-3.5 rounded-2xl border ' + borderClass + ' flex flex-col justify-between gap-2.5 transition-all duration-200 hover:-translate-y-0.5 shadow-xs cursor-pointer group select-none">' +
+                        '<div class="flex items-center justify-between gap-2">' +
+                            '<span class="rank-badge ' + rankBadgeClass + ' text-[10px]">' + rankText + '</span>' +
+                            '<span class="text-[9px] font-mono text-neutral-400 font-bold">' + percent + '% dari Kas</span>' +
+                        '</div>' +
+                        '<div>' +
+                            '<h4 class="text-xs sm:text-sm font-black text-white group-hover:text-[#FF7300] transition-colors truncate leading-snug">' + p.nama + '</h4>' +
+                            '<span class="text-[9.5px] font-mono text-neutral-400 truncate block mt-0.5">' + cleanDivisi + '</span>' +
+                        '</div>' +
+                        '<div class="pt-2 border-t border-neutral-800/60 flex items-center justify-between gap-2">' +
+                            '<span class="font-mono text-xs sm:text-sm font-extrabold text-rose-400">-' + formatRupiah(p.totalKeluar) + '</span>' +
+                            '<span class="text-[9px] font-mono text-neutral-400 bg-neutral-800/80 px-1.5 py-0.5 rounded">' + p.count + ' tx</span>' +
+                        '</div>' +
+                    '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Switch View: Kegiatan vs Kategori
+        function setRekapView(view) {
+            currentRekapView = view;
+            var btnKegiatan = document.getElementById('tab-rekap-kegiatan');
+            var btnKategori = document.getElementById('tab-rekap-kategori');
+            var viewKegiatan = document.getElementById('view-rekap-kegiatan');
+            var viewKategori = document.getElementById('view-rekap-kategori');
+            var titleEl = document.getElementById('rekap-section-title');
+            var subEl = document.getElementById('rekap-section-sub');
+            var iconEl = document.getElementById('rekap-section-icon');
+
+            if (view === 'kegiatan') {
+                if (btnKegiatan) btnKegiatan.classList.add('active');
+                if (btnKategori) btnKategori.classList.remove('active');
+                if (viewKegiatan) viewKegiatan.classList.remove('hidden');
+                if (viewKategori) viewKategori.classList.add('hidden');
+                if (titleEl) titleEl.innerText = 'Pengeluaran Kegiatan Terbanyak';
+                if (subEl) subEl.innerText = 'Peringkat alokasi belanja terbesar program kerja & agenda LDK IMIP';
+                if (iconEl) iconEl.className = 'fa-solid fa-fire text-amber-400';
+            } else {
+                if (btnKegiatan) btnKegiatan.classList.remove('active');
+                if (btnKategori) btnKategori.classList.add('active');
+                if (viewKegiatan) viewKegiatan.classList.add('hidden');
+                if (viewKategori) viewKategori.classList.remove('hidden');
+                if (titleEl) titleEl.innerText = 'Rekapitulasi Kategori Belanja';
+                if (subEl) subEl.innerText = 'Rincian pengeluaran dana kas berdasarkan pos belanja operasional';
+                if (iconEl) iconEl.className = 'fa-solid fa-shapes text-orange-400';
+            }
+            updateSummaryCountBadge();
+        }
+
+        function updateSummaryCountBadge() {
+            var badge = document.getElementById('table-summary-count');
+            if (!badge) return;
+            if (currentRekapView === 'kegiatan') {
+                var count = latestProkerSpendingList ? latestProkerSpendingList.length : 0;
+                badge.innerText = count + ' Kegiatan';
+            } else {
+                var countCat = latestSortedCategories ? latestSortedCategories.length : 0;
+                badge.innerText = countCat + ' Kategori';
+            }
+        }
+
+        function setProkerTypeFilter(type) {
+            selectedProkerTypeFilter = type;
+            var chips = document.querySelectorAll('.proker-filter-chip');
+            chips.forEach(function(chip) {
+                var cType = chip.getAttribute('data-type') || '';
+                if (cType === type) {
+                    chip.classList.add('active-filter');
+                    chip.classList.remove('text-neutral-400');
+                } else {
+                    chip.classList.remove('active-filter');
+                    chip.classList.add('text-neutral-400');
+                }
+            });
+            applyProkerFilters();
+        }
+
+        function handleProkerSearch(query) {
+            prokerSearchQuery = (query || '').toLowerCase().trim();
+            applyProkerFilters();
+        }
+
+        function applyProkerFilters() {
+            if (!latestProkerSpendingList) return;
+
+            // Update chip counts
+            var countAll = latestProkerSpendingList.length;
+            var countPk = latestProkerSpendingList.filter(function(p) { return (p.jenis || '').toLowerCase().indexOf('program') !== -1; }).length;
+            var countAk = latestProkerSpendingList.filter(function(p) { return (p.jenis || '').toLowerCase().indexOf('agenda') !== -1; }).length;
+
+            var elCountAll = document.getElementById('count-chip-all');
+            var elCountPk = document.getElementById('count-chip-pk');
+            var elCountAk = document.getElementById('count-chip-ak');
+            if (elCountAll) elCountAll.innerText = countAll;
+            if (elCountPk) elCountPk.innerText = countPk;
+            if (elCountAk) elCountAk.innerText = countAk;
+
+            var filtered = latestProkerSpendingList.filter(function(p) {
+                if (selectedProkerTypeFilter !== 'ALL') {
+                    var j = (p.jenis || '').toLowerCase();
+                    if (selectedProkerTypeFilter === 'Program Kerja' && j.indexOf('program') === -1) return false;
+                    if (selectedProkerTypeFilter === 'Agenda Kerja' && j.indexOf('agenda') === -1) return false;
+                }
+                if (prokerSearchQuery) {
+                    var nameMatch = (p.nama || '').toLowerCase().includes(prokerSearchQuery);
+                    var divMatch = (p.divisi || '').toLowerCase().includes(prokerSearchQuery);
+                    if (!nameMatch && !divMatch) return false;
+                }
+                return true;
+            });
+
+            renderProkerListDOM(filtered, latestGrandTotalKeluar);
+        }
+
+        function renderProkerListDOM(prokers, grandTotalKeluar) {
+            var mobileList = document.getElementById('mobile-proker-list');
+            var tbody = document.getElementById('report-proker-table-body');
+            var tfoot = document.getElementById('report-proker-table-foot');
+
+            if (!prokers || prokers.length === 0) {
+                var emptyHtml = '<div class="py-8 text-center t-sub font-mono"><i class="fa-solid fa-folder-open text-lg mb-1.5 block text-neutral-500"></i>Tidak ada kegiatan yang sesuai dengan filter.</div>';
+                if (mobileList) mobileList.innerHTML = emptyHtml;
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 t-sub">' + emptyHtml + '</td></tr>';
+                if (tfoot) tfoot.innerHTML = '';
+                return;
+            }
+
+            var totalTrx = 0;
+            var totalSpendingFiltered = 0;
+            var mobileHtml = '';
+            var desktopHtml = '';
+
+            prokers.forEach(function(p, idx) {
+                totalTrx += p.count;
+                totalSpendingFiltered += p.totalKeluar;
+
+                var percent = grandTotalKeluar > 0 ? ((p.totalKeluar / grandTotalKeluar) * 100).toFixed(1) : '0';
+                var rankNumber = idx + 1;
+                var rankBadgeClass = rankNumber === 1 ? 'rank-gold' : (rankNumber === 2 ? 'rank-silver' : (rankNumber === 3 ? 'rank-bronze' : 'rank-default'));
+                var rankText = rankNumber === 1 ? '🥇 #1' : (rankNumber === 2 ? '🥈 #2' : (rankNumber === 3 ? '🥉 #3' : '#' + rankNumber));
+
+                var jenisBadge = (p.jenis || '').toLowerCase().includes('agenda')
+                    ? '<span class="text-[8px] sm:text-[8.5px] font-mono px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/25">Agenda</span>'
+                    : '<span class="text-[8px] sm:text-[8.5px] font-mono px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-orange-500/10 text-orange-400 border border-orange-500/25">Proker</span>';
+
+                var cleanDivisi = (p.divisi || '-').replace(/^(Departemen|Divisi|Biro)\s+/i, '');
+
+                // 1. Mobile Card Item
+                mobileHtml += 
+                    '<div class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2.5 shadow-xs transition-all hover:border-[#FF7300]/40 group">' +
+                        '<div class="flex items-start justify-between gap-2">' +
+                            '<div class="flex items-start gap-2 min-w-0 pr-1">' +
+                                '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="rank-badge ' + rankBadgeClass + ' shrink-0 mt-0.5 cursor-pointer" title="Lihat Rincian Kegiatan">' + rankText + '</button>' +
+                                '<div class="min-w-0 flex flex-col">' +
+                                    '<div class="flex items-center gap-1.5 flex-wrap">' +
+                                        jenisBadge +
+                                        '<span class="text-[9.5px] font-mono text-neutral-400 truncate max-w-[130px]">' + cleanDivisi + '</span>' +
+                                    '</div>' +
+                                    '<span onclick="openProkerDetailModal(\'' + p.id + '\')" class="t-body font-bold text-white group-hover:text-[#FF7300] transition-colors truncate mt-0.5 cursor-pointer">' + p.nama + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="text-right shrink-0">' +
+                                '<span class="t-val text-rose-400 font-mono font-bold block">-' + formatRupiah(p.totalKeluar) + '</span>' +
+                                '<span class="text-[9px] font-mono text-neutral-400">' + p.count + ' transaksi</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center justify-between gap-2 pt-2 border-t border-neutral-800/60">' +
+                            '<div class="flex items-center gap-2 flex-grow min-w-0">' +
+                                '<div class="w-full progress-track rounded-full h-1.5 overflow-hidden">' +
+                                    '<div class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(p.totalKeluar > 0 ? 2 : 0, percent)) + '%;"></div>' +
+                                '</div>' +
+                                '<span class="t-sub-mono shrink-0">' + percent + '%</span>' +
+                            '</div>' +
+                            '<div class="flex items-center gap-1 shrink-0">' +
+                                '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="text-[9px] font-mono font-bold px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1">' +
+                                    '<i class="fa-solid fa-list-ul text-[8px]"></i> <span>Rincian</span>' +
+                                '</button>' +
+                                '<a href="detail-kegiatan.html?id=' + encodeURIComponent(p.id) + '" target="_blank" class="text-[9px] font-mono font-bold px-2 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 text-[#FF7300] border border-orange-500/30 transition-colors flex items-center gap-1">' +
+                                    '<span>Detail</span> <i class="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>' +
+                                '</a>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+
+                // 2. Desktop Table Row
+                desktopHtml += 
+                    '<tr class="hover:bg-neutral-800/40 transition-colors group">' +
+                        '<td class="text-center">' +
+                            '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="rank-badge ' + rankBadgeClass + ' cursor-pointer">' + rankText + '</button>' +
+                        '</td>' +
+                        '<td>' +
+                            '<div class="flex flex-col min-w-0">' +
+                                '<div class="flex items-center gap-1.5">' +
+                                    jenisBadge +
+                                    '<span onclick="openProkerDetailModal(\'' + p.id + '\')" class="t-body font-bold text-white group-hover:text-[#FF7300] transition-colors truncate cursor-pointer">' + p.nama + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td><span class="text-xs text-neutral-300 truncate max-w-[160px] block" title="' + p.divisi + '">' + cleanDivisi + '</span></td>' +
+                        '<td class="text-center t-sub-mono">' + p.count + ' tx</td>' +
+                        '<td class="text-right t-val text-rose-400 font-mono font-bold">-' + formatRupiah(p.totalKeluar) + '</td>' +
+                        '<td>' +
+                            '<div class="flex items-center gap-2">' +
+                                '<div class="w-full progress-track rounded-full h-1.5 overflow-hidden">' +
+                                    '<div class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(p.totalKeluar > 0 ? 2 : 0, percent)) + '%;"></div>' +
+                                '</div>' +
+                                '<span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td class="text-center">' +
+                            '<div class="inline-flex items-center gap-1.5">' +
+                                '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="text-[9.5px] font-mono font-bold px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white transition-colors cursor-pointer" title="Lihat Rincian Pengeluaran">' +
+                                    'Rincian' +
+                                '</button>' +
+                                '<a href="detail-kegiatan.html?id=' + encodeURIComponent(p.id) + '" target="_blank" class="text-[9.5px] font-mono font-bold px-2 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 text-[#FF7300] border border-orange-500/30 hover:border-orange-500 transition-colors flex items-center gap-1" title="Buka Detail Laporan Lengkap">' +
+                                    '<i class="fa-solid fa-arrow-up-right-from-square text-[8.5px]"></i>' +
+                                '</a>' +
+                            '</div>' +
+                        '</td>' +
+                    '</tr>';
+            });
+
+            if (mobileList) mobileList.innerHTML = mobileHtml;
+            if (tbody) tbody.innerHTML = desktopHtml;
+            if (tfoot) {
+                var pctFiltered = grandTotalKeluar > 0 ? ((totalSpendingFiltered / grandTotalKeluar) * 100).toFixed(1) : '0';
+                tfoot.innerHTML = 
+                    '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
+                        '<td colspan="3" class="text-left pl-3.5 py-3 t-label">Total Realisasi Terfilter (' + prokers.length + ' Kegiatan)</td>' +
+                        '<td class="text-center t-sub-mono font-bold">' + totalTrx + ' transaksi</td>' +
+                        '<td class="text-right t-val text-rose-500 dark:text-rose-400 font-bold">-' + formatRupiah(totalSpendingFiltered) + '</td>' +
+                        '<td class="t-sub-mono font-bold">' + pctFiltered + '% dari Kas</td>' +
+                        '<td class="text-center t-sub-mono">-</td>' +
+                    '</tr>';
+            }
+        }
+
+        // Open/Close Proker Detail Modal
+        function openProkerDetailModal(prokerId) {
+            if (!latestProkerSpendingList) return;
+            var p = latestProkerSpendingList.find(function(item) {
+                return String(item.id).trim() === String(prokerId).trim();
+            });
+            if (!p) return;
+
+            var modal = document.getElementById('prokerDetailModal');
+            if (!modal) return;
+
+            document.getElementById('modal-proker-title').innerText = p.nama;
+            document.getElementById('modal-proker-subtitle').innerText = (p.jenis || 'Program Kerja') + ' • ' + (p.divisi || 'Divisi Pelaksana');
+            document.getElementById('modal-proker-total').innerText = '-' + formatRupiah(p.totalKeluar);
+            
+            var percent = latestGrandTotalKeluar > 0 ? ((p.totalKeluar / latestGrandTotalKeluar) * 100).toFixed(1) : '0';
+            document.getElementById('modal-proker-porsi').innerText = percent + '%';
+            document.getElementById('modal-proker-count').innerText = p.count + ' tx';
+
+            var listEl = document.getElementById('modal-proker-tx-list');
+            if (listEl) {
+                listEl.innerHTML = '';
+                if (!p.txList || p.txList.length === 0) {
+                    listEl.innerHTML = '<div class="py-6 text-center t-sub text-xs font-mono">Belum ada transaksi pengeluaran pada kegiatan ini.</div>';
+                } else {
+                    var sortedTx = p.txList.slice().sort(function(a, b) {
+                        return (parseFloat(b.nominal) || 0) - (parseFloat(a.nominal) || 0);
+                    });
+                    sortedTx.forEach(function(t, idx) {
+                        var item = document.createElement('div');
+                        item.className = 'modal-tx-item p-2.5 rounded-xl flex items-center justify-between gap-2.5 transition-all shadow-2xs';
+                        var ket = t.uraian || t.keterangan || t.kategori || 'Belanja Kegiatan';
+                        var metIcon = (t.metode || '').toLowerCase().indexOf('gopay') !== -1 ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
+                        var buktiBtn = t.bukti ? '<a href="' + t.bukti + '" target="_blank" onclick="event.stopPropagation();" class="text-[9.5px] font-mono text-orange-400 hover:text-white px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 shrink-0" title="Lihat Bukti Nota"><i class="fa-solid fa-receipt text-[8.5px]"></i> Nota</a>' : '';
+
+                        item.innerHTML = 
+                            '<div class="flex items-center gap-2 min-w-0 pr-1">' +
+                                '<span class="text-[9.5px] font-mono font-bold text-neutral-400 shrink-0 w-4 text-center">#' + (idx + 1) + '</span>' +
+                                '<div class="flex flex-col min-w-0">' +
+                                    '<span class="modal-tx-title text-xs font-bold truncate text-white">' + ket + '</span>' +
+                                    '<div class="flex items-center gap-1.5 text-[10px] font-mono modal-tx-sub text-slate-400 mt-0.5 flex-wrap">' +
+                                        '<span>' + formatDateIndo(t.tanggal) + '</span>' +
+                                        '<span>•</span>' +
+                                        '<span class="text-slate-300">' + (t.kategori || 'Belanja') + '</span>' +
+                                        '<span>•</span>' +
+                                        '<span class="inline-flex items-center gap-1 font-semibold text-slate-300"><i class="fa-solid ' + metIcon + ' text-[9px]"></i> ' + (t.metode || 'Tunai') + '</span>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="flex items-center gap-2 shrink-0 text-right">' +
+                                '<span class="modal-tx-badge px-2 py-1 rounded-lg text-xs font-bold font-mono text-rose-400 bg-rose-500/15 border border-rose-500/30">-' + formatRupiah(t.nominal) + '</span>' +
+                                buktiBtn +
+                            '</div>';
+                        listEl.appendChild(item);
+                    });
+                }
+            }
+
+            var fullReportLink = document.getElementById('modal-proker-link-full');
+            if (fullReportLink) {
+                fullReportLink.href = 'detail-kegiatan.html?id=' + encodeURIComponent(p.id);
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProkerDetailModal() {
+            var modal = document.getElementById('prokerDetailModal');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // RENDER BOTH MOBILE FINTECH CARDS AND DESKTOP WIDE TABLE (KATEGORI)
         function renderResponsiveDataDisplay(categories, grandTotalKeluar) {
             var mobileList = document.getElementById('mobile-category-list');
             var tbody = document.getElementById('report-table-body');
             var tfoot = document.getElementById('report-table-foot');
-            var summaryCount = document.getElementById('table-summary-count');
 
             if (!categories || categories.length === 0) {
                 var emptyHtml = '<div class="p-6 text-center t-sub"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pengeluaran yang tercatat pada periode ini.</div>';
                 if (mobileList) mobileList.innerHTML = emptyHtml;
                 if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 t-sub">' + emptyHtml + '</td></tr>';
                 if (tfoot) tfoot.innerHTML = '';
-                if (summaryCount) summaryCount.innerText = '0 Kategori';
                 return;
             }
-
-            if (summaryCount) summaryCount.innerText = categories.length + ' Kategori';
 
             var totalTransactions = 0;
             var mobileCardsHtml = '';
@@ -2211,12 +2818,6 @@
                     '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
                     '<td class="text-center"><span class="t-sub-mono meta-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md"><i class="fa-solid ' + metodeIcon + ' text-[9px]"></i><span>' + dominantMetode + '</span></span></td>' +
                     '</tr>';
-                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
-                    '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
-                    '<td class="text-right t-val">' + formatRupiah(cat.total) + '</td>' +
-                    '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
-                    '<td class="text-center"><span class="t-sub-mono meta-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md"><i class="fa-solid ' + metodeIcon + ' text-[9px]"></i><span>' + dominantMetode + '</span></span></td>' +
-                    '</tr>';
             });
 
             if (mobileList) {
@@ -2252,6 +2853,7 @@
 
             if (cache && cache.transaksi && cache.transaksi.length > 0) {
                 rawTransactions = cache.transaksi;
+                rawProkers = cache.proker || [];
                 renderReportData();
                 hideLoadingOverlay();
             }
@@ -2261,6 +2863,7 @@
                 .then(function(data) {
                     if (data && data.transaksi) {
                         rawTransactions = data.transaksi;
+                        rawProkers = data.proker || [];
                         try {
                             localStorage.setItem("ldk_db_cache", JSON.stringify(data));
                         } catch (err) {}
@@ -2278,16 +2881,24 @@
         }
 
         function loadFallbackData() {
+            rawProkers = [
+                { id: "1", nama_proker: "Dauroh", divisi: "Departemen Kaderisasi", jenis: "Program Kerja" },
+                { id: "2", nama_proker: "QURMEDIA", divisi: "Departemen Syi'ar Islam", jenis: "Program Kerja" },
+                { id: "3", nama_proker: "Open House LDK IMIP", divisi: "Departemen Syi'ar Islam", jenis: "Program Kerja" },
+                { id: "4", nama_proker: "Maulid Nabi", divisi: "Departemen Syi'ar Islam", jenis: "Program Kerja" },
+                { id: "13", nama_proker: "Studi Banding", divisi: "Biro Kesekretariatan", jenis: "Agenda Kerja" },
+                { id: "18", nama_proker: "Studi Banding 2", divisi: "Biro Kesekretariatan", jenis: "Agenda Kerja" }
+            ];
             rawTransactions = [
-                { id: 1, tanggal: "2026-01-15", jenis: "Masuk", nominal: 1500000, metode: "GoPay", kategori: "Kas", status_reimburse: "Disetujui" },
-                { id: 2, tanggal: "2026-02-10", jenis: "Masuk", nominal: 1750000, metode: "Tunai", kategori: "Kas", status_reimburse: "Disetujui" },
-                { id: 3, tanggal: "2026-02-18", jenis: "Keluar", nominal: 350000, metode: "Tunai", kategori: "Konsumsi", status_reimburse: "Disetujui" },
-                { id: 4, tanggal: "2026-03-05", jenis: "Masuk", nominal: 2100000, metode: "GoPay", kategori: "Donasi", status_reimburse: "Disetujui" },
-                { id: 5, tanggal: "2026-03-12", jenis: "Keluar", nominal: 450000, metode: "GoPay", kategori: "Logistik", status_reimburse: "Disetujui" },
-                { id: 6, tanggal: "2026-04-02", jenis: "Keluar", nominal: 600000, metode: "Tunai", kategori: "Acara & Kajian", status_reimburse: "Disetujui" },
-                { id: 7, tanggal: "2026-05-10", jenis: "Masuk", nominal: 1800000, metode: "GoPay", kategori: "Kas", status_reimburse: "Disetujui" },
-                { id: 8, tanggal: "2026-05-20", jenis: "Keluar", nominal: 250000, metode: "GoPay", kategori: "Kesekretariatan", status_reimburse: "Disetujui" },
-                { id: 9, tanggal: "2026-06-01", jenis: "Keluar", nominal: 400000, metode: "Tunai", kategori: "Syiar & Media", status_reimburse: "Disetujui" }
+                { id: 1, tanggal: "2026-01-15", proker_id: "2", jenis: "Masuk", nominal: 1500000, metode: "GoPay", kategori: "Kas", status_reimburse: "Disetujui" },
+                { id: 2, tanggal: "2026-02-10", proker_id: "1", jenis: "Masuk", nominal: 1750000, metode: "Tunai", kategori: "Kas", status_reimburse: "Disetujui" },
+                { id: 3, tanggal: "2026-02-18", proker_id: "2", jenis: "Keluar", nominal: 350000, metode: "Tunai", kategori: "Konsumsi", status_reimburse: "Disetujui" },
+                { id: 4, tanggal: "2026-03-05", proker_id: "4", jenis: "Masuk", nominal: 2100000, metode: "GoPay", kategori: "Donasi", status_reimburse: "Disetujui" },
+                { id: 5, tanggal: "2026-03-12", proker_id: "4", jenis: "Keluar", nominal: 450000, metode: "GoPay", kategori: "Logistik", status_reimburse: "Disetujui" },
+                { id: 6, tanggal: "2026-04-02", proker_id: "1", jenis: "Keluar", nominal: 600000, metode: "Tunai", kategori: "Acara & Kajian", status_reimburse: "Disetujui" },
+                { id: 7, tanggal: "2026-05-10", proker_id: "13", jenis: "Masuk", nominal: 1800000, metode: "GoPay", kategori: "Kas", status_reimburse: "Disetujui" },
+                { id: 8, tanggal: "2026-05-20", proker_id: "13", jenis: "Keluar", nominal: 250000, metode: "GoPay", kategori: "Kesekretariatan", status_reimburse: "Disetujui" },
+                { id: 9, tanggal: "2026-06-01", proker_id: "2", jenis: "Keluar", nominal: 400000, metode: "Tunai", kategori: "Syiar & Media", status_reimburse: "Disetujui" }
             ];
             renderReportData();
         }
