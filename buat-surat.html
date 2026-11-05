@@ -1882,7 +1882,7 @@
                                     <span id="wadir_auto_badge" class="text-[9px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20">Danop / Anggaran</span>
                                 </div>
                                 <label class="flex items-center gap-1.5 text-[10px] text-neutral-300 cursor-pointer select-none">
-                                    <input type="checkbox" id="field_ttd_wadir_active" onchange="updateTtdState(); updatePreview();" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5" checked>
+                                    <input type="checkbox" id="field_ttd_wadir_active" onchange="handleTtdWadirToggle(this.checked);" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5" checked>
                                     <span>Sertakan TTD Wakil Direktur III</span>
                                 </label>
                             </div>
@@ -2103,7 +2103,7 @@
                             <div>
                                 <h4 class="text-xs sm:text-sm font-bold text-neutral-100 flex items-center gap-2">
                                     Export RAB &amp; Nota dari Kegiatan
-                                    <span id="sba_badge_jenis_kegiatan" class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold uppercase">Agenda Kerja</span>
+                                    <button type="button" id="sba_badge_jenis_kegiatan" onclick="toggleSbaJenisKegiatan()" class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase cursor-pointer hover:bg-emerald-500/30 transition-all active:scale-95 shadow-xs" title="Klik untuk berganti antara Program Kerja / Agenda Kerja">Program Kerja</button>
                                 </h4>
                                 <p class="text-[10px] text-neutral-400">Pilih kegiatan untuk langsung otomatis memasukkan rincian RAB Keuangan dan Lampiran Nota sesuai format SBA.</p>
                             </div>
@@ -2274,8 +2274,8 @@
                 <!-- CARD: KEUANGAN AGENDA KERJA (KHUSUS SBA - HALAMAN 4) -->
                 <div id="card_sba_keuangan" class="glass-card p-4 sm:p-5 hidden">
                     <div class="flex items-center justify-between mb-3 border-b border-neutral-800 pb-2.5">
-                        <span class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
-                            <i class="fa-solid fa-coins text-orange-500"></i> Keuangan Agenda Kerja
+                        <span id="sba_card_title_keuangan" class="text-xs font-black tracking-wider uppercase text-neutral-200 flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-orange-500"></i> Keuangan Program Kerja
                         </span>
                         <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-bold">Halaman 4</span>
                     </div>
@@ -2283,7 +2283,7 @@
                         <!-- TOGGLE KEUANGAN -->
                         <label class="flex items-center justify-between p-2.5 rounded-xl bg-neutral-900/50 border border-neutral-800 cursor-pointer hover:border-orange-500/30 transition-colors">
                             <div class="flex flex-col pr-2">
-                                <span class="text-xs font-bold text-neutral-200">Sertakan Laporan Keuangan Agenda Kerja</span>
+                                <span class="text-xs font-bold text-neutral-200" id="sba_label_toggle_keuangan">Sertakan Laporan Keuangan Program Kerja</span>
                                 <span class="text-[10px] text-neutral-400">Rincian pemasukan, belanja bahan divisi &amp; rekapitulasi kas (Halaman 4 &amp; 5)</span>
                             </div>
                             <input type="checkbox" id="sba_inc_keuangan" onchange="toggleSbaKeuanganSections()" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-4 h-4 shrink-0">
@@ -3185,6 +3185,24 @@
             }
         }
         window.updateTtd3State = updateTtdState;
+
+        function handleTtdWadirToggle(checked) {
+            const currentScrollY = (typeof window !== 'undefined') ? window.pageYOffset : null;
+            const el = document.getElementById('field_ttd_wadir_active');
+            if (el && el.checked !== checked) {
+                el.checked = checked;
+            }
+            updateTtdState();
+            updatePreview(true);
+            if (currentScrollY !== null) {
+                requestAnimationFrame(() => {
+                    if (Math.abs(window.pageYOffset - currentScrollY) > 5) {
+                        window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+                    }
+                });
+            }
+        }
+        window.handleTtdWadirToggle = handleTtdWadirToggle;
 
         // ==========================================
         // SPZ SMART INPUT HELPERS & EVENT LISTENERS
@@ -4837,7 +4855,7 @@
         const LDK_CACHE_TIME_KEY = 'ldk_db_cache_time';
         const LDK_CACHE_TTL = 60000; // 60 detik fresh cache
 
-        let sbaJenisKegiatan = 'Agenda Kerja';
+        let sbaJenisKegiatan = 'Program Kerja';
         let sbaSelectedProkerId = '';
         let sbaSelectedProkerNama = '';
 
@@ -5056,19 +5074,36 @@
 
         function setSbaJenisKegiatan(val) {
             if (!val) return;
-            sbaJenisKegiatan = (val.toLowerCase().includes('program')) ? 'Program Kerja' : 'Agenda Kerja';
+            const lower = val.toLowerCase().trim();
+            sbaJenisKegiatan = lower.includes('agenda') ? 'Agenda Kerja' : 'Program Kerja';
             
             const badge = document.getElementById('sba_badge_jenis_kegiatan');
             if (badge) {
                 badge.innerText = sbaJenisKegiatan;
                 if (sbaJenisKegiatan === 'Program Kerja') {
-                    badge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase';
+                    badge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase cursor-pointer hover:bg-emerald-500/30 transition-all active:scale-95 shadow-xs';
+                    badge.title = 'Klik untuk ganti ke Agenda Kerja';
                 } else {
-                    badge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold uppercase';
+                    badge.className = 'text-[9px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 font-bold uppercase cursor-pointer hover:bg-orange-500/30 transition-all active:scale-95 shadow-xs';
+                    badge.title = 'Klik untuk ganti ke Program Kerja';
                 }
             }
-            updatePreview();
+            const cardTitle = document.getElementById('sba_card_title_keuangan');
+            if (cardTitle) {
+                cardTitle.innerHTML = `<i class="fa-solid fa-coins text-orange-500"></i> Keuangan ${sbaJenisKegiatan}`;
+            }
+            const toggleLabel = document.getElementById('sba_label_toggle_keuangan');
+            if (toggleLabel) {
+                toggleLabel.innerText = `Sertakan Laporan Keuangan ${sbaJenisKegiatan}`;
+            }
+            updatePreview(true);
         }
+
+        function toggleSbaJenisKegiatan() {
+            const next = (sbaJenisKegiatan === 'Program Kerja') ? 'Agenda Kerja' : 'Program Kerja';
+            setSbaJenisKegiatan(next);
+        }
+        window.toggleSbaJenisKegiatan = toggleSbaJenisKegiatan;
 
         function onSbaNotaStyleChange(val) {
             sbaNotaLayoutStyle = (val === 'detailed') ? 'detailed' : 'grid';
@@ -5211,7 +5246,8 @@
             if (!p) return;
             sbaSelectedProkerNama = p.nama_proker || p.nama_kegiatan || ('Kegiatan #' + prokerId);
 
-            const detectedJenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+            const rawJenis = (p.jenis || '').toLowerCase().trim();
+            const detectedJenis = rawJenis.includes('agenda') ? 'Agenda Kerja' : 'Program Kerja';
             setSbaJenisKegiatan(detectedJenis);
 
             const prokerTx = sbaDbTransactions.filter(t => {
@@ -5887,7 +5923,8 @@
             const selectEl = document.getElementById('sba_proker_select');
             if (selectEl) selectEl.value = pid;
 
-            const detectedJenis = (p.jenis || '').toLowerCase().includes('program') ? 'Program Kerja' : 'Agenda Kerja';
+            const rawJenis = (p.jenis || '').toLowerCase().trim();
+            const detectedJenis = rawJenis.includes('agenda') ? 'Agenda Kerja' : 'Program Kerja';
             setSbaJenisKegiatan(detectedJenis);
 
             const prokerTx = sbaDbTransactions.filter(t => {
@@ -6105,7 +6142,9 @@
             return el ? el.checked : true;
         }
 
-        function toggleSbaPrestasiSection() {
+        function toggleSbaPrestasiSection(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const currentScrollY = (typeof window !== 'undefined') ? window.pageYOffset : null;
             const inc = isSbaPrestasiActive();
             const wrapper = document.getElementById('sba_prestasi_editor_wrapper');
             if (wrapper) wrapper.classList.toggle('hidden', !inc);
@@ -6123,25 +6162,37 @@
             }
 
             syncSbaLampiranManagerUI();
-            if (typeof renderPageTabs === 'function') renderPageTabs();
-            if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
-            if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
-            updatePreview();
+            updatePreview(true);
+            if (currentScrollY !== null) {
+                requestAnimationFrame(() => {
+                    if (Math.abs(window.pageYOffset - currentScrollY) > 5) {
+                        window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+                    }
+                });
+            }
         }
 
-        window.enableSbaPrestasiFromPreview = function() {
+        window.enableSbaPrestasiFromPreview = function(e) {
+            if (e) {
+                if (e.preventDefault) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+            }
             const el = document.getElementById('sba_inc_prestasi');
             if (el) {
                 el.checked = true;
-                toggleSbaPrestasiSection();
+                toggleSbaPrestasiSection(e);
             }
         };
 
-        window.disableSbaPrestasiFromPreview = function() {
+        window.disableSbaPrestasiFromPreview = function(e) {
+            if (e) {
+                if (e.preventDefault) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+            }
             const el = document.getElementById('sba_inc_prestasi');
             if (el) {
                 el.checked = false;
-                toggleSbaPrestasiSection();
+                toggleSbaPrestasiSection(e);
             }
         };
 
@@ -6937,7 +6988,7 @@
                             <i class="fa-solid fa-table-cells text-neutral-400 text-[10px]"></i>
                             <span>Tabel Output Kegiatan: <strong class="text-neutral-600 dark:text-neutral-300">Tidak Disertakan (Opsional)</strong></span>
                         </div>
-                        <button type="button" onclick="enableSbaPrestasiFromPreview()" class="px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 hover:text-orange-400 font-bold border border-orange-500/30 text-[10.5px] transition-all flex items-center gap-1 shrink-0 active:scale-95 cursor-pointer shadow-xs" title="Sertakan tabel output capaian / prestasi kegiatan">
+                        <button type="button" onclick="enableSbaPrestasiFromPreview(event)" class="px-2.5 py-1 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 hover:text-orange-400 font-bold border border-orange-500/30 text-[10.5px] transition-all flex items-center gap-1 shrink-0 active:scale-95 cursor-pointer shadow-xs" title="Sertakan tabel output capaian / prestasi kegiatan">
                             <i class="fa-solid fa-plus text-[9.5px]"></i> Sertakan Tabel
                         </button>
                     </div>
@@ -6982,7 +7033,7 @@
                             <button type="button" onclick="addQuickSbaPrestasiRow(${offset + currentRows.length - 1})" class="px-2.5 py-1 rounded bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer" title="Tambah baris prestasi baru">
                                 <i class="fa-solid fa-plus text-[10px]"></i> Tambah Baris
                             </button>
-                            <button type="button" onclick="disableSbaPrestasiFromPreview()" class="px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 text-[10.5px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-all active:scale-95 cursor-pointer" title="Jadikan opsional: sembunyikan tabel dari dokumen SBA">
+                            <button type="button" onclick="disableSbaPrestasiFromPreview(event)" class="px-2 py-1 rounded bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 text-[10.5px] border border-neutral-300 dark:border-neutral-700 flex items-center gap-1 transition-all active:scale-95 cursor-pointer" title="Jadikan opsional: sembunyikan tabel dari dokumen SBA">
                                 <i class="fa-solid fa-eye-slash text-[9.5px]"></i> Sembunyikan Tabel (Opsional)
                             </button>
                         </div>
@@ -9211,7 +9262,7 @@
                         </div>
 
                         <!-- SUBJUDUL -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hasil dan <em>Output</em> Kegiatan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hasil dan <em>Output</em> Kegiatan <span class="preview-editable" onclick="toggleSbaJenisKegiatan()" data-edit-target="sba_badge_jenis_kegiatan" data-edit-label="Jenis Kegiatan" data-edit-type="toggle_jenis" title="Klik untuk ubah jenis kegiatan (Program Kerja / Agenda Kerja)">${formatInlineRichText(sbaJenisKegiatan || 'Program Kerja')}</span></p>
                         <p style="margin: 0 0 10pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
                             ${isContinued ? '1. Hasil Kegiatan (Lanjutan Rundown Acara)' : '1. Hasil Kegiatan'}
                         </p>
@@ -9472,7 +9523,7 @@
                             <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
                         </div>
 
-                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan ${formatInlineRichText(sbaJenisKegiatan || 'Agenda Kerja')}</p>
+                        <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Keuangan <span class="preview-editable" onclick="toggleSbaJenisKegiatan()" data-edit-target="sba_badge_jenis_kegiatan" data-edit-label="Jenis Kegiatan" data-edit-type="toggle_jenis" title="Klik untuk ubah jenis kegiatan (Program Kerja / Agenda Kerja)">${formatInlineRichText(sbaJenisKegiatan || 'Program Kerja')}</span></p>
                         <p style="margin: 0 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">1. Pemasukan</p>
 
                         <!-- TABEL PEMASUKAN -->
@@ -10020,7 +10071,8 @@
         });
 
         // UPDATE LIVE PREVIEW (UNIFIED MULTI-PAGE SHEET ACROSS ALL LETTER TYPES)
-        function updatePreview() {
+        function updatePreview(preserveScroll = true) {
+            const currentScrollY = (preserveScroll && typeof window !== 'undefined') ? window.pageYOffset : null;
             const container = document.getElementById('rendered_surat_paper');
             if (container) {
                 container.className = 'w-full space-y-6 mx-auto';
@@ -10040,6 +10092,13 @@
             }
             if (typeof triggerAutoSave === 'function') {
                 triggerAutoSave();
+            }
+            if (preserveScroll && currentScrollY !== null) {
+                requestAnimationFrame(() => {
+                    if (Math.abs(window.pageYOffset - currentScrollY) > 5) {
+                        window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+                    }
+                });
             }
         }
 
@@ -10415,7 +10474,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     : 'bg-neutral-800 text-orange-400 font-mono';
 
                 return `
-                    <button type="button" onclick="setActivePage('${tab.id}')" class="page-tab-item px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 transition-all whitespace-nowrap shrink-0 active:scale-95 ${activeClasses}" title="${tab.desc}">
+                    <button type="button" onclick="setActivePage('${tab.id}', true)" class="page-tab-item px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 transition-all whitespace-nowrap shrink-0 active:scale-95 ${activeClasses}" title="${tab.desc}">
                         <i class="fa-solid ${tab.icon} ${isActive ? 'text-white' : 'text-orange-400'} text-[11px]"></i>
                         <span>${tab.label}</span>
                         <span class="text-[9px] px-1.5 py-0.5 rounded ${badgeClasses}">${tab.badge}</span>
@@ -10477,16 +10536,21 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             initPageTabsScrollInteractions();
 
-            // Auto scroll active tab into view
-            setTimeout(() => {
+            // Auto scroll active tab into view horizontally inside container only (without scrolling window)
+            try {
                 const activeBtn = container.querySelector('.page-tab-item.bg-gradient-to-r');
                 if (activeBtn) {
-                    activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    const cRect = container.getBoundingClientRect();
+                    const bRect = activeBtn.getBoundingClientRect();
+                    const targetLeft = container.scrollLeft + (bRect.left - cRect.left) - (container.clientWidth / 2) + (bRect.width / 2);
+                    container.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
                 }
-            }, 60);
+            } catch (err) {
+                // Ignore silent errors
+            }
         }
 
-        function setActivePage(pageId) {
+        function setActivePage(pageId, shouldScroll = false) {
             const total = getTotalPagesForCurrentType();
             if (pageId === 'all') {
                 currentActivePage = 'all';
@@ -10500,15 +10564,17 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             renderPageTabs();
             applyActivePageVisibility();
 
-            // Smooth scroll to top of workspace container if scrolled far down
-            const container = document.getElementById('main_workspace_container');
-            if (container) {
-                const rect = container.getBoundingClientRect();
-                if (rect.top < -50) {
-                    window.scrollTo({
-                        top: window.pageYOffset + rect.top - 80,
-                        behavior: 'smooth'
-                    });
+            // Smooth scroll to top of workspace container only if explicitly requested by clicking stepper tab
+            if (shouldScroll) {
+                const container = document.getElementById('main_workspace_container');
+                if (container) {
+                    const rect = container.getBoundingClientRect();
+                    if (rect.top < -50) {
+                        window.scrollTo({
+                            top: window.pageYOffset + rect.top - 80,
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             }
         }
@@ -13372,7 +13438,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             <div class="flex items-center justify-between mb-2">
                                 <label class="text-[10.5px] text-amber-400 font-bold">Wakil Direktur III (Menyetujui)</label>
                                 <label class="flex items-center gap-1.5 text-[9.5px] text-neutral-300 cursor-pointer">
-                                    <input type="checkbox" ${wadirActive ? 'checked' : ''} onchange="syncQuickCheckboxToForm('field_ttd_wadir_active', this.checked); updateTtdState();" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3 h-3">
+                                    <input type="checkbox" ${wadirActive ? 'checked' : ''} onchange="syncQuickCheckboxToForm('field_ttd_wadir_active', this.checked); handleTtdWadirToggle(this.checked);" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3 h-3">
                                     <span>Sertakan TTD</span>
                                 </label>
                             </div>
@@ -15688,8 +15754,8 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 setActivePage('all');
             }
 
-            // Scroll mulus ke elemen hanya jika diminta fokus atau dalam mode berdampingan (agar di mode bertumpuk tidak mental ke bawah saat mengedit di pratinjau)
-            if (shouldFocus || currentLayoutMode === 'side') {
+            // Scroll mulus ke elemen hanya jika diminta fokus (agar tidak mental / lompat scroll saat mengedit di pratinjau)
+            if (shouldFocus) {
                 targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
