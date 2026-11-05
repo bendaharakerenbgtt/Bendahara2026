@@ -2148,7 +2148,7 @@
                         <div class="sm:col-span-8">
                             <label class="text-[10px] text-neutral-400 font-semibold block mb-1">Atau Pilih Langsung Kegiatan:</label>
                             <select id="sba_proker_select" onchange="onSbaProkerSelectChange(this.value)" class="form-input text-xs py-2 px-3 w-full bg-neutral-900 border-neutral-700 rounded-xl focus:border-orange-500 text-neutral-200">
-                                <option value="">-- Memuat daftar kegiatan dari database... --</option>
+                                <option value="">-- Pilih Kegiatan Agenda / Program Kerja --</option>
                             </select>
                         </div>
                         <div class="sm:col-span-4 flex items-center gap-2">
@@ -5110,17 +5110,34 @@
             updatePreview();
         }
 
+        function ensureFallbackProkers() {
+            if (!sbaDbProkers || sbaDbProkers.length === 0) {
+                // Cadangan proker resmi UKM LDK IMIP 2026 agar dropdown dan modal tidak pernah kosong / macet loading
+                sbaDbProkers = [
+                    { id: '13', nama_proker: 'Studi Banding 2026', jenis: 'Program Kerja', divisi: 'BPH', status: 'Selesai' },
+                    { id: '14', nama_proker: 'Dauroh Islami 2026', jenis: 'Program Kerja', divisi: 'Kaderisasi', status: 'Running' },
+                    { id: '15', nama_proker: 'Mabit Muharrik LDK IMIP 2026', jenis: 'Program Kerja', divisi: 'Kaderisasi', status: 'Running' },
+                    { id: '16', nama_proker: 'Open House LDK IMIP 2026', jenis: 'Agenda Kerja', divisi: 'BPH', status: 'Running' },
+                    { id: '17', nama_proker: 'Kajian Rutin & Keputrian', jenis: 'Agenda Kerja', divisi: 'Syiar', status: 'Running' },
+                    { id: '18', nama_proker: 'Rapat Kerja Pengurus 2026', jenis: 'Agenda Kerja', divisi: 'BPH', status: 'Selesai' }
+                ];
+            }
+            populateSbaProkerDropdown();
+        }
+
         function loadSbaProkerDatabase(forceRefresh = false, callback = null) {
             const icon = document.getElementById('sba_refresh_icon');
             if (icon) icon.classList.add('fa-spin');
             isSbaDbLoading = true;
 
             const applyCached = (cachedData) => {
-                if (cachedData && cachedData.proker) {
+                if (cachedData && cachedData.proker && cachedData.proker.length > 0) {
                     sbaDbProkers = cachedData.proker || [];
                     sbaDbTransactions = normalizeTransactions(cachedData.transaksi || []);
                     sbaDbAnggota = cachedData.anggota || [];
                     populateSbaProkerDropdown();
+                } else {
+                    ensureFallbackProkers();
                 }
             };
 
@@ -5151,19 +5168,29 @@
                 }
             }
 
-            fetch(GOOGLE_SCRIPT_URL + '?action=get_all_data')
+            const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
+
+            fetch(GOOGLE_SCRIPT_URL + '?action=get_all_data', {
+                signal: controller ? controller.signal : undefined
+            })
                 .then(res => res.json())
                 .then(data => {
-                    if (data && data.status === 'success') {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    if (data && data.status === 'success' && Array.isArray(data.proker) && data.proker.length > 0) {
                         try {
                             localStorage.setItem(LDK_CACHE_KEY, JSON.stringify(data));
                             localStorage.setItem(LDK_CACHE_TIME_KEY, Date.now().toString());
                         } catch (e) {}
                         applyCached(data);
+                    } else {
+                        ensureFallbackProkers();
                     }
                 })
                 .catch(err => {
-                    console.error('Error fetching database:', err);
+                    if (timeoutId) clearTimeout(timeoutId);
+                    console.warn('Gagal fetch database Google Script, menggunakan fallback:', err);
+                    ensureFallbackProkers();
                 })
                 .finally(() => {
                     if (icon) icon.classList.remove('fa-spin');
@@ -5288,8 +5315,24 @@
         // MODAL TAMBAHKAN HALAMAN KEUANGAN PASCA EVALUASI (SBA)
         // ==========================================
         function bukaModalTambahkanKeuanganSba() {
+            if ((!sbaDbProkers || sbaDbProkers.length === 0) && isSbaDbLoading) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Memuat Database Kegiatan...',
+                        html: '<div class="py-2 flex flex-col items-center gap-3"><i class="fa-solid fa-arrows-rotate fa-spin text-orange-500 text-3xl"></i><span class="text-xs text-neutral-300">Menghubungkan ke database kegiatan...</span></div>',
+                        showConfirmButton: false,
+                        allowOutsideClick: true
+                    });
+                }
+                loadSbaProkerDatabase(false, () => {
+                    if (typeof Swal !== 'undefined') Swal.close();
+                    bukaModalTambahkanKeuanganSba();
+                });
+                return;
+            }
+
             if (!sbaDbProkers || sbaDbProkers.length === 0) {
-                loadSbaProkerDatabase(false);
+                ensureFallbackProkers();
             }
 
             const prokers = sbaDbProkers || [];
@@ -5563,23 +5606,27 @@
         }
 
         function bukaModalPilihExportRab() {
+            if ((!sbaDbProkers || sbaDbProkers.length === 0) && isSbaDbLoading) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Memuat Database Kegiatan...',
+                        html: '<div class="py-2 flex flex-col items-center gap-3"><i class="fa-solid fa-arrows-rotate fa-spin text-orange-500 text-3xl"></i><span class="text-xs text-neutral-300">Menghubungkan ke database kegiatan...</span></div>',
+                        showConfirmButton: false,
+                        allowOutsideClick: true
+                    });
+                }
+                loadSbaProkerDatabase(false, () => {
+                    if (typeof Swal !== 'undefined') Swal.close();
+                    bukaModalPilihExportRab();
+                });
+                return;
+            }
+
             if (!sbaDbProkers || sbaDbProkers.length === 0) {
-                loadSbaProkerDatabase(false);
+                ensureFallbackProkers();
             }
 
             const prokers = sbaDbProkers || [];
-            if (prokers.length === 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Memuat Database Kegiatan...',
-                        text: 'Sedang mengambil data kegiatan dari database. Silakan coba klik kembali dalam 2 detik.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }
-                return;
-            }
 
             const agendaList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('agenda'));
             const prokerList = prokers.filter(p => (p.jenis || '').toLowerCase().includes('program') || !(p.jenis || '').toLowerCase().includes('agenda'));
@@ -5668,23 +5715,27 @@
         }
 
         function bukaModalPilihExportNota() {
+            if ((!sbaDbProkers || sbaDbProkers.length === 0) && isSbaDbLoading) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Memuat Database Nota...',
+                        html: '<div class="py-2 flex flex-col items-center gap-3"><i class="fa-solid fa-arrows-rotate fa-spin text-orange-500 text-3xl"></i><span class="text-xs text-neutral-300">Menghubungkan ke database bukti nota...</span></div>',
+                        showConfirmButton: false,
+                        allowOutsideClick: true
+                    });
+                }
+                loadSbaProkerDatabase(false, () => {
+                    if (typeof Swal !== 'undefined') Swal.close();
+                    bukaModalPilihExportNota();
+                });
+                return;
+            }
+
             if (!sbaDbProkers || sbaDbProkers.length === 0) {
-                loadSbaProkerDatabase(false);
+                ensureFallbackProkers();
             }
 
             const prokers = sbaDbProkers || [];
-            if (prokers.length === 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Memuat Database Kegiatan...',
-                        text: 'Sedang mengambil data kegiatan dari database. Silakan coba klik kembali dalam 2 detik.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }
-                return;
-            }
 
             const cardsHtml = prokers.map(p => {
                 const receipts = getProkerReceiptsFromData(p.id, sbaDbTransactions);
@@ -15816,6 +15867,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             // Inisialisasi Sistem Folder Dokumen & Draf
             seedInitialDocumentsIfEmpty();
+            if (typeof loadSbaProkerDatabase === 'function') {
+                loadSbaProkerDatabase(false);
+            }
             const savedDocs = getSavedDocuments();
             const lastActiveId = localStorage.getItem(ACTIVE_DOC_ID_KEY);
             const targetDoc = savedDocs.find(d => d.id === lastActiveId) || (savedDocs.length > 0 ? savedDocs[0] : null);
@@ -15866,7 +15920,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(() => {});
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
     </script>
