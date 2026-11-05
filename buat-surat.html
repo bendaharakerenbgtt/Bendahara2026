@@ -2373,6 +2373,7 @@
                                         <span id="sba_pemasukan_count_badge" class="px-1.5 py-0.5 text-[9px] font-mono rounded bg-neutral-800 text-emerald-400 font-bold">2 Sumber</span>
                                     </span>
                                     <div class="flex items-center gap-2">
+                                        <button type="button" onclick="groupCurrentSbaPemasukan()" class="text-[10px] text-amber-400 hover:text-amber-300 font-bold underline" title="Ringkas rincian per orang menjadi kategori resmi (Kas LDK IMIP &amp; Iuran Kepanitiaan/Donasi)">Ringkas Realisasi</button>
                                         <button type="button" onclick="resetSbaPemasukanDefault()" class="text-[10px] text-neutral-400 hover:text-orange-400 underline">Reset</button>
                                         <button type="button" onclick="addSbaPemasukanRow()" class="px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 flex items-center gap-1 transition-colors">
                                             <i class="fa-solid fa-plus text-[8px]"></i> Tambah Pemasukan
@@ -5761,6 +5762,114 @@
             return 'bahan';
         }
 
+        function getSbaIncomeCategoryLabel(t) {
+            const rawCat = (t.kategori || '').trim();
+            const rawDesc = (t.uraian || t.keterangan || t.catatan || '').trim();
+            const combined = `${rawCat} ${rawDesc}`.toLowerCase();
+
+            if (combined.includes('iuran')) {
+                return 'Iuran Kepanitiaan';
+            }
+            if (combined.includes('donasi')) {
+                return 'Dana Donasi';
+            }
+            if (combined.includes('danus') || combined.includes('usaha') || combined.includes('penjualan')) {
+                return 'Danusan';
+            }
+            if (combined.includes('sponsor')) {
+                return 'Sponsorship';
+            }
+            if (combined.includes('kas') || combined.includes('operasional')) {
+                return 'Kas LDK IMIP';
+            }
+            if (rawCat && rawCat.toUpperCase() !== 'NULL') {
+                if (/^kas/i.test(rawCat)) return 'Kas LDK IMIP';
+                return cleanTitle(rawCat);
+            }
+            return 'Kas LDK IMIP';
+        }
+
+        function groupSbaIncomeTransactions(inTxs, totalPengeluaran, prokerObj) {
+            const inCatMap = {};
+
+            (inTxs || []).forEach(t => {
+                const label = getSbaIncomeCategoryLabel(t);
+                const nom = Number(t.nominal !== undefined ? t.nominal : (t.jumlah !== undefined ? t.jumlah : 0)) || 0;
+                inCatMap[label] = (inCatMap[label] || 0) + nom;
+            });
+
+            // Aturan LPJ / SBA: Total pemasukan disamakan dengan total pengeluaran.
+            // Jika pemasukan tercatat masih kurang dari pengeluaran, kekurangannya otomatis dialokasikan ke "Kas LDK IMIP".
+            const currentRecordedIncome = Object.values(inCatMap).reduce((sum, val) => sum + (Number(val) || 0), 0);
+            if (currentRecordedIncome < totalPengeluaran) {
+                const selisih = totalPengeluaran - currentRecordedIncome;
+                inCatMap['Kas LDK IMIP'] = (inCatMap['Kas LDK IMIP'] || 0) + selisih;
+            } else if (currentRecordedIncome === 0 && totalPengeluaran === 0) {
+                const fallbackIn = Number(prokerObj && prokerObj.pemasukan !== undefined && Number(prokerObj.pemasukan) > 0 ? prokerObj.pemasukan : 0);
+                if (fallbackIn > 0) {
+                    inCatMap['Kas LDK IMIP'] = fallbackIn;
+                }
+            }
+
+            let inCategories = Object.keys(inCatMap)
+                .filter(label => (inCatMap[label] || 0) > 0)
+                .map(label => ({
+                    sumber: label,
+                    jumlah: inCatMap[label]
+                }));
+
+            // Prioritas urutan: Kas LDK IMIP #1, Iuran Kepanitiaan #2, Dana Donasi #3, Danusan #4, Sponsorship #5
+            inCategories.sort((a, b) => {
+                const priority = (name) => {
+                    if (/kas/i.test(name)) return 1;
+                    if (/iuran/i.test(name)) return 2;
+                    if (/donasi/i.test(name)) return 3;
+                    if (/danus/i.test(name)) return 4;
+                    if (/sponsor/i.test(name)) return 5;
+                    return 6;
+                };
+                const pa = priority(a.sumber);
+                const pb = priority(b.sumber);
+                if (pa !== pb) return pa - pb;
+                return a.sumber.localeCompare(b.sumber);
+            });
+
+            if (inCategories.length === 0) {
+                inCategories.push({
+                    sumber: 'Kas LDK IMIP',
+                    jumlah: totalPengeluaran > 0 ? totalPengeluaran : 250000
+                });
+            }
+
+            return inCategories.map((item, idx) => ({
+                no: `${idx + 1}.`,
+                sumber: item.sumber,
+                jumlah: item.jumlah
+            }));
+        }
+
+        window.groupCurrentSbaPemasukan = function() {
+            if (!sbaPemasukanList || sbaPemasukanList.length === 0) return;
+            const totalPengeluaran = getSbaTotalPengeluaran();
+            const dummyTxs = sbaPemasukanList.map(it => ({
+                uraian: it.sumber,
+                kategori: it.sumber,
+                nominal: it.jumlah
+            }));
+            sbaPemasukanList = groupSbaIncomeTransactions(dummyTxs, totalPengeluaran);
+            renderSbaPemasukanEditor();
+            updatePreview();
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pemasukan Diringkas!',
+                    text: 'Pemasukan berhasil disatukan ke format kategori resmi (Kas LDK IMIP & Iuran/Donasi).',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        };
+
         function applySelectedSbaProkerData(prokerId, mode = 'all') {
             const pid = prokerId || document.getElementById('sba_proker_select')?.value || sbaSelectedProkerId;
             if (!pid) {
@@ -5889,37 +5998,9 @@
                 sbaPengeluaranCategories = newCats;
                 syncSbaLegacyDivisi();
 
-                // PEMASUKAN
+                // PEMASUKAN - KELOMPOKKAN SESUAI KATEGORI REALISASI (Kas LDK IMIP & Iuran Kepanitiaan/Donasi)
                 const totalPengeluaran = getSbaTotalPengeluaran();
-                let sumIn = 0;
-                const newPemasukan = [];
-
-                inTxs.forEach((t, i) => {
-                    const nom = Number(t.nominal) || 0;
-                    sumIn += nom;
-                    newPemasukan.push({
-                        no: `${i + 1}.`,
-                        sumber: cleanTitle(t.uraian || t.kategori || 'Pemasukan'),
-                        jumlah: nom
-                    });
-                });
-
-                if (totalPengeluaran > sumIn) {
-                    const selisih = totalPengeluaran - sumIn;
-                    newPemasukan.unshift({
-                        no: '1.',
-                        sumber: 'Kas LDK IMIP',
-                        jumlah: selisih
-                    });
-                    newPemasukan.forEach((it, i) => it.no = `${i + 1}.`);
-                } else if (newPemasukan.length === 0) {
-                    newPemasukan.push({
-                        no: '1.',
-                        sumber: 'Kas LDK IMIP',
-                        jumlah: totalPengeluaran > 0 ? totalPengeluaran : 250000
-                    });
-                }
-                sbaPemasukanList = newPemasukan;
+                sbaPemasukanList = groupSbaIncomeTransactions(inTxs, totalPengeluaran, p);
 
                 // Sinkronkan nama acara & TTD Ketua Pelaksana jika ada
                 const namaAcaraField = document.getElementById('field_nama_acara');
@@ -9199,13 +9280,13 @@
                         </p>
 
                         <!-- HAMBATAN -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Hambatan:</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hambatan:</p>
                         <div class="preview-editable" data-edit-target="sba_hambatan_kegiatan" data-edit-label="Hambatan Kegiatan" data-edit-type="textarea" title="Klik untuk edit Hambatan" style="margin-bottom: 12pt;">
                             ${renderBulletItems(hambatanText)}
                         </div>
 
                         <!-- EVALUASI -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Evaluasi :</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Evaluasi :</p>
                         <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
                             ${renderBulletItems(evaluasiText)}
                         </div>
@@ -9284,13 +9365,13 @@
                         </p>
 
                         <!-- HAMBATAN -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Hambatan:</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hambatan:</p>
                         <div class="preview-editable" data-edit-target="sba_hambatan_kegiatan" data-edit-label="Hambatan Kegiatan" data-edit-type="textarea" title="Klik untuk edit Hambatan" style="margin-bottom: 14pt;">
                             ${renderBulletItems(hambatanText)}
                         </div>
 
                         <!-- EVALUASI -->
-                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">Evaluasi :</p>
+                        <p style="margin: 0 0 4pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Evaluasi :</p>
                         <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
                             ${renderBulletItems(evaluasiText)}
                         </div>
@@ -9340,9 +9421,7 @@
                             catRowsHtml += `
                                 <tr style="font-weight: bold;">
                                     <td style="border: 1px solid #000; padding: 4pt 4pt; text-align: center; vertical-align: middle;">${div.divisiKode || String.fromCharCode(65 + divIdx) + '.'}</td>
-                                    <td style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">${formatInlineRichText(div.divisiNama)}</td>
-                                    <td style="border: 1px solid #000; padding: 4pt 4pt;"></td>
-                                    <td style="border: 1px solid #000; padding: 4pt 6pt;"></td>
+                                    <td colspan="3" style="border: 1px solid #000; padding: 4pt 8pt; vertical-align: middle;">${formatInlineRichText(div.divisiNama)}</td>
                                     <td style="border: 1px solid #000; padding: 4pt 8pt; text-align: right; vertical-align: middle;">${formatSbaRupiah(divTotal)}</td>
                                 </tr>
                             `;
@@ -11354,6 +11433,23 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
                 if (d.sbaPemasukanList && Array.isArray(d.sbaPemasukanList)) {
                     sbaPemasukanList = JSON.parse(JSON.stringify(d.sbaPemasukanList));
+                    // Jika data tersimpan memiliki banyak baris rincian iuran/donasi/per-orang (lebih dari 2 baris),
+                    // otomatis ringkas ke format kategori resmi Realisasi (Kas LDK IMIP & Iuran Kepanitiaan/Donasi)
+                    if (sbaPemasukanList.length > 2) {
+                        const iuranOrDonasiCount = sbaPemasukanList.filter(it => {
+                            const s = (it.sumber || '').toLowerCase();
+                            return s.includes('iuran') || s.includes('donasi') || s.includes('dauroh') || s.includes('peserta');
+                        }).length;
+                        if (iuranOrDonasiCount > 1 || sbaPemasukanList.length > 4) {
+                            const totalPengeluaran = typeof getSbaTotalPengeluaran === 'function' ? getSbaTotalPengeluaran() : 0;
+                            const dummyTxs = sbaPemasukanList.map(it => ({
+                                uraian: it.sumber,
+                                kategori: it.sumber,
+                                nominal: it.jumlah
+                            }));
+                            sbaPemasukanList = groupSbaIncomeTransactions(dummyTxs, totalPengeluaran);
+                        }
+                    }
                 }
                 if (d.sbaPengeluaranCategories && Array.isArray(d.sbaPengeluaranCategories) && d.sbaPengeluaranCategories.length > 0) {
                     sbaPengeluaranCategories = JSON.parse(JSON.stringify(d.sbaPengeluaranCategories));
