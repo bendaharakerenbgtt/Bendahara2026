@@ -485,7 +485,25 @@
             box-shadow: 0 2px 12px rgba(255, 115, 0, 0.18) !important;
         }
 
-        /* RANK BADGES STYLING (GOLD, SILVER, BRONZE & MODERN DEFAULT) */
+        @keyframes highlightFlashPulse {
+            0% { outline: 2px solid rgba(255, 115, 0, 0.9); background-color: rgba(255, 115, 0, 0.25); }
+            50% { outline: 3px solid rgba(255, 115, 0, 1); background-color: rgba(255, 115, 0, 0.38); }
+            100% { outline: 2px solid transparent; background-color: transparent; }
+        }
+        .highlight-flash {
+            animation: highlightFlashPulse 1.4s ease-out;
+        }
+
+        .stat-card-masuk.active-flow {
+            border-color: rgba(16, 185, 129, 0.8) !important;
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.28) !important;
+        }
+        .stat-card-keluar.active-flow {
+            border-color: rgba(244, 63, 94, 0.8) !important;
+            box-shadow: 0 0 16px rgba(244, 63, 94, 0.28) !important;
+        }
+
+        /* RANK BADGES STYLING (GOLD, SILVER, BRONZE, EMERALD & MODERN DEFAULT) */
         .rank-badge {
             display: inline-flex;
             align-items: center;
@@ -516,6 +534,24 @@
             color: #FFFFFF !important;
             box-shadow: 0 0 10px rgba(180, 83, 9, 0.35);
             border: 1px solid rgba(217, 119, 6, 0.6);
+        }
+        .rank-emerald-1 {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+            border: 1px solid rgba(52, 211, 153, 0.7);
+        }
+        .rank-emerald-2 {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.35);
+            border: 1px solid rgba(103, 232, 249, 0.6);
+        }
+        .rank-emerald-3 {
+            background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 10px rgba(20, 184, 166, 0.35);
+            border: 1px solid rgba(94, 234, 212, 0.6);
         }
         .rank-default {
             background-color: rgba(255, 255, 255, 0.06);
@@ -827,24 +863,24 @@
 
         <!-- 5 FINANCIAL STAT CARDS (ROW 1: 3 CARDS, ROW 2: 2 CARDS ON MOBILE; 5 EQUAL COLUMNS ON DESKTOP) -->
         <div class="grid grid-cols-6 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-3.5">
-            <!-- 1. PEMASUKAN -->
-            <div class="col-span-2 lg:col-span-1 stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 lg:p-4 flex flex-col justify-between gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <!-- 1. PEMASUKAN (KLIK UNTUK ANALISIS PEMASUKAN) -->
+            <div onclick="setFlowMode('masuk', true)" class="col-span-2 lg:col-span-1 stat-card-masuk glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 lg:p-4 flex flex-col justify-between gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0 cursor-pointer transition-all hover:scale-[1.02] active:scale-95" title="Klik untuk analisis & diagram komposisi Pemasukan">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="t-label whitespace-nowrap">Pemasukan</span>
-                    <div class="hidden sm:flex w-5 h-5 lg:w-6 lg:h-6 rounded-lg bg-emerald-950/50 border border-emerald-500/20 items-center justify-center text-emerald-400 text-xs shrink-0">
+                    <span class="t-label whitespace-nowrap group-hover:text-emerald-400 transition-colors">Pemasukan</span>
+                    <div class="flex w-5 h-5 lg:w-6 lg:h-6 rounded-lg bg-emerald-950/50 border border-emerald-500/20 items-center justify-center text-emerald-400 text-xs shrink-0 group-hover:bg-emerald-500/20 transition-all">
                         <i class="fa-solid fa-arrow-down"></i>
                     </div>
                 </div>
                 <span id="stat-total-masuk" class="t-stat-primary text-emerald-400">Rp0</span>
             </div>
 
-            <!-- 2. PENGELUARAN -->
-            <div class="col-span-2 lg:col-span-1 stat-card-keluar glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 lg:p-4 flex flex-col justify-between gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0">
+            <!-- 2. PENGELUARAN (KLIK UNTUK ANALISIS PENGELUARAN) -->
+            <div onclick="setFlowMode('keluar', true)" class="col-span-2 lg:col-span-1 stat-card-keluar active-flow glass-panel rounded-xl sm:rounded-2xl p-2 sm:p-3.5 lg:p-4 flex flex-col justify-between gap-1 border border-neutral-900/60 relative overflow-hidden group min-w-0 cursor-pointer transition-all hover:scale-[1.02] active:scale-95" title="Klik untuk analisis & diagram komposisi Pengeluaran">
                 <div class="absolute -right-8 -top-8 w-20 h-20 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all duration-500"></div>
                 <div class="flex items-center justify-between gap-1">
-                    <span class="t-label whitespace-nowrap">Pengeluaran</span>
-                    <div class="hidden sm:flex w-5 h-5 lg:w-6 lg:h-6 rounded-lg bg-rose-950/50 border border-rose-500/20 items-center justify-center text-rose-400 text-xs shrink-0">
+                    <span class="t-label whitespace-nowrap group-hover:text-rose-400 transition-colors">Pengeluaran</span>
+                    <div class="flex w-5 h-5 lg:w-6 lg:h-6 rounded-lg bg-rose-950/50 border border-rose-500/20 items-center justify-center text-rose-400 text-xs shrink-0 group-hover:bg-rose-500/20 transition-all">
                         <i class="fa-solid fa-arrow-up"></i>
                     </div>
                 </div>
@@ -937,35 +973,50 @@
                 </div>
 
                 <!-- INTERACTIVE MONTH SPOTLIGHT BANNER -->
-                <div id="month-spotlight-card" class="hidden mt-3 p-2.5 sm:p-3 rounded-xl bg-neutral-900/80 border border-[#FF7300]/40 flex items-center justify-between gap-2 transition-all">
+                <div id="month-spotlight-card" class="hidden mt-3 p-2.5 sm:p-3 rounded-xl bg-neutral-900/90 border border-[#FF7300]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-all shadow-md">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="w-8 h-8 rounded-lg bg-orange-500/15 text-[#FF7300] flex items-center justify-center text-xs font-bold shrink-0">
                             <i class="fa-solid fa-calendar-day"></i>
                         </div>
                         <div class="flex flex-col min-w-0">
-                            <span id="spotlight-month-title" class="t-body font-bold text-white truncate">Bulan</span>
-                            <div class="flex items-center gap-2 t-sub-mono flex-wrap">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span id="spotlight-month-title" class="t-body font-bold text-white truncate">Bulan</span>
+                                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#FF7300]/20 text-[#FF7300] border border-[#FF7300]/40 font-bold">Filter Aktif</span>
+                            </div>
+                            <div class="flex items-center gap-2 t-sub-mono flex-wrap text-xs mt-0.5">
                                 <span class="text-emerald-400">Masuk: <strong id="spotlight-in">Rp0</strong></span>
                                 <span class="text-neutral-500">•</span>
                                 <span class="text-rose-400">Keluar: <strong id="spotlight-out">Rp0</strong></span>
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <span id="spotlight-net" class="t-sub-mono px-2 py-1 rounded-md font-bold bg-neutral-800 text-white">Net: Rp0</span>
-                        <button type="button" onclick="closeMonthSpotlight()" class="text-neutral-400 hover:text-white text-xs px-2 py-1 rounded-md bg-neutral-800/60 hover:bg-neutral-800 cursor-pointer" title="Tutup">✕</button>
+                    <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                        <span id="spotlight-net" class="t-sub-mono px-2 py-1 rounded-md font-bold bg-neutral-800 text-white text-xs">Net: Rp0</span>
+                        <button type="button" onclick="resetMonthFilter()" class="text-xs px-2.5 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white border border-neutral-700/80 cursor-pointer flex items-center gap-1.5 transition-all shadow-xs" title="Reset filter bulan dan tampilkan semua bulan">
+                            <span>Tampilkan Semua</span>
+                            <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- SECTION 2: KOMPOSISI BELANJA (5 COLS ON DESKTOP) -->
+            <!-- SECTION 2: KOMPOSISI PENGELUARAN / PEMASUKAN (5 COLS ON DESKTOP) -->
             <div class="lg:col-span-5 flex flex-col justify-between glass-panel rounded-2xl p-3.5 sm:p-5 shadow-md min-w-0">
                 <div>
                     <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-neutral-800/60">
                         <div class="min-w-0">
-                            <h2 class="t-section-title truncate">
+                            <h2 id="donut-section-title" class="t-section-title truncate">
                                 Komposisi Belanja
                             </h2>
+                        </div>
+                        <!-- MINI FLOW SWITCHER FOR DONUT CHART -->
+                        <div class="flex items-center gap-1 bg-neutral-900/90 dark:bg-neutral-950 p-0.5 rounded-xl border border-neutral-800 shrink-0">
+                            <button type="button" id="donut-flow-keluar" onclick="setFlowMode('keluar')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer bg-neutral-800 text-rose-400 shadow-sm flex items-center gap-1" title="Komposisi Pengeluaran Belanja">
+                                <i class="fa-solid fa-arrow-up text-[9px]"></i> <span>Keluar</span>
+                            </button>
+                            <button type="button" id="donut-flow-masuk" onclick="setFlowMode('masuk')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer text-neutral-400 hover:text-white flex items-center gap-1" title="Komposisi Pemasukan Kas">
+                                <i class="fa-solid fa-arrow-down text-[9px]"></i> <span>Masuk</span>
+                            </button>
                         </div>
                     </div>
 
@@ -991,10 +1042,10 @@
 
         </div>
 
-        <!-- SECTION 3: REKAPITULASI DETAIL & PENGELUARAN KEGIATAN TERBANYAK -->
-        <div class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3.5 shadow-md min-w-0">
-            <!-- Header Bar: Title, Count Badge & Segmented View Switcher -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-800/60">
+        <!-- SECTION 3: REKAPITULASI DETAIL (PENGELUARAN & PEMASUKAN) -->
+        <div id="section-rekap-anchor" class="glass-panel rounded-2xl p-3.5 sm:p-5 flex flex-col gap-3.5 shadow-md min-w-0 scroll-mt-20">
+            <!-- Header Bar: Title, Count Badge & Synchronized Flow & View Switchers -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-neutral-800/60">
                 <div class="flex items-center gap-2">
                     <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-[#FF7300] shrink-0 text-xs">
                         <i id="rekap-section-icon" class="fa-solid fa-fire text-amber-400"></i>
@@ -1012,16 +1063,31 @@
                     </div>
                 </div>
 
-                <!-- INTERACTIVE SEGMENTED TABS -->
-                <div class="flex items-center gap-1 bg-neutral-900/80 dark:bg-neutral-950 p-1 rounded-xl border border-neutral-800/90 self-start sm:self-auto shrink-0 shadow-inner">
-                    <button type="button" id="tab-rekap-kegiatan" onclick="setRekapView('kegiatan')" class="tab-btn active flex items-center gap-1.5 cursor-pointer text-xs" title="Lihat Peringkat Pengeluaran Berdasarkan Kegiatan">
-                        <i class="fa-solid fa-fire text-amber-400"></i>
-                        <span>Pengeluaran Kegiatan</span>
-                    </button>
-                    <button type="button" id="tab-rekap-kategori" onclick="setRekapView('kategori')" class="tab-btn flex items-center gap-1.5 cursor-pointer text-xs" title="Lihat Rekapitulasi Berdasarkan Kategori Belanja">
-                        <i class="fa-solid fa-shapes"></i>
-                        <span>Kategori Belanja</span>
-                    </button>
+                <!-- CONTROLS: FLOW SWITCHER & SEGMENTED TABS -->
+                <div class="flex items-center gap-2 flex-wrap self-start lg:self-auto">
+                    <!-- Flow Switcher: Keluar vs Masuk -->
+                    <div class="flex items-center gap-1 bg-neutral-900/90 dark:bg-neutral-950 p-1 rounded-xl border border-neutral-800/90 shadow-inner">
+                        <button type="button" id="btn-flow-keluar" onclick="setFlowMode('keluar')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-neutral-800 text-rose-400 shadow-sm flex items-center gap-1.5" title="Tampilkan Arus Pengeluaran">
+                            <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                            <span>Pengeluaran</span>
+                        </button>
+                        <button type="button" id="btn-flow-masuk" onclick="setFlowMode('masuk')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer text-neutral-400 hover:text-white flex items-center gap-1.5" title="Tampilkan Arus Pemasukan">
+                            <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                            <span>Pemasukan</span>
+                        </button>
+                    </div>
+
+                    <!-- View Switcher: Kegiatan vs Kategori -->
+                    <div class="flex items-center gap-1 bg-neutral-900/90 dark:bg-neutral-950 p-1 rounded-xl border border-neutral-800/90 shadow-inner">
+                        <button type="button" id="tab-rekap-kegiatan" onclick="setRekapView('kegiatan')" class="tab-btn active flex items-center gap-1.5 cursor-pointer text-xs" title="Lihat Berdasarkan Kegiatan">
+                            <i id="tab-icon-kegiatan" class="fa-solid fa-fire text-amber-400"></i>
+                            <span id="tab-text-kegiatan">Kegiatan</span>
+                        </button>
+                        <button type="button" id="tab-rekap-kategori" onclick="setRekapView('kategori')" class="tab-btn flex items-center gap-1.5 cursor-pointer text-xs" title="Lihat Berdasarkan Kategori Pos">
+                            <i class="fa-solid fa-shapes"></i>
+                            <span id="tab-text-kategori">Kategori</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1069,8 +1135,8 @@
                                 <th>Nama Kegiatan & Jenis</th>
                                 <th>Divisi Pelaksana</th>
                                 <th class="text-center">Jumlah Transaksi</th>
-                                <th class="text-right">Total Pengeluaran</th>
-                                <th class="w-44">Porsi Terhadap Kas</th>
+                                <th class="text-right" id="th-proker-total">Total Pengeluaran</th>
+                                <th class="w-44" id="th-proker-porsi">Porsi Terhadap Kas</th>
                                 <th class="text-center w-32">Aksi</th>
                             </tr>
                         </thead>
@@ -1101,10 +1167,10 @@
                         <thead>
                             <tr>
                                 <th class="w-12 text-center">#</th>
-                                <th>Kategori Pengeluaran</th>
+                                <th id="th-cat-title">Kategori Pengeluaran</th>
                                 <th class="text-center">Frekuensi</th>
-                                <th class="text-right">Total Nominal</th>
-                                <th class="w-40">Porsi Realisasi</th>
+                                <th class="text-right" id="th-cat-total">Total Nominal</th>
+                                <th class="w-40" id="th-cat-porsi">Porsi Realisasi</th>
                                 <th class="text-center">Metode Dominan</th>
                             </tr>
                         </thead>
@@ -1296,12 +1362,15 @@
         var rawTransactions = [];
         var rawProkers = [];
         var currentRekapView = 'kegiatan'; // 'kegiatan' (default) | 'kategori'
+        var currentFlowMode = 'keluar'; // 'keluar' (default) | 'masuk'
+        var selectedMonthFilter = null; // null | 0-11
         var selectedProkerTypeFilter = 'ALL';
         var prokerSearchQuery = '';
         var latestProkerSpendingList = [];
         var currentFocusedCategoryIndex = -1;
         var latestSortedCategories = [];
         var latestGrandTotalKeluar = 0;
+        var latestGrandTotalMasuk = 0;
         var latestMonthlyIn = [];
         var latestMonthlyOut = [];
         var latestActiveMonths = [];
@@ -1479,6 +1548,10 @@
         var CATEGORY_COLORS = [
             '#FF7300', '#38bdf8', '#10b981', '#fbbf24', '#f43f5e', 
             '#a855f7', '#ec4899', '#06b6d4', '#84cc16', '#6366f1'
+        ];
+        var INCOME_COLORS = [
+            '#10B981', '#06B6D4', '#14B8A6', '#84CC16', '#3B82F6', 
+            '#22C55E', '#0EA5E9', '#10B981', '#6366F1', '#A855F7'
         ];
 
         function formatRupiah(num) {
@@ -1802,6 +1875,11 @@
             var data = donutChartInstance.data.datasets[0].data;
             var chosenLabel = specificName || labels[idx];
 
+            // If Rekapitulasi below is currently on kegiatan, switch to kategori so the target is visible!
+            if (currentRekapView !== 'kategori') {
+                setRekapView('kategori');
+            }
+
             // Toggle off if already focused on this exact category or index
             if ((currentFocusedCategoryName && currentFocusedCategoryName.toLowerCase() === chosenLabel.toLowerCase()) ||
                 (!currentFocusedCategoryName && currentFocusedCategoryIndex === idx)) {
@@ -1817,9 +1895,10 @@
                 return c.nama.toLowerCase() === chosenLabel.toLowerCase();
             });
 
+            var grandTotal = currentFlowMode === 'masuk' ? latestGrandTotalMasuk : latestGrandTotalKeluar;
             var targetLabel = foundCat ? foundCat.nama : labels[idx];
             var targetVal = foundCat ? foundCat.total : (data[idx] || 0);
-            var percent = latestGrandTotalKeluar > 0 ? ((targetVal / latestGrandTotalKeluar) * 100).toFixed(1) : '0';
+            var percent = grandTotal > 0 ? ((targetVal / grandTotal) * 100).toFixed(1) : '0';
 
             // Highlight slice in Chart.js
             try {
@@ -1833,9 +1912,12 @@
             var totEl = document.getElementById('donut-center-total');
             var subEl = document.getElementById('donut-center-sub');
             if (lblEl) lblEl.innerText = targetLabel;
-            if (totEl) totEl.innerText = formatRupiah(targetVal);
+            if (totEl) {
+                totEl.innerText = (currentFlowMode === 'masuk' ? '+' : '-') + formatRupiah(targetVal);
+                totEl.className = 't-stat-secondary mt-0.5 ' + (currentFlowMode === 'masuk' ? 'text-emerald-400' : 'text-rose-400');
+            }
             if (subEl) {
-                subEl.innerText = percent + '% alokasi';
+                subEl.innerText = percent + '% porsi';
                 subEl.classList.remove('hidden');
             }
 
@@ -1857,24 +1939,40 @@
 
             // Synchronize highlight indicator in Rekapitulasi Detail (mobile cards & desktop rows)
             var allCards = document.querySelectorAll('.mobile-cat-card');
+            var matchedCard = null;
             allCards.forEach(function(card) {
                 var cName = card.getAttribute('data-cat') || '';
                 if (cName.toLowerCase() === targetLabel.toLowerCase()) {
                     card.classList.add('active-detail-card');
+                    matchedCard = card;
                 } else {
-                    card.classList.remove('active-detail-card');
+                    card.classList.remove('active-detail-card', 'highlight-flash');
                 }
             });
 
             var allRows = document.querySelectorAll('#report-table-body tr');
+            var matchedRow = null;
             allRows.forEach(function(row) {
                 var rName = row.getAttribute('data-cat') || '';
                 if (rName.toLowerCase() === targetLabel.toLowerCase()) {
                     row.classList.add('active-detail-card');
+                    matchedRow = row;
                 } else {
-                    row.classList.remove('active-detail-card');
+                    row.classList.remove('active-detail-card', 'highlight-flash');
                 }
             });
+
+            // SINKRONISASI KE BAWAH: Smooth auto scroll ke item yang bersangkutan
+            var targetEl = (window.innerWidth < 1024 ? matchedCard : matchedRow) || matchedCard || matchedRow;
+            if (targetEl) {
+                try {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetEl.classList.add('highlight-flash');
+                    setTimeout(function() {
+                        if (targetEl) targetEl.classList.remove('highlight-flash');
+                    }, 1800);
+                } catch(e) {}
+            }
         }
 
         function resetDonutFocus() {
@@ -1884,11 +1982,15 @@
                 donutChartInstance.setActiveElements([]);
                 donutChartInstance.update();
             }
+            var grandTotal = currentFlowMode === 'masuk' ? latestGrandTotalMasuk : latestGrandTotalKeluar;
             var lblEl = document.getElementById('donut-center-label');
             var totEl = document.getElementById('donut-center-total');
             var subEl = document.getElementById('donut-center-sub');
-            if (lblEl) lblEl.innerText = 'Total Belanja';
-            if (totEl) totEl.innerText = formatRupiah(latestGrandTotalKeluar);
+            if (lblEl) lblEl.innerText = currentFlowMode === 'masuk' ? 'Total Pemasukan' : 'Total Belanja';
+            if (totEl) {
+                totEl.innerText = (currentFlowMode === 'masuk' ? '+' : '-') + formatRupiah(grandTotal);
+                totEl.className = 't-stat-secondary mt-0.5 ' + (currentFlowMode === 'masuk' ? 'text-emerald-400' : 'text-rose-400');
+            }
             if (subEl) subEl.classList.add('hidden');
 
             var pills = document.querySelectorAll('#category-pills-list .cat-legend-item');
@@ -1898,12 +2000,12 @@
 
             var allCards = document.querySelectorAll('.mobile-cat-card');
             allCards.forEach(function(card) {
-                card.classList.remove('active-detail-card');
+                card.classList.remove('active-detail-card', 'highlight-flash');
             });
 
             var allRows = document.querySelectorAll('#report-table-body tr');
             allRows.forEach(function(row) {
-                row.classList.remove('active-detail-card');
+                row.classList.remove('active-detail-card', 'highlight-flash');
             });
         }
 
@@ -1926,17 +2028,27 @@
             if (outEl) outEl.innerText = formatRupiah(mOut);
             if (netEl) {
                 netEl.innerText = (mNet >= 0 ? '+ ' : '- ') + formatRupiah(Math.abs(mNet));
-                netEl.className = 't-sub-mono px-2 py-1 rounded-md font-bold ' + 
+                netEl.className = 't-sub-mono px-2 py-1 rounded-md font-bold text-xs ' + 
                     (mNet >= 0 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/15 text-rose-400 border border-rose-500/30');
             }
             if (card) {
                 card.classList.remove('hidden');
             }
+
+            // SINKRONISASI KE DIAGRAM & REKAPITULASI: Filter bulan aktif
+            selectedMonthFilter = actualMonthIdx;
+            renderReportData(true);
+        }
+
+        function resetMonthFilter() {
+            selectedMonthFilter = null;
+            var card = document.getElementById('month-spotlight-card');
+            if (card) card.classList.add('hidden');
+            renderReportData();
         }
 
         function closeMonthSpotlight() {
-            var card = document.getElementById('month-spotlight-card');
-            if (card) card.classList.add('hidden');
+            resetMonthFilter();
         }
 
         function openCategoryModal(categoryName) {
@@ -1948,21 +2060,22 @@
                 return t.status_reimburse !== "Belum";
             });
 
+            var isIncome = currentFlowMode === 'masuk';
             var isLainnya = categoryName === 'Lainnya';
             var catTx = [];
 
             if (isLainnya) {
                 var top5Names = (latestSortedCategories || []).slice(0, 5).map(function(c) { return c.nama; });
                 catTx = validTx.filter(function(t) {
-                    var isOut = (t.jenis || '').toLowerCase() === 'keluar';
-                    var kat = (t.kategori || 'Lain-lain').trim();
-                    return isOut && top5Names.indexOf(kat) === -1;
+                    var isFlow = (t.jenis || '').toLowerCase() === currentFlowMode;
+                    var kat = (t.kategori || (isIncome ? 'Pemasukan Kas' : 'Lain-lain')).trim();
+                    return isFlow && top5Names.indexOf(kat) === -1;
                 });
             } else {
                 catTx = validTx.filter(function(t) {
-                    var isOut = (t.jenis || '').toLowerCase() === 'keluar';
-                    var kat = (t.kategori || 'Lain-lain').trim();
-                    return isOut && kat.toLowerCase() === categoryName.toLowerCase();
+                    var isFlow = (t.jenis || '').toLowerCase() === currentFlowMode;
+                    var kat = (t.kategori || (isIncome ? 'Pemasukan Kas' : 'Lain-lain')).trim();
+                    return isFlow && kat.toLowerCase() === categoryName.toLowerCase();
                 });
             }
 
@@ -1982,16 +2095,18 @@
             });
 
             var catCount = catTx.length;
-            var porsi = latestGrandTotalKeluar > 0 ? ((catTotal / latestGrandTotalKeluar) * 100).toFixed(1) : '0';
+            var grandTotal = isIncome ? latestGrandTotalMasuk : latestGrandTotalKeluar;
+            var porsi = grandTotal > 0 ? ((catTotal / grandTotal) * 100).toFixed(1) : '0';
 
             // Find category color
-            var color = '#FF7300';
+            var palette = isIncome ? INCOME_COLORS : CATEGORY_COLORS;
+            var color = isIncome ? '#10B981' : '#FF7300';
             if (latestSortedCategories && latestSortedCategories.length > 0) {
                 var matchIdx = latestSortedCategories.findIndex(function(c) { return c.nama.toLowerCase() === categoryName.toLowerCase(); });
                 if (matchIdx !== -1) {
-                    color = CATEGORY_COLORS[matchIdx % CATEGORY_COLORS.length];
+                    color = palette[matchIdx % palette.length];
                 } else if (isLainnya) {
-                    color = CATEGORY_COLORS[5 % CATEGORY_COLORS.length];
+                    color = palette[5 % palette.length];
                 }
             }
 
@@ -2010,9 +2125,14 @@
             var linkKas = document.getElementById('modal-cat-link-kas');
 
             if (titleEl) titleEl.innerText = categoryName;
-            if (subtitleEl) subtitleEl.innerText = isLainnya ? 'Pengeluaran Lainnya' : 'Rincian Realisasi Anggaran';
+            if (subtitleEl) subtitleEl.innerText = isIncome 
+                ? (isLainnya ? 'Pemasukan Kas Lainnya' : 'Rincian Sumber Kas Masuk') 
+                : (isLainnya ? 'Pengeluaran Lainnya' : 'Rincian Realisasi Anggaran');
             if (colorDot) colorDot.style.backgroundColor = color;
-            if (totalEl) totalEl.innerText = formatRupiah(catTotal);
+            if (totalEl) {
+                totalEl.innerText = (isIncome ? '+' : '-') + formatRupiah(catTotal);
+                totalEl.className = 'text-base sm:text-lg font-black font-mono ' + (isIncome ? 'text-emerald-400' : 'text-rose-400');
+            }
             if (porsiEl) porsiEl.innerText = porsi + '%';
             if (countEl) countEl.innerText = catCount + ' tx';
             if (gopayEl) gopayEl.innerText = gopayCount + ' tx';
@@ -2026,16 +2146,21 @@
             if (listEl) {
                 listEl.innerHTML = '';
                 if (catTx.length === 0) {
-                    listEl.innerHTML = '<div class="py-4 text-center t-sub text-xs">Belum ada transaksi pada kategori ini.</div>';
+                    listEl.innerHTML = '<div class="py-4 text-center t-sub text-xs">Belum ada transaksi ' + (isIncome ? 'pemasukan' : 'pengeluaran') + ' pada kategori ini.</div>';
                 } else {
                     var sortedTx = catTx.slice().sort(function(a, b) {
                         return new Date(b.tanggal || 0) - new Date(a.tanggal || 0);
                     }).slice(0, 8);
 
+                    var badgeStyle = isIncome 
+                        ? 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' 
+                        : 'text-rose-400 bg-rose-500/15 border-rose-500/30';
+                    var valPrefix = isIncome ? '+' : '-';
+
                     sortedTx.forEach(function(t) {
                         var item = document.createElement('div');
                         item.className = 'modal-tx-item p-2.5 rounded-xl flex items-center justify-between gap-2.5 transition-all shadow-2xs';
-                        var ket = t.keterangan || t.kategori || 'Pengeluaran';
+                        var ket = t.keterangan || t.uraian || t.kategori || (isIncome ? 'Pemasukan Kas' : 'Pengeluaran');
                         var metIcon = (t.metode || '').toLowerCase().indexOf('gopay') !== -1 ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
                         item.innerHTML = 
                             '<div class="flex flex-col min-w-0 pr-2">' +
@@ -2046,7 +2171,7 @@
                                     '<span class="inline-flex items-center gap-1 font-semibold text-slate-300"><i class="fa-solid ' + metIcon + ' text-[9px]"></i> ' + (t.metode || 'Tunai') + '</span>' +
                                 '</div>' +
                             '</div>' +
-                            '<span class="modal-tx-badge px-2 py-1 rounded-lg text-xs font-bold font-mono text-rose-400 bg-rose-500/15 border border-rose-500/30 shrink-0">-' + formatRupiah(t.nominal) + '</span>';
+                            '<span class="modal-tx-badge px-2 py-1 rounded-lg text-xs font-bold font-mono border shrink-0 ' + badgeStyle + '">' + valPrefix + formatRupiah(t.nominal) + '</span>';
                         listEl.appendChild(item);
                     });
                 }
@@ -2077,7 +2202,7 @@
         // ----------------------------------------------------
         // 5. CORE COMPUTATION & RENDER
         // ----------------------------------------------------
-        function renderReportData() {
+        function renderReportData(keepSpotlight) {
             if (!rawTransactions || rawTransactions.length === 0) return;
 
             var validTx = rawTransactions.filter(function(t) {
@@ -2091,6 +2216,15 @@
                     if (!t.tanggal) return false;
                     var d = new Date(t.tanggal);
                     return !isNaN(d) && d.getMonth() === targetM;
+                });
+            }
+
+            // Interactive Month Filter from Line Chart Click
+            if (selectedMonthFilter !== null) {
+                periodFilteredTx = periodFilteredTx.filter(function(t) {
+                    if (!t.tanggal) return false;
+                    var d = new Date(t.tanggal);
+                    return !isNaN(d) && d.getMonth() === selectedMonthFilter;
                 });
             }
 
@@ -2145,7 +2279,11 @@
                 }
             });
 
-            var saldoNet = (selectedPeriode === 'all') 
+            latestGrandTotalMasuk = totalMasuk;
+            latestGrandTotalKeluar = totalKeluar;
+            var currentGrandTotal = currentFlowMode === 'masuk' ? totalMasuk : totalKeluar;
+
+            var saldoNet = (selectedPeriode === 'all' && selectedMonthFilter === null) 
                 ? (saldoGoPay + saldoTunai) 
                 : (totalMasuk - totalKeluar);
 
@@ -2265,15 +2403,16 @@
                 trendChartInstance.update();
             }
 
-            // Compute Category Breakdown
-            var expenseTx = periodFilteredTx.filter(function(t) {
-                return (t.jenis || '').toLowerCase() === 'keluar';
+            // Compute Category Breakdown based on currentFlowMode
+            var flowTx = periodFilteredTx.filter(function(t) {
+                return (t.jenis || '').toLowerCase() === currentFlowMode;
             });
             var categoryMap = {};
 
-            expenseTx.forEach(function(t) {
-                var kat = (t.kategori || 'Lain-lain').trim();
-                if (!kat) kat = 'Lain-lain';
+            flowTx.forEach(function(t) {
+                var defaultKatName = currentFlowMode === 'masuk' ? 'Pemasukan Kas' : 'Lain-lain';
+                var kat = (t.kategori || defaultKatName).trim();
+                if (!kat) kat = defaultKatName;
                 var nom = Math.abs(parseFloat(t.nominal) || 0);
                 var metode = (t.metode || 'Tunai').trim();
 
@@ -2297,7 +2436,6 @@
 
             // Save for interactive donut focus & category drill-down
             latestSortedCategories = sortedCategories;
-            latestGrandTotalKeluar = totalKeluar;
 
             // Update Donut Chart & Center Badge
             if (donutChartInstance) {
@@ -2310,32 +2448,36 @@
                     donutData.push(otherTotal);
                 }
 
+                var donutColors = currentFlowMode === 'masuk' ? INCOME_COLORS : CATEGORY_COLORS;
                 donutChartInstance.data.labels = donutLabels;
                 donutChartInstance.data.datasets[0].data = donutData;
+                donutChartInstance.data.datasets[0].backgroundColor = donutColors;
                 donutChartInstance.update();
+
+                var elDonutCenterLbl = document.getElementById('donut-center-label');
+                if (elDonutCenterLbl) {
+                    elDonutCenterLbl.innerText = currentFlowMode === 'masuk' ? 'Total Pemasukan' : 'Total Belanja';
+                }
 
                 var elDonutCenter = document.getElementById('donut-center-total');
                 if (elDonutCenter) {
-                    elDonutCenter.innerText = formatRupiah(totalKeluar);
+                    elDonutCenter.innerText = (currentFlowMode === 'masuk' ? '+' : '-') + formatRupiah(currentGrandTotal);
+                    elDonutCenter.className = 't-stat-secondary mt-0.5 ' + (currentFlowMode === 'masuk' ? 'text-emerald-400' : 'text-rose-400');
                 }
 
-                var topBadge = document.getElementById('top-category-badge');
-                if (topBadge) {
-                    if (sortedCategories.length > 0) {
-                        topBadge.innerText = 'Top: ' + sortedCategories[0].nama + ' (' + formatRupiah(sortedCategories[0].total) + ')';
-                    } else {
-                        topBadge.innerText = 'Top: Belum Ada Belanja';
-                    }
+                var donutTitle = document.getElementById('donut-section-title');
+                if (donutTitle) {
+                    donutTitle.innerText = currentFlowMode === 'masuk' ? 'Komposisi Pemasukan' : 'Komposisi Belanja';
                 }
 
                 var pillsContainer = document.getElementById('category-pills-list');
                 if (pillsContainer) {
                     pillsContainer.innerHTML = '';
-                    var totalBelanja = donutData.reduce(function(a, b) { return a + b; }, 0);
+                    var totalFlow = donutData.reduce(function(a, b) { return a + b; }, 0);
                     donutLabels.forEach(function(lbl, i) {
-                        var color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
+                        var color = donutColors[i % donutColors.length];
                         var val = donutData[i];
-                        var pct = totalBelanja > 0 ? ((val / totalBelanja) * 100).toFixed(1) : '0';
+                        var pct = totalFlow > 0 ? ((val / totalFlow) * 100).toFixed(1) : '0';
                         var item = document.createElement('div');
                         item.id = 'cat-pill-' + i;
                         item.className = 'cat-legend-item flex items-center justify-between px-3 py-2 rounded-xl shadow-2xs cursor-pointer hover:bg-neutral-800/40 transition-all';
@@ -2348,7 +2490,7 @@
                                 '<span class="t-body truncate">' + lbl + '</span>' +
                             '</div>' +
                             '<div class="flex items-center gap-2 shrink-0 text-right">' +
-                                '<span class="t-val">' + formatRupiah(val) + '</span>' +
+                                '<span class="t-val ' + (currentFlowMode === 'masuk' ? 'text-emerald-400' : '') + '">' + (currentFlowMode === 'masuk' ? '+' : '') + formatRupiah(val) + '</span>' +
                                 '<span class="t-sub-mono meta-badge px-1.5 py-0.5 rounded cat-legend-pct min-w-[46px] text-center">' + pct + '%</span>' +
                             '</div>';
                         pillsContainer.appendChild(item);
@@ -2356,7 +2498,7 @@
                 }
             }
 
-            // Compute Prokers Spending List (Peringkat Pengeluaran Kegiatan Terbanyak)
+            // Compute Prokers Spending & Income List (Peringkat Kegiatan)
             var prokerMap = {};
             (rawProkers || []).forEach(function(p) {
                 var pId = String(p.id !== undefined && p.id !== null ? p.id : (p.id_kegiatan || '')).trim();
@@ -2370,12 +2512,14 @@
                     status: p.status || 'Berjalan',
                     totalKeluar: 0,
                     totalMasuk: 0,
-                    count: 0,
-                    txList: []
+                    countKeluar: 0,
+                    countMasuk: 0,
+                    txKeluarList: [],
+                    txMasukList: []
                 };
             });
 
-            validTx.forEach(function(t) {
+            periodFilteredTx.forEach(function(t) {
                 var pId = String(t.proker_id || t.id_kegiatan || '').trim();
                 var nom = Math.abs(parseFloat(t.nominal) || 0);
                 var isOut = (t.jenis || '').toLowerCase() === 'keluar';
@@ -2384,39 +2528,54 @@
                 if (pId && prokerMap[pId]) {
                     if (isOut) {
                         prokerMap[pId].totalKeluar += nom;
-                        prokerMap[pId].count += 1;
-                        prokerMap[pId].txList.push(t);
+                        prokerMap[pId].countKeluar += 1;
+                        prokerMap[pId].txKeluarList.push(t);
                     } else if (isIn) {
                         prokerMap[pId].totalMasuk += nom;
+                        prokerMap[pId].countMasuk += 1;
+                        prokerMap[pId].txMasukList.push(t);
                     }
-                } else if (isOut) {
+                } else {
                     var ket = (t.keterangan || t.uraian || '').toLowerCase();
                     var matchedPId = Object.keys(prokerMap).find(function(id) {
                         var pName = (prokerMap[id].nama || '').toLowerCase().trim();
                         return pName && pName.length >= 4 && ket.includes(pName);
                     });
                     if (matchedPId) {
-                        prokerMap[matchedPId].totalKeluar += nom;
-                        prokerMap[matchedPId].count += 1;
-                        prokerMap[matchedPId].txList.push(t);
+                        if (isOut) {
+                            prokerMap[matchedPId].totalKeluar += nom;
+                            prokerMap[matchedPId].countKeluar += 1;
+                            prokerMap[matchedPId].txKeluarList.push(t);
+                        } else if (isIn) {
+                            prokerMap[matchedPId].totalMasuk += nom;
+                            prokerMap[matchedPId].countMasuk += 1;
+                            prokerMap[matchedPId].txMasukList.push(t);
+                        }
                     }
                 }
             });
 
-            var sortedProkers = Object.values(prokerMap).sort(function(a, b) {
-                return b.totalKeluar - a.totalKeluar;
-            });
+            var sortedProkers = Object.values(prokerMap).slice();
+            if (currentFlowMode === 'masuk') {
+                sortedProkers.sort(function(a, b) {
+                    return b.totalMasuk - a.totalMasuk;
+                });
+            } else {
+                sortedProkers.sort(function(a, b) {
+                    return b.totalKeluar - a.totalKeluar;
+                });
+            }
             latestProkerSpendingList = sortedProkers;
 
             // Render components
-            renderTop3Podium(sortedProkers, totalKeluar);
+            renderTop3Podium(sortedProkers, currentGrandTotal);
             applyProkerFilters();
-            renderResponsiveDataDisplay(sortedCategories, totalKeluar);
+            renderResponsiveDataDisplay(sortedCategories, currentGrandTotal);
             updateSummaryCountBadge();
         }
 
         // Top 3 Podium Cards
-        function renderTop3Podium(prokers, grandTotalKeluar) {
+        function renderTop3Podium(prokers, grandTotal) {
             var container = document.getElementById('top3-podium-container');
             if (!container) return;
 
@@ -2425,38 +2584,141 @@
                 return;
             }
 
-            var top3 = prokers.slice(0, 3);
-            var html = '';
+            var isIncome = currentFlowMode === 'masuk';
+            var validTop = prokers.filter(function(p) {
+                return (isIncome ? p.totalMasuk : p.totalKeluar) > 0;
+            }).slice(0, 3);
 
-            top3.forEach(function(p, i) {
+            if (validTop.length === 0) {
+                container.innerHTML = '<div class="col-span-full py-6 text-center t-sub font-mono text-xs">Belum ada ' + (isIncome ? 'pemasukan' : 'pengeluaran') + ' kegiatan pada periode ini.</div>';
+                return;
+            }
+
+            var html = '';
+            validTop.forEach(function(p, i) {
                 var rank = i + 1;
-                var percent = grandTotalKeluar > 0 ? ((p.totalKeluar / grandTotalKeluar) * 100).toFixed(1) : '0';
+                var flowVal = isIncome ? p.totalMasuk : p.totalKeluar;
+                var txCount = isIncome ? p.countMasuk : p.countKeluar;
+                var percent = grandTotal > 0 ? ((flowVal / grandTotal) * 100).toFixed(1) : '0';
                 var cleanDivisi = (p.divisi || '-').replace(/^(Departemen|Divisi|Biro)\s+/i, '');
 
-                var borderClass = rank === 1 
-                    ? 'border-amber-500/50 hover:border-amber-400 bg-amber-500/[0.04]' 
-                    : (rank === 2 ? 'border-slate-500/40 hover:border-slate-300 bg-slate-500/[0.03]' : 'border-amber-700/40 hover:border-amber-600 bg-amber-900/[0.03]');
-                var rankBadgeClass = rank === 1 ? 'rank-gold' : (rank === 2 ? 'rank-silver' : 'rank-bronze');
+                var borderClass = '';
+                var rankBadgeClass = '';
                 var rankText = rank === 1 ? '🥇 #1 Terbanyak' : (rank === 2 ? '🥈 #2 Terbanyak' : '🥉 #3 Terbanyak');
+
+                if (isIncome) {
+                    borderClass = rank === 1 
+                        ? 'border-emerald-500/50 hover:border-emerald-400 bg-emerald-500/[0.04]' 
+                        : (rank === 2 ? 'border-teal-500/40 hover:border-teal-300 bg-teal-500/[0.03]' : 'border-cyan-600/40 hover:border-cyan-500 bg-cyan-900/[0.03]');
+                    rankBadgeClass = rank === 1 ? 'rank-emerald-1' : (rank === 2 ? 'rank-emerald-2' : 'rank-emerald-3');
+                } else {
+                    borderClass = rank === 1 
+                        ? 'border-amber-500/50 hover:border-amber-400 bg-amber-500/[0.04]' 
+                        : (rank === 2 ? 'border-slate-500/40 hover:border-slate-300 bg-slate-500/[0.03]' : 'border-amber-700/40 hover:border-amber-600 bg-amber-900/[0.03]');
+                    rankBadgeClass = rank === 1 ? 'rank-gold' : (rank === 2 ? 'rank-silver' : 'rank-bronze');
+                }
+
+                var valFormatted = (isIncome ? '+' : '-') + formatRupiah(flowVal);
+                var valColor = isIncome ? 'text-emerald-400' : 'text-rose-400';
+                var porsiLabel = isIncome ? '% Pemasukan' : '% dari Kas';
 
                 html += 
                     '<div onclick="openProkerDetailModal(\'' + p.id + '\')" class="p-3 sm:p-3.5 rounded-2xl border ' + borderClass + ' flex flex-col justify-between gap-2.5 transition-all duration-200 hover:-translate-y-0.5 shadow-xs cursor-pointer group select-none">' +
                         '<div class="flex items-center justify-between gap-2">' +
                             '<span class="rank-badge ' + rankBadgeClass + ' text-[10px]">' + rankText + '</span>' +
-                            '<span class="text-[9px] font-mono text-neutral-400 font-bold">' + percent + '% dari Kas</span>' +
+                            '<span class="text-[9px] font-mono text-neutral-400 font-bold">' + percent + porsiLabel + '</span>' +
                         '</div>' +
                         '<div>' +
                             '<h4 class="text-xs sm:text-sm font-black text-white group-hover:text-[#FF7300] transition-colors truncate leading-snug">' + p.nama + '</h4>' +
                             '<span class="text-[9.5px] font-mono text-neutral-400 truncate block mt-0.5">' + cleanDivisi + '</span>' +
                         '</div>' +
                         '<div class="pt-2 border-t border-neutral-800/60 flex items-center justify-between gap-2">' +
-                            '<span class="font-mono text-xs sm:text-sm font-extrabold text-rose-400">-' + formatRupiah(p.totalKeluar) + '</span>' +
-                            '<span class="text-[9px] font-mono text-neutral-400 bg-neutral-800/80 px-1.5 py-0.5 rounded">' + p.count + ' tx</span>' +
+                            '<span class="font-mono text-xs sm:text-sm font-extrabold ' + valColor + '">' + valFormatted + '</span>' +
+                            '<span class="text-[9px] font-mono text-neutral-400 bg-neutral-800/80 px-1.5 py-0.5 rounded">' + txCount + ' tx</span>' +
                         '</div>' +
                     '</div>';
             });
 
             container.innerHTML = html;
+        }
+
+        // Switch Flow Mode: Keluar vs Masuk
+        function setFlowMode(mode, scrollDown) {
+            if (mode !== 'keluar' && mode !== 'masuk') return;
+            currentFlowMode = mode;
+
+            // Update mini buttons on Donut chart
+            var btnDonutKeluar = document.getElementById('donut-flow-keluar');
+            var btnDonutMasuk = document.getElementById('donut-flow-masuk');
+            if (btnDonutKeluar && btnDonutMasuk) {
+                if (mode === 'keluar') {
+                    btnDonutKeluar.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer bg-neutral-800 text-rose-400 shadow-sm flex items-center gap-1';
+                    btnDonutMasuk.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer text-neutral-400 hover:text-white flex items-center gap-1';
+                } else {
+                    btnDonutKeluar.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer text-neutral-400 hover:text-white flex items-center gap-1';
+                    btnDonutMasuk.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer bg-neutral-800 text-emerald-400 shadow-sm flex items-center gap-1';
+                }
+            }
+
+            // Update buttons in Section 3
+            var btnSecKeluar = document.getElementById('btn-flow-keluar');
+            var btnSecMasuk = document.getElementById('btn-flow-masuk');
+            if (btnSecKeluar && btnSecMasuk) {
+                if (mode === 'keluar') {
+                    btnSecKeluar.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-neutral-800 text-rose-400 shadow-sm flex items-center gap-1.5';
+                    btnSecMasuk.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer text-neutral-400 hover:text-white flex items-center gap-1.5';
+                } else {
+                    btnSecKeluar.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer text-neutral-400 hover:text-white flex items-center gap-1.5';
+                    btnSecMasuk.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-neutral-800 text-emerald-400 shadow-sm flex items-center gap-1.5';
+                }
+            }
+
+            // Update top stat cards active class
+            var statCardMasuk = document.querySelector('.stat-card-masuk');
+            var statCardKeluar = document.querySelector('.stat-card-keluar');
+            if (statCardMasuk && statCardKeluar) {
+                if (mode === 'masuk') {
+                    statCardMasuk.classList.add('active-flow');
+                    statCardKeluar.classList.remove('active-flow');
+                } else {
+                    statCardKeluar.classList.add('active-flow');
+                    statCardMasuk.classList.remove('active-flow');
+                }
+            }
+
+            // Update headers & labels in section 3
+            var thProkerTotal = document.getElementById('th-proker-total');
+            var thProkerPorsi = document.getElementById('th-proker-porsi');
+            var thCatTitle = document.getElementById('th-cat-title');
+            var thCatTotal = document.getElementById('th-cat-total');
+            var thCatPorsi = document.getElementById('th-cat-porsi');
+
+            if (mode === 'masuk') {
+                if (thProkerTotal) thProkerTotal.innerText = 'Total Pemasukan';
+                if (thProkerPorsi) thProkerPorsi.innerText = 'Porsi Pemasukan';
+                if (thCatTitle) thCatTitle.innerText = 'Kategori Pemasukan';
+                if (thCatTotal) thCatTotal.innerText = 'Total Pemasukan';
+                if (thCatPorsi) thCatPorsi.innerText = 'Porsi Pemasukan';
+            } else {
+                if (thProkerTotal) thProkerTotal.innerText = 'Total Pengeluaran';
+                if (thProkerPorsi) thProkerPorsi.innerText = 'Porsi Terhadap Kas';
+                if (thCatTitle) thCatTitle.innerText = 'Kategori Pengeluaran';
+                if (thCatTotal) thCatTotal.innerText = 'Total Nominal';
+                if (thCatPorsi) thCatPorsi.innerText = 'Porsi Realisasi';
+            }
+
+            // Sync titles in setRekapView
+            setRekapView(currentRekapView);
+
+            // Re-render data
+            renderReportData(true);
+
+            if (scrollDown) {
+                var anchor = document.getElementById('section-rekap-anchor');
+                if (anchor) {
+                    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
         }
 
         // Switch View: Kegiatan vs Kategori
@@ -2475,17 +2737,29 @@
                 if (btnKategori) btnKategori.classList.remove('active');
                 if (viewKegiatan) viewKegiatan.classList.remove('hidden');
                 if (viewKategori) viewKategori.classList.add('hidden');
-                if (titleEl) titleEl.innerText = 'Pengeluaran Kegiatan Terbanyak';
-                if (subEl) subEl.innerText = 'Peringkat alokasi belanja terbesar program kerja & agenda LDK IMIP';
-                if (iconEl) iconEl.className = 'fa-solid fa-fire text-amber-400';
+                if (currentFlowMode === 'masuk') {
+                    if (titleEl) titleEl.innerText = 'Pemasukan Kegiatan Terbanyak';
+                    if (subEl) subEl.innerText = 'Peringkat perolehan dana masuk terbesar program kerja & agenda LDK IMIP';
+                    if (iconEl) iconEl.className = 'fa-solid fa-hand-holding-dollar text-emerald-400';
+                } else {
+                    if (titleEl) titleEl.innerText = 'Pengeluaran Kegiatan Terbanyak';
+                    if (subEl) subEl.innerText = 'Peringkat alokasi belanja terbesar program kerja & agenda LDK IMIP';
+                    if (iconEl) iconEl.className = 'fa-solid fa-fire text-amber-400';
+                }
             } else {
                 if (btnKegiatan) btnKegiatan.classList.remove('active');
                 if (btnKategori) btnKategori.classList.add('active');
                 if (viewKegiatan) viewKegiatan.classList.add('hidden');
                 if (viewKategori) viewKategori.classList.remove('hidden');
-                if (titleEl) titleEl.innerText = 'Rekapitulasi Kategori Belanja';
-                if (subEl) subEl.innerText = 'Rincian pengeluaran dana kas berdasarkan pos belanja operasional';
-                if (iconEl) iconEl.className = 'fa-solid fa-shapes text-orange-400';
+                if (currentFlowMode === 'masuk') {
+                    if (titleEl) titleEl.innerText = 'Rekapitulasi Kategori Pemasukan';
+                    if (subEl) subEl.innerText = 'Rincian sumber aliran kas masuk (Donasi, Kas, Iuran Kepanitiaan, Dana Operasional, dll)';
+                    if (iconEl) iconEl.className = 'fa-solid fa-money-bill-trend-up text-emerald-400';
+                } else {
+                    if (titleEl) titleEl.innerText = 'Rekapitulasi Kategori Belanja';
+                    if (subEl) subEl.innerText = 'Rincian pengeluaran dana kas berdasarkan pos belanja operasional';
+                    if (iconEl) iconEl.className = 'fa-solid fa-shapes text-orange-400';
+                }
             }
             updateSummaryCountBadge();
         }
@@ -2552,10 +2826,11 @@
                 return true;
             });
 
-            renderProkerListDOM(filtered, latestGrandTotalKeluar);
+            var grandTotal = currentFlowMode === 'masuk' ? latestGrandTotalMasuk : latestGrandTotalKeluar;
+            renderProkerListDOM(filtered, grandTotal);
         }
 
-        function renderProkerListDOM(prokers, grandTotalKeluar) {
+        function renderProkerListDOM(prokers, grandTotal) {
             var mobileList = document.getElementById('mobile-proker-list');
             var tbody = document.getElementById('report-proker-table-body');
             var tfoot = document.getElementById('report-proker-table-foot');
@@ -2568,18 +2843,26 @@
                 return;
             }
 
+            var isIncome = currentFlowMode === 'masuk';
             var totalTrx = 0;
-            var totalSpendingFiltered = 0;
+            var totalFlowFiltered = 0;
             var mobileHtml = '';
             var desktopHtml = '';
 
             prokers.forEach(function(p, idx) {
-                totalTrx += p.count;
-                totalSpendingFiltered += p.totalKeluar;
+                var flowVal = isIncome ? p.totalMasuk : p.totalKeluar;
+                var txCount = isIncome ? p.countMasuk : p.countKeluar;
+                totalTrx += txCount;
+                totalFlowFiltered += flowVal;
 
-                var percent = grandTotalKeluar > 0 ? ((p.totalKeluar / grandTotalKeluar) * 100).toFixed(1) : '0';
+                var percent = grandTotal > 0 ? ((flowVal / grandTotal) * 100).toFixed(1) : '0';
                 var rankNumber = idx + 1;
-                var rankBadgeClass = rankNumber === 1 ? 'rank-gold' : (rankNumber === 2 ? 'rank-silver' : (rankNumber === 3 ? 'rank-bronze' : 'rank-default'));
+                var rankBadgeClass = '';
+                if (isIncome) {
+                    rankBadgeClass = rankNumber === 1 ? 'rank-emerald-1' : (rankNumber === 2 ? 'rank-emerald-2' : (rankNumber === 3 ? 'rank-emerald-3' : 'rank-default'));
+                } else {
+                    rankBadgeClass = rankNumber === 1 ? 'rank-gold' : (rankNumber === 2 ? 'rank-silver' : (rankNumber === 3 ? 'rank-bronze' : 'rank-default'));
+                }
                 var rankText = rankNumber === 1 ? '🥇 #1' : (rankNumber === 2 ? '🥈 #2' : (rankNumber === 3 ? '🥉 #3' : '#' + rankNumber));
 
                 var jenisBadge = (p.jenis || '').toLowerCase().includes('agenda')
@@ -2587,10 +2870,13 @@
                     : '<span class="text-[8px] sm:text-[8.5px] font-mono px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-orange-500/10 text-orange-400 border border-orange-500/25">Proker</span>';
 
                 var cleanDivisi = (p.divisi || '-').replace(/^(Departemen|Divisi|Biro)\s+/i, '');
+                var valFormatted = (isIncome ? '+' : '-') + formatRupiah(flowVal);
+                var valColor = isIncome ? 'text-emerald-400' : 'text-rose-400';
+                var barGradient = isIncome ? 'from-emerald-500 via-teal-500 to-cyan-400' : 'from-orange-500 via-amber-500 to-yellow-400';
 
                 // 1. Mobile Card Item
                 mobileHtml += 
-                    '<div class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2.5 shadow-xs transition-all hover:border-[#FF7300]/40 group">' +
+                    '<div class="mobile-cat-card p-3 rounded-xl flex flex-col gap-2.5 shadow-xs transition-all hover:border-[#FF7300]/40 group" data-proker="' + p.id + '">' +
                         '<div class="flex items-start justify-between gap-2">' +
                             '<div class="flex items-start gap-2 min-w-0 pr-1">' +
                                 '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="rank-badge ' + rankBadgeClass + ' shrink-0 mt-0.5 cursor-pointer" title="Lihat Rincian Kegiatan">' + rankText + '</button>' +
@@ -2603,14 +2889,14 @@
                                 '</div>' +
                             '</div>' +
                             '<div class="text-right shrink-0">' +
-                                '<span class="t-val text-rose-400 font-mono font-bold block">-' + formatRupiah(p.totalKeluar) + '</span>' +
-                                '<span class="text-[9px] font-mono text-neutral-400">' + p.count + ' transaksi</span>' +
+                                '<span class="t-val ' + valColor + ' font-mono font-bold block">' + valFormatted + '</span>' +
+                                '<span class="text-[9px] font-mono text-neutral-400">' + txCount + ' transaksi</span>' +
                             '</div>' +
                         '</div>' +
                         '<div class="flex items-center justify-between gap-2 pt-2 border-t border-neutral-800/60">' +
                             '<div class="flex items-center gap-2 flex-grow min-w-0">' +
                                 '<div class="w-full progress-track rounded-full h-1.5 overflow-hidden">' +
-                                    '<div class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(p.totalKeluar > 0 ? 2 : 0, percent)) + '%;"></div>' +
+                                    '<div class="bg-gradient-to-r ' + barGradient + ' h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(flowVal > 0 ? 2 : 0, percent)) + '%;"></div>' +
                                 '</div>' +
                                 '<span class="t-sub-mono shrink-0">' + percent + '%</span>' +
                             '</div>' +
@@ -2627,7 +2913,7 @@
 
                 // 2. Desktop Table Row
                 desktopHtml += 
-                    '<tr class="hover:bg-neutral-800/40 transition-colors group">' +
+                    '<tr class="hover:bg-neutral-800/40 transition-colors group" data-proker="' + p.id + '">' +
                         '<td class="text-center">' +
                             '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="rank-badge ' + rankBadgeClass + ' cursor-pointer">' + rankText + '</button>' +
                         '</td>' +
@@ -2640,19 +2926,19 @@
                             '</div>' +
                         '</td>' +
                         '<td><span class="text-xs text-neutral-300 truncate max-w-[160px] block" title="' + p.divisi + '">' + cleanDivisi + '</span></td>' +
-                        '<td class="text-center t-sub-mono">' + p.count + ' tx</td>' +
-                        '<td class="text-right t-val text-rose-400 font-mono font-bold">-' + formatRupiah(p.totalKeluar) + '</td>' +
+                        '<td class="text-center t-sub-mono">' + txCount + ' tx</td>' +
+                        '<td class="text-right t-val ' + valColor + ' font-mono font-bold">' + valFormatted + '</td>' +
                         '<td>' +
                             '<div class="flex items-center gap-2">' +
                                 '<div class="w-full progress-track rounded-full h-1.5 overflow-hidden">' +
-                                    '<div class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(p.totalKeluar > 0 ? 2 : 0, percent)) + '%;"></div>' +
+                                    '<div class="bg-gradient-to-r ' + barGradient + ' h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(flowVal > 0 ? 2 : 0, percent)) + '%;"></div>' +
                                 '</div>' +
                                 '<span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span>' +
                             '</div>' +
                         '</td>' +
                         '<td class="text-center">' +
                             '<div class="inline-flex items-center gap-1.5">' +
-                                '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="text-[9.5px] font-mono font-bold px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white transition-colors cursor-pointer" title="Lihat Rincian Pengeluaran">' +
+                                '<button type="button" onclick="openProkerDetailModal(\'' + p.id + '\')" class="text-[9.5px] font-mono font-bold px-2 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 hover:text-white transition-colors cursor-pointer" title="Lihat Rincian">' +
                                     'Rincian' +
                                 '</button>' +
                                 '<a href="detail-kegiatan.html?id=' + encodeURIComponent(p.id) + '" target="_blank" class="text-[9.5px] font-mono font-bold px-2 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 text-[#FF7300] border border-orange-500/30 hover:border-orange-500 transition-colors flex items-center gap-1" title="Buka Detail Laporan Lengkap">' +
@@ -2666,13 +2952,16 @@
             if (mobileList) mobileList.innerHTML = mobileHtml;
             if (tbody) tbody.innerHTML = desktopHtml;
             if (tfoot) {
-                var pctFiltered = grandTotalKeluar > 0 ? ((totalSpendingFiltered / grandTotalKeluar) * 100).toFixed(1) : '0';
+                var pctFiltered = grandTotal > 0 ? ((totalFlowFiltered / grandTotal) * 100).toFixed(1) : '0';
+                var valColor = isIncome ? 'text-emerald-400' : 'text-rose-400';
+                var valTotalFormatted = (isIncome ? '+' : '-') + formatRupiah(totalFlowFiltered);
+                var porsiLabel = isIncome ? '% dari Pemasukan' : '% dari Kas';
                 tfoot.innerHTML = 
                     '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
-                        '<td colspan="3" class="text-left pl-3.5 py-3 t-label">Total Realisasi Terfilter (' + prokers.length + ' Kegiatan)</td>' +
+                        '<td colspan="3" class="text-left pl-3.5 py-3 t-label">Total Terfilter (' + prokers.length + ' Kegiatan)</td>' +
                         '<td class="text-center t-sub-mono font-bold">' + totalTrx + ' transaksi</td>' +
-                        '<td class="text-right t-val text-rose-500 dark:text-rose-400 font-bold">-' + formatRupiah(totalSpendingFiltered) + '</td>' +
-                        '<td class="t-sub-mono font-bold">' + pctFiltered + '% dari Kas</td>' +
+                        '<td class="text-right t-val ' + valColor + ' font-bold">' + valTotalFormatted + '</td>' +
+                        '<td class="t-sub-mono font-bold">' + pctFiltered + porsiLabel + '</td>' +
                         '<td class="text-center t-sub-mono">-</td>' +
                     '</tr>';
             }
@@ -2689,29 +2978,45 @@
             var modal = document.getElementById('prokerDetailModal');
             if (!modal) return;
 
+            var isIncome = currentFlowMode === 'masuk';
+            var flowVal = isIncome ? p.totalMasuk : p.totalKeluar;
+            var txCount = isIncome ? p.countMasuk : p.countKeluar;
+            var txList = isIncome ? p.txMasukList : p.txKeluarList;
+            var grandTotal = isIncome ? latestGrandTotalMasuk : latestGrandTotalKeluar;
+
             document.getElementById('modal-proker-title').innerText = p.nama;
-            document.getElementById('modal-proker-subtitle').innerText = (p.jenis || 'Program Kerja') + ' • ' + (p.divisi || 'Divisi Pelaksana');
-            document.getElementById('modal-proker-total').innerText = '-' + formatRupiah(p.totalKeluar);
+            document.getElementById('modal-proker-subtitle').innerText = (p.jenis || 'Program Kerja') + ' • ' + (p.divisi || 'Divisi Pelaksana') + (isIncome ? ' • Arus Pemasukan' : ' • Arus Belanja');
             
-            var percent = latestGrandTotalKeluar > 0 ? ((p.totalKeluar / latestGrandTotalKeluar) * 100).toFixed(1) : '0';
+            var totalEl = document.getElementById('modal-proker-total');
+            if (totalEl) {
+                totalEl.innerText = (isIncome ? '+' : '-') + formatRupiah(flowVal);
+                totalEl.className = 'text-base sm:text-lg font-black font-mono ' + (isIncome ? 'text-emerald-400' : 'text-rose-400');
+            }
+            
+            var percent = grandTotal > 0 ? ((flowVal / grandTotal) * 100).toFixed(1) : '0';
             document.getElementById('modal-proker-porsi').innerText = percent + '%';
-            document.getElementById('modal-proker-count').innerText = p.count + ' tx';
+            document.getElementById('modal-proker-count').innerText = txCount + ' tx';
 
             var listEl = document.getElementById('modal-proker-tx-list');
             if (listEl) {
                 listEl.innerHTML = '';
-                if (!p.txList || p.txList.length === 0) {
-                    listEl.innerHTML = '<div class="py-6 text-center t-sub text-xs font-mono">Belum ada transaksi pengeluaran pada kegiatan ini.</div>';
+                if (!txList || txList.length === 0) {
+                    listEl.innerHTML = '<div class="py-6 text-center t-sub text-xs font-mono">Belum ada transaksi ' + (isIncome ? 'pemasukan' : 'pengeluaran') + ' pada kegiatan ini.</div>';
                 } else {
-                    var sortedTx = p.txList.slice().sort(function(a, b) {
+                    var sortedTx = txList.slice().sort(function(a, b) {
                         return (parseFloat(b.nominal) || 0) - (parseFloat(a.nominal) || 0);
                     });
                     sortedTx.forEach(function(t, idx) {
                         var item = document.createElement('div');
                         item.className = 'modal-tx-item p-2.5 rounded-xl flex items-center justify-between gap-2.5 transition-all shadow-2xs';
-                        var ket = t.uraian || t.keterangan || t.kategori || 'Belanja Kegiatan';
+                        var ket = t.uraian || t.keterangan || t.kategori || (isIncome ? 'Pemasukan Kas' : 'Belanja Kegiatan');
                         var metIcon = (t.metode || '').toLowerCase().indexOf('gopay') !== -1 ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
                         var buktiBtn = t.bukti ? '<a href="' + t.bukti + '" target="_blank" onclick="event.stopPropagation();" class="text-[9.5px] font-mono text-orange-400 hover:text-white px-2 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 shrink-0" title="Lihat Bukti Nota"><i class="fa-solid fa-receipt text-[8.5px]"></i> Nota</a>' : '';
+
+                        var badgeColor = isIncome 
+                            ? 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' 
+                            : 'text-rose-400 bg-rose-500/15 border-rose-500/30';
+                        var badgeVal = (isIncome ? '+' : '-') + formatRupiah(t.nominal);
 
                         item.innerHTML = 
                             '<div class="flex items-center gap-2 min-w-0 pr-1">' +
@@ -2721,14 +3026,14 @@
                                     '<div class="flex items-center gap-1.5 text-[10px] font-mono modal-tx-sub text-slate-400 mt-0.5 flex-wrap">' +
                                         '<span>' + formatDateIndo(t.tanggal) + '</span>' +
                                         '<span>•</span>' +
-                                        '<span class="text-slate-300">' + (t.kategori || 'Belanja') + '</span>' +
+                                        '<span class="text-slate-300">' + (t.kategori || (isIncome ? 'Pemasukan' : 'Belanja')) + '</span>' +
                                         '<span>•</span>' +
                                         '<span class="inline-flex items-center gap-1 font-semibold text-slate-300"><i class="fa-solid ' + metIcon + ' text-[9px]"></i> ' + (t.metode || 'Tunai') + '</span>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
                             '<div class="flex items-center gap-2 shrink-0 text-right">' +
-                                '<span class="modal-tx-badge px-2 py-1 rounded-lg text-xs font-bold font-mono text-rose-400 bg-rose-500/15 border border-rose-500/30">-' + formatRupiah(t.nominal) + '</span>' +
+                                '<span class="modal-tx-badge px-2 py-1 rounded-lg text-xs font-bold font-mono border ' + badgeColor + '">' + badgeVal + '</span>' +
                                 buktiBtn +
                             '</div>';
                         listEl.appendChild(item);
@@ -2752,13 +3057,14 @@
         }
 
         // RENDER BOTH MOBILE FINTECH CARDS AND DESKTOP WIDE TABLE (KATEGORI)
-        function renderResponsiveDataDisplay(categories, grandTotalKeluar) {
+        function renderResponsiveDataDisplay(categories, grandTotal) {
             var mobileList = document.getElementById('mobile-category-list');
             var tbody = document.getElementById('report-table-body');
             var tfoot = document.getElementById('report-table-foot');
 
+            var isIncome = currentFlowMode === 'masuk';
             if (!categories || categories.length === 0) {
-                var emptyHtml = '<div class="p-6 text-center t-sub"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada pengeluaran yang tercatat pada periode ini.</div>';
+                var emptyHtml = '<div class="p-6 text-center t-sub"><i class="fa-solid fa-folder-open text-base mb-1 block"></i>Tidak ada ' + (isIncome ? 'pemasukan' : 'pengeluaran') + ' yang tercatat pada periode ini.</div>';
                 if (mobileList) mobileList.innerHTML = emptyHtml;
                 if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 t-sub">' + emptyHtml + '</td></tr>';
                 if (tfoot) tfoot.innerHTML = '';
@@ -2766,14 +3072,20 @@
             }
 
             var totalTransactions = 0;
+            var totalNominal = 0;
             var mobileCardsHtml = '';
             var desktopRowsHtml = '';
 
             categories.forEach(function(cat, index) {
                 totalTransactions += cat.count;
-                var percent = grandTotalKeluar > 0 ? ((cat.total / grandTotalKeluar) * 100).toFixed(1) : 0;
+                totalNominal += cat.total;
+                var percent = grandTotal > 0 ? ((cat.total / grandTotal) * 100).toFixed(1) : 0;
                 var dominantMetode = cat.gopay >= cat.tunai ? 'GoPay (' + cat.gopay + 'x)' : 'Tunai (' + cat.tunai + 'x)';
                 var metodeIcon = cat.gopay >= cat.tunai ? 'fa-mobile-screen text-sky-400' : 'fa-money-bill-wave text-emerald-400';
+                var valFormatted = (isIncome ? '+' : '-') + formatRupiah(cat.total);
+                var valColor = isIncome ? 'text-emerald-400' : 'text-rose-400';
+                var barGradient = isIncome ? 'from-emerald-500 to-teal-400' : 'from-orange-500 to-amber-400';
+                var dotColor = isIncome ? 'bg-emerald-400' : 'bg-[#FF7300]';
 
                 // 1. Mobile Fintech Card Item (Clicking card changes indicator, clicking number badge opens rincian)
                 mobileCardsHtml += 
@@ -2784,7 +3096,7 @@
                                 '<span class="t-body truncate group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span>' +
                             '</div>' +
                             '<div class="flex items-center gap-1.5 shrink-0">' +
-                                '<span class="t-val">' + formatRupiah(cat.total) + '</span>' +
+                                '<span class="t-val ' + valColor + '">' + valFormatted + '</span>' +
                                 '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="w-6 h-6 rounded-md flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer" title="Buka Rincian">' +
                                     '<i class="fa-solid fa-chevron-right text-[10px]"></i>' +
                                 '</button>' +
@@ -2793,7 +3105,7 @@
                         '<div class="flex items-center justify-between gap-2.5 pt-1.5 border-t border-neutral-800/50">' +
                             '<div class="flex items-center gap-2 flex-grow min-w-0">' +
                                 '<div class="w-full progress-track rounded-full h-1.5 overflow-hidden">' +
-                                    '<div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div>' +
+                                    '<div class="bg-gradient-to-r ' + barGradient + ' h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div>' +
                                 '</div>' +
                                 '<span class="t-sub-mono shrink-0">' + percent + '%</span>' +
                             '</div>' +
@@ -2812,10 +3124,10 @@
                     '<td class="text-center">' +
                         '<button type="button" onclick="event.stopPropagation(); openCategoryModal(\'' + cat.nama.replace(/'/g, "\\'") + '\')" class="t-sub-mono font-bold text-[#FF7300] bg-orange-500/15 hover:bg-[#FF7300] hover:text-white px-2 py-0.5 rounded-lg border border-[#FF7300]/30 transition-colors cursor-pointer text-xs" title="Buka Rincian">' + (index + 1) + '</button>' +
                     '</td>' +
-                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FF7300] shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
+                    '<td><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full ' + dotColor + ' shrink-0"></span><span class="t-body group-hover:text-[#FF7300] transition-colors">' + cat.nama + '</span></div></td>' +
                     '<td class="text-center t-sub-mono">' + cat.count + ' transaksi</td>' +
-                    '<td class="text-right t-val">' + formatRupiah(cat.total) + '</td>' +
-                    '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r from-orange-500 to-amber-400 h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
+                    '<td class="text-right t-val ' + valColor + ' font-mono font-bold">' + valFormatted + '</td>' +
+                    '<td><div class="flex items-center gap-2"><div class="w-full progress-track rounded-full h-1.5 overflow-hidden"><div class="bg-gradient-to-r ' + barGradient + ' h-1.5 rounded-full" style="width: ' + Math.min(100, Math.max(2, percent)) + '%;"></div></div><span class="t-sub-mono w-10 text-right shrink-0">' + percent + '%</span></div></td>' +
                     '<td class="text-center"><span class="t-sub-mono meta-badge inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md"><i class="fa-solid ' + metodeIcon + ' text-[9px]"></i><span>' + dominantMetode + '</span></span></td>' +
                     '</tr>';
             });
@@ -2829,12 +3141,17 @@
             }
 
             if (tfoot) {
-                tfoot.innerHTML = '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
-                    '<td colspan="2" class="text-left pl-3.5 py-3 t-label">Total Keseluruhan</td>' +
-                    '<td class="text-center t-sub-mono font-bold">' + totalTransactions + ' transaksi</td>' +
-                    '<td class="text-right t-val text-rose-500 dark:text-rose-400">' + formatRupiah(grandTotalKeluar) + '</td>' +
-                    '<td class="t-sub-mono font-bold">100% Alokasi</td>' +
-                    '<td class="text-center t-sub-mono">-</td>' +
+                var pctFiltered = grandTotal > 0 ? ((totalNominal / grandTotal) * 100).toFixed(1) : '0';
+                var valColor = isIncome ? 'text-emerald-400' : 'text-rose-400';
+                var valTotalFormatted = (isIncome ? '+' : '-') + formatRupiah(totalNominal);
+                var porsiLabel = isIncome ? '% Pemasukan' : '% Realisasi';
+                tfoot.innerHTML = 
+                    '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
+                        '<td colspan="2" class="text-left pl-3.5 py-3 t-label">Total Kategori Terfilter (' + categories.length + ' Pos)</td>' +
+                        '<td class="text-center t-sub-mono font-bold">' + totalTransactions + ' transaksi</td>' +
+                        '<td class="text-right t-val ' + valColor + ' font-bold">' + valTotalFormatted + '</td>' +
+                        '<td class="t-sub-mono font-bold">' + pctFiltered + porsiLabel + '</td>' +
+                        '<td class="text-center t-sub-mono">-</td>' +
                     '</tr>';
             }
         }
