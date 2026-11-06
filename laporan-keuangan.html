@@ -1148,7 +1148,7 @@
                                 <th>Divisi Pelaksana</th>
                                 <th class="text-center">Jumlah Transaksi</th>
                                 <th class="text-right" id="th-proker-total">Total Pengeluaran</th>
-                                <th class="w-44" id="th-proker-porsi">Porsi Terhadap Kas</th>
+                                <th class="w-48" id="th-proker-porsi">Persentase terhadap Total Pengeluaran</th>
                                 <th class="text-center w-32">Aksi</th>
                             </tr>
                         </thead>
@@ -1331,7 +1331,7 @@
                     <span id="modal-proker-total" class="text-sm sm:text-base font-bold font-mono text-rose-400">Rp0</span>
                 </div>
                 <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
-                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider">Porsi Terhadap Kas</span>
+                    <span class="modal-text-label text-[10px] font-bold text-slate-300 uppercase tracking-wider" id="modal-proker-porsi-label">Persentase terhadap Total Pengeluaran</span>
                     <span id="modal-proker-porsi" class="text-sm sm:text-base font-bold font-mono text-[#FF7300]">0%</span>
                 </div>
                 <div class="modal-stat-card p-2.5 rounded-xl flex flex-col gap-0.5">
@@ -2730,13 +2730,13 @@
 
             if (mode === 'masuk') {
                 if (thProkerTotal) thProkerTotal.innerText = 'Total Pemasukan';
-                if (thProkerPorsi) thProkerPorsi.innerText = 'Porsi Pemasukan';
+                if (thProkerPorsi) thProkerPorsi.innerText = 'Persentase terhadap Total Pemasukan';
                 if (thCatTitle) thCatTitle.innerText = 'Kategori Pemasukan';
                 if (thCatTotal) thCatTotal.innerText = 'Total Pemasukan';
-                if (thCatPorsi) thCatPorsi.innerText = 'Porsi Pemasukan';
+                if (thCatPorsi) thCatPorsi.innerText = 'Persentase terhadap Total Pemasukan';
             } else {
                 if (thProkerTotal) thProkerTotal.innerText = 'Total Pengeluaran';
-                if (thProkerPorsi) thProkerPorsi.innerText = 'Porsi Terhadap Kas';
+                if (thProkerPorsi) thProkerPorsi.innerText = 'Persentase terhadap Total Pengeluaran';
                 if (thCatTitle) thCatTitle.innerText = 'Kategori Pengeluaran';
                 if (thCatTotal) thCatTotal.innerText = 'Total Nominal';
                 if (thCatPorsi) thCatPorsi.innerText = 'Porsi Realisasi';
@@ -2990,7 +2990,7 @@
                 var pctFiltered = grandTotal > 0 ? ((totalFlowFiltered / grandTotal) * 100).toFixed(1) : '0';
                 var valColor = isIncome ? 'text-emerald-400' : 'text-rose-400';
                 var valTotalFormatted = (isIncome ? '+' : '-') + formatRupiah(totalFlowFiltered);
-                var porsiLabel = isIncome ? '% dari Pemasukan' : '% dari Kas';
+                var porsiLabel = isIncome ? ' % Total Pemasukan' : ' % Total Pengeluaran';
                 tfoot.innerHTML = 
                     '<tr class="bg-neutral-900/40 dark:bg-neutral-950/80 border-t border-neutral-700/50">' +
                         '<td colspan="3" class="text-left pl-3.5 py-3 t-label">Total Terfilter (' + prokers.length + ' Kegiatan)</td>' +
@@ -3026,6 +3026,11 @@
             if (totalEl) {
                 totalEl.innerText = (isIncome ? '+' : '-') + formatRupiah(flowVal);
                 totalEl.className = 'text-base sm:text-lg font-black font-mono ' + (isIncome ? 'text-emerald-400' : 'text-rose-400');
+            }
+
+            var modalPorsiLbl = document.getElementById('modal-proker-porsi-label');
+            if (modalPorsiLbl) {
+                modalPorsiLbl.innerText = isIncome ? 'Persentase terhadap Total Pemasukan' : 'Persentase terhadap Total Pengeluaran';
             }
             
             var percent = grandTotal > 0 ? ((flowVal / grandTotal) * 100).toFixed(1) : '0';
