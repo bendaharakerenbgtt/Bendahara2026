@@ -489,6 +489,50 @@
             body:has(textarea:focus) .mobile-bottom-nav {
                 display: none !important;
             }
+
+            /* Mobile Modal Floating Form Overrides */
+            #transaction-forms-wrapper.mobile-modal-active {
+                display: flex !important;
+                position: fixed !important;
+                inset: 0 !important;
+                z-index: 55 !important;
+                background: rgba(6, 10, 18, 0.85) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+                align-items: flex-end !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                animation: fadeInModal 0.22s ease-out forwards;
+            }
+            #transaction-forms-wrapper.mobile-modal-active #ledger-panel-in,
+            #transaction-forms-wrapper.mobile-modal-active #ledger-panel-out {
+                width: 100% !important;
+                max-height: 88vh !important;
+                border-top-left-radius: 1.5rem !important;
+                border-top-right-radius: 1.5rem !important;
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+                border-width: 1px 0 0 0 !important;
+                border-color: rgba(255, 255, 255, 0.15) !important;
+                overflow-y: auto !important;
+                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85) !important;
+                animation: slideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            body.overflow-hidden-mobile {
+                overflow: hidden !important;
+            }
+            body.overflow-hidden-mobile #mobile-fab-container {
+                display: none !important;
+            }
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUpSheet {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
     </style>
 </head>
@@ -537,18 +581,32 @@
 
     <main class="max-w-4xl mx-auto px-3.5 sm:px-6 pt-0 pb-4 sm:py-5 w-full flex-grow flex flex-col gap-2.5 sm:gap-4">
         
-        <!-- MICRO MOBILE TOP BAR (App Header on Mobile) -->
-        <div class="flex sm:hidden items-center justify-between pt-2 pb-1.5 border-b border-neutral-900/80 shrink-0">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-[10px] font-mono font-bold text-emerald-400 tracking-wider uppercase">TRANSAKSI</span>
+        <!-- SCREEN TITLE HEADER (SISI ADMIN MODEL RESMI) -->
+        <div class="flex items-center justify-between gap-3 pt-1 pb-2 border-b border-neutral-900/80">
+            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-sky-500/20 via-sky-500/10 to-transparent border border-sky-500/35 flex items-center justify-center text-sm sm:text-base shadow-xs shrink-0 text-sky-400">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <h1 class="text-sm sm:text-base font-extrabold text-neutral-100 font-sans tracking-tight leading-tight flex items-center gap-1.5 truncate">
+                        <span>Semua Transaksi</span> <span class="text-sky-400 font-mono text-xs sm:text-sm">IMIP</span>
+                    </h1>
+                    <p class="text-[9.5px] sm:text-[10.5px] text-neutral-400 font-mono mt-0.5 truncate">Pencatatan Arus Kas Masuk, Belanja Divisi &amp; Mutasi</p>
+                </div>
             </div>
-            <span class="text-[8.5px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md font-bold">
-                2026
-            </span>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-[10px] font-mono font-bold text-sky-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>ADMIN LIVE</span>
+                </span>
+                <span class="text-[9px] font-mono text-neutral-400 bg-neutral-900 border border-neutral-800 px-2 py-1 rounded-lg font-bold">
+                    2026
+                </span>
+            </div>
         </div>
 
-        <div class="w-full grid grid-cols-2 gap-1.5 p-1 bg-neutral-950 border border-neutral-900 rounded-xl shadow-xs ledger-tab-container">
+        <!-- LEDGER TAB SWITCHER (DESKTOP VIEW) -->
+        <div class="hidden sm:grid w-full grid-cols-2 gap-1.5 p-1 bg-neutral-950 border border-neutral-900 rounded-xl shadow-xs ledger-tab-container">
             <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
                 <span class="text-xs">⬇️</span>
                 <span>Pemasukan<span class="hidden sm:inline"> / Arus Masuk</span></span>
@@ -561,7 +619,8 @@
 
         <div class="flex flex-col gap-2.5 sm:gap-4">
 
-            <div id="ledger-panel-placeholder" class="bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-2.5 sm:p-4 text-center flex items-center justify-center gap-2.5 shadow-xs">
+            <!-- DESKTOP PLACEHOLDER -->
+            <div id="ledger-panel-placeholder" class="hidden sm:flex bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-2.5 sm:p-4 text-center items-center justify-center gap-2.5 shadow-xs">
                 <div class="w-7 h-7 rounded-full bg-cyan-950/20 border border-cyan-800/20 flex items-center justify-center text-xs text-cyan-400 shrink-0">
                     📊
                 </div>
@@ -573,11 +632,29 @@
                 </div>
             </div>
             
-            <div id="ledger-panel-in" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex flex-col gap-3.5 sm:gap-4 shadow-xs">
-                <div>
-                    <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">PEMASUKAN</span>
-                    <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pemasukan Baru</h2>
-                </div>
+            <!-- TRANSACTION FORMS WRAPPER (RESPONSIVE: INLINE DESKTOP / FLOATING MODAL MOBILE) -->
+            <div id="transaction-forms-wrapper" onclick="if(event.target === this) closeTransactionForm();" class="hidden sm:block w-full">
+                
+                <!-- PANEL PEMASUKAN -->
+                <div id="ledger-panel-in" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex-col gap-3.5 sm:gap-4 shadow-xs">
+                    <!-- Mobile Drag Indicator -->
+                    <div class="w-10 h-1 bg-neutral-700/80 rounded-full mx-auto sm:hidden mb-1"></div>
+                    
+                    <!-- Panel Header with Close Button -->
+                    <div class="flex items-center justify-between pb-2.5 border-b border-neutral-800/80">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-cyan-950/60 border border-cyan-800/50 flex items-center justify-center text-xs text-cyan-400">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </span>
+                            <div>
+                                <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">PEMASUKAN</span>
+                                <h2 class="text-xs sm:text-sm font-bold text-neutral-200 font-sans leading-tight">Buat Pemasukan Baru</h2>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeTransactionForm()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center text-sm transition-all cursor-pointer" title="Tutup Formulir">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                 
                 <div class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1.5">
@@ -800,10 +877,25 @@
                 </div>
             </div>
 
-            <div id="ledger-panel-out" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex flex-col gap-3.5 sm:gap-4 shadow-xs">
-                <div>
-                    <span class="text-[9px] font-mono tracking-widest text-rose-400 uppercase font-black block">PENGELUARAN</span>
-                    <h2 class="text-xs font-bold text-neutral-300 font-sans mt-0.5">Buat Pengeluaran Baru</h2>
+            <!-- PANEL PENGELUARAN -->
+            <div id="ledger-panel-out" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex-col gap-3.5 sm:gap-4 shadow-xs">
+                <!-- Mobile Drag Indicator -->
+                <div class="w-10 h-1 bg-neutral-700/80 rounded-full mx-auto sm:hidden mb-1"></div>
+                
+                <!-- Panel Header with Close Button -->
+                <div class="flex items-center justify-between pb-2.5 border-b border-neutral-800/80">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-950/60 border border-rose-800/50 flex items-center justify-center text-xs text-rose-400">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </span>
+                        <div>
+                            <span class="text-[9px] font-mono tracking-widest text-rose-400 uppercase font-black block">PENGELUARAN</span>
+                            <h2 class="text-xs sm:text-sm font-bold text-neutral-200 font-sans leading-tight">Buat Pengeluaran Baru</h2>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeTransactionForm()" class="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center text-sm transition-all cursor-pointer" title="Tutup Formulir">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
                 
                 <form id="pengeluaranForm" onsubmit="tambahPengeluaranLokal(event)" class="flex flex-col gap-4">
@@ -1008,6 +1100,7 @@
                     </button>
                 </form>
             </div>
+            </div><!-- END TRANSACTION FORMS WRAPPER -->
         </div>
 
         <div class="flex flex-col gap-2.5 mt-2">
@@ -1163,6 +1256,38 @@
     <footer class="border-t border-neutral-900 bg-neutral-950/40 py-4 text-center mt-6">
         <span class="text-[9px] font-mono text-neutral-600 tracking-wider uppercase font-black">LDK IMIP CENTER</span>
     </footer>
+
+    <!-- ======================================================================
+         FLOATING ACTION BUTTON (MOBILE FAB FOR TRANSACTIONS)
+         ====================================================================== -->
+    <div id="mobile-fab-container" class="fixed bottom-20 right-4 sm:hidden z-40 flex flex-col items-end pointer-events-none">
+        <!-- Backdrop overlay when menu is open -->
+        <div id="fab-menu-backdrop" onclick="toggleMobileFabMenu(false)" class="fixed inset-0 bg-neutral-950/70 backdrop-blur-[2px] hidden pointer-events-auto transition-opacity duration-200 opacity-0"></div>
+
+        <!-- Floating Options Menu (Animated Pop-up Above Main FAB) -->
+        <div id="fab-speed-dial" class="flex flex-col items-end gap-2.5 mb-3 pointer-events-none transition-all duration-300 transform translate-y-6 scale-90 opacity-0 origin-bottom-right">
+            <!-- Pilihan Pemasukan -->
+            <button type="button" onclick="handleMobileFabSelect('in')" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-neutral-900/95 border border-cyan-500/40 text-cyan-300 shadow-2xl backdrop-blur-md active:scale-95 transition-transform cursor-pointer pointer-events-auto group">
+                <span class="text-xs font-bold font-sans tracking-tight">Catat Pemasukan</span>
+                <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs shadow-inner border border-cyan-500/30 group-hover:bg-cyan-500 group-hover:text-neutral-950 transition-colors">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+            </button>
+
+            <!-- Pilihan Pengeluaran -->
+            <button type="button" onclick="handleMobileFabSelect('out')" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-neutral-900/95 border border-rose-500/40 text-rose-300 shadow-2xl backdrop-blur-md active:scale-95 transition-transform cursor-pointer pointer-events-auto group">
+                <span class="text-xs font-bold font-sans tracking-tight">Catat Pengeluaran</span>
+                <div class="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs shadow-inner border border-rose-500/30 group-hover:bg-rose-500 group-hover:text-neutral-950 transition-colors">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Main FAB Trigger Button -->
+        <button type="button" id="mobile-fab-main-btn" onclick="toggleMobileFabMenu()" aria-label="Input Transaksi" class="w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF7300] to-amber-500 text-white flex items-center justify-center text-xl shadow-[0_8px_25px_rgba(255,115,0,0.5)] border border-white/20 active:scale-90 transition-all cursor-pointer pointer-events-auto group">
+            <i class="fa-solid fa-plus transition-transform duration-300 text-lg" id="mobile-fab-icon"></i>
+        </button>
+    </div>
 
     <!-- Mobile Bottom Navigation Dock (Admin Exclusive) -->
         <nav class="mobile-bottom-nav" aria-label="Navigasi Bawah Admin">
@@ -1818,31 +1943,138 @@
             if (info) info.innerText = '';
         };
 
-        function switchLedgerInput(target) {
+        // MOBILE FAB & TRANSACTION FORMS MODAL CONTROLLER
+        let isFabOpen = false;
+
+        window.toggleMobileFabMenu = function(forceState) {
+            const backdrop = document.getElementById('fab-menu-backdrop');
+            const speedDial = document.getElementById('fab-speed-dial');
+            const icon = document.getElementById('mobile-fab-icon');
+            const mainBtn = document.getElementById('mobile-fab-main-btn');
+
+            if (typeof forceState === 'boolean') {
+                isFabOpen = forceState;
+            } else {
+                isFabOpen = !isFabOpen;
+            }
+
+            if (isFabOpen) {
+                if (backdrop) {
+                    backdrop.classList.remove('hidden');
+                    setTimeout(() => {
+                        backdrop.classList.remove('opacity-0');
+                        backdrop.classList.add('opacity-100');
+                    }, 10);
+                }
+                if (speedDial) {
+                    speedDial.classList.remove('pointer-events-none', 'opacity-0', 'translate-y-6', 'scale-90');
+                    speedDial.classList.add('pointer-events-auto', 'opacity-100', 'translate-y-0', 'scale-100');
+                }
+                if (icon) {
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-xmark');
+                    icon.style.transform = 'rotate(90deg)';
+                }
+                if (mainBtn) {
+                    mainBtn.classList.add('ring-4', 'ring-orange-500/40');
+                }
+            } else {
+                if (backdrop) {
+                    backdrop.classList.remove('opacity-100');
+                    backdrop.classList.add('opacity-0');
+                    setTimeout(() => backdrop.classList.add('hidden'), 200);
+                }
+                if (speedDial) {
+                    speedDial.classList.add('pointer-events-none', 'opacity-0', 'translate-y-6', 'scale-90');
+                    speedDial.classList.remove('pointer-events-auto', 'opacity-100', 'translate-y-0', 'scale-100');
+                }
+                if (icon) {
+                    icon.classList.remove('fa-xmark');
+                    icon.classList.add('fa-plus');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+                if (mainBtn) {
+                    mainBtn.classList.remove('ring-4', 'ring-orange-500/40');
+                }
+            }
+        };
+
+        window.handleMobileFabSelect = function(type) {
+            toggleMobileFabMenu(false);
+            openTransactionForm(type, true);
+        };
+
+        window.openTransactionForm = function(target, isMobileModal = false) {
+            const wrapper = document.getElementById('transaction-forms-wrapper');
             const panelIn = document.getElementById('ledger-panel-in');
             const panelOut = document.getElementById('ledger-panel-out');
             const panelPlaceholder = document.getElementById('ledger-panel-placeholder');
             const btnIn = document.getElementById('ledger-btn-in');
             const btnOut = document.getElementById('ledger-btn-out');
-            
+
             if (panelPlaceholder) panelPlaceholder.style.display = 'none';
-            
-            const activeInClass = "ledger-tab-btn py-2.5 sm:py-3 px-3 text-center text-xs sm:text-sm font-bold rounded-xl transition-all bg-neutral-900 border border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] cursor-pointer flex items-center justify-center gap-2 select-none active-in active:scale-[0.98]";
-            const activeOutClass = "ledger-tab-btn py-2.5 sm:py-3 px-3 text-center text-xs sm:text-sm font-bold rounded-xl transition-all bg-neutral-900 border border-rose-500/40 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)] cursor-pointer flex items-center justify-center gap-2 select-none active-out active:scale-[0.98]";
-            const inactiveClass = "ledger-tab-btn py-2.5 sm:py-3 px-3 text-center text-xs sm:text-sm font-bold rounded-xl transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-2 select-none active:scale-[0.98]";
+
+            const activeInClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 border border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-in active:scale-[0.98]";
+            const activeOutClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 border border-rose-500/40 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-out active:scale-[0.98]";
+            const inactiveClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]";
 
             if (target === 'in') {
-                panelIn.style.display = 'flex';
-                panelOut.style.display = 'none';
-                btnIn.className = activeInClass;
-                btnOut.className = inactiveClass;
+                if (panelIn) panelIn.style.display = 'flex';
+                if (panelOut) panelOut.style.display = 'none';
+                if (btnIn) btnIn.className = activeInClass;
+                if (btnOut) btnOut.className = inactiveClass;
             } else {
-                panelIn.style.display = 'none';
-                panelOut.style.display = 'flex';
-                btnIn.className = inactiveClass;
-                btnOut.className = activeOutClass;
+                if (panelIn) panelIn.style.display = 'none';
+                if (panelOut) panelOut.style.display = 'flex';
+                if (btnIn) btnIn.className = inactiveClass;
+                if (btnOut) btnOut.className = activeOutClass;
             }
-        }
+
+            const isMobile = window.innerWidth < 640 || isMobileModal;
+            if (wrapper) {
+                if (isMobile) {
+                    wrapper.classList.remove('hidden');
+                    wrapper.classList.add('mobile-modal-active');
+                    document.body.classList.add('overflow-hidden-mobile');
+                    // Scroll sheet to top if previously scrolled
+                    const activePanel = target === 'in' ? panelIn : panelOut;
+                    if (activePanel) activePanel.scrollTop = 0;
+                } else {
+                    wrapper.classList.remove('hidden', 'mobile-modal-active');
+                    document.body.classList.remove('overflow-hidden-mobile');
+                }
+            }
+        };
+
+        window.switchLedgerInput = function(target) {
+            openTransactionForm(target, false);
+        };
+
+        window.closeTransactionForm = function() {
+            const wrapper = document.getElementById('transaction-forms-wrapper');
+            const panelIn = document.getElementById('ledger-panel-in');
+            const panelOut = document.getElementById('ledger-panel-out');
+            const panelPlaceholder = document.getElementById('ledger-panel-placeholder');
+            const btnIn = document.getElementById('ledger-btn-in');
+            const btnOut = document.getElementById('ledger-btn-out');
+
+            if (panelIn) panelIn.style.display = 'none';
+            if (panelOut) panelOut.style.display = 'none';
+            if (wrapper) {
+                wrapper.classList.remove('mobile-modal-active');
+                if (window.innerWidth < 640) {
+                    wrapper.classList.add('hidden');
+                }
+            }
+            document.body.classList.remove('overflow-hidden-mobile');
+
+            const inactiveClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]";
+            if (btnIn) btnIn.className = inactiveClass;
+            if (btnOut) btnOut.className = inactiveClass;
+            if (panelPlaceholder && window.innerWidth >= 640) {
+                panelPlaceholder.style.display = 'flex';
+            }
+        };
 
         function togglePemasukanForm(value) {
             const kasBox = document.getElementById('pemasukanKasBox');
@@ -1999,6 +2231,7 @@
                 resetPemasukanImage();
                 if (inTotal) inTotal.innerText = 'Rp0';
                 if (inNominal) inNominal.value = '0';
+                closeTransactionForm();
                 fetchInitialData(true);
             })
             .catch(err => {
@@ -2119,6 +2352,7 @@
                 document.getElementById('out_tanggal').value = new Date().toISOString().substring(0, 10);
                 resetPengeluaranImage();
                 expTotal.innerText = 'Rp0';
+                closeTransactionForm();
                 fetchInitialData(true);
             })
             .catch(err => {
