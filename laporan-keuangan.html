@@ -118,6 +118,11 @@
             --card-subtle-border: rgba(254, 215, 170, 0.85);
         }
 
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-main);
@@ -125,12 +130,12 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: background-color 0.35s ease, color 0.35s ease;
+            transition: background-color 0.25s ease, color 0.25s ease;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* BACKGROUND NEBULA & STARDUST */
+        /* BACKGROUND NEBULA & STARDUST - HARDWARE ACCELERATED WITHOUT HEAVY BLUR FILTER */
         body::before {
             content: "";
             position: fixed;
@@ -144,9 +149,10 @@
                 radial-gradient(ellipse 60% 60% at 75% 85%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
                 radial-gradient(ellipse 50% 50% at 25% 80%, rgba(16, 185, 129, 0.09) 0%, transparent 60%),
                 radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.22) 0%, transparent 70%);
-            filter: blur(55px);
             pointer-events: none;
             z-index: -2;
+            transform: translateZ(0);
+            will-change: transform;
             transition: background 0.4s ease;
         }
 
@@ -168,6 +174,7 @@
             opacity: 0.35;
             pointer-events: none;
             z-index: -1;
+            transform: translateZ(0);
             transition: opacity 0.3s ease;
         }
 
@@ -185,14 +192,26 @@
                 background-position: right -15px top 5px !important;
                 opacity: 0.20 !important;
             }
+            #particle-canvas {
+                display: none !important;
+            }
         }
 
         .glass-panel {
             background-color: var(--glass-panel-bg);
             border: 1px solid var(--glass-panel-border);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transform: translateZ(0);
+            contain: paint;
+            transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        @media (max-width: 768px) {
+            .glass-panel {
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
         }
 
         /* ==========================================================================
@@ -1391,61 +1410,84 @@
         setTimeout(hideLoadingOverlay, 3000);
 
         // ----------------------------------------------------
-        // 1. PARTICLES CANVAS
+        // 1. PARTICLES CANVAS (OPTIMIZED 60FPS WITH SCROLL PAUSE)
         // ----------------------------------------------------
         try {
             var canvas = document.getElementById('particle-canvas');
             if (canvas) {
-                var ctx = canvas.getContext('2d');
-                var width = canvas.width = window.innerWidth;
-                var height = canvas.height = window.innerHeight;
+                // Di mobile / layar kecil, matikan canvas partikel demi efisiensi baterai & scrolling mulus 60fps
+                if (window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth < 1024)) {
+                    canvas.style.display = 'none';
+                } else {
+                    var ctx = canvas.getContext('2d', { alpha: true });
+                    var width = canvas.width = window.innerWidth;
+                    var height = canvas.height = window.innerHeight;
 
-                window.addEventListener('resize', function() {
-                    width = canvas.width = window.innerWidth;
-                    height = canvas.height = window.innerHeight;
-                });
+                    var isScrolling = false;
+                    var scrollTimeout = null;
+                    window.addEventListener('scroll', function() {
+                        isScrolling = true;
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(function() {
+                            isScrolling = false;
+                        }, 90);
+                    }, { passive: true });
 
-                var particles = [];
-                var particleCount = Math.min(Math.floor(window.innerWidth / 25), 45);
+                    window.addEventListener('resize', function() {
+                        if (window.innerWidth <= 768) {
+                            canvas.style.display = 'none';
+                        } else {
+                            canvas.style.display = 'block';
+                            width = canvas.width = window.innerWidth;
+                            height = canvas.height = window.innerHeight;
+                        }
+                    }, { passive: true });
 
-                function AmbientParticle() {
-                    this.reset();
-                }
-                AmbientParticle.prototype.reset = function() {
-                    this.x = Math.random() * width;
-                    this.y = Math.random() * height;
-                    this.size = Math.random() * 2 + 0.5;
-                    this.speedX = (Math.random() - 0.5) * 0.4;
-                    this.speedY = (Math.random() - 0.5) * 0.4;
-                    this.alpha = Math.random() * 0.4 + 0.1;
-                };
-                AmbientParticle.prototype.update = function() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    if (this.x < 0 || this.x > width) this.speedX *= -1;
-                    if (this.y < 0 || this.y > height) this.speedY *= -1;
-                };
-                AmbientParticle.prototype.draw = function() {
-                    var isLight = document.documentElement.classList.contains('light-mode');
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = isLight ? 'rgba(234, 88, 12, ' + (this.alpha * 0.5) + ')' : 'rgba(255, 115, 0, ' + (this.alpha * 0.6) + ')';
-                    ctx.fill();
-                };
+                    var particles = [];
+                    var particleCount = Math.min(Math.floor(window.innerWidth / 45), 22);
 
-                for (var i = 0; i < particleCount; i++) {
-                    particles.push(new AmbientParticle());
-                }
-
-                function animateParticles() {
-                    ctx.clearRect(0, 0, width, height);
-                    for (var j = 0; j < particles.length; j++) {
-                        particles[j].update();
-                        particles[j].draw();
+                    function AmbientParticle() {
+                        this.reset();
                     }
-                    requestAnimationFrame(animateParticles);
+                    AmbientParticle.prototype.reset = function() {
+                        this.x = Math.random() * width;
+                        this.y = Math.random() * height;
+                        this.size = Math.random() * 1.8 + 0.6;
+                        this.speedX = (Math.random() - 0.5) * 0.3;
+                        this.speedY = (Math.random() - 0.5) * 0.3;
+                        this.alpha = Math.random() * 0.35 + 0.1;
+                    };
+                    AmbientParticle.prototype.update = function() {
+                        this.x += this.speedX;
+                        this.y += this.speedY;
+                        if (this.x < 0 || this.x > width) this.speedX *= -1;
+                        if (this.y < 0 || this.y > height) this.speedY *= -1;
+                    };
+                    AmbientParticle.prototype.draw = function() {
+                        var isLight = document.documentElement.classList.contains('light-mode');
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                        ctx.fillStyle = isLight ? 'rgba(234, 88, 12, ' + (this.alpha * 0.4) + ')' : 'rgba(255, 115, 0, ' + (this.alpha * 0.5) + ')';
+                        ctx.fill();
+                    };
+
+                    for (var i = 0; i < particleCount; i++) {
+                        particles.push(new AmbientParticle());
+                    }
+
+                    function animateParticles() {
+                        // Pause rendering saat scroll agar browser fokus penuh ke kelancaran render layout
+                        if (!isScrolling) {
+                            ctx.clearRect(0, 0, width, height);
+                            for (var j = 0; j < particles.length; j++) {
+                                particles[j].update();
+                                particles[j].draw();
+                            }
+                        }
+                        requestAnimationFrame(animateParticles);
+                    }
+                    animateParticles();
                 }
-                animateParticles();
             }
         } catch (e) {
             console.warn('Particle canvas error:', e);
@@ -1959,11 +2001,11 @@
             var targetEl = (window.innerWidth < 1024 ? matchedCard : matchedRow) || matchedCard || matchedRow;
             if (targetEl) {
                 try {
-                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     targetEl.classList.add('highlight-flash');
                     setTimeout(function() {
                         if (targetEl) targetEl.classList.remove('highlight-flash');
-                    }, 1800);
+                    }, 1200);
                 } catch(e) {}
             }
         }
@@ -1973,7 +2015,7 @@
             currentFocusedCategoryName = '';
             if (donutChartInstance) {
                 donutChartInstance.setActiveElements([]);
-                donutChartInstance.update();
+                donutChartInstance.update('none');
             }
             var grandTotal = currentFlowMode === 'masuk' ? latestGrandTotalMasuk : latestGrandTotalKeluar;
             var lblEl = document.getElementById('donut-center-label');
@@ -2393,7 +2435,7 @@
                         }
                     ];
                 }
-                trendChartInstance.update();
+                trendChartInstance.update(keepSpotlight ? 'none' : 'default');
             }
 
             // Compute Category Breakdown based on currentFlowMode
@@ -2445,7 +2487,7 @@
                 donutChartInstance.data.labels = donutLabels;
                 donutChartInstance.data.datasets[0].data = donutData;
                 donutChartInstance.data.datasets[0].backgroundColor = donutColors;
-                donutChartInstance.update();
+                donutChartInstance.update(keepSpotlight ? 'none' : 'default');
 
                 var elDonutCenterLbl = document.getElementById('donut-center-label');
                 if (elDonutCenterLbl) {
