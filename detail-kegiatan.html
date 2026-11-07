@@ -19,6 +19,7 @@
     <link class="head-theme-sync" rel="icon" href="bendahara.png" type="image/jpeg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Detail Laporan Realisasi Keuangan Kegiatan LDK IMIP 2026. Rincian arus kas masuk, pengeluaran belanja divisi, bukti nota kwitansi, dan export LPJ.">
     <title>Laporan Keuangan Kegiatan — DanaIMIP</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -3437,7 +3438,7 @@
         // Generate format CSV untuk olah angka Spreadsheet / Excel
         function generateCsvReport(data) {
             let csv = '\ufeff'; // UTF-8 BOM
-            csv += `"LAPORAN KEUANGAN REALISASI ANGGARAN & RAB"\n`;
+            csv += `"LAPORAN KEUANGAN REALISASI ANGGARAN"\n`;
             csv += `"Program Kerja:","${(data.nama_proker || '').replace(/"/g, '""')}"\n`;
             csv += `"Divisi:","${(data.divisi || '').replace(/"/g, '""')}"\n`;
             csv += `"Ketua Pelaksana:","${(data.ketua || '').replace(/"/g, '""')}"\n`;
@@ -3546,7 +3547,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Laporan_RAB_${sanitizeFilename(data.nama_proker)}.csv`;
+            a.download = `Laporan_Realisasi_${sanitizeFilename(data.nama_proker)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3556,7 +3557,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'File CSV Berhasil Diunduh!',
-                    text: `Laporan_RAB_${sanitizeFilename(data.nama_proker)}.csv siap dibuka di Excel / Google Sheets.`,
+                    text: `Laporan_Realisasi_${sanitizeFilename(data.nama_proker)}.csv siap dibuka di Excel / Google Sheets.`,
                     timer: 2000,
                     showConfirmButton: false
                 });
