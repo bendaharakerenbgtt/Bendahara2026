@@ -314,38 +314,12 @@
             visibility: hidden;
             pointer-events: none;
         }
-        .spinner-ring {
-            border-color: var(--border-muted) !important;
-            border-top-color: var(--text-green-accent) !important;
-            box-shadow: var(--glow-green);
+        .loading-bar-glider {
+            animation: loadingGlider 1.5s ease-in-out infinite;
         }
-        @keyframes float-masjid {
-            0%, 100% { transform: translateY(2px) scale(1); }
-            50% { transform: translateY(-1px) scale(1.03); }
-        }
-        @keyframes drift-cloud-1 {
-            0%, 100% { transform: translate(-20px, -12px); opacity: 0.3; }
-            50% { transform: translate(-14px, -12px); opacity: 0.6; }
-        }
-        @keyframes drift-cloud-2 {
-            0%, 100% { transform: translate(20px, -14px); opacity: 0.25; }
-            50% { transform: translate(14px, -14px); opacity: 0.55; }
-        }
-        @keyframes pulse-sun {
-            0%, 100% { transform: translate(-15px, -22px) scale(0.95); opacity: 0.4; filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3)); }
-            50% { transform: translate(-12px, -20px) scale(1.1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6)); }
-        }
-        .animate-float-masjid {
-            animation: float-masjid 3s infinite ease-in-out;
-        }
-        .animate-drift-cloud-1 {
-            animation: drift-cloud-1 6s infinite ease-in-out;
-        }
-        .animate-drift-cloud-2 {
-            animation: drift-cloud-2 8s infinite ease-in-out;
-        }
-        .animate-pulse-sun {
-            animation: pulse-sun 4s infinite ease-in-out;
+        @keyframes loadingGlider {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         /* ==========================================================================
@@ -470,11 +444,34 @@
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
         <div class="relative flex flex-col items-center justify-center">
-            <div class="w-16 h-16 rounded-full border-4 border-neutral-800 border-t-[#FF7300] animate-spin shadow-[0_0_20px_rgba(255,115,0,0.25)]"></div>
-            <div class="absolute w-16 h-16 flex items-center justify-center text-[#FF7300] text-lg">
-                <i class="fa-solid fa-mosque"></i>
+            <!-- Dual Ring Spinner with Center Glow Icon -->
+            <div class="relative w-16 h-16 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border border-dashed border-orange-500/30 animate-spin" style="animation-duration: 9s;"></div>
+                <div class="w-14 h-14 rounded-full border-2 border-neutral-800 border-t-[#FF7300] border-r-[#FF7300]/40 animate-spin shadow-[0_0_20px_rgba(255,115,0,0.3)]"></div>
+                <div class="absolute flex items-center justify-center text-[#FF7300] text-sm drop-shadow-[0_0_8px_rgba(255,115,0,0.6)]">
+                    <i class="fa-solid fa-mosque"></i>
+                </div>
             </div>
-            <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
+
+            <!-- Title Indicator -->
+            <span class="mt-4 text-[10.5px] font-mono tracking-widest text-neutral-200 uppercase font-black flex items-center gap-1.5">
+                <span>MEMUAT DATABASE</span>
+                <span class="text-[#FF7300] animate-pulse">...</span>
+            </span>
+
+            <!-- Status Pill Badge (Elemen 1) -->
+            <div class="mt-2.5 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800 shadow-xs">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+                </span>
+                <span class="text-[8.5px] font-mono font-bold text-neutral-400 tracking-wider uppercase">SINKRONISASI CLOUD</span>
+            </div>
+
+            <!-- Animated Mini Progress Bar (Elemen 2) -->
+            <div class="w-36 h-1 bg-neutral-900 border border-neutral-800/80 rounded-full overflow-hidden mt-2.5 relative">
+                <div class="loading-bar-glider h-full bg-gradient-to-r from-transparent via-[#FF7300] to-transparent w-full"></div>
+            </div>
         </div>
     </div>
 
