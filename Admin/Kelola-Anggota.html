@@ -46,9 +46,9 @@
             
             --bg-neutral-pill: #162032;      /* Background for neutral pills */
             
-            --bg-cyan-pill: rgba(6, 182, 212, 0.12);
-            --border-cyan-pill: rgba(6, 182, 212, 0.28);
-            --text-cyan-accent: #22D3EE;     /* Cyan 400 */
+            --bg-cyan-pill: rgba(255, 115, 0, 0.12);
+            --border-cyan-pill: rgba(255, 115, 0, 0.28);
+            --text-cyan-accent: #FB923C;     /* Orange 400 */
             
             --bg-green-pill: rgba(16, 185, 129, 0.12);
             --border-green-pill: rgba(16, 185, 129, 0.28);
@@ -67,13 +67,13 @@
             --footer-bg: rgba(15, 22, 35, 0.6);
             --footer-border: #1E293B;
             
-            --hover-cyan-border: rgba(6, 182, 212, 0.5);
+            --hover-cyan-border: rgba(255, 115, 0, 0.5);
             --hover-green-border: rgba(16, 185, 129, 0.5);
             --hover-amber-border: rgba(245, 158, 11, 0.5);
             --hover-neutral-border: #334155;
 
             /* Accent glow variables */
-            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.20);
+            --glow-cyan: 0 4px 20px rgba(255, 115, 0, 0.20);
             --glow-green: 0 4px 20px rgba(16, 185, 129, 0.20);
             --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
@@ -92,29 +92,18 @@
             transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
         }
 
-        /* DYNAMIC COSMIC NEBULA BACKGROUND */
+        /* STATIC COSMIC NEBULA BACKGROUND (GPU OPTIMIZED) */
         body::before {
             content: "";
             position: fixed;
-            top: -120px;
-            left: -120px;
-            width: calc(100% + 240px);
-            height: calc(100% + 240px);
+            inset: 0;
             background: 
-                radial-gradient(ellipse 65% 55% at 20% 15%, rgba(255, 115, 0, 0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 65% 55% at 20% 15%, rgba(255, 115, 0, 0.11) 0%, transparent 60%),
                 radial-gradient(ellipse 55% 50% at 85% 25%, rgba(234, 88, 12, 0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(6, 182, 212, 0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(255, 115, 0, 0.06) 0%, transparent 60%),
-                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.25) 0%, transparent 70%);
-            filter: blur(55px);
+                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(255, 115, 0, 0.06) 0%, transparent 60%);
             pointer-events: none;
             z-index: -2;
-            animation: pulseGlow 18s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.06) translate(15px, -15px); }
         }
 
         /* AUTHENTIC OUTER SPACE STARFIELD */
@@ -186,8 +175,8 @@
             font-size: 0.75rem !important;
         }
         .swal2-confirm {
-            background-color: #10b981 !important; /* Emerald 500 */
-            color: #07090e !important;
+            background-color: #FF7300 !important;
+            color: #ffffff !important;
             font-family: monospace !important;
             font-weight: 700 !important;
             font-size: 10px !important;
@@ -303,7 +292,7 @@
             }
             body {
                 padding-bottom: 88px !important;
-                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #080C14 !important;
+                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 115, 0, 0.12) 0%, transparent 60%), #080C14 !important;
             }
             main {
                 padding-top: 0 !important;
@@ -325,32 +314,29 @@
                 display: none !important;
             }
 
-            /* Mobile Modal Floating Form Overrides for Kelola-Anggota */
+            /* Mobile Modal Floating Form Overrides for Kelola-Anggota (CENTERED IN SCREEN) */
             #anggota-form-wrapper.mobile-modal-active {
                 display: flex !important;
                 position: fixed !important;
                 inset: 0 !important;
-                z-index: 55 !important;
+                z-index: 60 !important;
                 background: rgba(6, 10, 18, 0.85) !important;
                 backdrop-filter: blur(8px) !important;
                 -webkit-backdrop-filter: blur(8px) !important;
-                align-items: flex-end !important;
+                align-items: center !important;
                 justify-content: center !important;
-                padding: 0 !important;
-                animation: fadeInModal 0.22s ease-out forwards;
+                padding: 14px !important;
+                animation: fadeInModal 0.2s ease-out forwards;
             }
             #anggota-form-wrapper.mobile-modal-active #panel-form-anggota {
                 width: 100% !important;
-                max-height: 88vh !important;
-                border-top-left-radius: 1.5rem !important;
-                border-top-right-radius: 1.5rem !important;
-                border-bottom-left-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
-                border-width: 1px 0 0 0 !important;
-                border-color: rgba(255, 255, 255, 0.15) !important;
+                max-width: 460px !important;
+                max-height: 82vh !important;
+                border-radius: 1.25rem !important;
+                border: 1px solid rgba(255, 115, 0, 0.3) !important;
                 overflow-y: auto !important;
-                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85) !important;
-                animation: slideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 115, 0, 0.12) !important;
+                animation: zoomInModal 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
             body.overflow-hidden-mobile {
                 overflow: hidden !important;
@@ -364,9 +350,9 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        @keyframes slideUpSheet {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        @keyframes zoomInModal {
+            from { opacity: 0; transform: scale(0.95) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
     </style>
 </head>
@@ -375,17 +361,10 @@
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
         <div class="relative flex flex-col items-center justify-center">
-            <!-- Spinner Ring Outer -->
-            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
-            
-            <!-- Floating Elements Inside -->
-            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
-                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
-                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
-                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
-                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            <div class="w-16 h-16 rounded-full border-4 border-neutral-800 border-t-[#FF7300] animate-spin shadow-[0_0_20px_rgba(255,115,0,0.25)]"></div>
+            <div class="absolute w-16 h-16 flex items-center justify-center text-[#FF7300] text-lg">
+                <i class="fa-solid fa-mosque"></i>
             </div>
-            
             <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
         </div>
     </div>
@@ -504,7 +483,7 @@
 
         <!-- SEARCH BAR -->
         <div class="bg-neutral-950 border border-neutral-900 p-2.5 sm:p-3 rounded-xl flex items-center gap-2.5 shadow-xs">
-            <span class="text-xs text-neutral-500 pl-1">🔍</span>
+            <i class="fa-solid fa-magnifying-glass text-xs text-neutral-500 pl-1"></i>
             <input type="text" id="searchInput" onkeyup="filterAnggota()" placeholder="Cari nama atau NIM anggota..." class="w-full bg-transparent text-xs text-neutral-200 placeholder:text-neutral-500 focus:outline-none font-sans">
         </div>
 
@@ -512,7 +491,7 @@
         <div class="flex flex-col gap-2.5">
             <div class="flex items-center justify-between px-1">
                 <span class="text-[9px] font-mono tracking-widest text-neutral-500 uppercase font-black">DAFTAR KEPENGURUSAN</span>
-                <span id="memberCountBadge" class="text-[8px] font-mono bg-neutral-900 border border-neutral-800 text-cyan-400 px-2 py-0.5 rounded-md font-bold">0 Anggota</span>
+                <span id="memberCountBadge" class="text-[8px] font-mono bg-orange-950/30 border border-orange-500/30 text-[#FF7300] px-2 py-0.5 rounded-md font-bold">0 Anggota</span>
             </div>
 
             <div id="anggotaListContainer" class="flex flex-col gap-2.5">
@@ -531,8 +510,8 @@
     <!-- ======================================================================
          FLOATING ACTION BUTTON (MOBILE FAB FOR ANGGOTA)
          ====================================================================== -->
-    <div id="mobile-anggota-fab-container" class="fixed bottom-20 right-4 sm:hidden z-40">
-        <button type="button" onclick="openMobileAnggotaForm()" aria-label="Tambah Anggota" class="w-14 h-14 rounded-full bg-gradient-to-tr from-[#FF7300] to-amber-500 text-white flex items-center justify-center text-xl shadow-[0_8px_25px_rgba(255,115,0,0.5)] border border-white/20 active:scale-90 transition-all cursor-pointer">
+    <div id="mobile-anggota-fab-container" class="fixed bottom-[84px] right-4 sm:hidden z-40">
+        <button type="button" onclick="openMobileAnggotaForm()" aria-label="Tambah Anggota" class="w-13 h-13 rounded-full bg-gradient-to-tr from-[#FF7300] to-amber-500 text-white flex items-center justify-center text-xl shadow-[0_8px_25px_rgba(255,115,0,0.45)] border border-white/20 active:scale-90 transition-all cursor-pointer">
             <i class="fa-solid fa-user-plus text-base"></i>
         </button>
     </div>
@@ -732,7 +711,7 @@
                     : `<span class="px-2 py-0.5 rounded-md text-[8px] font-bold font-sans bg-red-950/50 border border-red-900/60 text-rose-400 uppercase tracking-wider">Tidak Aktif</span>`;
                 
                 cardsHtml += `
-                    <div class="anggota-card bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl flex items-center justify-between gap-3 shadow-xs transition-all duration-300 hover:border-cyan-500/20" data-name="${String(m.name || '').toLowerCase()}" data-nim="${String(m.nim || '').toLowerCase()}">
+                    <div class="anggota-card bg-neutral-950 border border-neutral-900 p-3.5 rounded-xl flex items-center justify-between gap-3 shadow-xs transition-all duration-300 hover:border-[#FF7300]/30" data-name="${String(m.name || '').toLowerCase()}" data-nim="${String(m.nim || '').toLowerCase()}">
                         <div class="overflow-hidden flex flex-col gap-0.5">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h3 class="text-xs font-bold text-neutral-200 truncate font-sans">${m.name}</h3>
@@ -744,7 +723,7 @@
                                 <span class="text-neutral-400">${m.divisi} — ${m.jabatan}</span>
                             </div>
                         </div>
-                        <button type="button" onclick="bukaModalEdit('${m.id}')" class="bg-neutral-900 hover:bg-cyan-900/20 border border-neutral-800 text-cyan-400 text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
+                        <button type="button" onclick="bukaModalEdit('${m.id}')" class="bg-neutral-900 hover:bg-orange-950/30 border border-neutral-800 hover:border-[#FF7300]/40 text-[#FF7300] text-[10px] font-bold px-3 py-1.5 rounded-lg font-mono transition-transform active:scale-95 cursor-pointer">
                             EDIT
                         </button>
                     </div>
@@ -904,26 +883,26 @@
                     <div class="text-left flex flex-col gap-3 font-sans mt-3">
                         <div>
                             <label class="text-[8px] font-mono text-neutral-500 uppercase font-black block mb-1">NIM Pengurus</label>
-                            <input type="text" id="edit_nim" value="${member.nim}" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                            <input type="text" id="edit_nim" value="${member.nim}" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-[#FF7300] font-mono">
                         </div>
                         <div>
                             <label class="text-[8px] font-mono text-neutral-500 uppercase font-black block mb-1">Nama Lengkap</label>
-                            <input type="text" id="edit_nama" value="${member.name}" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            <input type="text" id="edit_nama" value="${member.name}" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-[#FF7300] font-sans">
                         </div>
                         <div>
                             <label class="text-[8px] font-mono text-neutral-500 uppercase font-black block mb-1">Divisi / Biro</label>
-                            <select id="edit_divisi" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            <select id="edit_divisi" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-[#FF7300] font-sans">
                                 ${divisiOptions}
                             </select>
                         </div>
                         <div>
                             <label class="text-[8px] font-mono text-neutral-500 uppercase font-black block mb-1">Jabatan</label>
-                            <select id="edit_jabatan" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                            <select id="edit_jabatan" class="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-neutral-200 focus:outline-none focus:border-[#FF7300] font-sans">
                                 ${jabatanOptions}
                             </select>
                         </div>
                         <div class="flex items-center gap-2 py-1 mt-1 border-t border-neutral-900/60 pt-3">
-                            <input type="checkbox" id="edit_is_active" ${isActiveChecked} class="w-4 h-4 rounded border-neutral-800 bg-neutral-950 text-cyan-500 focus:ring-cyan-500 cursor-pointer">
+                            <input type="checkbox" id="edit_is_active" ${isActiveChecked} class="w-4 h-4 rounded border-neutral-800 bg-neutral-950 accent-[#FF7300] cursor-pointer">
                             <label for="edit_is_active" class="text-xs font-bold text-neutral-200 cursor-pointer select-none">Status Anggota Aktif</label>
                         </div>
                     </div>

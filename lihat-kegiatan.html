@@ -170,36 +170,24 @@
             --shadow-card: 0 10px 30px -10px rgba(255, 115, 0, 0.10);
         }
 
-        /* DYNAMIC DEEP SPACE COSMIC NEBULA BACKGROUND */
+        /* STATIC DEEP SPACE COSMIC NEBULA BACKGROUND (GPU OPTIMIZED) */
         body::before {
             content: "";
             position: fixed;
-            top: -120px;
-            left: -120px;
-            width: calc(100% + 240px);
-            height: calc(100% + 240px);
+            inset: 0;
             background: 
-                radial-gradient(ellipse 65% 55% at 15% 15%, rgba(99, 102, 241, 0.16) 0%, transparent 60%),
-                radial-gradient(ellipse 55% 50% at 85% 25%, rgba(14, 165, 233, 0.14) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(139, 92, 246, 0.14) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(16, 185, 129, 0.09) 0%, transparent 60%),
-                radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.22) 0%, transparent 70%);
-            filter: blur(55px);
+                radial-gradient(ellipse 65% 55% at 15% 15%, rgba(255, 115, 0, 0.11) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 50% at 85% 25%, rgba(234, 88, 12, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(255, 115, 0, 0.06) 0%, transparent 60%);
             pointer-events: none;
             z-index: -2;
-            animation: pulseGlow 18s ease-in-out infinite alternate;
         }
 
         html.light-mode body::before {
             background: 
-                radial-gradient(circle at 10% 15%, rgba(255, 115, 0, 0.32) 0%, transparent 48%),
-                radial-gradient(circle at 90% 85%, rgba(255, 165, 0, 0.25) 0%, transparent 48%),
-                radial-gradient(circle at 50% 50%, rgba(255, 130, 0, 0.18) 0%, transparent 52%) !important;
-        }
-
-        @keyframes pulseGlow {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.08) translate(20px, -20px); }
+                radial-gradient(circle at 10% 15%, rgba(255, 115, 0, 0.24) 0%, transparent 48%),
+                radial-gradient(circle at 90% 85%, rgba(255, 165, 0, 0.18) 0%, transparent 48%) !important;
         }
 
         /* AUTHENTIC OUTER SPACE STARFIELD & STARDUST (NO BATIK / GEOMETRIC PATTERNS) */
@@ -229,8 +217,7 @@
         /* MOBILE RESPONSIVE FIX & PERFORMANCE OPTIMIZATIONS */
         @media (max-width: 768px) {
             body::before {
-                animation: none !important;
-                filter: blur(25px) !important;
+                display: none !important;
             }
             #particle-canvas {
                 display: none !important;

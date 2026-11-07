@@ -19,7 +19,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LDK IMIP — Transaksi</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,15 +46,15 @@
             
             --bg-neutral-pill: rgba(26, 36, 56, 0.7);
 
-            /* Executive Treasury Emerald & Cyber Cyan Identifiers */
+            /* Executive Treasury Warm Orange & Emerald Identifiers (Unified with User Theme) */
             --admin-emerald: #10b981;
             --admin-emerald-dark: #059669;
-            --admin-cyan: #06b6d4;
-            --admin-cyan-accent: #22d3ee;
+            --admin-cyan: #FF7300;
+            --admin-cyan-accent: #FB923C;
             
-            --bg-cyan-pill: rgba(6, 182, 212, 0.10);
-            --border-cyan-pill: rgba(6, 182, 212, 0.25);
-            --text-cyan-accent: #22d3ee;     /* Cyan 400 */
+            --bg-cyan-pill: rgba(255, 115, 0, 0.12);
+            --border-cyan-pill: rgba(255, 115, 0, 0.28);
+            --text-cyan-accent: #FB923C;     /* Orange 400 */
             
             --bg-green-pill: rgba(16, 185, 129, 0.10);
             --border-green-pill: rgba(16, 185, 129, 0.25);
@@ -69,18 +68,18 @@
             
             --splash-bg: #080C14;
             --splash-text: #ffffff;
-            --splash-glow: rgba(16, 185, 129, 0.15);
+            --splash-glow: rgba(255, 115, 0, 0.15);
             
             --footer-bg: rgba(14, 20, 32, 0.6);
             --footer-border: rgba(255, 255, 255, 0.08);
             
-            --hover-cyan-border: rgba(6, 182, 212, 0.45);
+            --hover-cyan-border: rgba(255, 115, 0, 0.45);
             --hover-green-border: rgba(16, 185, 129, 0.45);
             --hover-amber-border: rgba(245, 158, 11, 0.4);
             --hover-neutral-border: #334155;
 
             /* Accent glow variables */
-            --glow-cyan: 0 4px 20px rgba(6, 182, 212, 0.20);
+            --glow-cyan: 0 4px 20px rgba(255, 115, 0, 0.20);
             --glow-green: 0 4px 20px rgba(16, 185, 129, 0.20);
             --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
@@ -95,29 +94,18 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* DYNAMIC COSMIC NEBULA BACKGROUND */
+        /* OPTIMIZED STATIC COSMIC NEBULA BACKGROUND (GPU FRIENDLY) */
         body::before {
             content: "";
             position: fixed;
-            top: -120px;
-            left: -120px;
-            width: calc(100% + 240px);
-            height: calc(100% + 240px);
+            inset: 0;
             background: 
                 radial-gradient(ellipse 65% 55% at 20% 15%, rgba(255, 115, 0, 0.10) 0%, transparent 60%),
                 radial-gradient(ellipse 55% 50% at 85% 25%, rgba(234, 88, 12, 0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(6, 182, 212, 0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(255, 115, 0, 0.06) 0%, transparent 60%),
-                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.25) 0%, transparent 70%);
-            filter: blur(55px);
+                radial-gradient(ellipse 60% 60% at 75% 85%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 25% 80%, rgba(255, 115, 0, 0.06) 0%, transparent 60%);
             pointer-events: none;
             z-index: -2;
-            animation: pulseGlow 18s ease-in-out infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.06) translate(15px, -15px); }
         }
 
         /* AUTHENTIC OUTER SPACE STARFIELD */
@@ -468,7 +456,7 @@
             }
             body {
                 padding-bottom: 88px !important;
-                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #080C14 !important;
+                background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 115, 0, 0.12) 0%, transparent 60%), #080C14 !important;
             }
             main {
                 padding-top: 0 !important;
@@ -490,33 +478,30 @@
                 display: none !important;
             }
 
-            /* Mobile Modal Floating Form Overrides */
+            /* Mobile Modal Floating Form Overrides (CENTERED IN SCREEN) */
             #transaction-forms-wrapper.mobile-modal-active {
                 display: flex !important;
                 position: fixed !important;
                 inset: 0 !important;
-                z-index: 55 !important;
+                z-index: 60 !important;
                 background: rgba(6, 10, 18, 0.85) !important;
                 backdrop-filter: blur(8px) !important;
                 -webkit-backdrop-filter: blur(8px) !important;
-                align-items: flex-end !important;
+                align-items: center !important;
                 justify-content: center !important;
-                padding: 0 !important;
-                animation: fadeInModal 0.22s ease-out forwards;
+                padding: 14px !important;
+                animation: fadeInModal 0.2s ease-out forwards;
             }
             #transaction-forms-wrapper.mobile-modal-active #ledger-panel-in,
             #transaction-forms-wrapper.mobile-modal-active #ledger-panel-out {
                 width: 100% !important;
-                max-height: 88vh !important;
-                border-top-left-radius: 1.5rem !important;
-                border-top-right-radius: 1.5rem !important;
-                border-bottom-left-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
-                border-width: 1px 0 0 0 !important;
-                border-color: rgba(255, 255, 255, 0.15) !important;
+                max-width: 460px !important;
+                max-height: 82vh !important;
+                border-radius: 1.25rem !important;
+                border: 1px solid rgba(255, 115, 0, 0.3) !important;
                 overflow-y: auto !important;
-                box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85) !important;
-                animation: slideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 115, 0, 0.12) !important;
+                animation: zoomInModal 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
             body.overflow-hidden-mobile {
                 overflow: hidden !important;
@@ -530,9 +515,9 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        @keyframes slideUpSheet {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        @keyframes zoomInModal {
+            from { opacity: 0; transform: scale(0.95) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
     </style>
 </head>
@@ -541,21 +526,10 @@
     <!-- PREMIUM LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-300">
         <div class="relative flex flex-col items-center justify-center">
-            <!-- Spinner Ring Outer -->
-            <div class="w-20 h-20 rounded-full border-4 spinner-ring animate-spin"></div>
-            
-            <!-- Floating Elements Inside -->
-            <div class="absolute w-20 h-20 flex items-center justify-center overflow-hidden">
-                <!-- Glowing Sun in background (Top-Left above Masjid) -->
-                <div class="absolute text-amber-400 text-xs animate-pulse-sun" style="transform: translate(-15px, -22px);">☀️</div>
-                <!-- Drifting Cloud 1 (Left side above Masjid) -->
-                <div class="absolute text-neutral-400 text-[9px] animate-drift-cloud-1" style="transform: translate(-20px, -12px);">☁️</div>
-                <!-- Drifting Cloud 2 (Right side above Masjid) -->
-                <div class="absolute text-neutral-500 text-[7px] animate-drift-cloud-2" style="transform: translate(20px, -14px);">☁️</div>
-                <!-- Floating Masjid in Center-Bottom -->
-                <div class="absolute text-2xl animate-float-masjid" style="transform: translateY(2px);">🕌</div>
+            <div class="w-16 h-16 rounded-full border-4 border-neutral-800 border-t-[#FF7300] animate-spin shadow-[0_0_20px_rgba(255,115,0,0.25)]"></div>
+            <div class="absolute w-16 h-16 flex items-center justify-center text-[#FF7300] text-lg">
+                <i class="fa-solid fa-mosque"></i>
             </div>
-            
             <span class="mt-4 text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-black">MEMUAT DATABASE...</span>
         </div>
     </div>
@@ -610,19 +584,19 @@
             <!-- LEDGER TAB SWITCHER (DESKTOP VIEW) -->
             <div class="grid w-full grid-cols-2 gap-1.5 p-1 bg-neutral-950 border border-neutral-900 rounded-xl shadow-xs ledger-tab-container">
                 <button type="button" onclick="switchLedgerInput('in')" id="ledger-btn-in" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
-                    <span class="text-xs">⬇️</span>
+                    <i class="fa-solid fa-arrow-down text-emerald-400 text-xs"></i>
                     <span>Pemasukan<span class="hidden sm:inline"> / Arus Masuk</span></span>
                 </button>
                 <button type="button" onclick="switchLedgerInput('out')" id="ledger-btn-out" class="ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]">
-                    <span class="text-xs">⬆️</span>
+                    <i class="fa-solid fa-arrow-up text-rose-400 text-xs"></i>
                     <span>Pengeluaran<span class="hidden sm:inline"> / Arus Keluar</span></span>
                 </button>
             </div>
 
             <!-- DESKTOP PLACEHOLDER -->
             <div id="ledger-panel-placeholder" class="flex bg-neutral-950 border border-neutral-900 border-dashed rounded-xl p-2.5 sm:p-4 text-center items-center justify-center gap-2.5 shadow-xs">
-                <div class="w-7 h-7 rounded-full bg-cyan-950/20 border border-cyan-800/20 flex items-center justify-center text-xs text-cyan-400 shrink-0">
-                    📊
+                <div class="w-7 h-7 rounded-full bg-orange-950/30 border border-orange-500/30 flex items-center justify-center text-xs text-[#FF7300] shrink-0">
+                    <i class="fa-solid fa-sliders"></i>
                 </div>
                 <div class="flex flex-col text-left">
                     <h3 class="text-[11px] sm:text-xs font-bold text-neutral-300 font-sans tracking-wide uppercase">Pilih Arah Transaksi</h3>
@@ -638,17 +612,14 @@
                 
                 <!-- PANEL PEMASUKAN -->
                 <div id="ledger-panel-in" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex-col gap-3.5 sm:gap-4 shadow-xs">
-                    <!-- Mobile Drag Indicator -->
-                    <div class="w-10 h-1 bg-neutral-700/80 rounded-full mx-auto sm:hidden mb-1"></div>
-                    
                     <!-- Panel Header with Close Button -->
                     <div class="flex items-center justify-between pb-2.5 border-b border-neutral-800/80">
                         <div class="flex items-center gap-2">
-                            <span class="w-7 h-7 rounded-lg bg-cyan-950/60 border border-cyan-800/50 flex items-center justify-center text-xs text-cyan-400">
+                            <span class="w-7 h-7 rounded-lg bg-emerald-950/60 border border-emerald-800/50 flex items-center justify-center text-xs text-emerald-400">
                                 <i class="fa-solid fa-arrow-down"></i>
                             </span>
                             <div>
-                                <span class="text-[9px] font-mono tracking-widest text-cyan-400 uppercase font-black block">PEMASUKAN</span>
+                                <span class="text-[9px] font-mono tracking-widest text-emerald-400 uppercase font-black block">PEMASUKAN</span>
                                 <h2 class="text-xs sm:text-sm font-bold text-neutral-200 font-sans leading-tight">Buat Pemasukan Baru</h2>
                             </div>
                         </div>
@@ -660,15 +631,15 @@
                 <div class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1.5">
                         <label class="text-[9px] font-mono text-neutral-500 uppercase font-bold">Pilih Tipe Pemasukan</label>
-                        <select id="pemasukanType" onchange="togglePemasukanForm(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer">
-                            <option value="lainnya" selected>📁 Pemasukan Eksternal (Donasi, Prestasi, Iuran Proker)</option>
-                            <option value="kas">📁 Uang Kas Iuran Pengurus</option>
+                        <select id="pemasukanType" onchange="togglePemasukanForm(this.value)" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 cursor-pointer">
+                            <option value="lainnya" selected>Pemasukan Eksternal (Donasi, Prestasi, Iuran Proker)</option>
+                            <option value="kas">Uang Kas Iuran Pengurus</option>
                         </select>
                     </div>
 
                     <div id="pemasukanKasBox" class="hidden p-4 bg-neutral-900/40 border border-neutral-900 rounded-xl flex flex-col gap-3">
                         <p class="text-xs text-neutral-400 leading-relaxed">Uang Kas Iuran Pengurus dikelola secara bulanan per anggota di halaman khusus kas pengurus.</p>
-                        <a href="Kelola-Kas.html" class="text-center bg-cyan-600 hover:bg-cyan-500 text-neutral-950 text-xs font-bold py-2.5 px-4 rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-md">
+                        <a href="Kelola-Kas.html" class="text-center bg-[#FF7300] hover:bg-orange-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition-all active:scale-[0.98] cursor-pointer shadow-md">
                             Buka Halaman Kas Pengurus →
                         </a>
                     </div>
@@ -677,20 +648,20 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Tanggal Pemasukan</label>
-                                <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono">
+                                <input type="date" id="in_tanggal" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono">
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
                                     <span>Divisi</span>
                                     <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
-                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
                                         <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
                                             Dari divisi apa transaksi ini, umumnya bila tidak terhubung proker biarkan kosong.
                                             <span class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
                                         </span>
                                     </span>
                                 </label>
-                                <select id="in_divisi_select" onchange="checkCustomDivisi('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                <select id="in_divisi_select" onchange="checkCustomDivisi('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 cursor-pointer font-sans">
                                     <option value="NULL" selected>- Tanpa Divisi (Umum) -</option>
                                     <option value="Acara">Acara</option>
                                     <option value="Sekretaris">Sekretaris</option>
@@ -701,31 +672,31 @@
                                     <option value="Korlap">Korlap</option>
                                     <option value="Sponsor">Sponsor</option>
                                     <option value="HPD">HPD</option>
-                                    <option value="custom">✏️ Tulis Sendiri...</option>
+                                    <option value="custom">+ Tulis Sendiri...</option>
                                 </select>
-                                <input type="text" id="in_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                                <input type="text" id="in_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-sans mt-1.5">
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
                                     <span>Kategori</span>
                                     <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
-                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
                                         <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
                                             Jenis atau sumber dana transaksi, seperti Kas, Danusan, Donasi, Iuran Panitia, dan lainnya.
                                             <span class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
                                         </span>
                                     </span>
                                 </label>
-                                <select id="in_kategori_select" onchange="checkCustomCategory('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                <select id="in_kategori_select" onchange="checkCustomCategory('in')" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 cursor-pointer font-sans">
                                     <option value="">Pilih Kategori...</option>
                                     <option value="Dana Operasional 2026">Dana Operasional 2026</option>
                                     <option value="Dana Operasional">Dana Operasional</option>
                                     <option value="Donasi">Donasi</option>
                                     <option value="Kas">Kas</option>
                                     <option value="Danusan">Danusan</option>
-                                    <option value="custom">✏️ Tulis Sendiri...</option>
+                                    <option value="custom">+ Tulis Sendiri...</option>
                                 </select>
-                                <input type="text" id="in_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                                <input type="text" id="in_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-sans mt-1.5">
                             </div>
                         </div>
 
@@ -735,40 +706,40 @@
                                 <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
                                     <span>Uraian Pemasukan <span class="text-rose-400">*</span></span>
                                     <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
-                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
                                         <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-60 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
                                             Keterangan umum transaksi. Tuliskan pembelian atau pemasukan secara singkat tanpa detail tambahan.
                                             <span class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
                                         </span>
                                     </span>
                                 </label>
-                                <input type="text" id="in_keterangan" placeholder="Contoh: Totebag, Dana Turunan Mukamil, Donasi Alumni..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                <input type="text" id="in_keterangan" placeholder="Contoh: Totebag, Dana Turunan Mukamil, Donasi Alumni..." required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-sans">
                             </div>
 
                             <!-- Pihak, Metode & Alokasi -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div class="flex flex-col gap-1.5">
                                     <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
-                                        <span>Metode Pembayaran <span class="text-cyan-400">*</span></span>
+                                        <span>Metode Pembayaran <span class="text-emerald-400">*</span></span>
                                     </label>
-                                    <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                    <select id="in_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 cursor-pointer font-sans">
                                         <option value="" disabled selected class="text-neutral-500">-- Pilih Metode Pembayaran --</option>
-                                        <option value="Tunai">💵 Tunai (Cash)</option>
-                                        <option value="GoPay">📱 E-Wallet GoPay</option>
+                                        <option value="Tunai">Tunai (Cash)</option>
+                                        <option value="GoPay">E-Wallet GoPay</option>
                                     </select>
                                 </div>
                                 <div class="flex flex-col gap-1.5">
                                     <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
                                         <span>Anggota Penyetor <span class="text-rose-400">*</span></span>
                                         <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
-                                            <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                            <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
                                             <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-60 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
                                                 Anggota yang melakukan pembayaran atau memberikan pemasukan. Jika bukan anggota LDK IMIP, gunakan nama penyetor.
                                                 <span class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
                                             </span>
                                         </span>
                                     </label>
-                                    <input type="text" id="in_user_search" list="in_members_list" required placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                    <input type="text" id="in_user_search" list="in_members_list" required placeholder="Cari & pilih penyetor..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-sans">
                                     <datalist id="in_members_list"></datalist>
                                     <input type="hidden" id="in_user_id">
                                 </div>
@@ -776,14 +747,14 @@
                                     <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
                                         <span>Hubungkan Ke Proker</span>
                                         <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
-                                            <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                            <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
                                             <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-56 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
                                                 Proker yang berkaitan dengan transaksi. Jika tidak berkaitan dengan proker, pilih Tanpa Proker (Umum).
                                                 <span class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
                                             </span>
                                         </span>
                                     </label>
-                                    <select id="in_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                    <select id="in_proker_id" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 cursor-pointer font-sans">
                                         <option value="NULL" selected>- Tanpa Proker (Umum) -</option>
                                     </select>
                                 </div>
@@ -794,11 +765,11 @@
                                 <div class="grid grid-cols-5 gap-2 sm:contents">
                                     <div class="col-span-2 sm:col-span-3 flex flex-col gap-1.5">
                                         <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Jumlah (Qty)</label>
-                                        <input type="number" id="in_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono text-center font-bold">
+                                        <input type="number" id="in_jumlah_unit" placeholder="1" required min="1" value="1" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono text-center font-bold">
                                     </div>
                                     <div class="col-span-3 sm:col-span-4 flex flex-col gap-1.5">
                                         <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Satuan</label>
-                                        <select id="in_satuan_select" onchange="checkCustomSatuan('in')" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 cursor-pointer font-sans">
+                                        <select id="in_satuan_select" onchange="checkCustomSatuan('in')" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 cursor-pointer font-sans">
                                             <option value="NULL">- Tanpa Satuan -</option>
                                             <option value="Pcs">Pcs</option>
                                             <option value="Set">Set</option>
@@ -807,16 +778,16 @@
                                             <option value="Porsi">Porsi</option>
                                             <option value="Kegiatan">Kegiatan</option>
                                             <option value="Day">Day</option>
-                                            <option value="custom">✏️ Tulis Sendiri...</option>
+                                            <option value="custom">+ Tulis Sendiri...</option>
                                         </select>
-                                        <input type="text" id="in_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                                        <input type="text" id="in_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-sans mt-1.5">
                                     </div>
                                 </div>
                                 <div class="sm:col-span-5 flex flex-col gap-1.5">
                                     <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Harga Satuan (Rp)</label>
                                     <div class="relative flex items-center">
                                         <span class="absolute left-3 text-xs font-mono font-bold text-neutral-500 select-none">Rp</span>
-                                        <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-mono font-bold">
+                                        <input type="text" id="in_harga_satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-9 pr-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono font-bold">
                                     </div>
                                 </div>
                             </div>
@@ -827,25 +798,25 @@
                                 <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold flex items-center gap-1">
                                     <span>Catatan Tambahan (Opsional)</span>
                                     <span tabindex="0" class="relative group/tip inline-flex items-center cursor-help select-none focus:outline-none">
-                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
+                                        <span class="w-3.5 h-3.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-emerald-400 border border-neutral-700/60 flex items-center justify-center text-[8.5px] font-mono font-bold transition-all">?</span>
                                         <span class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 invisible group-hover/tip:opacity-100 group-hover/tip:visible group-focus/tip:opacity-100 group-focus/tip:visible transition-all duration-150 w-64 p-2 rounded-lg bg-neutral-900/95 backdrop-blur-md border border-neutral-700/80 text-neutral-200 text-[10px] leading-snug font-sans font-normal normal-case shadow-2xl z-40">
                                             Detail atau informasi tambahan yang tidak dicantumkan pada uraian, seperti identitas pemberi donasi atau keterangan pembelian.
                                             <span class="tooltip-arrow absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-700/80"></span>
                                         </span>
                                     </span>
                                 </label>
-                                <input type="text" id="in_catatan_opsional" placeholder="Keterangan opsional (misal: pembeli Fadli, nota menyusul)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-cyan-500 font-sans">
+                                <input type="text" id="in_catatan_opsional" placeholder="Keterangan opsional (misal: pembeli Fadli, nota menyusul)..." class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-sans">
                             </div>
 
                             <!-- Bukti File Upload -->
                             <div class="flex flex-col gap-1.5">
                                 <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Bukti Transaksi</label>
-                                <label for="in_bukti_file" class="flex items-center justify-between px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-cyan-500/50 rounded-xl cursor-pointer transition-all active:scale-[0.99] group">
+                                <label for="in_bukti_file" class="flex items-center justify-between px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-emerald-500/50 rounded-xl cursor-pointer transition-all active:scale-[0.99] group">
                                     <div class="flex items-center gap-2.5 overflow-hidden">
-                                        <span class="text-sm text-neutral-400 group-hover:text-cyan-400 transition-colors">📎</span>
+                                        <i class="fa-solid fa-paperclip text-xs text-neutral-400 group-hover:text-emerald-400 transition-colors"></i>
                                         <span id="in_file_name_display" class="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate">Pilih foto nota / kwitansi...</span>
                                     </div>
-                                    <span class="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-800/40 px-2.5 py-1 rounded-lg shrink-0">Upload</span>
+                                    <span class="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/40 px-2.5 py-1 rounded-lg shrink-0">Upload</span>
                                 </label>
                                 <input type="file" id="in_bukti_file" onchange="handlePemasukanImage(this)" accept="image/*" class="hidden">
                                 <div id="in_preview_container" class="hidden mt-2 p-2.5 bg-neutral-900 border border-neutral-800 rounded-xl flex items-center justify-between">
@@ -871,7 +842,7 @@
                         </div>
 
                         <button type="submit" id="btnSubmitPemasukan" class="w-full bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-xs sm:text-sm font-bold py-3 rounded-xl active:scale-[0.99] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2">
-                            <span>💾</span>
+                            <i class="fa-solid fa-floppy-disk"></i>
                             <span>Simpan Pemasukan</span>
                         </button>
                     </form>
@@ -880,9 +851,6 @@
 
             <!-- PANEL PENGELUARAN -->
             <div id="ledger-panel-out" style="display: none;" class="bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 sm:p-5 flex-col gap-3.5 sm:gap-4 shadow-xs">
-                <!-- Mobile Drag Indicator -->
-                <div class="w-10 h-1 bg-neutral-700/80 rounded-full mx-auto sm:hidden mb-1"></div>
-                
                 <!-- Panel Header with Close Button -->
                 <div class="flex items-center justify-between pb-2.5 border-b border-neutral-800/80">
                     <div class="flex items-center gap-2">
@@ -927,7 +895,7 @@
                                 <option value="Korlap">Korlap</option>
                                 <option value="Sponsor">Sponsor</option>
                                 <option value="HPD">HPD</option>
-                                <option value="custom">✏️ Tulis Sendiri...</option>
+                                <option value="custom">+ Tulis Sendiri...</option>
                             </select>
                             <input type="text" id="out_divisi_custom" placeholder="Ketik Divisi Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                         </div>
@@ -949,7 +917,7 @@
                                 <option value="Donasi">Donasi</option>
                                 <option value="Kas">Kas</option>
                                 <option value="Danusan">Danusan</option>
-                                <option value="custom">✏️ Tulis Sendiri...</option>
+                                <option value="custom">+ Tulis Sendiri...</option>
                             </select>
                             <input type="text" id="out_kategori_custom" placeholder="Ketik Kategori Kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                         </div>
@@ -979,8 +947,8 @@
                                 </label>
                                 <select id="out_metode" required class="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 cursor-pointer font-sans">
                                     <option value="" disabled selected class="text-neutral-500">-- Pilih Metode Pembayaran --</option>
-                                    <option value="Tunai">💵 Uang Tunai (Cash)</option>
-                                    <option value="GoPay">📱 E-Wallet GoPay</option>
+                                    <option value="Tunai">Uang Tunai (Cash)</option>
+                                    <option value="GoPay">E-Wallet GoPay</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1.5">
@@ -1033,7 +1001,7 @@
                                         <option value="Porsi">Porsi</option>
                                         <option value="Kegiatan">Kegiatan</option>
                                         <option value="Day">Day</option>
-                                        <option value="custom">✏️ Tulis Sendiri...</option>
+                                        <option value="custom">+ Tulis Sendiri...</option>
                                     </select>
                                     <input type="text" id="out_satuan_custom" placeholder="Ketik Satuan..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-rose-500 font-sans mt-1.5">
                                 </div>
@@ -1067,7 +1035,7 @@
                             <label class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Bukti Pembelian / Kwitansi</label>
                             <label for="out_bukti_file" class="flex items-center justify-between px-3.5 py-2.5 bg-neutral-900 border border-neutral-800 hover:border-rose-500/50 rounded-xl cursor-pointer transition-all active:scale-[0.99] group">
                                 <div class="flex items-center gap-2.5 overflow-hidden">
-                                    <span class="text-sm text-neutral-400 group-hover:text-rose-400 transition-colors">📎</span>
+                                    <i class="fa-solid fa-paperclip text-xs text-neutral-400 group-hover:text-rose-400 transition-colors"></i>
                                     <span id="out_file_name_display" class="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate">Pilih foto nota / kwitansi...</span>
                                 </div>
                                 <span class="text-[9px] font-mono font-bold text-rose-400 bg-rose-950/80 border border-rose-800/40 px-2.5 py-1 rounded-lg shrink-0">Upload</span>
@@ -1096,7 +1064,7 @@
                     </div>
 
                     <button type="submit" class="w-full bg-rose-500 hover:bg-rose-400 text-neutral-950 text-xs sm:text-sm font-bold py-3 rounded-xl active:scale-[0.99] transition-all cursor-pointer shadow-md flex items-center justify-center gap-2">
-                        <span>💾</span>
+                        <i class="fa-solid fa-floppy-disk"></i>
                         <span>Simpan Pengeluaran</span>
                     </button>
                 </form>
@@ -1109,7 +1077,7 @@
                 <div class="flex items-center gap-2">
                     <span id="sync_status_badge" class="hidden text-[9px] font-mono px-2.5 py-1 rounded-md border items-center gap-1.5 transition-all"></span>
                     <button type="button" id="btn-manual-refresh" onclick="fetchInitialData(true)" title="Perbarui Data Langsung dari Server (Bypass Cache)" class="flex items-center gap-1.5 text-[9.5px] font-mono font-bold bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800 hover:border-neutral-700 px-2.5 py-1 rounded-md transition-all cursor-pointer active:scale-95">
-                        <svg id="refresh_icon" class="w-3 h-3 text-cyan-400 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <svg id="refresh_icon" class="w-3 h-3 text-[#FF7300] transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         <span>Refresh</span>
@@ -1126,7 +1094,7 @@
                 <div class="relative w-full">
                     <input type="text" id="txSearchInput" 
                            placeholder="Cari keterangan, kategori, nominal, program kerja, atau penyetor..." 
-                           class="w-full bg-neutral-900 border border-neutral-800 text-neutral-100 placeholder-neutral-500 text-xs px-3 py-2 rounded-lg focus:outline-none focus:border-cyan-500 transition-all font-sans pr-8">
+                           class="w-full bg-neutral-900 border border-neutral-800 text-neutral-100 placeholder-neutral-500 text-xs px-3 py-2 rounded-lg focus:outline-none focus:border-[#FF7300] transition-all font-sans pr-8">
                     <div class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 text-xs">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1137,7 +1105,7 @@
                 <!-- Row 2: Filter Actions -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-neutral-900/50">
                     <div class="flex bg-neutral-900 p-0.5 rounded-lg border border-neutral-800 self-start">
-                        <button onclick="filterType('all')" id="btn-type-all" class="px-2.5 py-1 rounded-md text-[9.5px] font-mono font-bold tracking-wider uppercase transition-all bg-cyan-500 text-neutral-950 cursor-pointer">
+                        <button onclick="filterType('all')" id="btn-type-all" class="px-2.5 py-1 rounded-md text-[9.5px] font-mono font-bold tracking-wider uppercase transition-all bg-[#FF7300] text-white cursor-pointer">
                             Semua
                         </button>
                         <button onclick="filterType('Masuk')" id="btn-type-masuk" class="px-2.5 py-1 rounded-md text-[9.5px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer">
@@ -1168,7 +1136,7 @@
                         </div>
 
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterSort" onchange="filterSort(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500/40 transition-all cursor-pointer">
+                            <select id="filterSort" onchange="filterSort(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer">
                                 <option value="terbaru">Terbaru (Tanggal)</option>
                                 <option value="terlama">Terlama (Tanggal)</option>
                                 <option value="termahal">Termahal (Nominal)</option>
@@ -1177,27 +1145,28 @@
                         </div>
 
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterMetode" onchange="filterMetode(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500/40 transition-all cursor-pointer">
+                            <select id="filterMetode" onchange="filterMetode(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer">
                                 <option value="all">Semua Metode</option>
-                                <option value="Tunai">💵 Tunai</option>
-                                <option value="GoPay">📱 GoPay</option>
+                                <option value="Tunai">Tunai</option>
+                                <option value="GoPay">GoPay</option>
                             </select>
                         </div>
 
                         <div class="flex flex-col gap-0.5">
-                            <select id="filterKategori" onchange="filterKategori(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500/40 transition-all cursor-pointer">
+                            <select id="filterKategori" onchange="filterKategori(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer">
                                 <option value="all">Semua Kategori</option>
                             </select>
                         </div>
 
                         <div class="flex flex-col gap-0.5 col-span-2 sm:col-span-1">
-                            <select id="filterProker" onchange="filterProker(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500/40 transition-all cursor-pointer">
+                            <select id="filterProker" onchange="filterProker(this.value)" class="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-neutral-300 text-[10px] sm:text-xs font-sans px-2.5 py-1.5 rounded-lg focus:outline-none focus:border-[#FF7300]/50 transition-all cursor-pointer">
                                 <option value="all">Semua Kegiatan</option>
                             </select>
                         </div>
 
-                        <button onclick="downloadCSVBackup()" class="col-span-2 sm:col-span-1 w-full sm:w-auto justify-center bg-cyan-500 hover:bg-cyan-600 text-neutral-950 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs active:scale-95">
-                            📥 Unduh CSV
+                        <button onclick="downloadCSVBackup()" class="col-span-2 sm:col-span-1 w-full sm:w-auto justify-center bg-[#FF7300] hover:bg-orange-500 text-white text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95">
+                            <i class="fa-solid fa-file-csv"></i>
+                            <span>Unduh CSV</span>
                         </button>
                     </div>
                 </div>
@@ -1218,17 +1187,9 @@
                 </div>
                 <div class="p-2 sm:p-2.5 bg-neutral-950 border border-neutral-850 rounded-xl flex flex-col">
                     <span class="text-[7.5px] sm:text-[8.5px] text-neutral-400 font-sans font-bold tracking-wider uppercase flex items-center gap-1 truncate">
-                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 inline-block"></span> SELISIH
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#FF7300] shrink-0 inline-block"></span> SELISIH
                     </span>
-                    <span id="sum-selisih" class="text-[10.5px] sm:text-xs font-black text-cyan-400 mt-0.5 truncate">Rp0</span>
-                </div>
-            </div>
-
-            <div class="bg-neutral-950/40 border border-neutral-900/60 p-3.5 rounded-xl text-[10px] text-neutral-400 font-sans leading-relaxed flex items-start gap-2.5">
-                <span class="text-xs leading-none">💡</span>
-                <div>
-                    <span class="font-bold text-neutral-300 block mb-0.5">Mengapa saldo berbeda dengan Dashboard?</span>
-                    Saldo Dashboard utama hanya menghitung iuran masuk yang <span class="text-emerald-400 font-bold">telah diverifikasi</span>. Transaksi kas online yang masih berstatus <span class="text-amber-400 font-bold">⏳ PENDING VERIFIKASI</span> terdaftar di sini, namun belum dihitung di Dashboard hingga Anda memverifikasinya.
+                    <span id="sum-selisih" class="text-[10.5px] sm:text-xs font-black text-orange-400 mt-0.5 truncate">Rp0</span>
                 </div>
             </div>
 
@@ -1260,16 +1221,16 @@
     <!-- ======================================================================
          FLOATING ACTION BUTTON (MOBILE FAB FOR TRANSACTIONS)
          ====================================================================== -->
-    <div id="mobile-fab-container" class="fixed bottom-20 right-4 sm:hidden z-40 flex flex-col items-end pointer-events-none">
+    <div id="mobile-fab-container" class="fixed bottom-[84px] right-4 sm:hidden z-40 flex flex-col items-end pointer-events-none">
         <!-- Backdrop overlay when menu is open -->
         <div id="fab-menu-backdrop" onclick="toggleMobileFabMenu(false)" class="fixed inset-0 bg-neutral-950/70 backdrop-blur-[2px] hidden pointer-events-auto transition-opacity duration-200 opacity-0"></div>
 
         <!-- Floating Options Menu (Animated Pop-up Above Main FAB) -->
         <div id="fab-speed-dial" class="flex flex-col items-end gap-2.5 mb-3 pointer-events-none transition-all duration-300 transform translate-y-6 scale-90 opacity-0 origin-bottom-right">
             <!-- Pilihan Pemasukan -->
-            <button type="button" onclick="handleMobileFabSelect('in')" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-neutral-900/95 border border-cyan-500/40 text-cyan-300 shadow-2xl backdrop-blur-md active:scale-95 transition-transform cursor-pointer pointer-events-auto group">
+            <button type="button" onclick="handleMobileFabSelect('in')" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-neutral-900/95 border border-emerald-500/40 text-emerald-300 shadow-2xl backdrop-blur-md active:scale-95 transition-transform cursor-pointer pointer-events-auto group">
                 <span class="text-xs font-bold font-sans tracking-tight">Catat Pemasukan</span>
-                <div class="w-8 h-8 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs shadow-inner border border-cyan-500/30 group-hover:bg-cyan-500 group-hover:text-neutral-950 transition-colors">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs shadow-inner border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-neutral-950 transition-colors">
                     <i class="fa-solid fa-arrow-down"></i>
                 </div>
             </button>
@@ -2014,7 +1975,7 @@
 
             if (panelPlaceholder) panelPlaceholder.style.display = 'none';
 
-            const activeInClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 border border-cyan-500/40 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-in active:scale-[0.98]";
+            const activeInClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 border border-emerald-500/40 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-in active:scale-[0.98]";
             const activeOutClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all bg-neutral-900 border border-rose-500/40 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)] cursor-pointer flex items-center justify-center gap-1.5 select-none active-out active:scale-[0.98]";
             const inactiveClass = "ledger-tab-btn py-2 sm:py-2.5 px-3 text-center text-xs font-bold rounded-lg transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer flex items-center justify-center gap-1.5 select-none active:scale-[0.98]";
 
@@ -2372,7 +2333,13 @@
             Object.keys(btns).forEach(key => {
                 if (!btns[key]) return;
                 if (key === type) {
-                    btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-cyan-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.2)]";
+                    if (type === 'Masuk') {
+                        btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-emerald-500 text-neutral-950 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.2)]";
+                    } else if (type === 'Keluar') {
+                        btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-rose-500 text-white cursor-pointer shadow-[0_0_10px_rgba(244,63,94,0.2)]";
+                    } else {
+                        btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all bg-[#FF7300] text-white cursor-pointer shadow-[0_0_10px_rgba(255,115,0,0.2)]";
+                    }
                 } else {
                     btns[key].className = "px-3.5 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-wider uppercase transition-all text-neutral-400 hover:text-neutral-200 cursor-pointer";
                 }
@@ -2421,14 +2388,14 @@
                 defaultCats.forEach(cat => {
                     const opt = document.createElement('option');
                     opt.value = cat;
-                    opt.textContent = `🏷️ ${cat}`;
+                    opt.textContent = cat;
                     filterKategoriSelect.appendChild(opt);
                 });
                 categories.forEach(cat => {
                     if (!defaultCats.some(dc => dc.toLowerCase() === cat.toLowerCase())) {
                         const opt = document.createElement('option');
                         opt.value = cat;
-                        opt.textContent = `🏷️ ${cat}`;
+                        opt.textContent = cat;
                         filterKategoriSelect.appendChild(opt);
                     }
                 });
@@ -2442,13 +2409,13 @@
                 
                 const optGeneral = document.createElement('option');
                 optGeneral.value = "general";
-                optGeneral.textContent = "💼 NULL / Tanpa Proker";
+                optGeneral.textContent = "NULL / Tanpa Proker";
                 filterProkerSelect.appendChild(optGeneral);
 
                 for (const prokerId in prokersMap) {
                     const opt = document.createElement('option');
                     opt.value = prokerId;
-                    opt.textContent = `💼 ${prokersMap[prokerId]}`;
+                    opt.textContent = prokersMap[prokerId];
                     filterProkerSelect.appendChild(opt);
                 }
                 filterProkerSelect.value = currentVal;
@@ -2594,10 +2561,10 @@
                 const pengetorText = penyetorName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-500">Penyetor: ${penyetorName}</span>` : '';
 
                 const pjName = !isMasuk ? (tx.user_id ? (membersMap[tx.user_id.toString()] || tx.nama_pic_pengeluar || "") : (tx.nama_pic_pengeluar || "")) : "";
-                const picText = pjName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-cyan-400">Penanggung Jawab: ${pjName}</span>` : '';
+                const picText = pjName ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-orange-400">PJ: ${pjName}</span>` : '';
                 
                 const receiptPath = getReceiptPath(tx);
-                const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-cyan-950/40 text-cyan-400 hover:text-white border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm">📂 Lihat Bukti</button>` : '';
+                const attachmentBtn = receiptPath ? `<button type="button" onclick="openReceiptModal('${receiptPath}')" class="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-1 rounded-lg bg-orange-950/40 text-orange-400 hover:text-white border border-orange-500/25 hover:border-orange-500/50 transition-all duration-300 cursor-pointer active:scale-95 shadow-sm"><i class="fa-solid fa-receipt text-[9px]"></i> Lihat Bukti</button>` : '';
                 
                 const prokerIdStr = (tx.proker_id !== undefined && tx.proker_id !== null) ? String(tx.proker_id).trim() : '';
                 const prokerName = (prokerIdStr !== '' && prokerIdStr.toUpperCase() !== 'NULL')
@@ -2613,7 +2580,7 @@
                 const hargaSatuanVal = Number(tx.harga_satuan) || 0;
                 const priceText = hargaSatuanVal > 0 ? `@ Rp${hargaSatuanVal.toLocaleString('id-ID')}` : '';
                 const qtyPriceBadge = (unitVal || priceText) 
-                    ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded text-neutral-400">📦 <span class="italic font-medium">${unitVal}</span> ${priceText}</span>` 
+                    ? `<span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded text-neutral-400"><span class="italic font-medium">${unitVal}</span> ${priceText}</span>` 
                     : '';
 
                 let extraKet = cleanTitle(tx.keterangan);
@@ -2621,7 +2588,7 @@
                 let displayNote = extraKet || cleanTitle(tx.catatan || '');
                 const hasNote = displayNote && !displayNote.startsWith('KAS_') && !displayNote.startsWith('PROKER_') && displayNote !== '' && displayNote !== txTitle;
                 const noteHtml = hasNote 
-                    ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-cyan-500/20 pl-2 py-0.5 leading-relaxed max-w-md select-text">📝 ${displayNote}</div>` 
+                    ? `<div class="mt-1 text-[10px] text-neutral-400/80 font-sans border-l-2 border-orange-500/30 pl-2 py-0.5 leading-relaxed max-w-md select-text">${displayNote}</div>` 
                     : '';
 
                 // Accumulate Desktop Row
@@ -2635,9 +2602,9 @@
                             <span class="font-bold text-neutral-200 block text-xs leading-normal">${txTitle}</span>
                             ${noteHtml}
                             <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏢 Divisi: ${divisiText}</span>
-                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori || 'Kas'}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">${prokerName}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">Divisi: ${divisiText}</span>
+                                <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">${tx.kategori || 'Kas'}</span>
                                 ${qtyPriceBadge}
                                 <span class="inline-block text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
                                 ${picText}
@@ -2646,14 +2613,14 @@
                             </div>
                         </td>
                         <td class="p-3 text-center align-middle">
-                            ${tx.metode ? `<span class="text-[9px] font-bold text-cyan-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>` : `<span class="text-[8.5px] font-mono text-neutral-500 italic bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-850">Belum Diisi</span>`}
+                            ${tx.metode ? `<span class="text-[9px] font-bold text-orange-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-850">${tx.metode}</span>` : `<span class="text-[8.5px] font-mono text-neutral-500 italic bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-850">Belum Diisi</span>`}
                         </td>
                         <td class="p-3 text-right font-black text-xs align-middle ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</td>
                         <td class="p-3 text-center align-middle">
                             <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="viewDetailTransaksi('${tx.id}')" title="Detail Transaksi" class="text-amber-400 hover:text-amber-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">👁️</button>
-                                <button onclick="editTransaksi('${tx.id}')" title="Edit Transaksi" class="text-cyan-400 hover:text-cyan-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">✏️</button>
-                                <button onclick="confirmDelete('${tx.id}')" title="Hapus Transaksi" class="text-red-400 hover:text-red-300 bg-neutral-900 p-1.5 border border-neutral-850 rounded-lg transition-colors cursor-pointer">🗑️</button>
+                                <button onclick="viewDetailTransaksi('${tx.id}')" title="Detail Transaksi" class="text-amber-400 hover:text-amber-300 bg-neutral-900 w-7 h-7 flex items-center justify-center border border-neutral-850 rounded-lg transition-colors cursor-pointer"><i class="fa-solid fa-eye text-[10px]"></i></button>
+                                <button onclick="editTransaksi('${tx.id}')" title="Edit Transaksi" class="text-orange-400 hover:text-orange-300 bg-neutral-900 w-7 h-7 flex items-center justify-center border border-neutral-850 rounded-lg transition-colors cursor-pointer"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                <button onclick="confirmDelete('${tx.id}')" title="Hapus Transaksi" class="text-rose-400 hover:text-rose-300 bg-neutral-900 w-7 h-7 flex items-center justify-center border border-neutral-850 rounded-lg transition-colors cursor-pointer"><i class="fa-solid fa-trash-can text-[10px]"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -2668,7 +2635,7 @@
                                 <span class="text-[7px] font-mono text-neutral-600 mt-0.5 leading-none select-all">${tx.id}</span>
                             </div>
                             <div class="flex items-center gap-1">
-                                ${tx.metode ? `<span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-cyan-400 border-neutral-850">${tx.metode}</span>` : `<span class="text-[8px] font-mono text-neutral-500 italic px-1.5 py-0.5 rounded border bg-neutral-900 border-neutral-850">Belum Diisi</span>`}
+                                ${tx.metode ? `<span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border bg-neutral-900 text-orange-400 border-neutral-850">${tx.metode}</span>` : `<span class="text-[8px] font-mono text-neutral-500 italic px-1.5 py-0.5 rounded border bg-neutral-900 border-neutral-850">Belum Diisi</span>`}
                                 <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badgeType}">${tx.jenis}</span>
                             </div>
                         </div>
@@ -2676,9 +2643,9 @@
                             <span class="text-[11.5px] sm:text-xs font-bold text-neutral-200 leading-snug">${txTitle}</span>
                             ${noteHtml}
                             <div class="flex flex-wrap gap-1">
-                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">📁 ${prokerName}</span>
-                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏢 Divisi: ${divisiText}</span>
-                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">🏷️ ${tx.kategori || 'Kas'}</span>
+                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">${prokerName}</span>
+                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">Divisi: ${divisiText}</span>
+                                <span class="inline-block text-[7.5px] sm:text-[8px] font-mono font-bold px-1.5 py-0.2 bg-neutral-900 border border-neutral-850 rounded uppercase text-neutral-400">${tx.kategori || 'Kas'}</span>
                                 ${qtyPriceBadge}
                                 ${picText}
                                 ${pengetorText}
@@ -2688,9 +2655,9 @@
                         <div class="flex items-center justify-between border-t border-neutral-900/60 pt-2 mt-0.5">
                             <span class="text-xs sm:text-sm font-black tracking-tight ${valColor}">${sign}Rp${nominalVal.toLocaleString('id-ID')}</span>
                             <div class="flex items-center gap-1">
-                                <button onclick="viewDetailTransaksi('${tx.id}')" class="text-[9px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer">👁️ Detail</button>
-                                <button onclick="editTransaksi('${tx.id}')" class="text-[9px] font-mono font-bold text-cyan-400 hover:text-cyan-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer">✏️ Edit</button>
-                                <button onclick="confirmDelete('${tx.id}')" class="text-[9px] font-mono font-bold text-red-400 hover:text-red-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer">🗑️ Hapus</button>
+                                <button onclick="viewDetailTransaksi('${tx.id}')" class="text-[9px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer inline-flex items-center gap-1"><i class="fa-solid fa-eye text-[8px]"></i> Detail</button>
+                                <button onclick="editTransaksi('${tx.id}')" class="text-[9px] font-mono font-bold text-orange-400 hover:text-orange-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer inline-flex items-center gap-1"><i class="fa-solid fa-pen text-[8px]"></i> Edit</button>
+                                <button onclick="confirmDelete('${tx.id}')" class="text-[9px] font-mono font-bold text-rose-400 hover:text-rose-300 bg-neutral-900 px-2 py-1 border border-neutral-850 rounded-md cursor-pointer inline-flex items-center gap-1"><i class="fa-solid fa-trash-can text-[8px]"></i> Hapus</button>
                             </div>
                         </div>
                     </div>
@@ -2705,7 +2672,7 @@
                 tbody.innerHTML += `
                     <tr id="load-more-row">
                         <td colspan="5" class="p-4 text-center">
-                            <button onclick="loadMoreTransactions()" class="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-neutral-700 text-xs font-mono text-cyan-400 font-bold active:scale-95 transition-all cursor-pointer">
+                            <button onclick="loadMoreTransactions()" class="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 hover:border-neutral-700 text-xs font-mono text-orange-400 font-bold active:scale-95 transition-all cursor-pointer">
                                 Muat Lebih Banyak (${filtered.length - displayLimit} transaksi lagi)...
                             </button>
                         </td>
@@ -2713,7 +2680,7 @@
                 `;
                 mobileContainer.innerHTML += `
                     <div id="load-more-mobile" class="p-3 text-center">
-                        <button onclick="loadMoreTransactions()" class="w-full py-3 rounded-xl bg-neutral-950 hover:bg-neutral-900 border border-neutral-900 text-xs font-mono text-cyan-400 font-bold active:scale-95 transition-all cursor-pointer">
+                        <button onclick="loadMoreTransactions()" class="w-full py-3 rounded-xl bg-neutral-950 hover:bg-neutral-900 border border-neutral-900 text-xs font-mono text-orange-400 font-bold active:scale-95 transition-all cursor-pointer">
                             Muat Lebih Banyak (${filtered.length - displayLimit} transaksi lagi)...
                         </button>
                     </div>
@@ -2729,8 +2696,7 @@
             const netPrefix = netSaldo > 0 ? '+' : (netSaldo < 0 ? '-' : '');
             const selisihEl = document.getElementById('sum-selisih');
             selisihEl.innerText = netPrefix + 'Rp' + Math.abs(netSaldo).toLocaleString('id-ID');
-            selisihEl.className = netSaldo > 0 ? "text-xs sm:text-sm font-black text-emerald-400 font-mono" : (netSaldo < 0 ? "text-xs sm:text-sm font-black text-rose-400 font-mono" : "text-xs sm:text-sm font-black text-neutral-300 font-mono");
-            updateTransactionChart();
+            selisihEl.className = netSaldo > 0 ? "text-[10.5px] sm:text-xs font-black text-emerald-400 font-mono mt-0.5 truncate" : (netSaldo < 0 ? "text-[10.5px] sm:text-xs font-black text-rose-400 font-mono mt-0.5 truncate" : "text-[10.5px] sm:text-xs font-black text-neutral-300 font-mono mt-0.5 truncate");
         }
 
         // Hapus Item
@@ -2900,15 +2866,15 @@
             }
 
             Swal.fire({
-                title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><span>✏️</span> Edit Transaksi</div>',
+                title: '<div class="text-sm sm:text-base font-bold text-neutral-100 font-sans flex items-center justify-center gap-2"><i class="fa-solid fa-pen text-[#FF7300]"></i> Edit Transaksi</div>',
                 html: `
                     <div class="flex flex-col gap-3 text-left text-xs font-sans text-neutral-300 max-h-[75vh] overflow-y-auto pr-1 custom-scroll">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-neutral-900 border border-neutral-850 rounded-xl">
                             <div class="flex items-center gap-2">
                                 <label for="swal-edit-jenis" class="text-[9px] font-mono text-neutral-400 uppercase font-bold">Jenis:</label>
                                 <select id="swal-edit-jenis" class="bg-neutral-950 border rounded-lg px-2.5 py-1 text-xs font-bold font-sans cursor-pointer focus:outline-none transition-colors ${isMasuk ? 'text-emerald-400 border-emerald-800/80 bg-emerald-950/30' : 'text-rose-400 border-rose-800/80 bg-rose-950/30'}">
-                                    <option value="Masuk" class="text-emerald-400 bg-neutral-900" ${isMasuk ? 'selected' : ''}>🟢 Pemasukan (+)</option>
-                                    <option value="Keluar" class="text-rose-400 bg-neutral-900" ${!isMasuk ? 'selected' : ''}>🔴 Pengeluaran (-)</option>
+                                    <option value="Masuk" class="text-emerald-400 bg-neutral-900" ${isMasuk ? 'selected' : ''}>Pemasukan (+)</option>
+                                    <option value="Keluar" class="text-rose-400 bg-neutral-900" ${!isMasuk ? 'selected' : ''}>Pengeluaran (-)</option>
                                 </select>
                             </div>
                             <div class="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
@@ -2920,7 +2886,7 @@
 
                         <div>
                             <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Uraian Transaksi <span class="text-rose-400">*</span></label>
-                            <input type="text" id="swal-edit-uraian" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingUraian)}" placeholder="Nama barang / uraian transaksi...">
+                            <input type="text" id="swal-edit-uraian" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-[#FF7300] font-sans" value="${escapeHtmlAttr(existingUraian)}" placeholder="Nama barang / uraian transaksi...">
                         </div>
 
                         <!-- Qty, Satuan, Harga Satuan -->
@@ -2928,11 +2894,11 @@
                             <div class="grid grid-cols-5 gap-2 sm:contents">
                                 <div class="col-span-2 sm:col-span-3 flex flex-col">
                                     <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Qty</label>
-                                    <input type="number" id="swal-edit-qty" min="0.01" step="any" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-200 text-xs text-center font-mono font-bold focus:outline-none focus:border-cyan-500" value="${existingQty}">
+                                    <input type="number" id="swal-edit-qty" min="0.01" step="any" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-2 text-neutral-200 text-xs text-center font-mono font-bold focus:outline-none focus:border-[#FF7300]" value="${existingQty}">
                                 </div>
                                 <div class="col-span-3 sm:col-span-4 flex flex-col">
                                     <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Satuan</label>
-                                    <select id="swal-edit-satuan-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                    <select id="swal-edit-satuan-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-[#FF7300] font-sans">
                                         <option value="NULL" ${(!existingSatuan || existingSatuan.toUpperCase() === 'NULL') ? 'selected' : ''}>- Tanpa Satuan -</option>
                                         <option value="Pcs" ${existingSatuan.toLowerCase() === 'pcs' ? 'selected' : ''}>Pcs</option>
                                         <option value="Set" ${existingSatuan.toLowerCase() === 'set' ? 'selected' : ''}>Set</option>
@@ -2941,16 +2907,16 @@
                                         <option value="Porsi" ${existingSatuan.toLowerCase() === 'porsi' ? 'selected' : ''}>Porsi</option>
                                         <option value="Kegiatan" ${existingSatuan.toLowerCase() === 'kegiatan' ? 'selected' : ''}>Kegiatan</option>
                                         <option value="Day" ${existingSatuan.toLowerCase() === 'day' ? 'selected' : ''}>Day</option>
-                                        <option value="custom" ${isCustomSatuan ? 'selected' : ''}>✏️ Tulis Sendiri...</option>
+                                        <option value="custom" ${isCustomSatuan ? 'selected' : ''}>+ Tulis Sendiri...</option>
                                     </select>
-                                    <input type="text" id="swal-edit-satuan-custom" placeholder="Ketik Satuan..." class="${isCustomSatuan ? '' : 'hidden'} w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5" value="${isCustomSatuan ? escapeHtmlAttr(existingSatuan) : ''}">
+                                    <input type="text" id="swal-edit-satuan-custom" placeholder="Ketik Satuan..." class="${isCustomSatuan ? '' : 'hidden'} w-full bg-neutral-900 border border-neutral-800 rounded-xl px-2.5 py-1.5 text-neutral-200 text-xs focus:outline-none focus:border-[#FF7300] font-sans mt-1.5" value="${isCustomSatuan ? escapeHtmlAttr(existingSatuan) : ''}">
                                 </div>
                             </div>
                             <div class="sm:col-span-5 flex flex-col">
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Harga Satuan (Rp)</label>
                                 <div class="relative flex items-center">
                                     <span class="absolute left-2.5 text-xs font-mono font-bold text-neutral-500 select-none">Rp</span>
-                                    <input type="text" id="swal-edit-harga-satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-8 pr-2.5 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-cyan-500" value="${existingHargaSatuan ? existingHargaSatuan.toLocaleString('id-ID') : ''}">
+                                    <input type="text" id="swal-edit-harga-satuan" onkeyup="formatRibuanInstan(this)" placeholder="0" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-8 pr-2.5 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-[#FF7300]" value="${existingHargaSatuan ? existingHargaSatuan.toLocaleString('id-ID') : ''}">
                                 </div>
                             </div>
                         </div>
@@ -2958,23 +2924,23 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div>
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Tanggal Transaksi</label>
-                                <input type="date" id="swal-edit-tanggal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-mono" value="${item.tanggal || ''}">
+                                <input type="date" id="swal-edit-tanggal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-[#FF7300] font-mono" value="${item.tanggal || ''}">
                             </div>
                             <div>
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Total Nominal (Rp) <span class="text-rose-400">*</span></label>
-                                <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-cyan-500" value="${existingNominal.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
+                                <input type="text" id="swal-edit-nominal" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-[#FF7300]" value="${existingNominal.toLocaleString('id-ID')}" onkeyup="formatRibuanInstan(this)">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Keterangan / Catatan (Opsional)</label>
-                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans" value="${escapeHtmlAttr(existingKet)}" placeholder="Catatan tambahan...">
+                            <input type="text" id="swal-edit-keterangan" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2.5 text-neutral-200 text-xs focus:outline-none focus:border-[#FF7300] font-sans" value="${escapeHtmlAttr(existingKet)}" placeholder="Catatan tambahan...">
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">👤 Anggota / Penanggung Jawab</label>
-                                <select id="swal-edit-anggota" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Anggota / Penanggung Jawab</label>
+                                <select id="swal-edit-anggota" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-[#FF7300] font-sans">
                                     ${anggotaOptionsHtml}
                                 </select>
                             </div>
@@ -2982,42 +2948,42 @@
                                 <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">
                                     <span>Metode Pembayaran <span class="text-rose-400">*</span></span>
                                 </label>
-                                <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                <select id="swal-edit-metode" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-[#FF7300] font-sans">
                                     <option value="" disabled ${(!item.metode || item.metode === '') ? 'selected' : ''}>-- Pilih Metode Pembayaran --</option>
-                                    <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>💵 Tunai (Cash)</option>
-                                    <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>📱 GoPay</option>
+                                    <option value="Tunai" ${item.metode === 'Tunai' ? 'selected' : ''}>Tunai (Cash)</option>
+                                    <option value="GoPay" ${item.metode === 'GoPay' ? 'selected' : ''}>GoPay</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">💼 Program Kerja / Kegiatan</label>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Program Kerja / Kegiatan</label>
                                 <select id="swal-edit-proker" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-[#FF7300] font-sans">
                                     ${prokerOptionsHtml}
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏢 Divisi</label>
-                                <select id="swal-edit-divisi-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Divisi</label>
+                                <select id="swal-edit-divisi-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-[#FF7300] font-sans">
                                     ${divisiOptionsHtml}
                                 </select>
-                                <input type="text" id="swal-edit-divisi-custom" placeholder="Ketik divisi kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                                <input type="text" id="swal-edit-divisi-custom" placeholder="Ketik divisi kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-[#FF7300] font-sans mt-1.5">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">🏷️ Kategori</label>
-                            <select id="swal-edit-kategori-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-cyan-500 font-sans">
+                            <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold mb-1">Kategori</label>
+                            <select id="swal-edit-kategori-select" class="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs cursor-pointer focus:outline-none focus:border-[#FF7300] font-sans">
                                 ${kategoriOptionsHtml}
                             </select>
-                            <input type="text" id="swal-edit-kategori-custom" placeholder="Ketik kategori kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-cyan-500 font-sans mt-1.5">
+                            <input type="text" id="swal-edit-kategori-custom" placeholder="Ketik kategori kustom..." class="hidden w-full bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-2 text-neutral-200 text-xs focus:outline-none focus:border-[#FF7300] font-sans mt-1.5">
                         </div>
 
                         <!-- Bukti / Nota Transaksi Section -->
                         <div class="flex flex-col gap-2 pt-2 border-t border-neutral-900/80">
                             <div class="flex items-center justify-between">
-                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold">🧾 Bukti / Nota Transaksi</label>
+                                <label class="block text-[9px] font-mono text-neutral-400 uppercase font-bold">Bukti / Nota Transaksi</label>
                                 ${existingBukti ? `<span id="swal-current-bukti-status" class="text-[9px] font-mono text-emerald-400 font-bold flex items-center gap-1"><span>✓</span> Ada Bukti</span>` : `<span id="swal-current-bukti-status" class="text-[9px] font-mono text-neutral-500">Belum ada bukti</span>`}
                             </div>
 
@@ -3028,11 +2994,11 @@
                                     <div class="w-11 h-11 rounded-lg bg-neutral-950 border border-neutral-700 flex items-center justify-center shrink-0 overflow-hidden text-base">
                                         ${existingBukti.startsWith('data:image') 
                                             ? `<img src="${escapeHtmlAttr(existingBukti)}" class="w-full h-full object-cover">` 
-                                            : `<span class="text-lg">📄</span>`}
+                                            : `<i class="fa-solid fa-file-invoice text-orange-400"></i>`}
                                     </div>
                                     <div class="flex flex-col min-w-0">
                                         <span class="text-[11px] font-bold text-neutral-200 truncate">Bukti Tersimpan</span>
-                                        <a href="${escapeHtmlAttr(existingBukti)}" target="_blank" rel="noopener noreferrer" class="text-[9.5px] font-mono text-cyan-400 hover:underline truncate">Buka file bukti ↗</a>
+                                        <a href="${escapeHtmlAttr(existingBukti)}" target="_blank" rel="noopener noreferrer" class="text-[9.5px] font-mono text-orange-400 hover:underline truncate">Buka file bukti ↗</a>
                                     </div>
                                 </div>
                                 <button type="button" id="btn-delete-existing-bukti" class="text-[10px] font-mono text-rose-400 hover:text-rose-300 bg-neutral-950 border border-neutral-800 hover:border-rose-500/40 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all font-bold shrink-0">Hapus</button>
@@ -3041,24 +3007,24 @@
 
                             <!-- Upload Button / Dropzone -->
                             <div id="swal-upload-box" class="flex flex-col gap-1.5">
-                                <label for="swal-edit-bukti-file" class="group relative flex items-center justify-between bg-neutral-900/90 border border-dashed border-neutral-700 hover:border-cyan-500/80 p-2.5 rounded-xl cursor-pointer transition-all">
+                                <label for="swal-edit-bukti-file" class="group relative flex items-center justify-between bg-neutral-900/90 border border-dashed border-neutral-700 hover:border-[#FF7300] p-2.5 rounded-xl cursor-pointer transition-all">
                                     <div class="flex items-center gap-2 overflow-hidden">
-                                        <span class="text-base group-hover:scale-110 transition-transform">📸</span>
+                                        <i class="fa-solid fa-camera text-orange-400"></i>
                                         <span id="swal-edit-file-name" class="text-xs text-neutral-400 group-hover:text-neutral-200 transition-colors truncate">
                                             ${existingBukti ? 'Ganti foto nota / bukti...' : 'Unggah foto nota / kwitansi...'}
                                         </span>
                                     </div>
-                                    <span class="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-800/40 px-2.5 py-1 rounded-lg shrink-0">Pilih Foto</span>
+                                    <span class="text-[9px] font-mono font-bold text-orange-400 bg-orange-950/60 border border-orange-500/30 px-2.5 py-1 rounded-lg shrink-0">Pilih Foto</span>
                                 </label>
                                 <input type="file" id="swal-edit-bukti-file" accept="image/*" class="hidden">
                             </div>
 
                             <!-- Preview Bukti Baru Terpilih -->
-                            <div id="swal-new-preview-box" class="hidden p-2.5 bg-neutral-900 border border-cyan-800/60 rounded-xl flex items-center justify-between gap-2">
+                            <div id="swal-new-preview-box" class="hidden p-2.5 bg-neutral-900 border border-orange-800/60 rounded-xl flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-2.5 overflow-hidden">
-                                    <img id="swal-new-image-preview" src="" class="w-11 h-11 rounded-lg object-cover border border-cyan-700 shrink-0">
+                                    <img id="swal-new-image-preview" src="" class="w-11 h-11 rounded-lg object-cover border border-orange-700 shrink-0">
                                     <div class="flex flex-col min-w-0">
-                                        <span class="text-[11px] font-bold text-cyan-300 truncate">Foto Baru Terpilih</span>
+                                        <span class="text-[11px] font-bold text-orange-300 truncate">Foto Baru Terpilih</span>
                                         <span id="swal-new-reduction-info" class="text-[9px] font-mono text-neutral-400">Siap diunggah</span>
                                     </div>
                                 </div>
@@ -3070,7 +3036,7 @@
                 showCancelButton: true,
                 confirmButtonText: 'Simpan Perubahan',
                 cancelButtonText: 'Batal',
-                confirmButtonColor: '#06b6d4',
+                confirmButtonColor: '#FF7300',
                 cancelButtonColor: '#262626',
                 background: '#0F1623',
                 customClass: {
@@ -3535,8 +3501,8 @@
                     </div>
                 `,
                 showCancelButton: true,
-                cancelButtonText: '✏️ Edit Transaksi',
-                cancelButtonColor: '#0891b2',
+                cancelButtonText: 'Edit Transaksi',
+                cancelButtonColor: '#FF7300',
                 confirmButtonText: 'Tutup',
                 confirmButtonColor: '#262626'
             }).then((res) => {
@@ -3696,110 +3662,8 @@
             }, 300);
         };
 
-        function initTransactionChart() {
-            const canvasEl = document.getElementById('ldkLineChart');
-            if (!canvasEl) return;
-            const ctx = canvasEl.getContext('2d');
-            window.ldkChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep"],
-                    datasets: [
-                        {
-                            label: 'Saldo GoPay',
-                            data: [400000, 650000, 800000, 950000, 1100000, 1250000, 1450000, 1600000, 1719104],
-                            borderColor: '#38bdf8',
-                            backgroundColor: 'rgba(56, 189, 248, 0.05)',
-                            borderWidth: 2,
-                            tension: 0.25,
-                            pointBackgroundColor: '#38bdf8',
-                            pointBorderColor: '#07090e',
-                            pointRadius: 3,
-                            fill: true
-                        },
-                        {
-                            label: 'Saldo Tunai',
-                            data: [1200000, 1500000, 1900000, 2100000, 2300000, 2500000, 2600000, 2750000, 364327],
-                            borderColor: '#4ade80',
-                            backgroundColor: 'rgba(74, 222, 128, 0.05)',
-                            borderWidth: 2,
-                            tension: 0.25,
-                            pointBackgroundColor: '#4ade80',
-                            pointBorderColor: '#07090e',
-                            pointRadius: 3,
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: { color: '#a3a3a3', boxWidth: 8, font: { family: 'Plus Jakarta Sans', size: 9, weight: 'bold' } }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Plus Jakarta Sans', size: 9 } } },
-                        y: { 
-                            grid: { color: '#141a29' }, 
-                            ticks: { 
-                                color: '#64748b', 
-                                font: { family: 'Plus Jakarta Sans', size: 9 }, 
-                                callback: function(v) { return 'Rp ' + (v >= 1000000 ? (v/1000000).toFixed(1) + ' Jt' : (v/1000) + ' Rb'); } 
-                            } 
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateTransactionChart() {
-            if (!window.ldkChart || !Array.isArray(localTransactions) || localTransactions.length === 0) return;
-            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
-            let gopayCumulative = Array(12).fill(0);
-            let cashCumulative = Array(12).fill(0);
-            let gopayTotal = 0;
-            let cashTotal = 0;
-
-            const sorted = [...localTransactions].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-            sorted.forEach(t => {
-                if (t.status_transaksi === "Ditolak" || t.status_transaksi === "Pending Verifikasi") return;
-                const d = new Date(t.tanggal);
-                if (isNaN(d.getTime())) return;
-                const m = d.getMonth();
-                const nom = Number(t.nominal) || 0;
-                const isMasuk = t.tipe === "Masuk";
-                const isGoPay = (t.metode || '').toLowerCase().includes('gopay');
-
-                if (isGoPay) {
-                    gopayTotal += isMasuk ? nom : -nom;
-                    gopayCumulative[m] = gopayTotal;
-                } else {
-                    cashTotal += isMasuk ? nom : -nom;
-                    cashCumulative[m] = cashTotal;
-                }
-            });
-
-            for (let i = 1; i < 12; i++) {
-                if (gopayCumulative[i] === 0 && gopayCumulative[i - 1] !== 0) gopayCumulative[i] = gopayCumulative[i - 1];
-                if (cashCumulative[i] === 0 && cashCumulative[i - 1] !== 0) cashCumulative[i] = cashCumulative[i - 1];
-            }
-
-            const currentMonth = new Date().getMonth();
-            const maxMonth = Math.max(5, Math.min(11, currentMonth));
-            const activeMonths = months.slice(0, maxMonth + 1);
-
-            window.ldkChart.data.labels = activeMonths;
-            window.ldkChart.data.datasets[0].data = gopayCumulative.slice(0, maxMonth + 1);
-            window.ldkChart.data.datasets[1].data = cashCumulative.slice(0, maxMonth + 1);
-            window.ldkChart.update();
-        }
-
         function initAdminAllTransaksi() {
             try {
-                initTransactionChart();
                 fetchInitialData();
                 
                 const modal = document.getElementById('receipt-modal');
