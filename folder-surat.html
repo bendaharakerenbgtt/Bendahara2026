@@ -483,6 +483,30 @@
                         }
                     }
                 });
+                // Auto-cleanup phantom empty SPM duplicates
+                const activeId = localStorage.getItem(ACTIVE_DOC_ID_KEY);
+                let seenEmptySpm = false;
+                const cleanedDocs = [];
+                for (let i = 0; i < docs.length; i++) {
+                    const doc = docs[i];
+                    if (!doc) continue;
+                    const fd = doc.formData || {};
+                    const isGhostSpm = (doc.type === 'SPM') &&
+                        (!doc.title || doc.title === '034_SPM' || doc.title === 'Surat SPM Baru' || doc.title === '034_SPM Perihal belum diisi') &&
+                        (!fd.field_perihal || fd.field_perihal.trim() === '') &&
+                        (!fd.field_nama_acara || fd.field_nama_acara.trim() === '');
+                    
+                    if (isGhostSpm) {
+                        if (seenEmptySpm && doc.id !== activeId) {
+                            hasChanges = true;
+                            continue;
+                        }
+                        seenEmptySpm = true;
+                    }
+                    cleanedDocs.push(doc);
+                }
+                docs = cleanedDocs;
+
                 if (hasChanges) {
                     try {
                         localStorage.setItem(DOCS_STORAGE_KEY, JSON.stringify(docs));
