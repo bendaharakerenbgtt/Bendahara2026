@@ -2717,25 +2717,35 @@
                 lampiran: '-',
                 tanggalSurat: 'Jakarta, 08 September 2026',
                 perihal: 'Surat Permohonan Pemunduran Open House',
-                tujuan: 'Yth. Majelis Permusyawaratan Mahasiswa\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
+                tujuan: 'Yth. **Majelis Permusyawaratan Mahasiswa**\nPoliteknik Negeri Media Kreatif Jakarta\nDi Tempat',
                 incEvent: false,
                 namaAcara: 'Open House LDK IMIP 2026',
                 hariTanggal: 'Jum’at, 18 September 2026',
                 waktu: '13.30 WIB s.d. Selesai',
                 tempat: 'Auditorium Hall Polimedia Jakarta',
-                pembuka: 'Melalui surat ini, kami Unit Kegiatan Mahasiswa LDK IMIP bermaksud untuk mengajukan surat pemunduran tanggal agenda Open House dari 10 September 2026 menjadi 18 September 2026. Dikarenakan terdapat beberapa penyesuaian dalam persiapan kegiatan yang belum dapat diselesaikan sesuai dengan waktu yang telah ditentukan. Beberapa di antaranya meliputi penyesuaian rangkaian dan teknis acara, koordinasi antar panitia, serta kesiapan perlengkapan dan kebutuhan kegiatan agar seluruh persiapan dapat diselesaikan dengan lebih matang dan kegiatan Open House dapat terlaksana dengan baik.',
+                pembuka: 'Melalui surat ini, kami **Unit Kegiatan Mahasiswa LDK IMIP** bermaksud untuk mengajukan surat pemunduran tanggal agenda **Open House** dari 10 September 2026 menjadi 18 September 2026. Dikarenakan terdapat beberapa penyesuaian dalam persiapan kegiatan yang belum dapat diselesaikan sesuai dengan waktu yang telah ditentukan. Beberapa di antaranya meliputi penyesuaian rangkaian dan teknis acara, koordinasi antar panitia, serta kesiapan perlengkapan dan kebutuhan kegiatan agar seluruh persiapan dapat diselesaikan dengan lebih matang dan kegiatan **Open House** dapat terlaksana dengan baik.',
                 isiInti: 'Besar harapan kami atas terwujudnya permohonan tersebut.',
                 penutup: 'Demikian surat perizinan ini kami buat. Atas perhatian dan kerja sama, kami sampaikan terima kasih.',
+                ttd1Active: false,
                 ttd1Jabatan: 'Ketua Pelaksana\nOpen House 2026',
                 ttd1Nama: 'Fadly Ahmad Chandi',
                 ttd1Nim: 'NIM. 2490345034',
+                ttd2Active: true,
                 ttd2Jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
                 ttd3Active: true,
-                ttd3Jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                ttd3Jabatan: 'Dosen Pembimbing\nUKM LDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013',
+                bemActive: true,
+                bemJabatan: 'Ketua BEM PoliMedia\nPeriode 2026',
+                bemNama: 'Ujang Rahman',
+                bemNim: 'NIM. 2490343155',
+                mpmActive: true,
+                mpmJabatan: 'Ketua Umum MPM\nPoliMedia Periode 2026',
+                mpmNama: 'Sheyla Aulya',
+                mpmNim: 'NIM. 2491345088',
                 wadirActive: false
             },
             SBA: {
@@ -3018,7 +3028,18 @@
             composeNomorSurat();
 
             // Lampiran handling otomatis sesuai jumlah lampiran aktif
-            if (typeof syncAutoLampiranCount === 'function') {
+            if (type === 'SPM') {
+                if (document.getElementById('field_lampiran_angka')) {
+                    document.getElementById('field_lampiran_angka').value = (tpl.lampiran && tpl.lampiran !== '-') ? tpl.lampiran.replace(/[^0-9]/g, '') : '0';
+                    document.getElementById('field_lampiran_angka').placeholder = '0';
+                }
+                if (document.getElementById('field_lampiran')) {
+                    document.getElementById('field_lampiran').value = tpl.lampiran || '-';
+                }
+                if (typeof syncAutoLampiranCount === 'function') {
+                    syncAutoLampiranCount();
+                }
+            } else if (typeof syncAutoLampiranCount === 'function') {
                 syncAutoLampiranCount();
             } else if (type === 'SBA') {
                 if (document.getElementById('field_lampiran_angka')) {
@@ -3094,7 +3115,26 @@
             syncMpmJabatan();
             syncBemJabatan();
 
-            if (document.getElementById('field_ttd1_active')) document.getElementById('field_ttd1_active').checked = true;
+            if (tpl.mpmNama && document.getElementById('field_ttd_mpm_nama')) {
+                document.getElementById('field_ttd_mpm_nama').value = tpl.mpmNama;
+            }
+            if (tpl.mpmNim && document.getElementById('field_ttd_mpm_nim')) {
+                document.getElementById('field_ttd_mpm_nim').value = tpl.mpmNim;
+                const mpmNimAngka = document.getElementById('field_ttd_mpm_nim_angka');
+                if (mpmNimAngka) mpmNimAngka.value = tpl.mpmNim.replace(/^NIM[\.\s]*/i, '').trim();
+            }
+            if (tpl.bemNama && document.getElementById('field_ttd_bem_nama')) {
+                document.getElementById('field_ttd_bem_nama').value = tpl.bemNama;
+            }
+            if (tpl.bemNim && document.getElementById('field_ttd_bem_nim')) {
+                document.getElementById('field_ttd_bem_nim').value = tpl.bemNim;
+                const bemNimAngka = document.getElementById('field_ttd_bem_nim_angka');
+                if (bemNimAngka) bemNimAngka.value = tpl.bemNim.replace(/^NIM[\.\s]*/i, '').trim();
+            }
+
+            if (document.getElementById('field_ttd1_active')) {
+                document.getElementById('field_ttd1_active').checked = (type === 'SPM' ? Boolean(tpl.ttd1Active) : true);
+            }
             if (document.getElementById('field_ttd2_active')) document.getElementById('field_ttd2_active').checked = true;
             if (document.getElementById('field_ttd_mpm_active')) document.getElementById('field_ttd_mpm_active').checked = true;
             if (document.getElementById('field_ttd_bem_active')) document.getElementById('field_ttd_bem_active').checked = true;
@@ -8539,9 +8579,11 @@
         function formatOfficialTujuan(text) {
             if (!text) return '';
             const rawLines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
-            return rawLines.map(line => {
+            return rawLines.map((line, idx) => {
                 let formatted = formatOfficialText(line);
-                return `<p style="margin: 0; line-height: 1.45;">${formatted}</p>`;
+                const isSubsequent = idx > 0 && /^Yth\b/i.test(rawLines[0]);
+                const indentStyle = isSubsequent ? 'padding-left: 28px;' : '';
+                return `<p style="margin: 0; line-height: 1.45; ${indentStyle}">${formatted}</p>`;
             }).join('');
         }
 
@@ -9067,29 +9109,27 @@
                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(mpmNim)}</p>
                             </div>
 
-                            <!-- TIER 4: MENYETUJUI WADIR III (TERPISAH & BISA DINONAKTIFKAN DENGAN TINGGI TERKUNCI) -->
-                            <div id="spm_tingkat4_wadir_wrapper" style="height: 125pt; min-height: 125pt; margin-bottom: 14pt; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; font-family: 'Times New Roman', serif;">
+                            <!-- TIER 4: MENYETUJUI WADIR III (OPSIONAL) -->
+                            <div id="spm_tingkat4_wadir_wrapper" style="${isWadirActive ? 'margin-bottom: 14pt;' : 'margin-bottom: 8pt;'} box-sizing: border-box; font-family: 'Times New Roman', serif;">
                                 ${isWadirActive ? `
                                     <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
-                                        <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold; font-size: 11pt;">Menyetujui,</p>
-                                        <p style="margin: 0; line-height: 1.25; font-size: 11pt;">${formatTtdJabatan(wadirJabatan)}</p>
-                                        <div style="height: 42pt;"></div>
-                                        <p style="margin: 0; font-size: 11pt; font-weight: bold; text-decoration: underline; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
-                                        <p style="margin: 0; font-size: 10pt; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
+                                        <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold; font-size: 12pt;">Menyetujui,</p>
+                                        <p style="margin: 0; line-height: 1.25; font-size: 12pt;">${formatTtdJabatan(wadirJabatan)}</p>
+                                        <div style="height: 44pt;"></div>
+                                        <p style="margin: 0; font-size: 12pt; font-weight: bold; text-decoration: underline; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNama)}</p>
+                                        <p style="margin: 0; font-size: 12pt; line-height: 1.25; white-space: nowrap;">${formatInlineRichText(wadirNip)}</p>
                                     </div>
                                 ` : `
-                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
-                                        <span style="font-size: 9.5pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
-                                        <span style="font-size: 8.5pt; color: #b45309; margin-top: 3pt;">(Posisi tembusan di bawah tetap terkunci rapi)</span>
+                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 6pt; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                        <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> + Tambah Tanda Tangan Wakil Direktur III (Opsional)</span>
                                     </div>
-                                    <div class="hidden print:block" style="height: 100%;"></div>
                                 `}
                             </div>
 
-                            <!-- TIER 5: TEMBUSAN (Tabel Bernomor Indent Sejajar Paragraf - Posisi Terkunci) -->
-                            <div style="font-size: 11pt; line-height: 1.35; text-align: left; margin-bottom: 0; font-family: 'Times New Roman', serif;">
-                                <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 11pt;">Tembusan :</p>
-                                <table style="margin-left: 28pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.35;">
+                            <!-- TIER 5: TEMBUSAN (12pt Times New Roman) -->
+                            <div style="font-size: 12pt; line-height: 1.4; text-align: left; margin-bottom: 0; font-family: 'Times New Roman', serif;">
+                                <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt;">Tembusan :</p>
+                                <table style="margin-left: 24pt; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.4;">
                                     ${isWadirActive ? `
                                     <tr>
                                         <td style="width: 20px; vertical-align: top; padding: 1pt 0;">1.</td>
