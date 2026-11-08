@@ -2957,7 +2957,7 @@
                 ttd2Jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
                 ttd2Nama: 'Hafiz Alfariz',
                 ttd2Nim: 'NIM. 2490444040',
-                ttd3Active: true,
+                ttd3Active: false,
                 ttd3Jabatan: 'Dosen Pembimbing\nUKM LDK IMIP',
                 ttd3Nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                 ttd3Nim: 'NIP. 198005072023211013',
@@ -9299,38 +9299,67 @@
                             })()}
 
                             <!-- TIER 2: MENGETAHUI (DOSEN & BEM) -->
-                            <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; font-size: 12pt; margin-bottom: 14pt;">
-                                <p style="margin: 0 0 4pt 0; text-align: center; line-height: 1.25; font-weight: bold;">Mengetahui,</p>
-                                <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
-                                    <tr>
-                                        <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                            ${formatTtdJabatan(ttd3Jabatan)}
-                                        </td>
-                                        <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
-                                            ${formatTtdJabatan(bemJabatan)}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style="vertical-align: top;">
-                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</p>
-                                            <p style="margin: 0;">${formatInlineRichText(ttd3Nim)}</p>
-                                        </td>
-                                        <td style="vertical-align: top;">
-                                            <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(bemNama)}</p>
-                                            <p style="margin: 0;">${formatInlineRichText(bemNim)}</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
+                            ${(() => {
+                                if (!isTtd3Active && !isBemActive) return '';
+                                if (isTtd3Active && isBemActive) {
+                                    return `
+                                        <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; font-size: 12pt; margin-bottom: 14pt;">
+                                            <p style="margin: 0 0 4pt 0; text-align: center; line-height: 1.25; font-weight: bold;">Mengetahui,</p>
+                                            <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
+                                                <tr>
+                                                    <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
+                                                        ${formatTtdJabatan(ttd3Jabatan)}
+                                                    </td>
+                                                    <td style="width: 50%; vertical-align: top; padding-bottom: 44pt;">
+                                                        ${formatTtdJabatan(bemJabatan)}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="vertical-align: top;">
+                                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd3Nama)}</p>
+                                                        <p style="margin: 0;">${formatInlineRichText(ttd3Nim)}</p>
+                                                    </td>
+                                                    <td style="vertical-align: top;">
+                                                        <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(bemNama)}</p>
+                                                        <p style="margin: 0;">${formatInlineRichText(bemNim)}</p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    `;
+                                } else if (isBemActive) {
+                                    return `
+                                        <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui (Ketua BEM)" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
+                                            <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Mengetahui,</p>
+                                            <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(bemJabatan)}</p>
+                                            <div style="height: 44pt;"></div>
+                                            <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(bemNama)}</p>
+                                            <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(bemNim)}</p>
+                                        </div>
+                                    `;
+                                } else {
+                                    return `
+                                        <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui (Dosen Pembimbing)" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
+                                            <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Mengetahui,</p>
+                                            <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
+                                            <div style="height: 44pt;"></div>
+                                            <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
+                                            <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
+                                        </div>
+                                    `;
+                                }
+                            })()}
 
                             <!-- TIER 3: MENYETUJUI (KETUA MPM) -->
-                            <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Menyetujui (Ketua MPM)" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Ketua MPM" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
-                                <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Menyetujui,</p>
-                                <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(mpmJabatan)}</p>
-                                <div style="height: 44pt;"></div>
-                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(mpmNama)}</p>
-                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(mpmNim)}</p>
-                            </div>
+                            ${isMpmActive ? `
+                                <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Menyetujui (Ketua MPM)" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Ketua MPM" style="font-family: 'Times New Roman', serif; font-size: 12pt; text-align: center; margin-bottom: 14pt;">
+                                    <p style="margin: 0 0 2pt 0; line-height: 1.25; font-weight: bold;">Menyetujui,</p>
+                                    <p style="margin: 0; line-height: 1.25;">${formatTtdJabatan(mpmJabatan)}</p>
+                                    <div style="height: 44pt;"></div>
+                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(mpmNama)}</p>
+                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(mpmNim)}</p>
+                                </div>
+                            ` : ''}
 
                             <!-- TIER 4: MENYETUJUI WADIR III (OPSIONAL) -->
                             <div id="spm_tingkat4_wadir_wrapper" style="${isWadirActive ? 'margin-bottom: 14pt;' : 'margin-bottom: 8pt;'} box-sizing: border-box; font-family: 'Times New Roman', serif;">
