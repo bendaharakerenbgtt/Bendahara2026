@@ -47,6 +47,101 @@
             --orange-border: rgba(255, 115, 0, 0.35);
         }
 
+        /* ==========================================================================
+           PREMIUM SURAT LOADING OVERLAY & SKELETON ANIMATIONS
+           ========================================================================== */
+        #loading-overlay {
+            background-color: var(--bg-main) !important;
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s ease;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        .surat-spinner-ring {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            border-top-color: #FF7300 !important;
+            border-right-color: #FFA500 !important;
+            box-shadow: 0 0 25px rgba(255, 115, 0, 0.35);
+        }
+        html.light-mode .surat-spinner-ring {
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            border-top-color: #FF7300 !important;
+            border-right-color: #FFA500 !important;
+            box-shadow: 0 0 20px rgba(255, 115, 0, 0.25);
+        }
+        html.light-mode #loading-overlay .loading-title {
+            color: #1E293B !important;
+        }
+        html.light-mode #loading-overlay .loading-subtitle {
+            color: #64748B !important;
+        }
+        html.light-mode #loading-overlay .loading-progress-bg {
+            background-color: #E2E8F0 !important;
+            border-color: #CBD5E1 !important;
+        }
+
+        @keyframes float-doc {
+            0%, 100% { transform: translateY(2px) rotate(-1.5deg) scale(1); }
+            50% { transform: translateY(-4px) rotate(2deg) scale(1.06); }
+        }
+        .animate-float-doc {
+            animation: float-doc 2.8s infinite ease-in-out;
+        }
+
+        @keyframes float-pen {
+            0%, 100% { transform: translate(16px, -16px) rotate(0deg); }
+            50% { transform: translate(12px, -22px) rotate(-12deg); }
+        }
+        .animate-float-pen {
+            animation: float-pen 2.2s infinite ease-in-out;
+        }
+
+        @keyframes float-masjid-surat {
+            0%, 100% { transform: translate(14px, 16px) scale(0.95); opacity: 0.6; }
+            50% { transform: translate(14px, 12px) scale(1.05); opacity: 0.95; }
+        }
+        .animate-float-masjid-surat {
+            animation: float-masjid-surat 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-sparkle-surat {
+            0%, 100% { transform: translate(-18px, -18px) scale(0.85); opacity: 0.4; }
+            50% { transform: translate(-18px, -18px) scale(1.15); opacity: 1; }
+        }
+        .animate-sparkle-surat {
+            animation: pulse-sparkle-surat 1.8s infinite ease-in-out;
+        }
+
+        @keyframes progress-indeterminate {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(25%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-progress-indeterminate {
+            width: 55%;
+            animation: progress-indeterminate 1.5s infinite ease-in-out;
+        }
+
+        /* Paper Skeleton Shimmer Animation */
+        @keyframes shimmer-sweep {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer-sweep 2s infinite ease-in-out;
+        }
+
+        @media print {
+            #loading-overlay {
+                display: none !important;
+            }
+        }
+
         html.light-mode {
             /* ==========================================================================
                LIGHT MODE SYSTEM - Official Cabinet Colors (#FF7300, #FFA500) on Cream (#FAF5EF)
@@ -1021,6 +1116,50 @@
 </head>
 <body>
 
+    <!-- PREMIUM SURAT LOADING OVERLAY -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center print:hidden select-none">
+        <!-- Glowing ambient backdrop -->
+        <div class="absolute w-[320px] h-[320px] rounded-full blur-[110px] pointer-events-none bg-orange-500/20 animate-pulse"></div>
+        
+        <div class="relative flex flex-col items-center justify-center z-10">
+            <!-- Animated Spinner & Elements -->
+            <div class="relative w-24 h-24 flex items-center justify-center">
+                <!-- Outer Spinning Ring -->
+                <div class="w-24 h-24 rounded-full border-4 surat-spinner-ring animate-spin"></div>
+                
+                <!-- Floating Elements inside -->
+                <div class="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+                    <!-- Sparkle Top-Left -->
+                    <div class="absolute text-amber-400 text-xs animate-sparkle-surat">✨</div>
+                    <!-- Pena/Quill Top-Right -->
+                    <div class="absolute text-orange-400 text-base animate-float-pen">🖋️</div>
+                    <!-- Surat/Dokumen in Center -->
+                    <div class="text-3xl animate-float-doc">📜</div>
+                    <!-- Mini Masjid Bottom-Right -->
+                    <div class="absolute text-sm animate-float-masjid-surat">🕌</div>
+                </div>
+            </div>
+
+            <!-- Animated Status & Progress -->
+            <div class="mt-5 flex flex-col items-center text-center px-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+                    <h2 id="loading-overlay-title" class="loading-title text-xs sm:text-sm font-black tracking-[0.2em] uppercase text-white font-mono">
+                        MENYIAPKAN LEMBAR SURAT...
+                    </h2>
+                </div>
+                <p id="loading-overlay-subtitle" class="loading-subtitle text-[10px] sm:text-[11px] font-mono tracking-wider text-neutral-400 uppercase mt-1.5">
+                    Format Resmi Ormawa UKM LDK IMIP 2026
+                </p>
+
+                <!-- Animated Progress Bar -->
+                <div class="loading-progress-bg w-48 h-1.5 bg-neutral-900 rounded-full mt-3 overflow-hidden border border-neutral-800/80 p-0.5">
+                    <div class="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 rounded-full animate-progress-indeterminate"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TOP HEADER NAVBAR -->
     <header class="sticky top-0 z-40 backdrop-blur-xl bg-neutral-950/70 border-b border-neutral-900 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -1071,6 +1210,27 @@
                             <span class="text-neutral-700 font-mono text-xs shrink-0">/</span>
                             <input type="text" id="active_doc_title" oninput="handleActiveDocTitleChange(this.value)" class="bg-neutral-950/60 hover:bg-neutral-950 focus:bg-neutral-950 border border-transparent hover:border-neutral-700 focus:border-orange-500 rounded-lg px-2.5 py-1 text-sm sm:text-base font-black text-white focus:outline-none transition-all truncate w-full max-w-md" value="034_SBA Studi Banding 2026" title="Klik untuk mengubah nama dokumen (gaya Google Docs)">
                             <span id="active_doc_badge" class="px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">SBA</span>
+                            <script>
+                                (function() {
+                                    try {
+                                        const p = new URLSearchParams(window.location.search);
+                                        const t = p.get('title');
+                                        const k = (p.get('type') || '').toUpperCase();
+                                        const elTitle = document.getElementById('active_doc_title');
+                                        const elBadge = document.getElementById('active_doc_badge');
+                                        if (t && elTitle) elTitle.value = decodeURIComponent(t);
+                                        else if (p.get('new') === '1' && k && elTitle) elTitle.value = 'Surat ' + k + ' Baru';
+                                        if (k && elBadge) {
+                                            elBadge.innerText = k;
+                                            elBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black font-mono uppercase shrink-0 ' + 
+                                                (k === 'SPM' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                                 k === 'SPZ' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+                                                 k === 'SBA' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                                                 'bg-purple-500/20 text-purple-400 border border-purple-500/30');
+                                        }
+                                    } catch(e){}
+                                })();
+                            </script>
                         </div>
                         <div class="flex items-center gap-2 mt-0.5 px-2.5">
                             <span id="doc_auto_save_status" class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
@@ -1234,7 +1394,70 @@
                 <!-- SHEET CONTAINER -->
                 <div id="preview_sheet_outer_box" class="rounded-xl border border-neutral-800 bg-neutral-950/40 p-2 sm:p-4 overflow-x-auto shadow-inner relative">
                     <div id="rendered_surat_paper" class="a4-preview-sheet mx-auto">
-                        <!-- Konten surat dirender secara dinamis di sini -->
+                        <div id="surat_paper_skeleton" class="w-full flex flex-col gap-4 select-none py-2">
+                            <!-- Kop Skeleton -->
+                            <div class="flex items-center justify-between pb-3 border-b-2 border-neutral-300/80">
+                                <div class="w-16 h-16 rounded-xl skeleton-shimmer shrink-0"></div>
+                                <div class="flex-1 flex flex-col items-center gap-2 px-4">
+                                    <div class="h-3 w-3/4 rounded skeleton-shimmer"></div>
+                                    <div class="h-3 w-1/2 rounded skeleton-shimmer"></div>
+                                    <div class="h-2.5 w-2/3 rounded skeleton-shimmer"></div>
+                                    <div class="h-2 w-1/3 rounded skeleton-shimmer"></div>
+                                </div>
+                                <div class="w-16 h-16 rounded-xl skeleton-shimmer shrink-0"></div>
+                            </div>
+                            
+                            <!-- Date Skeleton -->
+                            <div class="flex justify-end mt-2">
+                                <div class="h-3 w-36 rounded skeleton-shimmer"></div>
+                            </div>
+                            
+                            <!-- Metadata Table Skeleton -->
+                            <div class="flex flex-col gap-2.5 mt-1 w-64">
+                                <div class="h-2.5 w-48 rounded skeleton-shimmer"></div>
+                                <div class="h-2.5 w-56 rounded skeleton-shimmer"></div>
+                                <div class="h-2.5 w-32 rounded skeleton-shimmer"></div>
+                            </div>
+                            
+                            <!-- Tujuan Skeleton -->
+                            <div class="flex flex-col gap-2 mt-3 w-72">
+                                <div class="h-3 w-40 rounded skeleton-shimmer"></div>
+                                <div class="h-2.5 w-56 rounded skeleton-shimmer ml-7"></div>
+                                <div class="h-2.5 w-36 rounded skeleton-shimmer ml-7"></div>
+                            </div>
+                            
+                            <!-- Paragraph Skeleton -->
+                            <div class="flex flex-col gap-2.5 mt-4">
+                                <div class="h-3 w-full rounded skeleton-shimmer"></div>
+                                <div class="h-3 w-[95%] rounded skeleton-shimmer"></div>
+                                <div class="h-3 w-[88%] rounded skeleton-shimmer"></div>
+                                <div class="h-3 w-[60%] rounded skeleton-shimmer"></div>
+                            </div>
+                            
+                            <!-- Centered Loading Pill Inside Paper -->
+                            <div class="my-8 flex items-center justify-center">
+                                <div class="px-4 py-2 rounded-xl bg-orange-50 border border-orange-200/80 shadow-xs flex items-center gap-2.5 text-orange-700 font-mono text-xs">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-orange-500"></i>
+                                    <span class="font-bold">Memuat & Menata Dokumen Surat...</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Signature Skeleton -->
+                            <div class="flex justify-between items-end mt-8 pt-4">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="h-2.5 w-32 rounded skeleton-shimmer"></div>
+                                    <div class="h-12"></div>
+                                    <div class="h-3 w-28 rounded skeleton-shimmer"></div>
+                                    <div class="h-2 w-24 rounded skeleton-shimmer"></div>
+                                </div>
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="h-2.5 w-32 rounded skeleton-shimmer"></div>
+                                    <div class="h-12"></div>
+                                    <div class="h-3 w-28 rounded skeleton-shimmer"></div>
+                                    <div class="h-2 w-24 rounded skeleton-shimmer"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- FLOATING QUICK-EDIT POPOVER DARI PRATINJAU (DRAGGABLE & MOVABLE) -->
@@ -15933,6 +16156,36 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
         });
 
+        // ==========================================
+        // PREMIUM SURAT LOADING OVERLAY CONTROLLER
+        // ==========================================
+        function hideSuratLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+                if (overlay) overlay.style.display = 'none';
+            }, 450);
+        }
+
+        function showSuratLoadingOverlay(title, subtitle) {
+            const overlay = document.getElementById('loading-overlay');
+            if (!overlay) return;
+            if (title) {
+                const elTitle = document.getElementById('loading-overlay-title');
+                if (elTitle) elTitle.innerText = title;
+            }
+            if (subtitle) {
+                const elSub = document.getElementById('loading-overlay-subtitle');
+                if (elSub) elSub.innerText = subtitle;
+            }
+            overlay.style.display = 'flex';
+            overlay.classList.remove('fade-out');
+        }
+
+        // Safety fallback: auto-hide after 3.5s in case of unhandled runtime error
+        setTimeout(hideSuratLoadingOverlay, 3500);
+
         // INITIALIZE ON LOAD
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcons();
@@ -15998,6 +16251,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
             if (typeof updateTtdState === 'function') updateTtdState();
             isProgrammaticLoading = false;
+
+            // Smoothly hide loading overlay
+            setTimeout(hideSuratLoadingOverlay, 300);
 
             if (urlParams.get('print') === '1') {
                 setTimeout(() => {
