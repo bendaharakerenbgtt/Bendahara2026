@@ -3251,7 +3251,7 @@
             composeNomorSurat();
 
             // Lampiran handling otomatis sesuai jumlah lampiran aktif
-            if (type === 'SPM') {
+            if (type === 'SPM' || type === 'SUD' || tpl.lampiran === '-') {
                 if (document.getElementById('field_lampiran_angka')) {
                     document.getElementById('field_lampiran_angka').value = (tpl.lampiran && tpl.lampiran !== '-') ? tpl.lampiran.replace(/[^0-9]/g, '') : '0';
                     document.getElementById('field_lampiran_angka').placeholder = '0';
@@ -3259,17 +3259,25 @@
                 if (document.getElementById('field_lampiran')) {
                     document.getElementById('field_lampiran').value = tpl.lampiran || '-';
                 }
-                if (typeof syncAutoLampiranCount === 'function') {
+                const unitLabel = document.getElementById('lampiran_unit_label');
+                if (unitLabel) unitLabel.innerText = 'Lembar';
+                if (type === 'SPM' && typeof syncAutoLampiranCount === 'function') {
                     syncAutoLampiranCount();
                 }
-            } else if (typeof syncAutoLampiranCount === 'function') {
-                syncAutoLampiranCount();
             } else if (type === 'SBA') {
-                if (document.getElementById('field_lampiran_angka')) {
-                    document.getElementById('field_lampiran_angka').value = '2';
+                if (typeof syncAutoLampiranCount === 'function') {
+                    syncAutoLampiranCount();
+                } else {
+                    if (document.getElementById('field_lampiran_angka')) {
+                        document.getElementById('field_lampiran_angka').value = '2';
+                    }
+                    if (document.getElementById('field_lampiran')) {
+                        document.getElementById('field_lampiran').value = tpl.lampiran || '2 Halaman';
+                    }
                 }
-                if (document.getElementById('field_lampiran')) {
-                    document.getElementById('field_lampiran').value = tpl.lampiran || '2 Halaman';
+            } else if (type === 'SPZ') {
+                if (typeof syncAutoLampiranCount === 'function') {
+                    syncAutoLampiranCount();
                 }
             } else {
                 const lampNum = tpl.lampiran ? tpl.lampiran.replace(/[^0-9]/g, '') : '1';
@@ -3387,7 +3395,7 @@
 
             currentActivePage = 'all';
             if (typeof renderPageTabs === 'function') renderPageTabs();
-            updateTtd3State();
+            if (typeof updateTtdState === 'function') updateTtdState();
             if (type === 'SBA' && typeof checkAutoWadirDanop === 'function') {
                 checkAutoWadirDanop();
             }
@@ -3447,6 +3455,9 @@
                 if (wadir.checked) cwadir.classList.remove('opacity-40', 'pointer-events-none');
                 else cwadir.classList.add('opacity-40', 'pointer-events-none');
             }
+        }
+        function updateTtd3State() {
+            updateTtdState();
         }
         window.updateTtd3State = updateTtdState;
 
@@ -8850,10 +8861,10 @@
 
             const isTtd1Active = document.getElementById('field_ttd1_active') ? document.getElementById('field_ttd1_active').checked : true;
             const isTtd2Active = document.getElementById('field_ttd2_active') ? document.getElementById('field_ttd2_active').checked : true;
-            const ttd3Active = document.getElementById('field_ttd3_active').checked;
-            const ttd3Jabatan = document.getElementById('field_ttd3_jabatan').value.trim() || 'Dosen Pembimbing\nLDK IMIP';
-            const ttd3Nama = document.getElementById('field_ttd3_nama').value.trim();
-            const ttd3Nim = document.getElementById('field_ttd3_nim').value.trim();
+            const isTtd3Active = Boolean(document.getElementById('field_ttd3_active')?.checked);
+            const ttd3Jabatan = document.getElementById('field_ttd3_jabatan')?.value.trim() || 'Dosen Pembimbing\nLDK IMIP';
+            const ttd3Nama = (document.getElementById('field_ttd3_nama')?.value || '').trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
+            const ttd3Nim = (document.getElementById('field_ttd3_nim')?.value || '').trim() || 'NIP. 198005072023211013';
 
             const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : false;
             const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
@@ -8899,18 +8910,6 @@
             const penutupParas = penutup.split('\n\n').filter(p => p.trim() !== '').map(p => `
                 <p style="margin: 0 0 14pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-size: 12pt;">${formatOfficialText(p).replace(/\n/g, '<br>')}</p>
             `).join('');
-
-            let ttd3Html = '';
-            if (ttd3Active && (ttd3Nama || ttd3Jabatan)) {
-                ttd3Html = `
-                    <div style="margin-top: 14pt; text-align: center; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                        <p style="margin: 0 0 2pt 0; font-weight: bold;">Mengetahui,</p>
-                        <p style="margin: 0 0 46pt 0; font-weight: normal; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
-                        <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
-                        <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
-                    </div>
-                `;
-            }
 
             return `
                 <div class="spz-sheet-badge print:hidden">
@@ -8970,54 +8969,40 @@
                                 let content = '';
                                 if (isTtd1Active && isTtd2Active) {
                                     content = `
-                                        <colgroup>
-                                            <col style="width: 50%;">
-                                            <col style="width: 50%;">
-                                        </colgroup>
                                         <tr>
-                                            <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
+                                            <td style="width: 50%; vertical-align: top; line-height: 1.25;">
                                                 ${formatTtdJabatan(ttd2Jabatan)}
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                             </td>
-                                            <td style="width: 50%; vertical-align: top; padding-bottom: 46pt;">
+                                            <td style="width: 50%; vertical-align: top; line-height: 1.25;">
                                                 ${formatTtdJabatan(ttd1Jabatan)}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</p>
-                                                <p style="margin: 0;">${formatInlineRichText(ttd2Nim)}</p>
-                                            </td>
-                                            <td style="vertical-align: top;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</p>
-                                                <p style="margin: 0;">${formatInlineRichText(ttd1Nim)}</p>
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama)}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim)}</p>
                                             </td>
                                         </tr>
                                     `;
                                 } else if (isTtd2Active) {
                                     content = `
                                         <tr>
-                                            <td style="width: 100%; vertical-align: top; padding-bottom: 46pt; text-align: center;">
+                                            <td style="width: 100%; vertical-align: top; text-align: center; line-height: 1.25;">
                                                 ${formatTtdJabatan(ttd2Jabatan)}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="vertical-align: top; text-align: center;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd2Nama)}</p>
-                                                <p style="margin: 0;">${formatInlineRichText(ttd2Nim)}</p>
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                             </td>
                                         </tr>
                                     `;
                                 } else {
                                     content = `
                                         <tr>
-                                            <td style="width: 100%; vertical-align: top; padding-bottom: 46pt; text-align: center;">
+                                            <td style="width: 100%; vertical-align: top; text-align: center; line-height: 1.25;">
                                                 ${formatTtdJabatan(ttd1Jabatan)}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="vertical-align: top; text-align: center;">
-                                                <p style="margin: 0; font-weight: bold; text-decoration: underline;">${formatInlineRichText(ttd1Nama)}</p>
-                                                <p style="margin: 0;">${formatInlineRichText(ttd1Nim)}</p>
+                                                <div style="height: 44pt;"></div>
+                                                <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama)}</p>
+                                                <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim)}</p>
                                             </td>
                                         </tr>
                                     `;
@@ -9025,44 +9010,43 @@
                                 return `
                                     <div class="preview-editable" data-edit-target="card_penandatangan" data-edit-label="Penanggung Jawab" data-edit-type="ttd_pj" title="Klik untuk edit Penanggung Jawab" style="margin-top: 14pt; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                         <p style="margin: 0 0 10pt 0; text-align: center; font-size: 12pt; font-weight: bold;">Hormat Kami,</p>
-                                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25;">
+                                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12pt; line-height: 1.25; table-layout: fixed;">
                                             ${content}
                                         </table>
                                     </div>
                                 `;
                             })()}
 
-                            <!-- TINGKAT 2: MENGETAHUI (DOSEN PEMBIMBING) -->
-                            ${ttd3Active ? `
+                            <!-- TINGKAT 2: MENGETAHUI (DOSEN PEMBIMBING - OPSIONAL) -->
+                            ${isTtd3Active ? `
                                 <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="margin-top: 12pt; text-align: center; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                    <p style="margin: 0 0 2pt 0; font-weight: bold;">Mengetahui,</p>
-                                    <p style="margin: 0 0 44pt 0; font-weight: normal; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
+                                    <p style="margin: 0 0 2pt 0; font-weight: bold; line-height: 1.25;">Mengetahui,</p>
+                                    <p style="margin: 0; font-weight: normal; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
+                                    <div style="height: 44pt;"></div>
                                     <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
                                     <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
                                 </div>
                             ` : `
-                                <div class="preview-editable print:hidden" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" onclick="enableTtd3AndOpenEdit(event)" title="Klik untuk mengaktifkan Dosen Pembimbing" style="margin-top: 10pt; padding: 6pt 12pt; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                <div class="preview-editable print:hidden" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" onclick="enableTtd3AndOpenEdit(event)" title="Klik untuk mengaktifkan Dosen Pembimbing" style="margin-top: 8pt; padding: 5pt 10pt; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
                                     <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Menampilkan TTD Dosen Pembimbing (Mengetahui)</span>
                                 </div>
                             `}
 
                             <!-- TINGKAT 3: MENYETUJUI (WAKIL DIREKTUR III - DEFAULT OFF DI SUD) -->
-                            <div id="sud_tingkat3_wadir_wrapper" style="margin-top: 10pt; font-family: 'Times New Roman', serif;">
+                            <div id="sud_tingkat3_wadir_wrapper" style="margin-top: 8pt; font-family: 'Times New Roman', serif;">
                                 ${isWadirActive ? `
                                     <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
-                                        <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt;">Menyetujui,</p>
-                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25;">
-                                            ${formatTtdJabatan(wadirJabatan)}<br><br><br><br><br>
-                                        </p>
+                                        <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt; line-height: 1.25;">Menyetujui,</p>
+                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25;">${formatTtdJabatan(wadirJabatan)}</p>
+                                        <div style="height: 44pt;"></div>
                                         <p style="margin: 0; line-height: 1.25;">
                                             <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
                                             <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
                                         </p>
                                     </div>
                                 ` : `
-                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="margin-top: 8pt; padding: 6pt 12pt; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
+                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="margin-top: 6pt; padding: 5pt 10pt; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
                                         <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
-                                        <span style="font-size: 8pt; color: #b45309; margin-top: 2pt;">(Opsional: Default tidak aktif, klik untuk sertakan)</span>
                                     </div>
                                     <div class="hidden print:block" style="height: 0;"></div>
                                 `}
@@ -10584,6 +10568,10 @@
             height: 3pt;
             margin: 8pt 0 14pt 0;
         }
+        .print\\:hidden, [class*="print:hidden"] {
+            display: none !important;
+            mso-hide: all !important;
+        }
         @media print {
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
@@ -11923,8 +11911,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
 
             if (typeof handleTanggalSuratInput === 'function') handleTanggalSuratInput();
-            if (typeof toggleEventDetails === 'function') toggleEventDetails();
-            if (typeof toggleTtd3 === 'function') toggleTtd3();
+            if (typeof toggleEventDetailsSection === 'function') toggleEventDetailsSection();
             if (typeof updateTtdState === 'function') updateTtdState();
 
             isProgrammaticLoading = false;
@@ -12781,7 +12768,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         field_pembuka: SURAT_TEMPLATES.SPM.pembuka,
                         field_isi_inti: SURAT_TEMPLATES.SPM.isiInti,
                         field_penutup: SURAT_TEMPLATES.SPM.penutup,
-                        field_ttd1_active: true,
+                        field_ttd1_active: false,
                         field_ttd1_jabatan: 'Ketua Pelaksana\nOpen House 2026',
                         field_ttd1_nama: 'Fadly Ahmad Chandi',
                         field_ttd1_nim: 'NIM. 2490345034',
@@ -12789,7 +12776,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
                         field_ttd2_nama: 'Hafiz Alfariz',
                         field_ttd2_nim: 'NIM. 2490444040',
-                        field_ttd3_active: true,
+                        field_ttd3_active: false,
                         field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
                         field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
                         field_ttd3_nim: 'NIP. 198005072023211013',
@@ -12797,7 +12784,46 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     }
                 };
 
-                saveDocumentsList([sbaDoc, spzDoc, spmDoc]);
+                // 4. Seed SUD Resmi 2026
+                const sudDoc = {
+                    id: 'doc_seed_sud_2026',
+                    title: '019_SUD Undangan Muhammad Jaisyul Haq',
+                    type: 'SUD',
+                    createdAt: nowIso,
+                    updatedAt: nowIso,
+                    formData: {
+                        field_nomor_surat: '019/SUD/E1/UKM IMIP/IV/2026',
+                        field_nomor_urut: '019',
+                        field_lampiran: '-',
+                        field_lampiran_angka: '0',
+                        field_tanggal_surat: 'Jakarta, 21 April 2026',
+                        field_perihal: 'Surat Undangan Muhammad Jaisyul Haq',
+                        field_tujuan: 'Yth. Muhammad Jaisyul Haq\nDi Tempat',
+                        field_nama_acara: 'Dauroh Islami 2026',
+                        field_hari_tanggal: 'Jum’at, 01 Mei 2026',
+                        field_waktu: '19.00 s/d 21.00 WIB',
+                        field_tempat: 'WAMY Indonesia, Jl. Moch. Kahfi II No. 42 RT 08/RW 08, Kel. Srengseng Sawah, Kec. Jagakarsa, Jakarta Selatan 12630',
+                        field_pembuka: SURAT_TEMPLATES.SUD.pembuka,
+                        field_isi_inti: SURAT_TEMPLATES.SUD.isiInti,
+                        field_penutup: SURAT_TEMPLATES.SUD.penutup,
+                        field_ttd1_active: true,
+                        field_ttd1_jabatan: 'Ketua Pelaksana\nDauroh Islami 2026',
+                        field_ttd1_nama: 'Fadly Ahmad Chandi',
+                        field_ttd1_nim: 'NIM. 2490345034',
+                        field_ttd2_active: true,
+                        field_ttd2_jabatan: 'Ketua UKM LDK IMIP\nPeriode 2026',
+                        field_ttd2_nama: 'Hafiz Alfariz',
+                        field_ttd2_nim: 'NIM. 2490444040',
+                        field_ttd3_active: false,
+                        field_ttd3_jabatan: 'Dosen Pembimbing\nLDK IMIP',
+                        field_ttd3_nama: 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.',
+                        field_ttd3_nim: 'NIP. 198005072023211013',
+                        field_ttd_wadir_active: false,
+                        field_use_kop: true
+                    }
+                };
+
+                saveDocumentsList([sbaDoc, spzDoc, spmDoc, sudDoc]);
                 setActiveDocumentId('doc_seed_sba_2026');
             }
         }
@@ -13677,12 +13703,23 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 const ttd2Active = document.getElementById('field_ttd2_active')?.checked ?? true;
                 const ttd2Nama = document.getElementById('field_ttd2_nama')?.value || '';
                 const ttd2Nim = document.getElementById('field_ttd2_nim_angka')?.value || (document.getElementById('field_ttd2_nim')?.value || '').replace(/[^0-9]/g, '');
+                
+                const resetLabel = currentSuratType === 'SBA' ? 'Reset Contoh SBA' : 
+                                   currentSuratType === 'SUD' ? 'Reset Contoh SUD' : 
+                                   currentSuratType === 'SPM' ? 'Reset Contoh SPM' : 'Reset Contoh SPZ';
+                const defaultT1NamaPlaceholder = currentSuratType === 'SUD' ? 'Fadly Ahmad Chandi' :
+                                                 currentSuratType === 'SBA' ? 'Faridah Rihadatul ‘Aisy' :
+                                                 currentSuratType === 'SPM' ? 'Fadly Ahmad Chandi' : 'Sarah Muthmainnah Prayogo';
+                const defaultT1NimPlaceholder = currentSuratType === 'SUD' ? '2490345034' :
+                                                currentSuratType === 'SBA' ? '2470402026' :
+                                                currentSuratType === 'SPM' ? '2490345034' : '2590331052';
+
                 return `
                     <div class="space-y-2.5">
                         <div class="flex items-center justify-between pb-1 border-b border-neutral-800">
                             <span class="text-[10px] text-neutral-400 font-mono">Tanda Tangan Tingkat 1</span>
-                            <button type="button" onclick="quickResetTtdPjDefault()" class="text-[9.5px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 active:scale-95 transition-transform" title="Kembalikan nama ke Sarah Muthmainnah & Hafiz Alfariz">
-                                <i class="fa-solid fa-rotate-left"></i> ${currentSuratType === 'SBA' ? 'Reset Contoh SBA' : 'Reset Contoh SPZ'}
+                            <button type="button" onclick="quickResetTtdPjDefault()" class="text-[9.5px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 active:scale-95 transition-transform" title="Kembalikan nama ke contoh resmi">
+                                <i class="fa-solid fa-rotate-left"></i> ${resetLabel}
                             </button>
                         </div>
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
@@ -13696,13 +13733,13 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">Nama Lengkap</label>
-                                    <input type="text" id="quick_ttd1_nama" value="${escapeHtml(ttd1Nama)}" placeholder="Sarah Muthmainnah Prayogo" 
+                                    <input type="text" id="quick_ttd1_nama" value="${escapeHtml(ttd1Nama)}" placeholder="${defaultT1NamaPlaceholder}" 
                                         oninput="handleQuickFormText('field_ttd1_nama', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500">
                                 </div>
                                 <div>
                                     <label class="text-[9.5px] text-neutral-400 block mb-0.5">NIM</label>
-                                    <input type="text" inputmode="numeric" id="quick_ttd1_nim" value="${escapeHtml(ttd1Nim)}" placeholder="2590331052" 
+                                    <input type="text" inputmode="numeric" id="quick_ttd1_nim" value="${escapeHtml(ttd1Nim)}" placeholder="${defaultT1NimPlaceholder}" 
                                         oninput="handleQuickNim('field_ttd1_nim_angka', 'field_ttd1_nim', this.value)" 
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
@@ -13736,6 +13773,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }
 
             if (type === 'ttd_mengetahui' || targetId === 'card_ttd_mengetahui') {
+                const isSpm = (currentSuratType === 'SPM');
                 const ttd3Active = document.getElementById('field_ttd3_active')?.checked ?? true;
                 const ttd3Nama = document.getElementById('field_ttd3_nama')?.value || '';
                 const ttd3Nim = document.getElementById('field_ttd3_nim_angka')?.value || (document.getElementById('field_ttd3_nim')?.value || '').replace(/[^0-9]/g, '');
@@ -13770,6 +13808,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 </div>
                             </div>
                         </div>
+                        ${isSpm ? `
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="text-[10.5px] text-orange-400 font-bold">Ketua Umum MPM</label>
@@ -13816,7 +13855,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 </div>
                             </div>
                         </div>
-
+                        ` : ''}
                     </div>
                 `;
             }
