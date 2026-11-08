@@ -2297,9 +2297,25 @@
 
                         <!-- EDITOR GROUP -->
                         <div id="sud_lampiran_editor_group" class="space-y-3 pl-2 sm:pl-3 border-l-2 border-orange-500/30 ml-1">
+                            <!-- PRESET FORMAT TABEL -->
+                            <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-[10.5px] text-orange-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-shapes"></i> Format / Jenis Tabel
+                                    </label>
+                                    <span class="text-[9px] text-neutral-400 font-mono">Bisa Diganti</span>
+                                </div>
+                                <select id="sud_preset_select" onchange="switchSudTablePreset(this.value)" class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-neutral-200 rounded-lg w-full focus:border-orange-500">
+                                    <option value="rundown_27">Rundown 016_SUD (27 Baris - Dauroh Day 2)</option>
+                                    <option value="rundown_singkat">Susunan Acara Ringkas (6 Baris)</option>
+                                    <option value="barang">Daftar Kebutuhan & Fasilitas (5 Baris)</option>
+                                    <option value="peserta">Daftar Tamu & Pemateri (4 Baris)</option>
+                                </select>
+                            </div>
+
                             <div>
-                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Judul Lampiran Rundown</label>
-                                <input type="text" id="field_sud_lampiran_judul" value="Rundown Day 2" oninput="updatePreview(); triggerAutoSave();" class="form-input text-xs" placeholder="Contoh: Rundown Day 2">
+                                <label class="text-[10px] text-neutral-300 block mb-1 font-semibold">Judul Lampiran Tabel</label>
+                                <input type="text" id="field_sud_lampiran_judul" value="Rundown Day 2" oninput="updatePreview(); triggerAutoSave();" class="form-input text-xs" placeholder="Contoh: Rundown Day 2 / Susunan Acara">
                             </div>
 
                             <div class="flex items-center justify-between pt-1">
@@ -3198,6 +3214,95 @@
 ];
 
         let sudRundownList = JSON.parse(JSON.stringify(DEFAULT_SUD_RUNDOWN));
+
+        
+        // ==========================================
+        // SUD TABLE PRESETS (BISA DIGANTI SEPERTI SURAT LAIN)
+        // ==========================================
+        const SUD_TABLE_PRESETS = {
+            rundown_27: {
+                id: 'rundown_27',
+                title: 'Rundown Day 2',
+                label: 'Rundown 016_SUD (27 Baris - Dauroh Day 2)',
+                col1Header: 'No',
+                col2Header: 'Kegiatan',
+                col3Header: 'Estimasi Waktu',
+                col2Placeholder: 'Nama Kegiatan / Agenda',
+                col3Placeholder: 'Estimasi Waktu (Contoh: 08.00 - 09.00 WIB)',
+                rows: JSON.parse(JSON.stringify(DEFAULT_SUD_RUNDOWN))
+            },
+            rundown_singkat: {
+                id: 'rundown_singkat',
+                title: 'Susunan Acara',
+                label: 'Susunan Acara Ringkas (6 Baris)',
+                col1Header: 'No',
+                col2Header: 'Agenda / Kegiatan',
+                col3Header: 'Estimasi Waktu',
+                col2Placeholder: 'Nama Agenda Acara',
+                col3Placeholder: 'Estimasi Waktu',
+                rows: [
+                    { no: '1', kegiatan: 'Pembukaan & Tilawah Al-Qur\'an', waktu: '08.00 - 08.30 WIB' },
+                    { no: '2', kegiatan: 'Sambutan Ketua Pelaksana & Ketua UKM', waktu: '08.30 - 09.00 WIB' },
+                    { no: '3', kegiatan: 'Pemaparan Materi Utama', waktu: '09.00 - 10.30 WIB' },
+                    { no: '4', kegiatan: 'Sesi Diskusi & Tanya Jawab (QnA)', waktu: '10.30 - 11.30 WIB' },
+                    { no: '5', kegiatan: 'ISHOMA (Istirahat, Sholat, Makan)', waktu: '11.30 - 13.00 WIB' },
+                    { no: '6', kegiatan: 'Penutupan, Doa Bersama & Sesi Foto', waktu: '13.00 - 13.30 WIB' }
+                ]
+            },
+            barang: {
+                id: 'barang',
+                title: 'Daftar Kebutuhan & Fasilitas',
+                label: 'Daftar Barang & Fasilitas (5 Baris)',
+                col1Header: 'No',
+                col2Header: 'Nama Barang / Fasilitas',
+                col3Header: 'Jumlah / Satuan',
+                col2Placeholder: 'Nama Barang',
+                col3Placeholder: 'Jumlah (Contoh: 2 Unit)',
+                rows: [
+                    { no: '1', kegiatan: 'Microphone Wireless & Sound System', waktu: '2 Unit' },
+                    { no: '2', kegiatan: 'Proyektor & Layar Screen', waktu: '1 Set' },
+                    { no: '3', kegiatan: 'Meja Pemateri & Taplak', waktu: '2 Buah' },
+                    { no: '4', kegiatan: 'Kursi Peserta', waktu: '50 Buah' },
+                    { no: '5', kegiatan: 'Kabel Roll & Sambungan Listrik', waktu: '3 Buah' }
+                ]
+            },
+            peserta: {
+                id: 'peserta',
+                title: 'Daftar Tamu & Pemateri',
+                label: 'Daftar Tamu & Pemateri (4 Baris)',
+                col1Header: 'No',
+                col2Header: 'Nama Lengkap & Gelar',
+                col3Header: 'Keterangan / Instansi',
+                col2Placeholder: 'Nama Lengkap',
+                col3Placeholder: 'Keterangan (Contoh: Pemateri 1)',
+                rows: [
+                    { no: '1', kegiatan: 'Sarah Muthiah Widad', waktu: 'Pemateri Utama' },
+                    { no: '2', kegiatan: 'Muhammad Jaisyul Haq', waktu: 'Pemateri Sesi 2' },
+                    { no: '3', kegiatan: 'Perwakilan BEM PoliMedia', waktu: 'Tamu Undangan' },
+                    { no: '4', kegiatan: 'Perwakilan MPM PoliMedia', waktu: 'Tamu Undangan' }
+                ]
+            }
+        };
+
+        let currentSudPresetKey = 'rundown_27';
+
+        function switchSudTablePreset(presetKey) {
+            const p = SUD_TABLE_PRESETS[presetKey];
+            if (!p) return;
+            currentSudPresetKey = presetKey;
+            sudRundownList = JSON.parse(JSON.stringify(p.rows));
+            
+            const judulInput = document.getElementById('field_sud_lampiran_judul');
+            if (judulInput) judulInput.value = p.title;
+
+            const sel = document.getElementById('sud_preset_select');
+            if (sel) sel.value = presetKey;
+
+            renderSudRundownEditor();
+            if (typeof updatePreview === 'function') updatePreview();
+            if (typeof triggerAutoSave === 'function') triggerAutoSave();
+            if (typeof showToast === 'function') showToast(`Format tabel diubah ke: ${p.label}`, 'success');
+        }
 
         function isSudLampiranActive() {
             const el = document.getElementById('field_sud_inc_lampiran');
@@ -9491,7 +9596,7 @@
                                                 ${formatTtdJabatan(ttd2Jabatan)}
                                                 <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
                                                     ${ttd2Img ? `<img src="${ttd2Img}" alt="TTD Ketua UKM" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2;">` : ''}
-                                                    ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 10%; top: 50%; transform: translateY(-50%); max-height: 56pt; max-width: 80pt; object-fit: contain; opacity: 0.88; pointer-events: none; z-index: 1;">` : ''}
+                                                    ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 50%; top: 50%; transform: translate(-65%, -50%); max-height: 56pt; max-width: 80pt; object-fit: contain; opacity: 0.88; pointer-events: none; z-index: 1;">` : ''}
                                                 </div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
@@ -9514,7 +9619,7 @@
                                                 ${formatTtdJabatan(ttd2Jabatan)}
                                                 <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
                                                     ${ttd2Img ? `<img src="${ttd2Img}" alt="TTD Ketua UKM" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2;">` : ''}
-                                                    ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 32%; top: 50%; transform: translateY(-50%); max-height: 56pt; max-width: 80pt; object-fit: contain; opacity: 0.88; pointer-events: none; z-index: 1;">` : ''}
+                                                    ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 50%; top: 50%; transform: translate(-65%, -50%); max-height: 56pt; max-width: 80pt; object-fit: contain; opacity: 0.88; pointer-events: none; z-index: 1;">` : ''}
                                                 </div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
@@ -9545,7 +9650,7 @@
                                 `;
                             })()}
 
-                            <!-- TINGKAT 2: MENGETAHUI (DOSEN PEMBIMBING - OPSIONAL) -->
+                            <!-- TINGKAT 2 & 3 DI SUD (HANYA AKTIF JIKA DICENTANG DI FORM, TANPA KOTAK KLIK TAMBAH) -->
                             ${isTtd3Active ? `
                                 <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="margin-top: 12pt; text-align: center; font-family: 'Times New Roman', serif; font-size: 12pt;">
                                     <p style="margin: 0 0 2pt 0; font-weight: bold; line-height: 1.25;">Mengetahui,</p>
@@ -9554,15 +9659,10 @@
                                     <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
                                     <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
                                 </div>
-                            ` : `
-                                <div class="preview-editable print:hidden" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" onclick="enableTtd3AndOpenEdit(event)" title="Klik untuk mengaktifkan Dosen Pembimbing" style="margin-top: 8pt; padding: 5pt 10pt; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
-                                    <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Menampilkan TTD Dosen Pembimbing (Mengetahui)</span>
-                                </div>
-                            `}
+                            ` : ''}
 
-                            <!-- TINGKAT 3: MENYETUJUI (WAKIL DIREKTUR III - DEFAULT OFF DI SUD) -->
-                            <div id="sud_tingkat3_wadir_wrapper" style="margin-top: 8pt; font-family: 'Times New Roman', serif;">
-                                ${isWadirActive ? `
+                            ${isWadirActive ? `
+                                <div id="sud_tingkat3_wadir_wrapper" style="margin-top: 8pt; font-family: 'Times New Roman', serif;">
                                     <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
                                         <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt; line-height: 1.25;">Menyetujui,</p>
                                         <p style="margin: 0; font-size: 11pt; line-height: 1.25;">${formatTtdJabatan(wadirJabatan)}</p>
@@ -9572,13 +9672,8 @@
                                             <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
                                         </p>
                                     </div>
-                                ` : `
-                                    <div class="preview-editable print:hidden" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" onclick="enableWadirAndOpenEdit(event)" title="Klik untuk mengaktifkan Wakil Direktur III" style="margin-top: 6pt; padding: 5pt 10pt; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 1.5px dashed #f59e0b; border-radius: 8px; background-color: rgba(245, 158, 11, 0.05); cursor: pointer; transition: all 0.2s;">
-                                        <span style="font-size: 9pt; color: #d97706; font-weight: bold;"><i class="fa-solid fa-plus-circle mr-1.5"></i> Klik untuk Mengaktifkan Tanda Tangan Wakil Direktur III (Menyetujui)</span>
-                                    </div>
-                                    <div class="hidden print:block" style="height: 0;"></div>
-                                `}
-                            </div>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -9622,7 +9717,7 @@
                                         </thead>
                                         <tbody>
                                             ${currentRows.map((r, idx) => `
-                                                <tr style="vertical-align: top;">
+                                                <tr class="preview-editable" data-edit-target="card_sud_lampiran_rundown" data-edit-type="sud_rundown_row" data-edit-index="${idx}" title="Klik untuk edit baris #${idx + 1}" style="vertical-align: top; cursor: pointer;">
                                                     <td style="border: 0.75px solid #000; padding: 3pt 3pt; text-align: center; font-size: 9.5pt;">${idx + 1}</td>
                                                     <td style="border: 0.75px solid #000; padding: 3pt 6pt; text-align: left; font-size: 9.5pt;">${formatInlineRichText(r.kegiatan || '-')}</td>
                                                     <td style="border: 0.75px solid #000; padding: 3pt 6pt; text-align: center; font-size: 9.5pt; white-space: nowrap;">${formatInlineRichText(r.waktu || '-')}</td>
@@ -9805,9 +9900,14 @@
                             </div>
 
                             <!-- PENGESAHAN SPM: MODULAR SESUAI MASTER DOKUMEN -->
-                            <!-- TIER 1: PENANGGUNG JAWAB -->
+                            <!-- TIER 1: PENANGGUNG JAWAB (DENGAN TTD BASAH & STEMPEL ORMAWA TEPAT DI TENGAH-KIRI) -->
                             ${(() => {
                                 if (!isTtd1Active && !isTtd2Active) return '';
+                                const ttd1Img = document.getElementById('field_ttd1_img')?.value || '';
+                                const ttd2Img = document.getElementById('field_ttd2_img')?.value || SAMPLE_TTD_HAFIZ_BASE64;
+                                const stempelImg = document.getElementById('field_stempel_img')?.value || SAMPLE_STEMPEL_IMIP_BASE64;
+                                const useStempel = document.getElementById('field_use_stempel') ? document.getElementById('field_use_stempel').checked : true;
+
                                 let content = '';
                                 if (isTtd1Active && isTtd2Active) {
                                     content = `
@@ -9817,16 +9917,21 @@
                                             <col style="width: 48%;">
                                         </colgroup>
                                         <tr>
-                                            <td style="width: 48%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            <td style="width: 48%; vertical-align: top; line-height: 1.25; position: relative;">
                                                 ${formatTtdJabatan(ttd2Jabatan)}
-                                                <div style="height: 58pt;"></div>
+                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
+                                                    ${ttd2Img ? `<img src="${ttd2Img}" alt="TTD Ketua UKM" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2;">` : ''}
+                                                    ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 50%; top: 50%; transform: translate(-65%, -50%); max-height: 56pt; max-width: 78pt; object-fit: contain; opacity: 0.88; pointer-events: none; z-index: 1;">` : ''}
+                                                </div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                             </td>
                                             <td style="width: 4%;"></td>
-                                            <td style="width: 48%; vertical-align: top; line-height: 1.25; white-space: nowrap;">
+                                            <td style="width: 48%; vertical-align: top; line-height: 1.25; position: relative;">
                                                 ${formatTtdJabatan(ttd1Jabatan)}
-                                                <div style="height: 58pt;"></div>
+                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
+                                                    ${ttd1Img ? `<img src="${ttd1Img}" alt="TTD Ketua Pelaksana" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2;">` : ''}
+                                                </div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</p>
                                             </td>
@@ -9835,9 +9940,12 @@
                                 } else if (isTtd2Active) {
                                     content = `
                                         <tr>
-                                            <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                            <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; position: relative;">
                                                 ${formatTtdJabatan(ttd2Jabatan)}
-                                                <div style="height: 58pt;"></div>
+                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
+                                                    ${ttd2Img ? `<img src="${ttd2Img}" alt="TTD Ketua UKM" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2;">` : ''}
+                                                    ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 50%; top: 50%; transform: translate(-65%, -50%); max-height: 56pt; max-width: 78pt; object-fit: contain; opacity: 0.88; pointer-events: none; z-index: 1;">` : ''}
+                                                </div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                             </td>
@@ -9846,9 +9954,11 @@
                                 } else {
                                     content = `
                                         <tr>
-                                            <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; white-space: nowrap;">
+                                            <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; position: relative;">
                                                 ${formatTtdJabatan(ttd1Jabatan)}
-                                                <div style="height: 58pt;"></div>
+                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
+                                                    ${ttd1Img ? `<img src="${ttd1Img}" alt="TTD Ketua Pelaksana" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2;">` : ''}
+                                                </div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</p>
                                             </td>
@@ -11555,7 +11665,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         card_isi_inti: true,
                         card_penutup: true,
                         card_penandatangan: true,
-                        card_sud_lampiran_rundown: false,
+                        card_sud_lampiran_rundown: isSudLampiranActive(),
                         card_sba_rundown: false,
                         card_sba_output_evaluasi: false,
                         card_sba_keuangan: false,
@@ -12353,6 +12463,25 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             }
 
+            // SELF-HEALING SANITIZER: Perbaiki otomatis jika ada input yang tertukar atau useKop false
+            const dRaw = doc.formData || {};
+            if (dRaw.field_tanggal_surat && /^\d{1,4}$/.test(dRaw.field_tanggal_surat.trim())) {
+                const numVal = dRaw.field_tanggal_surat.trim();
+                if (dRaw.field_perihal && /^(?:Jakarta|Depok|Bogor|Tangerang|Bekasi|[\w\s]+,\s*\d{1,2}\s+[A-Za-z]+\s+\d{4})/i.test(dRaw.field_perihal.trim())) {
+                    dRaw.field_tanggal_surat = dRaw.field_perihal;
+                    dRaw.field_perihal = (SURAT_TEMPLATES[doc.type] && SURAT_TEMPLATES[doc.type].perihal) || '';
+                } else {
+                    dRaw.field_tanggal_surat = (SURAT_TEMPLATES[doc.type] && SURAT_TEMPLATES[doc.type].tanggalSurat) || `Jakarta, ${formatIndoDate(new Date())}`;
+                }
+                if (!dRaw.field_nomor_urut) dRaw.field_nomor_urut = numVal;
+            }
+            if (dRaw.field_pembuka && dRaw.field_tujuan && dRaw.field_pembuka.trim() === dRaw.field_tujuan.trim()) {
+                dRaw.field_pembuka = (SURAT_TEMPLATES[doc.type] && SURAT_TEMPLATES[doc.type].pembuka) || '';
+            }
+            if (dRaw.field_use_kop === undefined || dRaw.field_use_kop === false) {
+                dRaw.field_use_kop = true;
+            }
+
             // 1. Pilih jenis surat terlebih dahulu
             selectSuratType(doc.type || 'SPM');
 
@@ -12889,10 +13018,20 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const doc = docs.find(d => d.id === docId);
             if (!doc) return;
 
+            // Tampilkan loading overlay halus selama transisi dokumen
+            if (typeof showSuratLoadingOverlay === 'function') {
+                showSuratLoadingOverlay('MEMUAT DOKUMEN...', doc.title || 'Format Resmi Ormawa 2026');
+            }
+
             setActiveDocumentId(docId);
             loadFormDataIntoInputs(doc);
+            if (typeof updatePreview === 'function') updatePreview();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
+            if (typeof updateTtdThumbnails === 'function') updateTtdThumbnails();
+
+            // Sembunyikan loading overlay setelah kertas selesai ter-render
+            setTimeout(hideSuratLoadingOverlay, 300);
 
             try {
                 const cleanUrl = `${window.location.pathname}?id=${encodeURIComponent(docId)}`;
@@ -13654,6 +13793,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 else if (type === 'spz_rundown_all' || type === 'sba_rundown_all') subtitleEl.innerText = 'Kelola susunan rundown, waktu & penanggung jawab';
                 else if (type === 'sba_prestasi_all') subtitleEl.innerText = 'Kelola semua capaian prestasi, kejuaraan, nama peserta & prodi';
                 else if (type === 'sba_prestasi_row') subtitleEl.innerText = 'Ubah capaian, tingkat, bidang, nama & prodi';
+                else if (type === 'sud_rundown_row') subtitleEl.innerText = 'Ubah uraian, estimasi waktu, atau kelola baris tabel lampiran';
                 else if (targetId === 'sba_hambatan_kegiatan') subtitleEl.innerText = 'Tulis tiap kendala per baris • Otomatis menjadi poin (•) saat tekan Enter';
                 else if (targetId === 'sba_evaluasi_kegiatan') subtitleEl.innerText = 'Tulis tiap evaluasi per baris • Otomatis menjadi poin (•) saat tekan Enter';
                 else if (type === 'detail_kegiatan' || targetId === 'card_detail_kegiatan') subtitleEl.innerText = 'Sesuaikan jadwal hari, tanggal, jam pelaksanaan, dan lokasi acara';
@@ -14848,6 +14988,52 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                     oninput="handleQuickSpzRundown(${idx}, 'pj', this.value)" 
                                     class="form-input text-xs py-1.5 px-2.5 w-full bg-neutral-950 border-neutral-700 rounded-lg text-white focus:border-orange-500">
                             </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 15C. KHUSUS SUD RUNDOWN ROW QUICK EDIT (ROW-BY-ROW KLIK LANGSUNG)
+            if (type === 'sud_rundown_row') {
+                const rowIdx = parseInt(idx, 10) || 0;
+                const rowItem = (sudRundownList && sudRundownList[rowIdx]) ? sudRundownList[rowIdx] : { no: String(rowIdx + 1), kegiatan: '', waktu: '' };
+                return `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between pb-1 border-b border-neutral-800">
+                            <span class="text-xs font-bold text-orange-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen-to-square"></i> Baris #${rowIdx + 1} dari ${sudRundownList.length}
+                            </span>
+                            <span class="text-[9.5px] text-neutral-400 font-mono">Lampiran Tabel</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
+                            <div>
+                                <label class="text-[9.5px] text-neutral-400 block mb-0.5 font-semibold">Nama Kegiatan / Uraian</label>
+                                <input type="text" value="${escapeHtml(rowItem.kegiatan || '')}" 
+                                    oninput="updateSudRundownRow(${rowIdx}, 'kegiatan', this.value)" 
+                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full">
+                            </div>
+                            <div>
+                                <label class="text-[9.5px] text-neutral-400 block mb-0.5 font-semibold">Estimasi Waktu / Keterangan</label>
+                                <input type="text" value="${escapeHtml(rowItem.waktu || '')}" 
+                                    oninput="updateSudRundownRow(${rowIdx}, 'waktu', this.value)" 
+                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500 w-full">
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 pt-1">
+                            <button type="button" onclick="addSudRundownRow(${rowIdx}); closePreviewQuickEdit();" class="flex-1 py-1 px-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-400 text-[10px] font-bold flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-plus text-[9px]"></i> + Baris Setelah Ini
+                            </button>
+                            <button type="button" onclick="removeSudRundownRow(${rowIdx}); closePreviewQuickEdit();" class="py-1 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-[10px] font-bold flex items-center gap-1" title="Hapus baris ini">
+                                <i class="fa-solid fa-trash-can text-[9px]"></i> Hapus
+                            </button>
+                        </div>
+                        <div class="pt-1 border-t border-neutral-800 flex items-center justify-between">
+                            <button type="button" onclick="focusCardInSidebar('card_sud_lampiran_rundown'); closeFloatingPopover();" class="text-[10px] text-orange-400 hover:text-orange-300 underline font-mono flex items-center gap-1">
+                                <i class="fa-solid fa-table-list"></i> Kelola Lengkap di Samping
+                            </button>
+                            <button type="button" onclick="resetSudRundownDefault(); closePreviewQuickEdit();" class="text-[10px] text-neutral-400 hover:text-orange-400 underline font-mono">
+                                Reset 016_SUD
+                            </button>
                         </div>
                     </div>
                 `;
@@ -16974,6 +17160,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
             }
 
+            if (typeof updatePreview === 'function') updatePreview();
             if (typeof renderPageTabs === 'function') renderPageTabs();
             if (typeof applyActivePageVisibility === 'function') applyActivePageVisibility();
             if (typeof initPreviewClickToEdit === 'function') initPreviewClickToEdit();
