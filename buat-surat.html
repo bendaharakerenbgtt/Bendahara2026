@@ -3367,37 +3367,84 @@
             }).join('');
         }
 
+        function openPopoverLampiranSud(e) {
+            if (e) e.stopPropagation();
+            const lampiranMetaEl = document.querySelector('[data-edit-type="sud_lampiran_toggle"]') || document.querySelector('[data-edit-target="field_sud_inc_lampiran"]');
+            if (lampiranMetaEl) {
+                openPreviewQuickEdit(lampiranMetaEl);
+            } else {
+                const dummy = document.createElement('div');
+                dummy.setAttribute('data-edit-type', 'sud_lampiran_toggle');
+                dummy.setAttribute('data-edit-target', 'field_sud_inc_lampiran');
+                dummy.setAttribute('data-edit-label', 'Lampiran Surat');
+                openPreviewQuickEdit(dummy);
+            }
+        }
+        window.openPopoverLampiranSud = openPopoverLampiranSud;
+
         function updateSudRundownRow(idx, field, val) {
-            if (sudRundownList[idx]) {
+            if (sudRundownList && sudRundownList[idx]) {
                 sudRundownList[idx][field] = val;
-                if (typeof updatePreview === 'function') updatePreview();
+                const targetRow = document.querySelector(`tr[data-edit-type="sud_rundown_row"][data-edit-idx="${idx}"]`) ||
+                                  document.querySelector(`tr[data-edit-type="sud_rundown_row"][data-edit-index="${idx}"]`);
+                if (targetRow) {
+                    if (field === 'kegiatan') {
+                        const cell = targetRow.querySelector('.sud-cell-kegiatan');
+                        if (cell) cell.innerHTML = formatInlineRichText(val || '-');
+                    } else if (field === 'waktu') {
+                        const cell = targetRow.querySelector('.sud-cell-waktu');
+                        if (cell) cell.innerHTML = formatInlineRichText(val || '-');
+                    }
+                }
+                const sbInput = document.querySelector(`input[data-sud-field="${field}"][data-sud-idx="${idx}"]`);
+                if (sbInput && sbInput.value !== val) sbInput.value = val;
                 if (typeof triggerAutoSave === 'function') triggerAutoSave();
             }
         }
+        window.updateSudRundownRow = updateSudRundownRow;
 
         function addSudRundownRow(afterIdx) {
             if (!Array.isArray(sudRundownList)) sudRundownList = [];
             const newRow = { no: String(sudRundownList.length + 1), kegiatan: '', waktu: '' };
-            if (afterIdx !== undefined && afterIdx >= 0 && afterIdx < sudRundownList.length) {
-                sudRundownList.splice(afterIdx + 1, 0, newRow);
-            } else {
-                sudRundownList.push(newRow);
+            const insertPos = (afterIdx !== undefined && afterIdx >= 0 && afterIdx < sudRundownList.length) ? (afterIdx + 1) : sudRundownList.length;
+            sudRundownList.splice(insertPos, 0, newRow);
+            for (let i = 0; i < sudRundownList.length; i++) {
+                sudRundownList[i].no = String(i + 1);
             }
             renderSudRundownEditor();
             if (typeof updatePreview === 'function') updatePreview();
             if (typeof triggerAutoSave === 'function') triggerAutoSave();
+
+            setTimeout(() => {
+                const nextEl = document.querySelector(`tr[data-edit-type="sud_rundown_row"][data-edit-idx="${insertPos}"]`) ||
+                               document.querySelector(`tr[data-edit-type="sud_rundown_row"][data-edit-index="${insertPos}"]`);
+                if (nextEl) openPreviewQuickEdit(nextEl);
+            }, 60);
         }
+        window.addSudRundownRow = addSudRundownRow;
 
         function removeSudRundownRow(idx) {
             if (!Array.isArray(sudRundownList) || sudRundownList.length <= 1) {
-                sudRundownList = [{ no: '1', kegiatan: '', waktu: '' }];
-            } else {
-                sudRundownList.splice(idx, 1);
+                if (typeof showToast === 'function') showToast('Tabel minimal memiliki 1 baris', 'warning');
+                return;
+            }
+            sudRundownList.splice(idx, 1);
+            for (let i = 0; i < sudRundownList.length; i++) {
+                sudRundownList[i].no = String(i + 1);
             }
             renderSudRundownEditor();
             if (typeof updatePreview === 'function') updatePreview();
             if (typeof triggerAutoSave === 'function') triggerAutoSave();
+
+            const targetIdx = Math.min(idx, sudRundownList.length - 1);
+            setTimeout(() => {
+                const nextEl = document.querySelector(`tr[data-edit-type="sud_rundown_row"][data-edit-idx="${targetIdx}"]`) ||
+                               document.querySelector(`tr[data-edit-type="sud_rundown_row"][data-edit-index="${targetIdx}"]`);
+                if (nextEl) openPreviewQuickEdit(nextEl);
+                else closePreviewQuickEdit();
+            }, 60);
         }
+        window.removeSudRundownRow = removeSudRundownRow;
 
         function resetSudRundownDefault() {
             sudRundownList = JSON.parse(JSON.stringify(DEFAULT_SUD_RUNDOWN));
@@ -9783,9 +9830,19 @@
             if (incLampiran) {
                 const currentRows = (sudRundownList && sudRundownList.length > 0) ? sudRundownList : DEFAULT_SUD_RUNDOWN;
                 htmlResult += `
-                    <div class="spz-sheet-badge print:hidden">
-                        <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman 2 &bull; Lampiran Rundown Kegiatan</span>
-                        <span class="text-[10px] font-mono text-orange-400 font-bold">2 / 2</span>
+                    <div class="spz-sheet-badge print:hidden flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono text-neutral-400 uppercase font-bold tracking-wider">Halaman 2 &bull; Lampiran Rundown Kegiatan</span>
+                            <span class="text-[10px] font-mono text-orange-400 font-bold">2 / 2</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="openPopoverLampiranSud(event)" class="text-[10px] py-0.5 px-2 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 font-medium flex items-center gap-1 active:scale-95 transition-transform" title="Ganti format / preset tabel lampiran">
+                                <i class="fa-solid fa-sliders text-orange-400"></i> Format Tabel
+                            </button>
+                            <button type="button" onclick="toggleSudLampiranDirect(false)" class="text-[10px] py-0.5 px-2 rounded bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 font-bold flex items-center gap-1 active:scale-95 transition-transform" title="Nonaktifkan / Hapus Halaman 2 (Jadikan Surat 1 Halaman)">
+                                <i class="fa-solid fa-trash-can text-rose-400"></i> Nonaktifkan Hal 2
+                            </button>
+                        </div>
                     </div>
                     <div class="spz-page-sheet" data-page="2">
                         ${getOfficialWatermarkHtml('145mm')}
@@ -9817,14 +9874,29 @@
                                         </thead>
                                         <tbody>
                                             ${currentRows.map((r, idx) => `
-                                                <tr class="preview-editable" data-edit-target="card_sud_lampiran_rundown" data-edit-type="sud_rundown_row" data-edit-index="${idx}" title="Klik untuk edit baris #${idx + 1}" style="vertical-align: top; cursor: pointer;">
+                                                <tr class="preview-editable" data-edit-target="sud_rundown_row" data-edit-type="sud_rundown_row" data-edit-idx="${idx}" data-edit-index="${idx}" data-edit-label="Baris #${idx + 1}" title="Klik untuk edit baris #${idx + 1}" style="vertical-align: top; cursor: pointer;">
                                                     <td style="border: 0.75px solid #000; padding: 3pt 3pt; text-align: center; font-size: 9.5pt;">${idx + 1}</td>
-                                                    <td style="border: 0.75px solid #000; padding: 3pt 6pt; text-align: left; font-size: 9.5pt;">${formatInlineRichText(r.kegiatan || '-')}</td>
-                                                    <td style="border: 0.75px solid #000; padding: 3pt 6pt; text-align: center; font-size: 9.5pt; white-space: nowrap;">${formatInlineRichText(r.waktu || '-')}</td>
+                                                    <td class="sud-cell-kegiatan" style="border: 0.75px solid #000; padding: 3pt 6pt; text-align: left; font-size: 9.5pt;">${formatInlineRichText(r.kegiatan || '-')}</td>
+                                                    <td class="sud-cell-waktu" style="border: 0.75px solid #000; padding: 3pt 6pt; text-align: center; font-size: 9.5pt; white-space: nowrap;">${formatInlineRichText(r.waktu || '-')}</td>
                                                 </tr>
                                             `).join('')}
                                         </tbody>
                                     </table>
+
+                                    <!-- ACTION BAR BAWAH TABEL (TOMBOL NONAKTIFKAN HAL 2 & TAMBAH BARIS) -->
+                                    <div class="print:hidden flex items-center justify-between pt-2.5 mt-2 border-t border-neutral-700/40 text-xs">
+                                        <button type="button" onclick="addSudRundownRow(${currentRows.length - 1})" class="py-1 px-2.5 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-400 font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                                            <i class="fa-solid fa-plus-circle text-xs"></i> Tambah Baris Baru
+                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="openPopoverLampiranSud(event)" class="py-1 px-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 text-neutral-300 font-medium flex items-center gap-1.5 active:scale-95 transition-transform" title="Ganti jenis / format tabel">
+                                                <i class="fa-solid fa-sliders text-orange-400 text-xs"></i> Ganti Format Tabel
+                                            </button>
+                                            <button type="button" onclick="toggleSudLampiranDirect(false)" class="py-1 px-2.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 font-bold flex items-center gap-1.5 transition-all active:scale-95" title="Nonaktifkan Halaman 2 (Jadikan Surat 1 Halaman)">
+                                                <i class="fa-solid fa-trash-can text-xs"></i> Nonaktifkan Hal 2
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -11607,14 +11679,23 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             }).join('');
 
             let inactivePillsHtml = '';
-            if (currentSuratType === 'SUD' && typeof isSudLampiranActive === 'function' && !isSudLampiranActive()) {
-                inactivePillsHtml += `
-                    <button type="button" onclick="enableSudLampiranAndOpen(event)" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-bold active:scale-95 shadow-xs" title="Klik untuk menyertakan Lampiran Tabel Acara (Halaman 2)">
-                        <i class="fa-solid fa-plus-circle text-orange-400 text-[11px]"></i>
-                        <span>+ Sertakan Lampiran Tabel</span>
-                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-orange-400 font-mono">Hal 2</span>
-                    </button>
-                `;
+            if (currentSuratType === 'SUD') {
+                if (typeof isSudLampiranActive === 'function' && !isSudLampiranActive()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="enableSudLampiranAndOpen(event)" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-dashed border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 font-bold active:scale-95 shadow-xs" title="Klik untuk menyertakan Lampiran Tabel Acara (Halaman 2)">
+                            <i class="fa-solid fa-plus-circle text-orange-400 text-[11px]"></i>
+                            <span>+ Sertakan Lampiran Tabel</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/80 text-orange-400 font-mono">Hal 2</span>
+                        </button>
+                    `;
+                } else if (typeof isSudLampiranActive === 'function' && isSudLampiranActive()) {
+                    inactivePillsHtml += `
+                        <button type="button" onclick="toggleSudLampiranDirect(false)" class="page-tab-item px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold active:scale-95 shadow-xs" title="Hapus / Nonaktifkan Halaman 2 (Jadikan Surat 1 Halaman)">
+                            <i class="fa-solid fa-trash-can text-rose-400 text-[11px]"></i>
+                            <span>Nonaktifkan Hal 2</span>
+                        </button>
+                    `;
+                }
             }
             if (currentSuratType === 'SBA') {
                 if (typeof isSbaKeuanganActive === 'function' && !isSbaKeuanganActive()) {
@@ -13793,7 +13874,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const targetId = editable.getAttribute('data-edit-target') || '';
             const label = editable.getAttribute('data-edit-label') || 'Bagian Surat';
             const type = editable.getAttribute('data-edit-type') || 'text';
-            const idx = editable.getAttribute('data-edit-idx');
+            const idx = editable.getAttribute('data-edit-idx') || editable.getAttribute('data-edit-index');
 
             if (isSbaKeuanganDbLinked() && (type === 'sba_pemasukan' || targetId === 'sba_pemasukan_row')) {
                 const pName = getSbaLinkedProkerName() || 'Kegiatan Terkait';
@@ -13869,6 +13950,11 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     titleEl.innerText = 'Ubah Pihak Mengetahui';
                 } else if (type === 'ttd_wadir' || targetId === 'ttd_wadir_block') {
                     titleEl.innerText = 'Ubah Wakil Direktur III (Menyetujui)';
+                } else if (type === 'sud_rundown_row') {
+                    const rNum = (idx !== null && idx !== undefined && !isNaN(parseInt(idx, 10))) ? (parseInt(idx, 10) + 1) : 1;
+                    titleEl.innerText = `Ubah Tabel Baris #${rNum}`;
+                } else if (type === 'sud_lampiran_toggle' || targetId === 'field_sud_inc_lampiran') {
+                    titleEl.innerText = 'Kelola Lampiran Tabel (Hal 2)';
                 } else if (type === 'rundown') {
                     titleEl.innerText = `Ubah Rundown Baris #${parseInt(idx) + 1}`;
                 } else if (type === 'sba_rundown_all' || targetId === 'sba_rundown_editor_container') {
@@ -14213,9 +14299,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                     <label class="text-[10px] text-neutral-300 font-semibold block mb-1">Judul Lampiran Tabel</label>
                                     <input type="text" value="${escapeHtml(judulVal)}" oninput="syncQuickEditToForm('field_sud_lampiran_judul', this.value)" class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full" placeholder="Contoh: Rundown Day 2">
                                 </div>
-                                <div class="pt-1">
+                                <div class="pt-1 space-y-1.5">
                                     <button type="button" onclick="setActivePage(2, true); closePreviewQuickEdit();" class="w-full py-1.5 px-3 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-300 text-xs font-bold flex items-center justify-center gap-1.5">
                                         <i class="fa-solid fa-eye text-xs"></i> Buka & Edit Halaman 2 (Lampiran)
+                                    </button>
+                                    <button type="button" onclick="toggleSudLampiranDirect(false); closePreviewQuickEdit();" class="w-full py-1.5 px-3 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-400 hover:text-rose-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+                                        <i class="fa-solid fa-trash-can text-xs"></i> Nonaktifkan / Hapus Halaman 2 (Kembali 1 Halaman)
                                     </button>
                                 </div>
                             </div>
@@ -15259,44 +15348,50 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
 
             // 15C. KHUSUS SUD RUNDOWN ROW QUICK EDIT (ROW-BY-ROW KLIK LANGSUNG)
             if (type === 'sud_rundown_row') {
-                const rowIdx = parseInt(idx, 10) || 0;
+                const rowIdx = (idx !== null && idx !== undefined && !isNaN(parseInt(idx, 10))) ? parseInt(idx, 10) : 0;
                 const rowItem = (sudRundownList && sudRundownList[rowIdx]) ? sudRundownList[rowIdx] : { no: String(rowIdx + 1), kegiatan: '', waktu: '' };
+                const totalRows = (sudRundownList && sudRundownList.length) ? sudRundownList.length : 1;
                 return `
                     <div class="space-y-2.5">
                         <div class="flex items-center justify-between pb-1 border-b border-neutral-800">
                             <span class="text-xs font-bold text-orange-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-pen-to-square"></i> Baris #${rowIdx + 1} dari ${sudRundownList.length}
+                                <i class="fa-solid fa-pen-to-square"></i> Baris #${rowIdx + 1} dari ${totalRows}
                             </span>
-                            <span class="text-[9.5px] text-neutral-400 font-mono">Lampiran Tabel</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[9.5px] text-neutral-400 font-mono">Lampiran Tabel</span>
+                                <button type="button" onclick="toggleSudLampiranDirect(false); closePreviewQuickEdit();" class="text-[9.5px] text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1 ml-1" title="Nonaktifkan Halaman 2">
+                                    <i class="fa-solid fa-power-off"></i> Tutup Hal 2
+                                </button>
+                            </div>
                         </div>
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
                             <div>
                                 <label class="text-[9.5px] text-neutral-400 block mb-0.5 font-semibold">Nama Kegiatan / Uraian</label>
-                                <input type="text" value="${escapeHtml(rowItem.kegiatan || '')}" 
+                                <input type="text" id="quick_sud_kegiatan" value="${escapeHtml(rowItem.kegiatan || '')}" 
                                     oninput="updateSudRundownRow(${rowIdx}, 'kegiatan', this.value)" 
-                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full">
+                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full" placeholder="Nama agenda / uraian">
                             </div>
                             <div>
                                 <label class="text-[9.5px] text-neutral-400 block mb-0.5 font-semibold">Estimasi Waktu / Keterangan</label>
-                                <input type="text" value="${escapeHtml(rowItem.waktu || '')}" 
+                                <input type="text" id="quick_sud_waktu" value="${escapeHtml(rowItem.waktu || '')}" 
                                     oninput="updateSudRundownRow(${rowIdx}, 'waktu', this.value)" 
-                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500 w-full">
+                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500 w-full" placeholder="Contoh: 08.00 - 09.00 WIB">
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5 pt-1">
-                            <button type="button" onclick="addSudRundownRow(${rowIdx}); closePreviewQuickEdit();" class="flex-1 py-1 px-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-400 text-[10px] font-bold flex items-center justify-center gap-1">
+                            <button type="button" onclick="addSudRundownRow(${rowIdx})" class="flex-1 py-1 px-2 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-400 text-[10px] font-bold flex items-center justify-center gap-1 active:scale-95 shadow-xs">
                                 <i class="fa-solid fa-plus text-[9px]"></i> + Baris Setelah Ini
                             </button>
-                            <button type="button" onclick="removeSudRundownRow(${rowIdx}); closePreviewQuickEdit();" class="py-1 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-[10px] font-bold flex items-center gap-1" title="Hapus baris ini">
+                            <button type="button" onclick="removeSudRundownRow(${rowIdx})" class="py-1 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-[10px] font-bold flex items-center gap-1 active:scale-95 shadow-xs" title="Hapus baris #${rowIdx + 1}">
                                 <i class="fa-solid fa-trash-can text-[9px]"></i> Hapus
                             </button>
                         </div>
                         <div class="pt-1 border-t border-neutral-800 flex items-center justify-between">
-                            <button type="button" onclick="focusCardInSidebar('card_sud_lampiran_rundown'); closeFloatingPopover();" class="text-[10px] text-orange-400 hover:text-orange-300 underline font-mono flex items-center gap-1">
-                                <i class="fa-solid fa-table-list"></i> Kelola Lengkap di Samping
+                            <button type="button" onclick="openPopoverLampiranSud(event); closeFloatingPopover();" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1">
+                                <i class="fa-solid fa-sliders"></i> Ganti Format Tabel
                             </button>
-                            <button type="button" onclick="resetSudRundownDefault(); closePreviewQuickEdit();" class="text-[10px] text-neutral-400 hover:text-orange-400 underline font-mono">
-                                Reset 016_SUD
+                            <button type="button" onclick="toggleSudLampiranDirect(false); closePreviewQuickEdit();" class="text-[10px] text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1" title="Nonaktifkan Halaman 2 (jadikan 1 halaman)">
+                                <i class="fa-solid fa-trash-can text-[9px]"></i> Nonaktifkan Halaman 2
                             </button>
                         </div>
                     </div>
