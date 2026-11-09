@@ -17635,9 +17635,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             const urlDocId = urlParams.get('doc') || urlParams.get('id');
             const urlNew = urlParams.get('new');
             const urlType = urlParams.get('type');
+            const isEditorRequested = (urlParams.get('editor') === '1' || window.location.hash === '#editor');
             const isFolderRequested = (window.location.hash === '#folder' || urlParams.get('view') === 'folder');
 
-            if (isFolderRequested) {
+            // Default alur: Jika pengguna membuka surat tanpa memilih dokumen spesifik atau tanpa klik Buka Editor,
+            // arahkan terlebih dahulu ke Folder Surat agar bisa melihat arsip & memilih dokumen
+            if (isFolderRequested || (!urlDocId && !urlNew && !isEditorRequested)) {
                 window.location.replace('folder-surat.html');
                 return;
             }
@@ -17647,7 +17650,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
             } else if (urlNew === '1' || urlNew === 'true') {
                 const initType = (urlType ? urlType.toUpperCase() : 'SBA');
                 createNewDocument(['SPM','SBA','SPZ','SUD'].includes(initType) ? initType : 'SBA', urlParams.get('title') || `Surat ${initType} Baru`);
-            } else {
+            } else if (isEditorRequested) {
                 const targetDoc = savedDocs.find(d => d.id === lastActiveId) || (savedDocs.length > 0 ? savedDocs[0] : null);
                 if (targetDoc) {
                     openDocument(targetDoc.id);
@@ -17657,6 +17660,9 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     selectSuratType('SBA');
                     switchToEditorView();
                 }
+            } else {
+                window.location.replace('folder-surat.html');
+                return;
             }
 
             if (typeof updatePreview === 'function') updatePreview();
