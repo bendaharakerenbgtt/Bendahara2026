@@ -2076,7 +2076,7 @@
                     </div>
 
                     <!-- Pihak Mengetahui Ormawa Kampus: Ketua Umum MPM & Ketua BEM PoliMedia -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                    <div id="card_ttd_ormawa_mpm_bem" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                         <!-- Ketua Umum MPM PoliMedia -->
                         <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2.5">
                             <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
@@ -3939,10 +3939,23 @@
 
             // Toggle SUD specific UI elements
             const cardSudLampiran = document.getElementById('card_sud_lampiran_rundown');
+            const cardTtdMengetahui = document.getElementById('card_ttd_mengetahui');
+            const cardTtdOrmawa = document.getElementById('card_ttd_ormawa_mpm_bem');
+            const cardTtdWadir = document.getElementById('ttd_wadir_block');
+
             if (type === 'SUD') {
                 if (cardSudLampiran) cardSudLampiran.classList.remove('hidden');
                 if (typeof renderSudRundownEditor === 'function') renderSudRundownEditor();
                 
+                // SUD HANYA ada TTD Ketua Pelaksana & Ketua UKM (Hormat Kami). Tidak ada Dosen Pembina & Wakil Direktur
+                if (cardTtdMengetahui) cardTtdMengetahui.classList.add('hidden');
+                if (cardTtdOrmawa) cardTtdOrmawa.classList.add('hidden');
+                if (cardTtdWadir) cardTtdWadir.classList.add('hidden');
+                if (document.getElementById('field_ttd3_active')) document.getElementById('field_ttd3_active').checked = false;
+                if (document.getElementById('field_ttd_wadir_active')) document.getElementById('field_ttd_wadir_active').checked = false;
+                if (document.getElementById('field_ttd_mpm_active')) document.getElementById('field_ttd_mpm_active').checked = false;
+                if (document.getElementById('field_ttd_bem_active')) document.getElementById('field_ttd_bem_active').checked = false;
+
                 // Populate default sample wet signatures & stamp if empty
                 const fTtd1Img = document.getElementById('field_ttd1_img');
                 if (fTtd1Img && !fTtd1Img.value) fTtd1Img.value = SAMPLE_TTD_FADLY_BASE64;
@@ -3956,6 +3969,11 @@
                 if (typeof updateTtdThumbnails === 'function') updateTtdThumbnails();
             } else {
                 if (cardSudLampiran) cardSudLampiran.classList.add('hidden');
+                if (cardTtdMengetahui) cardTtdMengetahui.classList.remove('hidden');
+                if (cardTtdOrmawa) cardTtdOrmawa.classList.remove('hidden');
+                if (type === 'SPZ' || type === 'SPM') {
+                    if (cardTtdWadir) cardTtdWadir.classList.remove('hidden');
+                }
             }
 
             // Toggle SBA specific UI elements
@@ -4164,6 +4182,27 @@
         }
 
         function updateTtdState() {
+            const isSud = (currentSuratType === 'SUD');
+            const cardMengetahui = document.getElementById('card_ttd_mengetahui');
+            const cardOrmawa = document.getElementById('card_ttd_ormawa_mpm_bem');
+            const cardWadir = document.getElementById('ttd_wadir_block');
+
+            if (isSud) {
+                if (cardMengetahui) cardMengetahui.classList.add('hidden');
+                if (cardOrmawa) cardOrmawa.classList.add('hidden');
+                if (cardWadir) cardWadir.classList.add('hidden');
+                if (document.getElementById('field_ttd3_active')) document.getElementById('field_ttd3_active').checked = false;
+                if (document.getElementById('field_ttd_wadir_active')) document.getElementById('field_ttd_wadir_active').checked = false;
+                if (document.getElementById('field_ttd_mpm_active')) document.getElementById('field_ttd_mpm_active').checked = false;
+                if (document.getElementById('field_ttd_bem_active')) document.getElementById('field_ttd_bem_active').checked = false;
+            } else {
+                if (cardMengetahui) cardMengetahui.classList.remove('hidden');
+                if (cardOrmawa) cardOrmawa.classList.remove('hidden');
+                if (cardWadir && (currentSuratType === 'SPZ' || currentSuratType === 'SPM')) {
+                    cardWadir.classList.remove('hidden');
+                }
+            }
+
             const t1 = document.getElementById('field_ttd1_active');
             const c1 = document.getElementById('ttd1_container');
             if (t1 && c1) {
@@ -9611,15 +9650,7 @@
 
             const isTtd1Active = document.getElementById('field_ttd1_active') ? document.getElementById('field_ttd1_active').checked : true;
             const isTtd2Active = document.getElementById('field_ttd2_active') ? document.getElementById('field_ttd2_active').checked : true;
-            const isTtd3Active = Boolean(document.getElementById('field_ttd3_active')?.checked);
-            const ttd3Jabatan = document.getElementById('field_ttd3_jabatan')?.value.trim() || 'Dosen Pembimbing\nLDK IMIP';
-            const ttd3Nama = (document.getElementById('field_ttd3_nama')?.value || '').trim() || 'Dr. H. Zainul Hakim, S.Ag., M.Pd.I.';
-            const ttd3Nim = (document.getElementById('field_ttd3_nim')?.value || '').trim() || 'NIP. 198005072023211013';
-
-            const isWadirActive = document.getElementById('field_ttd_wadir_active') ? document.getElementById('field_ttd_wadir_active').checked : false;
-            const wadirJabatan = (document.getElementById('field_ttd_wadir_jabatan')?.value || '').trim() || 'Wakil Direktur\nBidang Kemahasiswaan dan Alumni';
-            const wadirNama = (document.getElementById('field_ttd_wadir_nama')?.value || '').trim() || 'Dr. Dayu Sri Herti, S.Pd., M.Sn.';
-            const wadirNip = (document.getElementById('field_ttd_wadir_nip')?.value || '').trim() || 'NIP. 197602012002122001';
+            // SUD Resmi hanya menggunakan TTD Tingkat 1 (Hormat Kami: Ketua Pelaksana & Ketua UKM), tanpa Dosen Pembina & Wakil Direktur
 
             // Wet signature images & stamp
             const ttd1Img = document.getElementById('field_ttd1_img')?.value || SAMPLE_TTD_FADLY_BASE64;
@@ -9789,30 +9820,7 @@
                                 `;
                             })()}
 
-                            <!-- TINGKAT 2 & 3 DI SUD (HANYA AKTIF JIKA DICENTANG DI FORM, TANPA KOTAK KLIK TAMBAH) -->
-                            ${isTtd3Active ? `
-                                <div class="preview-editable" data-edit-target="card_ttd_mengetahui" data-edit-label="Pihak Mengetahui" data-edit-type="ttd_mengetahui" title="Klik untuk ubah Pihak Mengetahui" style="margin-top: 12pt; text-align: center; font-family: 'Times New Roman', serif; font-size: 12pt;">
-                                    <p style="margin: 0 0 2pt 0; font-weight: bold; line-height: 1.25;">Mengetahui,</p>
-                                    <p style="margin: 0; font-weight: normal; line-height: 1.25;">${formatTtdJabatan(ttd3Jabatan)}</p>
-                                    <div style="height: 44pt;"></div>
-                                    <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd3Nama)}</p>
-                                    <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd3Nim)}</p>
-                                </div>
-                            ` : ''}
 
-                            ${isWadirActive ? `
-                                <div id="sud_tingkat3_wadir_wrapper" style="margin-top: 8pt; font-family: 'Times New Roman', serif;">
-                                    <div class="preview-editable" data-edit-target="ttd_wadir_block" data-edit-label="Menyetujui (Wakil Direktur III)" data-edit-type="ttd_wadir" title="Klik untuk ubah Wakil Direktur III" style="text-align: center;">
-                                        <p style="margin: 0 0 2pt 0; font-weight: bold; font-size: 12pt; line-height: 1.25;">Menyetujui,</p>
-                                        <p style="margin: 0; font-size: 11pt; line-height: 1.25;">${formatTtdJabatan(wadirJabatan)}</p>
-                                        <div style="height: 44pt;"></div>
-                                        <p style="margin: 0; line-height: 1.25;">
-                                            <strong style="text-decoration: underline; font-size: 11pt; white-space: nowrap;">${formatInlineRichText(wadirNama)}</strong><br>
-                                            <span style="font-size: 10pt; white-space: nowrap;">${formatInlineRichText(wadirNip)}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            ` : ''}
 
                             <!-- KOTAK TAMBAH LAMPIRAN JIKA NONAKTIF (TOMBOL SERTAKAN LAMPIRAN TABEL) -->
                             ${!incLampiran ? `
@@ -12808,6 +12816,22 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 }
                 if (typeof toggleSudAttachmentSections === 'function') toggleSudAttachmentSections();
                 if (typeof updateTtdThumbnails === 'function') updateTtdThumbnails();
+
+                // Pastikan Dosen Pembina, MPM, BEM, dan Wadir selalu nonaktif & tersembunyi di SUD
+                const cTtdMengetahui = document.getElementById('card_ttd_mengetahui');
+                const cTtdOrmawa = document.getElementById('card_ttd_ormawa_mpm_bem');
+                const cTtdWadir = document.getElementById('ttd_wadir_block');
+                if (cTtdMengetahui) cTtdMengetahui.classList.add('hidden');
+                if (cTtdOrmawa) cTtdOrmawa.classList.add('hidden');
+                if (cTtdWadir) cTtdWadir.classList.add('hidden');
+                const chkTtd3 = document.getElementById('field_ttd3_active');
+                if (chkTtd3) chkTtd3.checked = false;
+                const chkWadir = document.getElementById('field_ttd_wadir_active');
+                if (chkWadir) chkWadir.checked = false;
+                const chkMpm = document.getElementById('field_ttd_mpm_active');
+                if (chkMpm) chkMpm.checked = false;
+                const chkBem = document.getElementById('field_ttd_bem_active');
+                if (chkBem) chkBem.checked = false;
             }
 
             // 5. Restore SBA dynamic lists & integrator state
