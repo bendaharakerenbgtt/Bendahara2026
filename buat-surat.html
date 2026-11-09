@@ -9851,25 +9851,25 @@
                             ${kopHtml}
 
                             <div class="spz-body-container" style="padding-left: 9mm; padding-right: 4mm;">
-                                <!-- IDENTITAS NOMOR SURAT PADA LAMPIRAN -->
-                                <div style="text-align: right; margin-bottom: 12pt; font-family: 'Times New Roman', serif; font-size: 11pt; font-weight: bold;">
-                                    <p style="margin: 0;">[${formatInlineRichText(noSurat)}]</p>
+                                <!-- IDENTITAS NOMOR SURAT PADA LAMPIRAN (SESUAI TEMPLATE 016_SUD: POSISI KIRI, BOLD, 12PT) -->
+                                <div style="text-align: left; margin-bottom: 8pt; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">
+                                    <p style="margin: 0;">[<span class="preview-editable" data-edit-target="field_nomor_urut" data-edit-label="Nomor Surat" data-edit-type="nomor_surat" title="Klik untuk edit Nomor Surat">${formatInlineRichText(noSurat)}</span>]</p>
                                 </div>
 
-                                <!-- JUDUL LAMPIRAN -->
-                                <div class="preview-editable" data-edit-target="field_sud_lampiran_judul" data-edit-label="Judul Lampiran Rundown" data-edit-type="text" title="Klik untuk edit Judul Lampiran" style="text-align: center; margin-bottom: 12pt; font-family: 'Times New Roman', serif;">
-                                    <p style="margin: 0; font-size: 12pt; font-weight: bold; text-decoration: underline;">Lampiran</p>
-                                    <p style="margin: 2pt 0 0 0; font-size: 12pt; font-weight: bold;">${formatInlineRichText(lampiranJudul)}</p>
+                                <!-- JUDUL LAMPIRAN (SESUAI TEMPLATE 016_SUD: POSISI KIRI, LAMPIRAN BOLD TANPA UNDERLINE, RUNDOWN ITALIC) -->
+                                <div class="preview-editable" data-edit-target="field_sud_lampiran_judul" data-edit-label="Judul Lampiran Rundown" data-edit-type="sud_lampiran_judul" title="Klik untuk edit Judul Lampiran" style="text-align: left; margin-bottom: 8pt; font-family: 'Times New Roman', serif; cursor: pointer;">
+                                    <p style="margin: 0; font-size: 12pt; font-weight: bold; line-height: 1.3;">Lampiran</p>
+                                    <p style="margin: 1.5pt 0 0 0; font-size: 12pt; font-style: italic; font-weight: normal; line-height: 1.3;">${formatInlineRichText(lampiranJudul)}</p>
                                 </div>
 
-                                <!-- TABEL RUNDOWN RESMI (016_SUD: No, Kegiatan, Estimasi Waktu) -->
-                                <div class="preview-editable" data-edit-target="card_sud_lampiran_rundown" data-edit-label="Kelola Tabel Rundown" data-edit-type="sud_rundown_manage" title="Klik untuk mengelola tabel susunan rundown kegiatan">
-                                    <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt; line-height: 1.35; margin-top: 4pt; table-layout: fixed;">
+                                <!-- TABEL RUNDOWN RESMI (016_SUD: No 6.5%, Kegiatan 59%, Estimasi Waktu 34.5%) -->
+                                <div class="sud-table-wrapper" style="width: 100%; margin-top: 2pt;">
+                                    <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 9.5pt; line-height: 1.35; table-layout: fixed;">
                                         <thead>
                                             <tr style="font-weight: bold; text-align: center; background-color: rgba(0,0,0,0.02);">
-                                                <th style="border: 0.75px solid #000; padding: 4pt 3pt; width: 36px; text-align: center;">No</th>
-                                                <th style="border: 0.75px solid #000; padding: 4pt 6pt; text-align: left;">Kegiatan</th>
-                                                <th style="border: 0.75px solid #000; padding: 4pt 6pt; width: 155px; text-align: center;">Estimasi Waktu</th>
+                                                <th style="border: 0.75px solid #000; padding: 4pt 3pt; width: 6.5%; text-align: center;">No</th>
+                                                <th style="border: 0.75px solid #000; padding: 4pt 6pt; width: 59%; text-align: center;">Kegiatan</th>
+                                                <th style="border: 0.75px solid #000; padding: 4pt 6pt; width: 34.5%; text-align: center;">Estimasi Waktu</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -13953,8 +13953,12 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 } else if (type === 'sud_rundown_row') {
                     const rNum = (idx !== null && idx !== undefined && !isNaN(parseInt(idx, 10))) ? (parseInt(idx, 10) + 1) : 1;
                     titleEl.innerText = `Ubah Tabel Baris #${rNum}`;
+                } else if (type === 'sud_lampiran_judul' || targetId === 'field_sud_lampiran_judul') {
+                    titleEl.innerText = 'Ubah Judul Lampiran';
+                } else if (type === 'sud_rundown_manage' || targetId === 'card_sud_lampiran_rundown') {
+                    titleEl.innerText = 'Kelola Tabel Lampiran (Hal 2)';
                 } else if (type === 'sud_lampiran_toggle' || targetId === 'field_sud_inc_lampiran') {
-                    titleEl.innerText = 'Kelola Lampiran Tabel (Hal 2)';
+                    titleEl.innerText = 'Pengaturan Lampiran Halaman 2';
                 } else if (type === 'rundown') {
                     titleEl.innerText = `Ubah Rundown Baris #${parseInt(idx) + 1}`;
                 } else if (type === 'sba_rundown_all' || targetId === 'sba_rundown_editor_container') {
@@ -14012,7 +14016,14 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 else if (type === 'spz_rundown_all' || type === 'sba_rundown_all') subtitleEl.innerText = 'Kelola susunan rundown, waktu & penanggung jawab';
                 else if (type === 'sba_prestasi_all') subtitleEl.innerText = 'Kelola semua capaian prestasi, kejuaraan, nama peserta & prodi';
                 else if (type === 'sba_prestasi_row') subtitleEl.innerText = 'Ubah capaian, tingkat, bidang, nama & prodi';
-                else if (type === 'sud_rundown_row') subtitleEl.innerText = 'Ubah uraian, estimasi waktu, atau kelola baris tabel lampiran';
+                else if (type === 'sud_rundown_row') {
+                    const rNum = (idx !== null && idx !== undefined && !isNaN(parseInt(idx, 10))) ? (parseInt(idx, 10) + 1) : 1;
+                    subtitleEl.innerText = `Ubah uraian kegiatan & estimasi waktu pada baris #${rNum}`;
+                } else if (type === 'sud_lampiran_judul' || targetId === 'field_sud_lampiran_judul') {
+                    subtitleEl.innerText = 'Ubah teks judul lampiran (contoh: Rundown Day 2, Susunan Acara)';
+                } else if (type === 'sud_rundown_manage' || targetId === 'card_sud_lampiran_rundown') {
+                    subtitleEl.innerText = 'Pilih jenis tabel, tambah baris, atau atur susunan rundown';
+                }
                 else if (targetId === 'sba_hambatan_kegiatan') subtitleEl.innerText = 'Tulis tiap kendala per baris • Otomatis menjadi poin (•) saat tekan Enter';
                 else if (targetId === 'sba_evaluasi_kegiatan') subtitleEl.innerText = 'Tulis tiap evaluasi per baris • Otomatis menjadi poin (•) saat tekan Enter';
                 else if (type === 'detail_kegiatan' || targetId === 'card_detail_kegiatan') subtitleEl.innerText = 'Sesuaikan jadwal hari, tanggal, jam pelaksanaan, dan lokasi acara';
@@ -14316,6 +14327,88 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                 </button>
                             </div>
                         `}
+                    </div>
+                `;
+            }
+
+            
+            // 0.6. SUD JUDUL LAMPIRAN POPOVER (KLIK LANGSUNG DI TULISAN LAMPIRAN / RUNDOWN)
+            if (type === 'sud_lampiran_judul' || targetId === 'field_sud_lampiran_judul') {
+                const judulVal = document.getElementById('field_sud_lampiran_judul')?.value || 'Rundown Day 2';
+                return `
+                    <div class="space-y-3 py-1">
+                        <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
+                            <div>
+                                <label class="text-[10px] text-neutral-300 font-semibold block mb-1">Judul Lampiran (Baris Kedua)</label>
+                                <input type="text" id="quick_sud_lampiran_judul" value="${escapeHtml(judulVal)}" 
+                                    oninput="syncQuickEditToForm('field_sud_lampiran_judul', this.value); updatePreview();" 
+                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full" placeholder="Contoh: Rundown Day 2">
+                            </div>
+                            <div>
+                                <label class="text-[9.5px] text-neutral-400 block mb-1 font-mono">Pilihan Judul Cepat:</label>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <button type="button" onclick="syncQuickEditToForm('field_sud_lampiran_judul', 'Rundown Day 2'); const el=document.getElementById('quick_sud_lampiran_judul'); if(el) el.value='Rundown Day 2'; updatePreview();" class="py-1 px-2 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 text-[10px]">
+                                        Rundown Day 2
+                                    </button>
+                                    <button type="button" onclick="syncQuickEditToForm('field_sud_lampiran_judul', 'Susunan Acara'); const el=document.getElementById('quick_sud_lampiran_judul'); if(el) el.value='Susunan Acara'; updatePreview();" class="py-1 px-2 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 text-[10px]">
+                                        Susunan Acara
+                                    </button>
+                                    <button type="button" onclick="syncQuickEditToForm('field_sud_lampiran_judul', 'Daftar Kebutuhan & Fasilitas'); const el=document.getElementById('quick_sud_lampiran_judul'); if(el) el.value='Daftar Kebutuhan & Fasilitas'; updatePreview();" class="py-1 px-2 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 text-[10px]">
+                                        Daftar Fasilitas
+                                    </button>
+                                    <button type="button" onclick="syncQuickEditToForm('field_sud_lampiran_judul', 'Daftar Tamu & Pemateri'); const el=document.getElementById('quick_sud_lampiran_judul'); if(el) el.value='Daftar Tamu & Pemateri'; updatePreview();" class="py-1 px-2 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 text-[10px]">
+                                        Daftar Tamu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <button type="button" onclick="openPopoverLampiranSud(event)" class="text-[10px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1">
+                                <i class="fa-solid fa-sliders"></i> Ganti Format Tabel
+                            </button>
+                            <button type="button" onclick="toggleSudLampiranDirect(false); closePreviewQuickEdit();" class="text-[10px] text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1">
+                                <i class="fa-solid fa-trash-can text-[9px]"></i> Nonaktifkan Hal 2
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 0.7. SUD RUNDOWN TABLE MANAGEMENT POPOVER (BUKAN INPUT TEKS POLOS)
+            if (type === 'sud_rundown_manage' || targetId === 'card_sud_lampiran_rundown') {
+                const totalRows = (sudRundownList && sudRundownList.length) ? sudRundownList.length : 0;
+                return `
+                    <div class="space-y-3 py-1">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-neutral-800">
+                            <span class="text-xs font-bold text-orange-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-table-list"></i> Kelola Tabel Lampiran (Total ${totalRows} Baris)
+                            </span>
+                            <button type="button" onclick="toggleSudLampiranDirect(false); closePreviewQuickEdit();" class="text-[9.5px] text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1" title="Nonaktifkan Halaman 2">
+                                <i class="fa-solid fa-power-off"></i> Nonaktifkan Hal 2
+                            </button>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
+                            <div>
+                                <label class="text-[10px] text-neutral-300 font-semibold block mb-1">Format / Preset Tabel</label>
+                                <select onchange="switchSudTablePreset(this.value); closePreviewQuickEdit();" class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-neutral-200 rounded-lg w-full focus:border-orange-500">
+                                    <option value="rundown_27" ${currentSudPresetKey === 'rundown_27' ? 'selected' : ''}>Rundown 016_SUD (27 Baris - Dauroh Day 2)</option>
+                                    <option value="rundown_singkat" ${currentSudPresetKey === 'rundown_singkat' ? 'selected' : ''}>Susunan Acara Ringkas (6 Baris)</option>
+                                    <option value="barang" ${currentSudPresetKey === 'barang' ? 'selected' : ''}>Daftar Kebutuhan & Fasilitas (5 Baris)</option>
+                                    <option value="peserta" ${currentSudPresetKey === 'peserta' ? 'selected' : ''}>Daftar Tamu & Pemateri (4 Baris)</option>
+                                </select>
+                            </div>
+                            <div class="pt-1 flex items-center gap-2">
+                                <button type="button" onclick="addSudRundownRow(${Math.max(0, totalRows - 1)});" class="flex-1 py-1.5 px-2.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/40 text-orange-400 text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
+                                    <i class="fa-solid fa-plus-circle text-xs"></i> Tambah Baris Baru
+                                </button>
+                                <button type="button" onclick="resetSudRundownDefault(); closePreviewQuickEdit();" class="py-1.5 px-2.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700 text-xs font-mono">
+                                    Reset 016_SUD
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-neutral-400 text-center italic">
+                            Klik langsung baris mana saja pada tabel di lembar surat untuk mengubah nama kegiatan & estimasi waktu per baris.
+                        </div>
                     </div>
                 `;
             }
@@ -15366,16 +15459,20 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                         </div>
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
                             <div>
-                                <label class="text-[9.5px] text-neutral-400 block mb-0.5 font-semibold">Nama Kegiatan / Uraian</label>
+                                <label class="text-[10px] text-orange-400 block mb-1 font-bold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-align-left text-[9px]"></i> 1. Nama Kegiatan / Uraian (Baris #${rowIdx + 1})
+                                </label>
                                 <input type="text" id="quick_sud_kegiatan" value="${escapeHtml(rowItem.kegiatan || '')}" 
                                     oninput="updateSudRundownRow(${rowIdx}, 'kegiatan', this.value)" 
-                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full" placeholder="Nama agenda / uraian">
+                                    class="form-input text-xs py-1.5 px-2.5 bg-neutral-900 border-neutral-700 text-white rounded-lg focus:border-orange-500 w-full" placeholder="Nama agenda / uraian kegiatan">
                             </div>
                             <div>
-                                <label class="text-[9.5px] text-neutral-400 block mb-0.5 font-semibold">Estimasi Waktu / Keterangan</label>
+                                <label class="text-[10px] text-orange-400 block mb-1 font-bold flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-[9px]"></i> 2. Estimasi Waktu / Jam (Baris #${rowIdx + 1})
+                                </label>
                                 <input type="text" id="quick_sud_waktu" value="${escapeHtml(rowItem.waktu || '')}" 
                                     oninput="updateSudRundownRow(${rowIdx}, 'waktu', this.value)" 
-                                    class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500 w-full" placeholder="Contoh: 08.00 - 09.00 WIB">
+                                    class="form-input text-xs py-1.5 px-2.5 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500 w-full" placeholder="Contoh: 04.40 - 05.00 WIB">
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5 pt-1">
