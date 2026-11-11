@@ -1908,7 +1908,7 @@
                                 <input type="hidden" id="field_ttd1_nim" value="NIM. 2590331052">
                             </div>
                             <!-- TTD Basah Ketua Pelaksana -->
-                            <div class="pt-2 border-t border-neutral-800/80 flex flex-col gap-1.5">
+                            <div id="ttd1_wet_upload_block" class="pt-2 border-t border-neutral-800/80 flex flex-col gap-1.5">
                                 <div class="flex items-center justify-between">
                                     <label class="text-[10px] text-neutral-300 font-semibold flex items-center gap-1.5">
                                         <i class="fa-solid fa-file-signature text-orange-400 text-[10px]"></i> TTD Basah (Scan/Gambar)
@@ -1974,7 +1974,7 @@
                                 <input type="hidden" id="field_ttd2_nim" value="NIM. 2490444040">
                             </div>
                             <!-- TTD Basah Ketua UKM -->
-                            <div class="pt-2 border-t border-neutral-800/80 flex flex-col gap-1.5">
+                            <div id="ttd2_wet_upload_block" class="pt-2 border-t border-neutral-800/80 flex flex-col gap-1.5">
                                 <div class="flex items-center justify-between">
                                     <label class="text-[10px] text-neutral-300 font-semibold flex items-center gap-1.5">
                                         <i class="fa-solid fa-file-signature text-orange-400 text-[10px]"></i> TTD Basah (Scan/Gambar)
@@ -1999,7 +1999,7 @@
                     </div>
 
                     <!-- Stempel / Cap Ormawa LDK IMIP -->
-                    <div class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2 mb-3">
+                    <div id="stempel_ormawa_block" class="p-3 rounded-lg bg-neutral-900/60 border border-neutral-800 flex flex-col gap-2 mb-3">
                         <div class="flex items-center justify-between border-b border-neutral-800/80 pb-1.5">
                             <span class="text-[11px] font-black text-orange-400 uppercase font-mono flex items-center gap-1.5">
                                 <i class="fa-solid fa-stamp text-[11px]"></i> Stempel / Cap Ormawa LDK IMIP
@@ -4187,6 +4187,10 @@
             const cardOrmawa = document.getElementById('card_ttd_ormawa_mpm_bem');
             const cardWadir = document.getElementById('ttd_wadir_block');
 
+            const blockTtd1Wet = document.getElementById('ttd1_wet_upload_block');
+            const blockTtd2Wet = document.getElementById('ttd2_wet_upload_block');
+            const blockStempel = document.getElementById('stempel_ormawa_block');
+
             if (isSud) {
                 if (cardMengetahui) cardMengetahui.classList.add('hidden');
                 if (cardOrmawa) cardOrmawa.classList.add('hidden');
@@ -4195,12 +4199,22 @@
                 if (document.getElementById('field_ttd_wadir_active')) document.getElementById('field_ttd_wadir_active').checked = false;
                 if (document.getElementById('field_ttd_mpm_active')) document.getElementById('field_ttd_mpm_active').checked = false;
                 if (document.getElementById('field_ttd_bem_active')) document.getElementById('field_ttd_bem_active').checked = false;
+
+                // TTD digital & stempel cap HANYA untuk SUD
+                if (blockTtd1Wet) blockTtd1Wet.classList.remove('hidden');
+                if (blockTtd2Wet) blockTtd2Wet.classList.remove('hidden');
+                if (blockStempel) blockStempel.classList.remove('hidden');
             } else {
                 if (cardMengetahui) cardMengetahui.classList.remove('hidden');
                 if (cardOrmawa) cardOrmawa.classList.remove('hidden');
                 if (cardWadir && (currentSuratType === 'SPZ' || currentSuratType === 'SPM')) {
                     cardWadir.classList.remove('hidden');
                 }
+
+                // Surat lain (SPM, SPZ, SBA) tanda tangan fisik biasa tanpa TTD gambar / stempel cap digital
+                if (blockTtd1Wet) blockTtd1Wet.classList.add('hidden');
+                if (blockTtd2Wet) blockTtd2Wet.classList.add('hidden');
+                if (blockStempel) blockStempel.classList.add('hidden');
             }
 
             const t1 = document.getElementById('field_ttd1_active');
@@ -10080,14 +10094,9 @@
                             </div>
 
                             <!-- PENGESAHAN SPM: MODULAR SESUAI MASTER DOKUMEN -->
-                            <!-- TIER 1: PENANGGUNG JAWAB (DENGAN TTD BASAH & STEMPEL ORMAWA TEPAT DI TENGAH-KIRI) -->
+                            <!-- TIER 1: PENANGGUNG JAWAB (TTD BASAH & STEMPEL DIGITAL HANYA KHUSUS SURAT SUD) -->
                             ${(() => {
                                 if (!isTtd1Active && !isTtd2Active) return '';
-                                const ttd1Img = document.getElementById('field_ttd1_img')?.value || '';
-                                const ttd2Img = document.getElementById('field_ttd2_img')?.value || SAMPLE_TTD_HAFIZ_BASE64;
-                                const stempelImg = document.getElementById('field_stempel_img')?.value || SAMPLE_STEMPEL_IMIP_BASE64;
-                                const useStempel = document.getElementById('field_use_stempel') ? document.getElementById('field_use_stempel').checked : true;
-
                                 let content = '';
                                 if (isTtd1Active && isTtd2Active) {
                                     content = `
@@ -10099,19 +10108,14 @@
                                         <tr>
                                             <td style="width: 48%; vertical-align: top; line-height: 1.25; position: relative;">
                                                 ${formatTtdJabatan(ttd2Jabatan)}
-                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
-                                                    ${ttd2Img ? `<img src="${ttd2Img}" alt="TTD Ketua UKM" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2; mix-blend-mode: multiply;">` : ''}
-                                                ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 50%; top: 50%; transform: translate(-65%, -50%); max-height: 56pt; max-width: 80pt; object-fit: contain; opacity: 0.92; pointer-events: none; z-index: 3; mix-blend-mode: multiply;">` : ''}
-                                                </div>
+                                                <div style="height: 56pt; margin: 2pt 0;"></div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                             </td>
                                             <td style="width: 4%;"></td>
                                             <td style="width: 48%; vertical-align: top; line-height: 1.25; position: relative;">
                                                 ${formatTtdJabatan(ttd1Jabatan)}
-                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
-                                                    ${ttd1Img ? `<img src="${ttd1Img}" alt="TTD Ketua Pelaksana" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2; mix-blend-mode: multiply;">` : ''}
-                                                </div>
+                                                <div style="height: 56pt; margin: 2pt 0;"></div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</p>
                                             </td>
@@ -10122,10 +10126,7 @@
                                         <tr>
                                             <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; position: relative;">
                                                 ${formatTtdJabatan(ttd2Jabatan)}
-                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
-                                                    ${ttd2Img ? `<img src="${ttd2Img}" alt="TTD Ketua UKM" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2; mix-blend-mode: multiply;">` : ''}
-                                                ${(stempelImg && useStempel) ? `<img src="${stempelImg}" alt="Stempel UKM" style="position: absolute; left: 50%; top: 50%; transform: translate(-65%, -50%); max-height: 56pt; max-width: 80pt; object-fit: contain; opacity: 0.92; pointer-events: none; z-index: 3; mix-blend-mode: multiply;">` : ''}
-                                                </div>
+                                                <div style="height: 56pt; margin: 2pt 0;"></div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd2Nama)}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd2Nim)}</p>
                                             </td>
@@ -10136,9 +10137,7 @@
                                         <tr>
                                             <td style="width: 100%; vertical-align: top; line-height: 1.25; text-align: center; position: relative;">
                                                 ${formatTtdJabatan(ttd1Jabatan)}
-                                                <div style="position: relative; height: 56pt; margin: 2pt 0; display: flex; align-items: center; justify-content: center;">
-                                                    ${ttd1Img ? `<img src="${ttd1Img}" alt="TTD Ketua Pelaksana" style="max-height: 50pt; max-width: 85%; object-fit: contain; pointer-events: none; z-index: 2; mix-blend-mode: multiply;">` : ''}
-                                                </div>
+                                                <div style="height: 56pt; margin: 2pt 0;"></div>
                                                 <p style="margin: 0; font-weight: bold; text-decoration: underline; line-height: 1.25;">${formatInlineRichText(ttd1Nama) || '&nbsp;'}</p>
                                                 <p style="margin: 0; line-height: 1.25;">${formatInlineRichText(ttd1Nim) || '&nbsp;'}</p>
                                             </td>
@@ -14907,7 +14906,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                 return `
                     <div class="space-y-3">
                         <div class="flex items-center justify-between pb-1.5 border-b border-neutral-800">
-                            <span class="text-[10px] text-neutral-400 font-mono">Tanda Tangan & Cap Ormawa</span>
+                            <span class="text-[10px] text-neutral-400 font-mono">${currentSuratType === 'SUD' ? 'Tanda Tangan & Cap Ormawa (Digital)' : 'Penanggung Jawab Surat'}</span>
                             <button type="button" onclick="quickResetTtdPjDefault()" class="text-[9.5px] text-orange-400 hover:text-orange-300 font-mono flex items-center gap-1 active:scale-95 transition-transform" title="Kembalikan nama, TTD, dan stempel ke contoh resmi">
                                 <i class="fa-solid fa-rotate-left"></i> ${resetLabel}
                             </button>
@@ -14936,26 +14935,27 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
-                            <!-- KONTROL GANTI GAMBAR TTD KETUA PELAKSANA -->
+                            ${currentSuratType === 'SUD' ? `
+                            <!-- KONTROL GANTI GAMBAR TTD KETUA PELAKSANA (KHUSUS SUD) -->
                             <div class="pt-1.5 border-t border-neutral-800/80 flex items-center justify-between gap-1.5">
                                 <div class="flex items-center gap-1 flex-1 min-w-0">
                                     <span class="text-[9px] text-neutral-400 font-mono">TTD:</span>
                                     <div id="quick_ttd1_thumb_box" class="flex items-center gap-1">
-                                        ${ttd1Img ? `
-                                             <img src="${ttd1Img}" class="h-6 max-w-[46px] object-contain bg-white rounded px-0.5 border border-neutral-700" alt="TTD 1">
+                                        \${ttd1Img ? \`
+                                             <img src="\${ttd1Img}" class="h-6 max-w-[46px] object-contain bg-white rounded px-0.5 border border-neutral-700" alt="TTD 1">
                                              <button type="button" onclick="clearTtdImage('field_ttd1_img'); refreshQuickTtdPjThumbs();" class="text-[9px] text-rose-400 hover:text-rose-300 font-mono ml-0.5">Hapus</button>
-                                         ` : '<span class="text-[9px] text-neutral-500 font-mono italic">Kosong</span>'}
+                                         \` : '<span class="text-[9px] text-neutral-500 font-mono italic">Kosong</span>'}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1 shrink-0">
                                     <button type="button" onclick="document.getElementById('upload_ttd1_file').click();" class="py-1 px-2 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 text-[9.5px] font-medium flex items-center gap-1 shadow-xs" title="Unggah file foto/scan TTD">
                                         <i class="fa-solid fa-cloud-arrow-up text-orange-400 text-[9px]"></i> Ganti TTD
                                     </button>
-                                    <button type="button" onclick="setPresetTtd('field_ttd1_img', '${defaultT1PresetKey}'); refreshQuickTtdPjThumbs();" class="py-1 px-1.5 rounded bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[9px] font-mono" title="Pakai contoh resmi">
+                                    <button type="button" onclick="setPresetTtd('field_ttd1_img', '\${defaultT1PresetKey}'); refreshQuickTtdPjThumbs();" class="py-1 px-1.5 rounded bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[9px] font-mono" title="Pakai contoh resmi">
                                         Contoh
                                     </button>
                                 </div>
-                            </div>
+                            </div>` : ''}
                         </div>
 
                         <!-- 2. KETUA UKM LDK IMIP -->
@@ -14981,15 +14981,16 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                         class="form-input text-xs py-1.5 px-2 bg-neutral-900 border-neutral-700 font-mono text-white rounded-lg focus:border-orange-500">
                                 </div>
                             </div>
-                            <!-- KONTROL GANTI GAMBAR TTD KETUA UKM (HAFIZ) -->
+                            ${currentSuratType === 'SUD' ? `
+                            <!-- KONTROL GANTI GAMBAR TTD KETUA UKM (KHUSUS SUD) -->
                             <div class="pt-1.5 border-t border-neutral-800/80 flex items-center justify-between gap-1.5">
                                 <div class="flex items-center gap-1 flex-1 min-w-0">
                                     <span class="text-[9px] text-neutral-400 font-mono">TTD:</span>
                                     <div id="quick_ttd2_thumb_box" class="flex items-center gap-1">
-                                        ${ttd2Img ? `
-                                             <img src="${ttd2Img}" class="h-6 max-w-[46px] object-contain bg-white rounded px-0.5 border border-neutral-700" alt="TTD Hafiz">
+                                        \${ttd2Img ? \`
+                                             <img src="\${ttd2Img}" class="h-6 max-w-[46px] object-contain bg-white rounded px-0.5 border border-neutral-700" alt="TTD Hafiz">
                                              <button type="button" onclick="clearTtdImage('field_ttd2_img'); refreshQuickTtdPjThumbs();" class="text-[9px] text-rose-400 hover:text-rose-300 font-mono ml-0.5">Hapus</button>
-                                         ` : '<span class="text-[9px] text-neutral-500 font-mono italic">Kosong</span>'}
+                                         \` : '<span class="text-[9px] text-neutral-500 font-mono italic">Kosong</span>'}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1 shrink-0">
@@ -15000,10 +15001,11 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                         Hafiz
                                     </button>
                                 </div>
-                            </div>
+                            </div>` : ''}
                         </div>
 
-                        <!-- 3. CAP / STEMPEL ORMAWA RESMI -->
+                        ${currentSuratType === 'SUD' ? `
+                        <!-- 3. CAP / STEMPEL ORMAWA RESMI (KHUSUS SUD) -->
                         <div class="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-2">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-1.5">
@@ -15013,19 +15015,19 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                     <label class="text-[10.5px] text-orange-400 font-bold">3. Cap / Stempel Ormawa</label>
                                 </div>
                                 <label class="flex items-center gap-1.5 text-[9.5px] text-neutral-300 cursor-pointer font-bold select-none">
-                                    <input type="checkbox" id="quick_use_stempel" ${useStempel ? 'checked' : ''} 
+                                    <input type="checkbox" id="quick_use_stempel" \${useStempel ? 'checked' : ''} 
                                         onchange="toggleQuickStempel(this.checked);" class="rounded border-neutral-700 text-orange-500 focus:ring-orange-500 w-3.5 h-3.5">
                                     <span>Aktif</span>
                                 </label>
                             </div>
-                            <div id="quick_stempel_actions_box" class="pt-1.5 border-t border-neutral-800/80 flex items-center justify-between gap-1.5 ${useStempel ? '' : 'opacity-40 pointer-events-none'}">
+                            <div id="quick_stempel_actions_box" class="pt-1.5 border-t border-neutral-800/80 flex items-center justify-between gap-1.5 \${useStempel ? '' : 'opacity-40 pointer-events-none'}">
                                 <div class="flex items-center gap-1 flex-1 min-w-0">
                                     <span class="text-[9px] text-neutral-400 font-mono">Cap:</span>
                                     <div id="quick_stempel_thumb_box" class="flex items-center gap-1">
-                                        ${stempelImg ? `
-                                             <img src="${stempelImg}" class="h-6 max-w-[40px] object-contain bg-white rounded px-0.5 border border-neutral-700" alt="Stempel">
+                                        \${stempelImg ? \`
+                                             <img src="\${stempelImg}" class="h-6 max-w-[40px] object-contain bg-white rounded px-0.5 border border-neutral-700" alt="Stempel">
                                              <button type="button" onclick="clearTtdImage('field_stempel_img'); refreshQuickTtdPjThumbs();" class="text-[9px] text-rose-400 hover:text-rose-300 font-mono ml-0.5">Hapus</button>
-                                         ` : '<span class="text-[9px] text-neutral-500 font-mono italic">Kosong</span>'}
+                                         \` : '<span class="text-[9px] text-neutral-500 font-mono italic">Kosong</span>'}
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1 shrink-0">
@@ -15037,7 +15039,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </div>` : ''}
                     </div>
                 `;
             }
