@@ -255,6 +255,10 @@
                 <i class="fa-solid fa-pen-nib text-xs"></i>
                 <span class="hidden sm:inline">Buka Editor</span>
             </a>
+            <button type="button" id="storageNotifBtn" onclick="openStorageInfoModal()" aria-label="Info Penyimpanan Lokal" class="relative w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300 hover:text-orange-400 hover:bg-neutral-800 transition-colors cursor-pointer" title="Info Penyimpanan Lokal">
+                <i class="fa-solid fa-bell text-xs"></i>
+                <span id="storageNotifBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 border-2 border-neutral-950"></span>
+            </button>
             <button type="button" onclick="toggleTheme(event)" aria-label="Ubah Tema" class="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-orange-500 hover:bg-neutral-800 transition-colors" title="Ubah Tema">
                 <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
             </button>
@@ -735,6 +739,104 @@
             reader.readAsText(file);
         }
 
+        // Hitung penggunaan localStorage & status notifikasi
+        function getLocalStorageStats() {
+            let totalBytes = 0;
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    const v = localStorage.getItem(k) || '';
+                    totalBytes += (k.length + v.length) * 2; // UTF-16 (~2 byte/char)
+                }
+            } catch (e) {}
+            const maxBytes = 5 * 1024 * 1024; // ~5 MB batas standar browser
+            const pct = Math.min(100, Math.round((totalBytes / maxBytes) * 100));
+            const usedKB = (totalBytes / 1024).toFixed(1);
+            const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
+            const docs = getSavedDocuments();
+            return { totalBytes, maxBytes, pct, usedKB, usedMB, docCount: docs.length };
+        }
+
+        function updateStorageNotifBadge() {
+            const badge = document.getElementById('storageNotifBadge');
+            if (!badge) return;
+            const { pct } = getLocalStorageStats();
+            badge.className = 'absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-neutral-950 ' +
+                (pct >= 75 ? 'bg-rose-500 animate-pulse' : 'bg-orange-500');
+        }
+
+        function openStorageInfoModal() {
+            const { pct, usedKB, usedMB, docCount } = getLocalStorageStats();
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const barColor = pct >= 75 ? '#f43f5e' : (pct >= 50 ? '#f59e0b' : '#10b981');
+            const statusText = pct >= 75
+                ? '<span style="color:#f43f5e;font-weight:700;">Hampir Penuh</span>'
+                : (pct >= 50 ? '<span style="color:#f59e0b;font-weight:700;">Sedang</span>' : '<span style="color:#10b981;font-weight:700;">Aman</span>');
+
+            const cardBg = isLight ? '#f8fafc' : '#171717';
+            const cardBorder = isLight ? '#e2e8f0' : '#262626';
+            const textMain = isLight ? '#0f172a' : '#f5f5f5';
+            const textMuted = isLight ? '#475569' : '#a3a3a3';
+
+            const html = `
+                <div style="text-align:left; font-size:12.5px; line-height:1.55; color:${textMain};">
+                    <div style="padding:10px 12px; border-radius:10px; background:${cardBg}; border:1px solid ${cardBorder}; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-weight:700; font-size:12px;">Terpakai: ${usedMB} MB (${usedKB} KB) / ~5 MB</span>
+                            <span style="font-size:11px;">${statusText} (${pct}%)</span>
+                        </div>
+                        <div style="width:100%; height:8px; background:${isLight ? '#e2e8f0' : '#262626'}; border-radius:999px; overflow:hidden;">
+                            <div style="width:${Math.max(pct, 2)}%; height:100%; background:${barColor}; border-radius:999px; transition:width 0.3s;"></div>
+                        </div>
+                        <div style="margin-top:6px; font-size:11px; color:${textMuted};">
+                            Total tersimpan saat ini: <strong style="color:${textMain};">${docCount} dokumen surat</strong>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <div style="font-weight:700; color:#FF7300; margin-bottom:4px; font-size:12px;">
+                            <i class="fa-solid fa-layer-group"></i> Estimasi Kapasitas Maksimal (~5 MB)
+                        </div>
+                        <ul style="margin:0; padding-left:18px; color:${textMuted}; font-size:12px;">
+                            <li><strong style="color:${textMain};">Surat Teks (SPM, SPZ, SBA):</strong> &plusmn; 300 &ndash; 500+ surat.</li>
+                            <li><strong style="color:${textMain};">Surat Bergambar (SUD + TTD/Cap):</strong> &plusmn; 15 &ndash; 30 surat (tergantung ukuran file scan gambar).</li>
+                        </ul>
+                    </div>
+
+                    <div style="padding:10px 12px; border-radius:10px; background:${isLight ? '#fff7ed' : 'rgba(255,115,0,0.08)'}; border:1px solid ${isLight ? '#fed7aa' : 'rgba(255,115,0,0.25)'};">
+                        <div style="font-weight:700; color:#FF7300; margin-bottom:4px; font-size:12px;">
+                            <i class="fa-solid fa-lightbulb"></i> Tips Agar Penyimpanan Tidak Penuh
+                        </div>
+                        <ul style="margin:0; padding-left:18px; color:${textMuted}; font-size:12px;">
+                            <li><strong style="color:${textMain};">Hapus surat yang tidak perlu</strong> (draf lama atau uji coba) langsung dari kartu surat.</li>
+                            <li><strong style="color:${textMain};">Backup ke JSON</strong> jika surat masih dibutuhkan nanti lewat tombol <em>Backup Semua</em>, lalu Anda bisa mengimpornya kembali kapan saja lewat <em>Impor JSON</em>.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            if (window.Swal) {
+                Swal.fire({
+                    title: '<span style="font-size:16px; font-weight:800;">Info Penyimpanan Lokal Browser</span>',
+                    html,
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-solid fa-file-export"></i> Backup Semua JSON',
+                    cancelButtonText: 'Mengerti',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#FF7300',
+                    background: isLight ? '#ffffff' : '#0a0a0a',
+                    color: textMain
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        exportAllDocumentsJson();
+                    }
+                });
+            } else {
+                alert(`Penyimpanan lokal terpakai: ${usedMB} MB / ~5 MB (${pct}%).\nTotal tersimpan: ${docCount} surat.\n\nEstimasi maksimal:\n- Surat teks (SPM/SPZ/SBA): ± 300–500+ surat\n- Surat bergambar (SUD): ± 15–30 surat\n\nHapus surat yang tidak perlu dan backup ke JSON jika masih dibutuhkan.`);
+            }
+        }
+
         // Filter dokumen berdasarkan tipe surat
         function filterDocsByType(type) {
             currentDocFilter = type;
@@ -1071,6 +1173,7 @@
             syncThemeIcons();
             seedInitialDocumentsIfEmpty();
             renderDocumentsGrid();
+            updateStorageNotifBadge();
         });
     </script>
     <script>
