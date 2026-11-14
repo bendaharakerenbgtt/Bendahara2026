@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dana-imip-cache-v4';
+const CACHE_NAME = 'dana-imip-cache-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

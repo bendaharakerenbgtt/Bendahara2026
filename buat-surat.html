@@ -947,6 +947,8 @@
                 color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -1020,18 +1022,25 @@
                 width: 210mm !important;
                 min-width: 210mm !important;
                 max-width: 210mm !important;
-                height: 296mm !important;
-                max-height: 296mm !important;
+                min-height: 290mm !important;
+                height: auto !important;
+                max-height: 295mm !important;
+                box-sizing: border-box !important;
                 overflow: hidden !important;
+                position: relative !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 page-break-after: always !important;
                 break-after: page !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-                box-sizing: border-box !important;
-                overflow: hidden !important;
-                position: relative !important;
+            }
+            /* Khusus Firefox: Gecko pagination fix agar tidak meluber 1 halaman kosong ekstra */
+            @-moz-document url-prefix() {
+                .spz-page-sheet {
+                    max-height: 291mm !important;
+                    min-height: 285mm !important;
+                    page-break-after: always !important;
+                    break-after: page !important;
+                }
             }
             .spz-page-sheet:last-child {
                 page-break-after: auto !important;
