@@ -7739,58 +7739,111 @@
                 { key: 'pokok', label: 'Berita Acara', icon: 'fa-clipboard-check', desc: 'Identitas & Pokok Berita Acara' }
             ];
 
-            // AUTO-PAGINATION SBA RUNDOWN (KAPASITAS HALAMAN RESMI A4: MAKSIMAL 16 BARIS DI HALAMAN PERTAMA AGAR MARGIN SEIMBANG DENGAN HALAMAN LAIN)
+            // AUTO-PAGINATION SBA HASIL & OUTPUT KEGIATAN (STANDAR MASTER TEMPLATE_SBA MUHARRIK 2026)
+            // Bab "Hasil dan Output Kegiatan" memuat: 1. Hasil Kegiatan (Rundown) dan 2. Output Kegiatan.
             const rCount = (typeof sbaRundownList !== 'undefined' && sbaRundownList && sbaRundownList.length) ? sbaRundownList.length : 0;
-            if (rCount <= 17) {
-                pages.push({ 
-                    key: 'rundown', 
-                    label: 'Hasil Kegiatan', 
-                    icon: 'fa-list-check', 
-                    desc: '1. Hasil Kegiatan (Rundown Acara)',
-                    chunk: { start: 0, end: rCount }
-                });
-            } else {
-                // Halaman pertama rundown memuat 16 baris (margin bawah pas ~2.5-3cm sesuai halaman lain)
-                const firstPageLimit = 16;
-                pages.push({ 
-                    key: 'rundown', 
-                    label: 'Hasil Kegiatan', 
-                    icon: 'fa-list-check', 
-                    desc: '1. Hasil Kegiatan (Rundown Acara)',
-                    chunk: { start: 0, end: firstPageLimit }
-                });
-
-                // Halaman lanjutan berikutnya memuat hingga 18 baris per halaman
-                let remaining = rCount - firstPageLimit;
-                let currentStart = firstPageLimit;
-                let partNum = 2;
-                while (remaining > 0) {
-                    const chunkSize = Math.min(remaining, 18);
-                    pages.push({
-                        key: 'rundown_part_' + partNum,
-                        label: `Hasil Kegiatan (Hal ${partNum})`,
-                        icon: 'fa-list-check',
-                        desc: `1. Hasil Kegiatan (Rundown Acara Lanjutan Hal ${partNum})`,
-                        chunk: { start: currentStart, end: currentStart + chunkSize },
-                        isContinued: true
-                    });
-                    currentStart += chunkSize;
-                    remaining -= chunkSize;
-                    partNum++;
-                }
-            }
-
-            // AUTO-PAGINATION SBA OUTPUT, PRESTASI & EVALUASI
             const isPrestasi = (typeof isSbaPrestasiActive === 'function') ? isSbaPrestasiActive() : true;
             const pCount = (isPrestasi && typeof sbaPrestasiList !== 'undefined' && sbaPrestasiList && sbaPrestasiList.length) ? sbaPrestasiList.length : 0;
             const hTextVal = (document.getElementById('sba_hambatan_kegiatan')?.value || DEFAULT_SBA_HAMBATAN || '').trim();
             const eTextVal = (document.getElementById('sba_evaluasi_kegiatan')?.value || DEFAULT_SBA_EVALUASI || '').trim();
             const totalBulletLines = (hTextVal.split('\n').filter(l => l.trim()).length) + (eTextVal.split('\n').filter(l => l.trim()).length);
 
-            if (!isPrestasi) {
-                // Saat tabel output kegiatan tidak disertakan (opsional)
-                // Uraian output kegiatan bersama Hambatan & Evaluasi disatukan di satu halaman dengan rapi tanpa celah kosong
-                if (totalBulletLines <= 12) {
+            // Cek apakah Rundown ringkas (<= 7 baris) sehingga 2. Output Kegiatan otomatis NAIK menyatu di halaman yang sama
+            const canCombineRundownOutput = (rCount <= 7) && (!isPrestasi || pCount <= 4);
+
+            if (canCombineRundownOutput) {
+                // Cek apakah muat seluruhnya (Rundown + Output + Hambatan & Evaluasi) dalam 1 lembar A4:
+                const fitsAllInOne = (rCount <= 4) && (!isPrestasi) && (totalBulletLines <= 6);
+
+                if (fitsAllInOne) {
+                    pages.push({
+                        key: 'rundown',
+                        label: 'Hasil & Output Kegiatan',
+                        icon: 'fa-list-check',
+                        desc: '1. Hasil Kegiatan, 2. Output, Hambatan & Evaluasi',
+                        chunk: { start: 0, end: rCount },
+                        combineOutput: true,
+                        combineEval: true
+                    });
+                } else {
+                    pages.push({
+                        key: 'rundown',
+                        label: 'Hasil & Output Kegiatan',
+                        icon: 'fa-list-check',
+                        desc: '1. Hasil Kegiatan & 2. Output Kegiatan',
+                        chunk: { start: 0, end: rCount },
+                        combineOutput: true,
+                        combineEval: false
+                    });
+                    pages.push({
+                        key: 'hambatan_eval',
+                        label: 'Hambatan & Evaluasi',
+                        icon: 'fa-comments',
+                        desc: 'Hambatan Pelaksanaan & Evaluasi Perbaikan'
+                    });
+                }
+            } else {
+                // Rundown panjang (>= 8 baris) mengisi lembar tersendiri
+                if (rCount <= 17) {
+                    pages.push({ 
+                        key: 'rundown', 
+                        label: 'Hasil Kegiatan', 
+                        icon: 'fa-list-check', 
+                        desc: '1. Hasil Kegiatan (Rundown Acara)',
+                        chunk: { start: 0, end: rCount }
+                    });
+                } else {
+                    const firstPageLimit = 16;
+                    pages.push({ 
+                        key: 'rundown', 
+                        label: 'Hasil Kegiatan', 
+                        icon: 'fa-list-check', 
+                        desc: '1. Hasil Kegiatan (Rundown Acara)',
+                        chunk: { start: 0, end: firstPageLimit }
+                    });
+                    let remaining = rCount - firstPageLimit;
+                    let currentStart = firstPageLimit;
+                    let partNum = 2;
+                    while (remaining > 0) {
+                        const chunkSize = Math.min(remaining, 18);
+                        pages.push({
+                            key: 'rundown_part_' + partNum,
+                            label: `Hasil Kegiatan (Hal ${partNum})`,
+                            icon: 'fa-list-check',
+                            desc: `1. Hasil Kegiatan (Rundown Acara Lanjutan Hal ${partNum})`,
+                            chunk: { start: currentStart, end: currentStart + chunkSize },
+                            isContinued: true
+                        });
+                        currentStart += chunkSize;
+                        remaining -= chunkSize;
+                        partNum++;
+                    }
+                }
+
+                // Output Kegiatan di lembar tersendiri
+                if (!isPrestasi) {
+                    if (totalBulletLines <= 12) {
+                        pages.push({ 
+                            key: 'output_eval', 
+                            label: 'Output Kegiatan', 
+                            icon: 'fa-comments', 
+                            desc: '2. Output, Hambatan & Evaluasi' 
+                        });
+                    } else {
+                        pages.push({ 
+                            key: 'output_prestasi', 
+                            label: 'Output Kegiatan', 
+                            icon: 'fa-file-lines', 
+                            desc: '2. Output Kegiatan' 
+                        });
+                        pages.push({ 
+                            key: 'hambatan_eval', 
+                            label: 'Hambatan & Evaluasi', 
+                            icon: 'fa-comments', 
+                            desc: 'Hambatan Pelaksanaan & Evaluasi Perbaikan' 
+                        });
+                    }
+                } else if (pCount <= 4 && totalBulletLines <= 6) {
                     pages.push({ 
                         key: 'output_eval', 
                         label: 'Output Kegiatan', 
@@ -7798,13 +7851,31 @@
                         desc: '2. Output, Hambatan & Evaluasi' 
                     });
                 } else {
-                    // Jika butir evaluasi & hambatan sangat panjang, pisahkan agar tidak terpotong
+                    const firstPrestasiLimit = Math.min(pCount, 14);
                     pages.push({ 
                         key: 'output_prestasi', 
                         label: 'Output Kegiatan', 
-                        icon: 'fa-file-lines', 
-                        desc: '2. Output Kegiatan' 
+                        icon: 'fa-trophy', 
+                        desc: '2. Output Kegiatan & Tabel Prestasi',
+                        chunk: { start: 0, end: firstPrestasiLimit }
                     });
+                    let remPrestasi = pCount - firstPrestasiLimit;
+                    let curStartP = firstPrestasiLimit;
+                    let partNumP = 2;
+                    while (remPrestasi > 0) {
+                        const cSize = Math.min(remPrestasi, 16);
+                        pages.push({
+                            key: 'output_prestasi_part_' + partNumP,
+                            label: `Prestasi (Hal ${partNumP})`,
+                            icon: 'fa-trophy',
+                            desc: `Tabel Prestasi Lanjutan Hal ${partNumP}`,
+                            chunk: { start: curStartP, end: curStartP + cSize },
+                            isContinued: true
+                        });
+                        curStartP += cSize;
+                        remPrestasi -= cSize;
+                        partNumP++;
+                    }
                     pages.push({ 
                         key: 'hambatan_eval', 
                         label: 'Hambatan & Evaluasi', 
@@ -7812,50 +7883,6 @@
                         desc: 'Hambatan Pelaksanaan & Evaluasi Perbaikan' 
                     });
                 }
-            } else if (pCount <= 4 && totalBulletLines <= 6) {
-                pages.push({ 
-                    key: 'output_eval', 
-                    label: 'Output Kegiatan', 
-                    icon: 'fa-comments', 
-                    desc: '2. Output, Hambatan & Evaluasi' 
-                });
-            } else {
-                // Baris prestasi banyak (>= 5 baris) atau poin evaluasi panjang, pisahkan agar tidak tenggelam / terpotong
-                const firstPrestasiLimit = Math.min(pCount, 14);
-                pages.push({ 
-                    key: 'output_prestasi', 
-                    label: 'Output Kegiatan', 
-                    icon: 'fa-trophy', 
-                    desc: '2. Output Kegiatan & Tabel Prestasi',
-                    chunk: { start: 0, end: firstPrestasiLimit }
-                });
-
-                // Jika baris prestasi lebih dari 14 baris, buat halaman lanjutan prestasi
-                let remPrestasi = pCount - firstPrestasiLimit;
-                let curStartP = firstPrestasiLimit;
-                let partNumP = 2;
-                while (remPrestasi > 0) {
-                    const cSize = Math.min(remPrestasi, 16);
-                    pages.push({
-                        key: 'output_prestasi_part_' + partNumP,
-                        label: `Prestasi (Hal ${partNumP})`,
-                        icon: 'fa-trophy',
-                        desc: `Tabel Prestasi Lanjutan Hal ${partNumP}`,
-                        chunk: { start: curStartP, end: curStartP + cSize },
-                        isContinued: true
-                    });
-                    curStartP += cSize;
-                    remPrestasi -= cSize;
-                    partNumP++;
-                }
-
-                // Halaman tersendiri untuk Hambatan dan Evaluasi
-                pages.push({ 
-                    key: 'hambatan_eval', 
-                    label: 'Hambatan & Evaluasi', 
-                    icon: 'fa-comments', 
-                    desc: 'Hambatan Pelaksanaan & Evaluasi Perbaikan' 
-                });
             }
 
             if (isSbaKeuanganActive()) {
@@ -10438,10 +10465,12 @@
                         <div class="preview-editable" data-edit-target="field_isi_inti" data-edit-label="Paragraf Isi Inti Berita Acara" data-edit-type="textarea" title="Klik untuk edit Paragraf Isi Inti">${intiParas}</div>
                     `;
                 } else if (key === 'rundown' || key.startsWith('rundown_part_')) {
-                    // HALAMAN HASIL KEGIATAN (RUNDOWN ACARA / LANJUTAN)
+                    // HALAMAN HASIL KEGIATAN (RUNDOWN ACARA / LANJUTAN & BISA MENYATU DENGAN OUTPUT KEGIATAN)
                     const chunk = p.chunk || { start: 0, end: sbaRundownList.length };
                     const currentRows = sbaRundownList.slice(chunk.start, chunk.end);
                     const isContinued = p.isContinued;
+                    const combineOutput = !!p.combineOutput;
+                    const combineEval = !!p.combineEval;
 
                     const rowsHtml = currentRows.map((item, localIdx) => {
                         const actualIdx = chunk.start + localIdx;
@@ -10454,6 +10483,62 @@
                             </tr>
                         `;
                     }).join('');
+
+                    // Konten Tambahan Jika Output Kegiatan Menyatu di Halaman Ini
+                    let combinedOutputHtml = '';
+                    if (combineOutput) {
+                        const outputText = (document.getElementById('sba_output_kegiatan')?.value || DEFAULT_SBA_OUTPUT).trim();
+                        combinedOutputHtml = `
+                            <!-- 2. OUTPUT KEGIATAN (MENYATU DI HALAMAN HASIL KEGIATAN) -->
+                            <p style="margin: 10pt 0 8pt 0; font-family: 'Times New Roman', serif; font-size: 12pt; font-weight: bold;">2. <em>Output</em> kegiatan</p>
+                            <div class="preview-editable" data-edit-target="sba_output_kegiatan" data-edit-label="Output Kegiatan" data-edit-type="textarea" title="Klik untuk edit Output Kegiatan">
+                                <p style="margin: 0 0 10pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.5; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                    ${formatInlineRichText(outputText).replace(/\n/g, '<br>')}
+                                </p>
+                            </div>
+
+                            ${renderSbaPrestasiTableHtml()}
+                        `;
+
+                        if (combineEval) {
+                            const hambatanText = (document.getElementById('sba_hambatan_kegiatan')?.value || DEFAULT_SBA_HAMBATAN).trim();
+                            const evaluasiText = (document.getElementById('sba_evaluasi_kegiatan')?.value || DEFAULT_SBA_EVALUASI).trim();
+
+                            const renderBulletItems = (raw) => {
+                                const lines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+                                return lines.map(line => {
+                                    const cleaned = line.replace(/^[•\-\*]\s*/, '').trim();
+                                    return `
+                                        <table style="width: 100%; border-collapse: collapse; font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.45; margin-bottom: 3pt;">
+                                            <tr>
+                                                <td style="width: 30px; vertical-align: top; padding: 1pt 0; text-align: left;">&bull;</td>
+                                                <td style="vertical-align: top; text-align: justify; padding: 1pt 0;">${formatInlineRichText(cleaned)}</td>
+                                            </tr>
+                                        </table>
+                                    `;
+                                }).join('');
+                            };
+
+                            combinedOutputHtml += `
+                                <!-- PENGANTAR HAMBATAN & EVALUASI -->
+                                <p style="margin: 8pt 0 8pt 0; text-align: justify; text-indent: 1.25cm; line-height: 1.45; font-family: 'Times New Roman', serif; font-size: 12pt;">
+                                    Adapun Hambatan dan Evaluasi dari kegiatan yang sudah dilaksanakan antara lain:
+                                </p>
+
+                                <!-- HAMBATAN -->
+                                <p style="margin: 0 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Hambatan:</p>
+                                <div class="preview-editable" data-edit-target="sba_hambatan_kegiatan" data-edit-label="Hambatan Kegiatan" data-edit-type="textarea" title="Klik untuk edit Hambatan" style="margin-bottom: 8pt;">
+                                    ${renderBulletItems(hambatanText)}
+                                </div>
+
+                                <!-- EVALUASI -->
+                                <p style="margin: 0 0 3pt 0; font-family: 'Times New Roman', serif; font-size: 12pt;">Evaluasi :</p>
+                                <div class="preview-editable" data-edit-target="sba_evaluasi_kegiatan" data-edit-label="Evaluasi Kegiatan" data-edit-type="textarea" title="Klik untuk edit Evaluasi">
+                                    ${renderBulletItems(evaluasiText)}
+                                </div>
+                            `;
+                        }
+                    }
 
                     pageContentHtml = `
                         <!-- NOMOR SURAT BRACKET -->
@@ -10487,6 +10572,8 @@
                             </button>
                             <span class="text-[10px] text-neutral-400 font-mono">Total ${sbaRundownList.length} Baris • Klik baris/header untuk edit</span>
                         </div>
+
+                        ${combinedOutputHtml}
                     `;
                 } else if (key === 'output_eval') {
                     // HALAMAN 3: OUTPUT, PRESTASI, HAMBATAN & EVALUASI (DALAM 1 LEMBAR JIKA BARIS SEDIKIT)
@@ -11979,7 +12066,7 @@ Wassalamu’alaikum Warahmatullahi Wabarakatuh.`;
                     card_detail_kegiatan: (key === 'pokok'),
                     card_isi_inti: (key === 'pokok'),
                     card_sba_rundown: (key === 'rundown'),
-                    card_sba_output_evaluasi: (key === 'output_eval' || key === 'output_prestasi' || key.startsWith('output_prestasi_') || key === 'hambatan_eval'),
+                    card_sba_output_evaluasi: (key === 'rundown' || key === 'output_eval' || key === 'output_prestasi' || key.startsWith('output_prestasi_') || key === 'hambatan_eval'),
                     card_sba_keuangan: (key === 'keuangan'),
                     card_sba_rekapitulasi: (key === 'rekapitulasi'),
                     card_penutup: (key === 'pengesahan'),
